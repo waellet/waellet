@@ -4,7 +4,7 @@ chrome.runtime.onInstalled.addListener(details => {
   console.log('previousVersion', details.previousVersion);
 });
 
-chrome.browserAction.setBadgeText({text: 'hack'});
+// chrome.browserAction.setBadgeText({text: 'wae'});
 
 var motivation = require('../lib');
 var m = motivation.get(); // returns a random quote
