@@ -46,7 +46,7 @@
       "19": "images/icon-19.png",
       "38": "images/icon-38.png"
     },
-    "default_title": "browser wallet2",
+    "default_title": "waellet",
     "default_popup": "popup.html"
   }
 }

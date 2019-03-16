@@ -1,5 +1,5 @@
 {
-  "name": "browser-wallet2",
+  "name": "waellet",
   "private": true,
   "engines": {
     "node": ">=0.8.0"

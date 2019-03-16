@@ -124,7 +124,7 @@ gulp.task('wiredep', () => {
 gulp.task('package', function () {
   var manifest = require('./dist/manifest.json');
   return gulp.src('dist/**')
-      .pipe($.zip('browser wallet2-' + manifest.version + '.zip'))
+      .pipe($.zip('waellet-' + manifest.version + '.zip'))
       .pipe(gulp.dest('package'));
 });
 
