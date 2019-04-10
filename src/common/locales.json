@@ -1,0 +1,16 @@
+{
+  "en": {
+    "okBtn": "OK",
+    "cancelBtn": "Cancel",
+    "qrMakeBtn": "GO!(Ctrl+Enter)",
+    "qrMakeMacBtn": "GO!(⌘+Enter)",
+    "appName": "My Webrequest"
+  },
+  "zh-cn": {
+    "okBtn": "确认",
+    "cancelBtn": "取消",
+    "qrMakeBtn": "GO!(Ctrl+Enter)",
+    "qrMakeMacBtn": "GO!(⌘+Enter)",
+    "appName": "My Webrequest"
+  }
+}
