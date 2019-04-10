@@ -11,7 +11,7 @@ import QrcodeVue from 'qrcode.vue';
 import { AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
 
 export default {
-  name: 'Account',
+  name: 'Send',
   mixins: [mixins.events],
   components: {
     'qrcode-vue': QrcodeVue,
@@ -26,20 +26,15 @@ export default {
   },
   locales,
   mounted() {
-    chrome.tabs.query(
-      {
-        active: true,
-        lastFocusedWindow: true,
-      },
-      tabs => {
-        this.heading = 'account';
-        this.account = this.$store.state.account;
-      }
-    );
+  },
+  created () {
+    this.init();
   },
   methods: {
-    getAddress: function getAddress() {
-      alert(JSON.stringify(this.account));
+    init () {
+      chrome.storage.sync.get('account', accountData => {
+        this.account = accountData.account;
+      });
     }
   }
 }
