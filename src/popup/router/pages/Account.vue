@@ -1,7 +1,6 @@
 <template>
   <div class="popup">
     <p>{{heading}}</p>
-
     <ae-card fill="primary">
       <template slot="avatar">
         <ae-identicon :address="account.publicKey" />
@@ -25,20 +24,6 @@
         </ae-button>
       </ae-toolbar>
     </ae-card>
-
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="card-page" >
-            <div class="wbox back-wb">
-              <span class="box-title">Your Aeternity wallet</span>
-              <qrcode-vue size="120" :value="account.publicKey" class="qr-holder" />
-              <ae-address :value="account.publicKey" length="flat" />
-              <!-- <ae-qrcode :value="account.publicKey" :options="{ size: 136 }" /> -->
-            </div>
-          </div>
-        </div>
-        <button type="button" class="btn" @click="getAddress">Get address</button>
-    </div>
   </div>
 </template>
 
@@ -46,7 +31,7 @@
 import locales from '../../locales/locales.json';
 import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
-import { AeAddress, AeQrcode, AeCard, AeIdenticon, AeIcon, AeText, AeToolbar, AeInputPlain, mixins } from '@aeternity/aepp-components';
+import { AeAddress, AeButton, AeQrcode, AeCard, AeIdenticon, AeIcon, AeText, AeToolbar, AeInputPlain, mixins } from '@aeternity/aepp-components';
 
 export default {
   name: 'Account',
@@ -54,6 +39,7 @@ export default {
   components: {
     'qrcode-vue': QrcodeVue,
     'ae-address': AeAddress,
+    'ae-button': AeButton,
     'ae-qrcode': AeQrcode,
     'ae-card': AeCard,
     'ae-icon': AeIcon,
@@ -62,40 +48,29 @@ export default {
     'ae-toolbar': AeToolbar,
     'ae-input-plain': AeInputPlain
   },
-  data() {
+  data () {
     return {
-      heading: '',
+      heading: 'Account',
       account: {}
     }
   },
   locales,
-  mounted() {
-    chrome.tabs.query(
-      {
-        active: true,
-        lastFocusedWindow: true,
-      },
-      tabs => {
-        this.heading = 'account';
-        this.account = this.getAccountFromStorage();
-      }
-    );
+  created () {
+    this.init();
   },
   methods: {
-    getAccountFromStorage: function getAccountFromStorage() {
-      chrome.storage.local.get(['account'], function(result) {
-        return result.key;
+    init () {
+      chrome.storage.sync.get('account', accountData => {
+          this.account = accountData.account;
       });
     },
-    getAddress: function getAddress() {
-      alert(JSON.stringify(this.account));
-    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
 @import '../../../../node_modules/@aeternity/aepp-components/dist/ae-address/ae-address.css';
+@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
 @import '../../../../node_modules/@aeternity/aepp-components/dist/ae-qrcode/ae-qrcode.css';
 @import '../../../../node_modules/@aeternity/aepp-components/dist/ae-card/ae-card.css';
 @import '../../../../node_modules/@aeternity/aepp-components/dist/ae-icon/ae-icon.css';
