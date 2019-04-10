@@ -1,0 +1,8 @@
+coverage/
+mocha.js
+*.fixture.js
+docs/
+out/
+!lib/mocha.js
+test/integration/fixtures
+!.*.js
