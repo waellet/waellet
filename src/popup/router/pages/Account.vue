@@ -38,7 +38,9 @@
 import locales from '../../locales/locales.json';
 import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
+import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { AeAddress, AeButton, AeQrcode, AeCard, AeIdenticon, AeIcon, AeText, AeToolbar, AeInputPlain, mixins } from '@aeternity/aepp-components';
+import { account } from '../../../store/getters';
 
 export default {
   name: 'Account',
@@ -59,18 +61,37 @@ export default {
     return {
       heading: 'Account',
       account: {},
-      balance: 20.65
+      balance: 0.0
     }
   },
   locales,
   created () {
     this.init();
+    this.updateAccountBalance();
   },
   methods: {
     init () {
       chrome.storage.sync.get('account', accountData => {
         this.account = accountData.account;
       });
+    },
+    updateAccountBalance () {
+      Ae({
+        // url: 'https://sdk-testnet.aepps.com',
+        url: store.state.config.ae.network.testnet.url,
+        internalUrl: store.state.config.ae.network.testnet.internalUrl,
+        keypair: { secretKey: '57a0f7e0e765a3e38cd443768b19ab62101f72a886beb3dd4eda869bfe593c5c6e2f1438f05a96caa5d1deda7d804f3075e3ef7c4a3b3d1e41f0a525831f1295dd7fd55d6b45c402166ba68b8301fc5c', publicKey: 'ak_VxfFULn9jQEEQdAAFBNWFyaMLMj1gRGQedtqP2cC4bh1Nqx7m' },
+        networkId: store.state.config.ae.network.testnet.networkId
+      }).then(ae => {
+          // getting the balance of a public address
+          ae.balance(this.account.publicKey).then(balance => {
+            // logs current balance of "A_PUB_ADDRESS"
+            this.balance = balance / (10**18);
+          }).catch(e => {
+            // logs error
+            console.log(e)
+          })
+        })
     },
     navigateSend () {
       this.$router.push('/send');

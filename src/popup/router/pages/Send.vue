@@ -26,6 +26,7 @@
 import locales from '../../locales/locales.json';
 import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
+import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { AeButton, AeMain, AeInput, AeText, AeAddressInput, AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
 
 export default {
@@ -64,8 +65,18 @@ export default {
       });
     },
     send () {
-      // sign tx here
       alert(JSON.stringify(this.form));
+      // Wallet({
+      //   url: 'HOST_URL_HERE',
+      //   internalUrl: 'HOST_URL_HERE',
+      //   accounts: [MemoryAccount({keypair: {secretKey: 'PRIV_KEY_HERE', publicKey: 'PUB_KEY_HERE'}, networkId: 'NETWORK_ID_HERE'})],
+      //   address: 'PUB_KEY_HERE',
+      //   onTx: confirm, // guard returning boolean
+      //   onChain: confirm, // guard returning boolean
+      //   onAccount: confirm, // guard returning boolean
+      //   onContract: confirm, // guard returning boolean
+      //   networkId: 'aet_ua' // or any other networkId your client should connect to
+      // }).then(ae => ae.spend(parseInt(amount), receiver_pub_key))
     }
   }
 }
