@@ -65,7 +65,7 @@
    */
   function argon2Hash(params) {
     if (!scriptLoadedPromise) {
-        var distPath = params.distPath || '/bower_components/argon2-browser/docs/dist';
+        var distPath = params.distPath || '/argon2/dist';
         scriptLoadedPromise = loadScript(distPath + '/argon2-asm.min.js');
     }
     return scriptLoadedPromise.then(function() {
