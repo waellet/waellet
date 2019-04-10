@@ -47,13 +47,13 @@ export default {
     generateAddress: async function generateAddress({ dispatch }) {
       const keyPair = await addressGenerator.generateKeyPair('test');
       chrome.storage.local.set({account: keyPair}, function() {
+        console.log(keyPair);
         console.log('Account saved');
       });
-      // this.$store.commit('UPDATE_ACCOUNT', keyPair);
       this.$router.push('/account');
     },
     importPrivateKey: function importPrivateKey() {
-      alert('import private key');
+      alert('Not working yet.');
     },
   },
 };
