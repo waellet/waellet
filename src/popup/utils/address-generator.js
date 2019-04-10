@@ -45,7 +45,7 @@ async function generateKeyPair (passphrase) {
   return {
     publicKey: keystore.public_key,
     // publicKey: getAddressFromPriv(keys.secretKey),
-    //   encryptedPrivateKey: JSON.stringify(keystore)
+    // encryptedPrivateKey: JSON.stringify(keystore)
     encryptedPrivateKey: JSON.stringify(keystore),
   };
 }

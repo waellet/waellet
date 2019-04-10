@@ -65,18 +65,28 @@ export default {
       });
     },
     send () {
-      alert(JSON.stringify(this.form));
-      // Wallet({
-      //   url: 'HOST_URL_HERE',
-      //   internalUrl: 'HOST_URL_HERE',
-      //   accounts: [MemoryAccount({keypair: {secretKey: 'PRIV_KEY_HERE', publicKey: 'PUB_KEY_HERE'}, networkId: 'NETWORK_ID_HERE'})],
-      //   address: 'PUB_KEY_HERE',
-      //   onTx: confirm, // guard returning boolean
-      //   onChain: confirm, // guard returning boolean
-      //   onAccount: confirm, // guard returning boolean
-      //   onContract: confirm, // guard returning boolean
-      //   networkId: 'aet_ua' // or any other networkId your client should connect to
-      // }).then(ae => ae.spend(parseInt(amount), receiver_pub_key))
+      let amount = this.form.amount;
+      let receiver = this.form.address;
+      // alert(JSON.stringify(this.form));
+      Wallet({
+        url: store.state.config.ae.network.testnet.url,
+        internalUrl: store.state.config.ae.network.testnet.internalUrl,
+        accounts: [
+          MemoryAccount({
+            keypair: {
+              secretKey: 'PRIV_KEY_HERE',
+              publicKey: this.account.publicKey
+            },
+            networkId: store.state.config.ae.network.testnet.networkId
+          })
+        ],
+        address: this.account.publicKey,
+        onTx: true, // guard returning boolean
+        onChain: true, // guard returning boolean
+        onAccount: true, // guard returning boolean
+        onContract: true, // guard returning boolean
+        networkId: store.state.config.ae.network.testnet.networkId
+      }).then(ae => ae.spend(parseInt(amount), receiver))
     }
   }
 }
