@@ -48,18 +48,18 @@ export default {
     'ae-toolbar': AeToolbar,
     'ae-input-plain': AeInputPlain
   },
-  data() {
+  data () {
     return {
       heading: 'Account',
       account: {}
     }
   },
   locales,
-  created: function () {
+  created () {
     this.init();
   },
   methods: {
-    init: function() {
+    init () {
       chrome.storage.sync.get('account', accountData => {
           this.account = accountData.account;
       });
