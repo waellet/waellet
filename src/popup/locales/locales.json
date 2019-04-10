@@ -1,0 +1,11 @@
+{
+    "en": {
+      "prompt": "Current page url's QRCode",
+      "actionTip": "( double click QRCode to edit )",
+      "getNew": "You've got a new QRCode",
+      "editPromp": "Edit QRCode content",
+      "editTip": "( Don't type too much )",
+      "moreLink": "more...",
+      "textToolong": "Too much words"
+    }
+}
