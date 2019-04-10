@@ -1,19 +1,6 @@
 <template>
   <div class="popup">
     <p>{{heading}}</p>
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="card-page" >
-            <div class="wbox back-wb">
-              <span class="box-title">Your Aeternity wallet</span>
-              <qrcode-vue size="120" :value="account.publicKey" class="qr-holder" />
-              <ae-address :value="account.publicKey" length="flat" />
-              <!-- <ae-qrcode :value="account.publicKey" :options="{ size: 136 }" /> -->
-            </div>
-          </div>
-        </div>
-        <button type="button" class="btn" @click="getAddress">Get address</button>
-    </div>
   </div>
 </template>
 
@@ -33,7 +20,7 @@ export default {
   },
   data() {
     return {
-      heading: '',
+      heading: 'Send AE tokens',
       account: {}
     }
   },
