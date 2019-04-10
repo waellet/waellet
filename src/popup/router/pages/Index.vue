@@ -5,6 +5,9 @@
         {{ heading }}
       </div>
     </main>
+    <div v-if="loading" class="loading">
+      <ae-loader />
+    </div>
     <footer>
       <div class="wrapper">
           <ae-button face="round" fill="primary" extend @click="generateAddress">Generate wallet</ae-button>
@@ -18,16 +21,18 @@
 import locales from '../../locales/locales.json';
 import store from '../../../store';
 import { addressGenerator } from '../../utils/address-generator';
-import { AeButton, mixins } from '@aeternity/aepp-components';
+import { AeLoader, AeButton, mixins } from '@aeternity/aepp-components';
 
 export default {
   name: 'Home',
   mixins: [mixins.events],
   components: {
+    'aeLoader': AeLoader,
     'ae-button': AeButton
   },
   data() {
     return {
+      loading: false,
       heading: '',
     };
   },
@@ -57,12 +62,12 @@ export default {
       });
     },
     generateAddress: async function generateAddress({ dispatch }) {
+      this.loading = true;
       const keyPair = await addressGenerator.generateKeyPair('test');
       chrome.storage.local.set({account: keyPair}, () => {
-        console.log(keyPair);
         console.log('Account saved');
+        this.$router.push('/account');
       });
-      this.$router.push('/account');
     },
     importPrivateKey: function importPrivateKey() {
       alert('Not working yet.');
@@ -72,6 +77,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../../../../node_modules/@aeternity/aepp-components/dist/aeLoader/aeLoader.css';
 @import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
 @import '../../../common/base';
 

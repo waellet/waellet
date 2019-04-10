@@ -6,6 +6,9 @@
         <ae-identicon :address="account.publicKey" />
         <ae-input-plain fill="white" placeholder="Account name" value="My Account" />
       </template>
+      <template slot="header">
+        <ae-text fill="white" face="mono-base">{{balance}} AE</ae-text>
+      </template>
       <ae-icon name="more" fill="white" size="20px" slot="header" />
       <ae-text face="uppercase-xs" weight=600 style="margin: 0">Normal Secured</ae-text>
       <ae-address :value="account.publicKey" length="medium" gap=0 />
@@ -24,7 +27,11 @@
         </ae-button>
       </ae-toolbar>
     </ae-card>
-  </div>
+    <div>
+      <ae-button face="flat" fill="neutral" @click="navigateSend">Send</ae-button>
+      <ae-button face="flat" fill="neutral" @click="navigateReceive">Receive</ae-button>
+    </div>
+  </div> 
 </template>
 
 <script>
@@ -51,7 +58,8 @@ export default {
   data () {
     return {
       heading: 'Account',
-      account: {}
+      account: {},
+      balance: 20.65
     }
   },
   locales,
@@ -61,9 +69,15 @@ export default {
   methods: {
     init () {
       chrome.storage.sync.get('account', accountData => {
-          this.account = accountData.account;
+        this.account = accountData.account;
       });
     },
+    navigateSend () {
+      this.$router.push('/send');
+    },
+    navigateReceive () {
+      this.$router.push('/receive');
+    }
   }
 }
 </script>
