@@ -59,15 +59,13 @@ export default {
     }
   },
   locales,
-  mounted() {
-  },
   created () {
     this.init();
   },
   methods: {
     init () {
-      chrome.storage.sync.get('account', accountData => {
-        this.account = accountData.account;
+      chrome.storage.sync.get('userAccount', accountData => {
+        this.account = accountData.userAccount;
       });
     },
     send () {
@@ -80,13 +78,13 @@ export default {
         accounts: [
           MemoryAccount({
             keypair: {
-              secretKey: store.state.account.secretKey,
-              publicKey: store.state.account.publicKey
+              secretKey: account.secretKey,
+              publicKey: account.publicKey
             },
             networkId: store.state.config.ae.network.testnet.networkId
           })
         ],
-        address: store.state.account.publicKey,
+        address: account.publicKey,
         onTx: confirm, // guard returning boolean
         onChain: confirm, // guard returning boolean
         onAccount: confirm, // guard returning boolean

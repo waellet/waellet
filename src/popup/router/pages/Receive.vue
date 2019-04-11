@@ -18,6 +18,9 @@
         </ae-button>
       </ae-toolbar>
     </ae-card>
+    <p>
+      <span>{{account.publicKey}}</span>
+    </p>
   </div>
 </template>
 
@@ -31,13 +34,13 @@ export default {
   name: 'Receive',
   mixins: [mixins.events],
   components: {
-    'ae-card': AeCard,
-    'ae-toolbar': AeToolbar,
-    'ae-button': AeButton,
-    'ae-icon': AeIcon,
-    'qrcode-vue': QrcodeVue,
-    'ae-address': AeAddress,
-    'ae-qrcode': AeQrcode
+    AeCard,
+    AeToolbar,
+    AeButton,
+    AeIcon,
+    QrcodeVue,
+    AeAddress,
+    AeQrcode
   },
   data() {
     return {
@@ -46,16 +49,13 @@ export default {
     }
   },
   locales,
-  mounted() { 
-
-  },
   created () {
     this.init();
   },
   methods: {
     init () {
-      chrome.storage.sync.get('account', accountData => {
-        this.account = accountData.account;
+      chrome.storage.sync.get('userAccount', accountData => {
+        this.account = accountData.userAccount;
       });
     }
   }

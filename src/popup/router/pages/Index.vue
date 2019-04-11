@@ -27,8 +27,8 @@ export default {
   name: 'Home',
   mixins: [mixins.events],
   components: {
-    'aeLoader': AeLoader,
-    'ae-button': AeButton
+    AeLoader,
+    AeButton
   },
   data() {
     return {
@@ -55,30 +55,22 @@ export default {
   methods: {
     init () {
       // check if there is an account generated already
-
-      if (store.state.account.hasOwnProperty('publicKey')) {
+      chrome.storage.sync.get('userAccount', data => {
+        console.log('got user account');
+        console.log(data.userAccount);
+        if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
           this.$router.push('/account');
-      }
-
-      // chrome.storage.local.get('account', data => {
-      //   console.log(data.account);
-      //   if (data.account && data.account.hasOwnProperty('publicKey')) {
-      //     this.$router.push('/account');
-      //   }
-      // });
+        }
+      });
     },
     generateAddress: async function generateAddress({ dispatch }) {
       this.loading = true;
       const keyPair = await addressGenerator.generateKeyPair('test');
-      store.state.account = keyPair;
-      console.log(keyPair);
-      this.$router.push('/account');
-
-      // chrome.storage.local.set({'account': keyPair}, () => {
-      //   console.log(keyPair);
-      //   console.log('Account saved');
-      //   this.$router.push('/account');
-      // });
+      chrome.storage.sync.set({userAccount: keyPair}, () => {
+        console.log(keyPair);
+        console.log('Account saved');
+        this.$router.push('/account');
+      });
     },
     importPrivateKey: function importPrivateKey() {
       alert('Not working yet.');
