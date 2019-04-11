@@ -27,9 +27,11 @@
         </ae-button>
       </ae-toolbar>
     </ae-card>
-    <div>
-      <ae-button face="flat" fill="neutral" @click="navigateSend">Send</ae-button>
-      <ae-button face="flat" fill="neutral" @click="navigateReceive">Receive</ae-button>
+
+    <div class="actions">
+      <ae-button face="round" fill="primary" extend @click="navigateSend">Send</ae-button>
+      <ae-button face="round" fill="secondary" extend @click="navigateReceive">Receive</ae-button>
+      <ae-button face="round" fill="alternative" disabled extend >Tip website</ae-button>
     </div>
   </div> 
 </template>
@@ -118,6 +120,10 @@ export default {
 @import '../../../../node_modules/@aeternity/aepp-components/dist/ae-toolbar/ae-toolbar.css';
 @import '../../../../node_modules/@aeternity/aepp-components/dist/ae-input-plain/ae-input-plain.css';
 @import '../../../common/base';
+
+.actions {
+  margin-top: 5px;
+}
 
 
 </style>

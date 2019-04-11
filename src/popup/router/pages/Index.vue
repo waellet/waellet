@@ -5,9 +5,11 @@
         {{ heading }}
       </div>
     </main>
+    
     <div v-if="loading" class="loading">
       <ae-loader />
     </div>
+    
     <footer>
       <div class="wrapper">
           <ae-button face="round" fill="primary" extend @click="generateAddress">Generate wallet</ae-button>

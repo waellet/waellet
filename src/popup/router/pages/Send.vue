@@ -18,6 +18,15 @@
             <ae-button face="round" fill="primary" extend @click="send">Send</ae-button>
         </div>
       </div>
+
+      <div v-if="loading" class="loading">
+        <ae-loader />
+      </div>
+    
+      <div class="result" v-if="tx.status">
+        <p>Success</p>
+        <a :href="tx.url">See transaction in the explorer.</a>
+      </div>
     </ae-main>
   </div>
 </template>
@@ -28,7 +37,7 @@ import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
-import { AeButton, AeMain, AeInput, AeText, AeAddressInput, AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
+import { AeLink, AeButton, AeMain, AeInput, AeText, AeAddressInput, AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
 import { MAGNITUDE, MIN_SPEND_TX_FEE } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 
@@ -39,6 +48,7 @@ export default {
   name: 'Send',
   mixins: [mixins.events],
   components: {
+    AeLink,
     AeMain,
     AeInput,
     AeText,
@@ -55,6 +65,13 @@ export default {
       form: {
         address: '',
         amount: '',
+      },
+      loading: false,
+      tx: {
+        status: false,
+        hash: '',
+        block: '',
+        url: ''
       }
     }
   },
@@ -69,6 +86,7 @@ export default {
       });
     },
     send () {
+      this.loading = true;
       let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
       let receiver = this.form.address;
 
@@ -78,13 +96,13 @@ export default {
         accounts: [
           MemoryAccount({
             keypair: {
-              secretKey: account.secretKey,
-              publicKey: account.publicKey
+              secretKey: this.account.secretKey,
+              publicKey: this.account.publicKey
             },
             networkId: store.state.config.ae.network.testnet.networkId
           })
         ],
-        address: account.publicKey,
+        address: this.account.publicKey,
         onTx: confirm, // guard returning boolean
         onChain: confirm, // guard returning boolean
         onAccount: confirm, // guard returning boolean
@@ -92,8 +110,28 @@ export default {
         networkId: store.state.config.ae.network.testnet.networkId
       })
       .then(ae => {
-        ae.spend(parseInt(amount),  receiver);
+        ae.spend(parseInt(amount), receiver).then(result => {
+          if(typeof result == "object") {
+            console.log(result);
+            this.tx.status = true;
+            this.tx.hash = result.hash;
+            this.tx.block = result.blockNumber;
+            this.tx.url = "//testnet.explorer.aepps.com/#/tx/" + result.hash;
+            this.clearForm();
+          }
+          else {
+            alert("error");
+          }
+        });
       })
+    },
+    clearForm () {
+      setTimeout(() => {
+        this.loading = false;
+        this.tx.status = false;
+        this.form.address = '';
+        this.form.amount = '';
+      }, 2000);
     }
   }
 }
