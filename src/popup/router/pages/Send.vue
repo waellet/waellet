@@ -32,6 +32,8 @@ import { AeButton, AeMain, AeInput, AeText, AeAddressInput, AeAddress, AeQrcode,
 import { MAGNITUDE, MIN_SPEND_TX_FEE } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 
+import Ae from '@aeternity/aepp-sdk/es/ae/universal';
+
 
 export default {
   name: 'Send',
@@ -69,33 +71,62 @@ export default {
       });
     },
     send () {
-      let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
-      let receiver = this.form.address;
-      // alert(JSON.stringify(this.form));
+      let amount = BigNumber(1).shiftedBy(MAGNITUDE);
+      console.log(parseInt(amount));
+      // let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
+      // let receiver = this.form.address;
+      // let keypair = { 
+      //   secretKey: 'bb9f0b01c8c9553cfbaf7ef81a50f977b1326801ebf7294d1c2cbccdedf27476e9bbf604e611b5460a3b3999e9771b6f60417d73ce7c5519e12f7e127a1225ca',
+      //   publicKey: 'ak_2mwRmUeYmfuW93ti9HMSUJzCk1EYcQEfikVSzgo6k2VghsWhgU' 
+      // };
+      let receiver = 'ak_2mwRmUeYmfuW93ti9HMSUJzCk1EYcQEfikVSzgo6k2VghsWhgU';
+      let url = store.state.config.ae.network.testnet.url;
+      let internalUrl = store.state.config.ae.network.testnet.internalUrl;
+      let networkId = store.state.config.ae.network.testnet.networkId;
+
+      let self = this;
+
+      console.log(self.account);
+      // Ae({
+      //   url: url,
+      //   internalUrl: internalUrl,
+      //   keypair: {
+      //     secretKey: this.account.secretKey,
+      //     publicKey: this.account.publicKey
+      //   },
+      //   networkId: 'ae_uat' // or any other networkId your client should connect to
+      // }).then(ae => {
+
+      //   ae.spend(parseInt(amount), receiver)
+      //     .then(result => {
+      //       console.log(result);
+      //     }).catch(e => {
+      //       console.log(e);
+      //     });
+      // })
+
       Wallet({
         url: store.state.config.ae.network.testnet.url,
         internalUrl: store.state.config.ae.network.testnet.internalUrl,
         accounts: [
           MemoryAccount({
-            keypair: { 
-              secretKey: 'bb9f0b01c8c9553cfbaf7ef81a50f977b1326801ebf7294d1c2cbccdedf27476e9bbf604e611b5460a3b3999e9771b6f60417d73ce7c5519e12f7e127a1225ca',
-              publicKey: 'ak_2mwRmUeYmfuW93ti9HMSUJzCk1EYcQEfikVSzgo6k2VghsWhgU' 
+            keypair: {
+              secretKey: self.account.secretKey,
+              publicKey: self.account.publicKey
             },
-            // keypair: {
-            //   secretKey: 'PRIV_KEY_HERE',
-            //   publicKey: this.account.publicKey
-            // },
             networkId: store.state.config.ae.network.testnet.networkId
           })
         ],
-        address: 'ak_2mwRmUeYmfuW93ti9HMSUJzCk1EYcQEfikVSzgo6k2VghsWhgU',
-        // address: this.account.publicKey,
-        onTx: true, // guard returning boolean
-        onChain: true, // guard returning boolean
-        onAccount: true, // guard returning boolean
-        onContract: true, // guard returning boolean
+        address: self.account.publicKey,
+        onTx: confirm, // guard returning boolean
+        onChain: confirm, // guard returning boolean
+        onAccount: confirm, // guard returning boolean
+        onContract: confirm, // guard returning boolean
         networkId: store.state.config.ae.network.testnet.networkId
-      }).then(ae => ae.spend(parseInt(amount), receiver))
+      })
+      .then(ae => {
+        ae.spend(parseInt(amount),  receiver);
+      })
     }
   }
 }

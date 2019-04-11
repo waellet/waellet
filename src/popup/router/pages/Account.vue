@@ -77,10 +77,12 @@ export default {
     },
     updateAccountBalance () {
       Ae({
-        // url: 'https://sdk-testnet.aepps.com',
         url: store.state.config.ae.network.testnet.url,
         internalUrl: store.state.config.ae.network.testnet.internalUrl,
-        keypair: { secretKey: '57a0f7e0e765a3e38cd443768b19ab62101f72a886beb3dd4eda869bfe593c5c6e2f1438f05a96caa5d1deda7d804f3075e3ef7c4a3b3d1e41f0a525831f1295dd7fd55d6b45c402166ba68b8301fc5c', publicKey: 'ak_VxfFULn9jQEEQdAAFBNWFyaMLMj1gRGQedtqP2cC4bh1Nqx7m' },
+        keypair: { 
+          secretKey: this.account.secretKey,
+          publicKey: this.account.publicKey
+        },
         networkId: store.state.config.ae.network.testnet.networkId
       }).then(ae => {
           // getting the balance of a public address

@@ -34,6 +34,7 @@ export default {
     return {
       loading: false,
       heading: '',
+      account: {},
     };
   },
   locales,
@@ -56,7 +57,7 @@ export default {
       // check if there is an account generated already
       chrome.storage.local.get('account', data => {
         console.log(data.account);
-        if (data.account.publicKey) {
+        if (data.account && data.account.hasOwnProperty('publicKey')) {
           this.$router.push('/account');
         }
       });
@@ -64,7 +65,8 @@ export default {
     generateAddress: async function generateAddress({ dispatch }) {
       this.loading = true;
       const keyPair = await addressGenerator.generateKeyPair('test');
-      chrome.storage.local.set({account: keyPair}, () => {
+      chrome.storage.local.set({'account': keyPair}, () => {
+        console.log(keyPair);
         console.log('Account saved');
         this.$router.push('/account');
       });

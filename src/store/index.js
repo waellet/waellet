@@ -16,12 +16,12 @@ export default new Vuex.Store({
           testnet: {
             url: 'https://sdk-testnet.aepps.com',
             internalUrl: 'https://sdk-testnet.aepps.com',
-            networkId: 'aet_ua',
+            networkId: 'ae_uat',
           },
           mainnet: {
             url: 'https://sdk-testnet.aepps.com',
             internalUrl: 'https://sdk-testnet.aepps.com',
-            networkId: 'aet_ua',
+            networkId: 'ae_uat',
           },
         },
       },
