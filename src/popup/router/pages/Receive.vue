@@ -5,22 +5,14 @@
       <div class="qr-wrapper">
         <qrcode-vue :value="example"></qrcode-vue>
       </div>
-      <!-- <ae-qrcode value="example" :options="{ size: 136 }" /> -->
       <ae-address :value="account.publicKey" gap=0 />
       <ae-toolbar fill="neutral" align="right" slot="footer">
-        <ae-button face="toolbar">
+        <ae-button face="toolbar" v-clipboard:copy="account.publicKey">
           <ae-icon name="copy" />
           Copy
         </ae-button>
-        <ae-button face="toolbar">
-          <ae-icon name="share" />
-          Share
-        </ae-button>
       </ae-toolbar>
     </ae-card>
-    <p>
-      <span>{{account.publicKey}}</span>
-    </p>
   </div>
 </template>
 

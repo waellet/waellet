@@ -13,17 +13,9 @@
       <ae-text face="uppercase-xs" weight=600 style="margin: 0">Normal Secured</ae-text>
       <ae-address :value="account.publicKey" length="medium" gap=0 />
       <ae-toolbar fill="primary" align="right" slot="footer">
-        <ae-button face="toolbar">
-          <ae-icon name="eye" />
-          Details
-        </ae-button>
-        <ae-button face="toolbar">
+        <ae-button face="toolbar" v-clipboard:copy="account.publicKey">
           <ae-icon name="copy" />
           Copy
-        </ae-button>
-        <ae-button face="toolbar">
-          <ae-icon name="share" />
-          Share
         </ae-button>
       </ae-toolbar>
     </ae-card>
@@ -48,22 +40,22 @@ export default {
   name: 'Account',
   mixins: [mixins.events],
   components: {
-    'qrcode-vue': QrcodeVue,
-    'ae-address': AeAddress,
-    'ae-button': AeButton,
-    'ae-qrcode': AeQrcode,
-    'ae-card': AeCard,
-    'ae-icon': AeIcon,
-    'ae-identicon': AeIdenticon,
-    'ae-text': AeText,
-    'ae-toolbar': AeToolbar,
-    'ae-input-plain': AeInputPlain
+    QrcodeVue,
+    AeAddress,
+    AeButton,
+    AeQrcode,
+    AeCard,
+    AeIcon,
+    AeIdenticon,
+    AeText,
+    AeToolbar,
+    AeInputPlain
   },
   data () {
     return {
       heading: 'Account',
       account: {},
-      balance: 0.0
+      balance: ''
     }
   },
   locales,
@@ -104,7 +96,7 @@ export default {
     },
     navigateReceive () {
       this.$router.push('/receive');
-    }
+    },
   }
 }
 </script>
