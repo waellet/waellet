@@ -27,20 +27,24 @@ import locales from '../../locales/locales.json';
 import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
+import { MemoryAccount } from '@aeternity/aepp-sdk';
 import { AeButton, AeMain, AeInput, AeText, AeAddressInput, AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
+import { MAGNITUDE, MIN_SPEND_TX_FEE } from '../../utils/constants';
+import BigNumber from 'bignumber.js';
+
 
 export default {
   name: 'Send',
   mixins: [mixins.events],
   components: {
-    'ae-main': AeMain,
-    'ae-input': AeInput,
-    'ae-text': AeText,
-    'ae-button': AeButton,
-    'ae-address-input': AeAddressInput,
-    'qrcode-vue': QrcodeVue,
-    'ae-address': AeAddress,
-    'ae-qrcode': AeQrcode
+    AeMain,
+    AeInput,
+    AeText,
+    AeButton,
+    AeAddressInput,
+    QrcodeVue,
+    AeAddress,
+    AeQrcode
   },
   data() {
     return {
@@ -48,7 +52,7 @@ export default {
       account: {},
       form: {
         address: '',
-        amount: 0.0,
+        amount: '',
       }
     }
   },
@@ -65,7 +69,7 @@ export default {
       });
     },
     send () {
-      let amount = this.form.amount;
+      let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
       let receiver = this.form.address;
       // alert(JSON.stringify(this.form));
       Wallet({
@@ -73,14 +77,19 @@ export default {
         internalUrl: store.state.config.ae.network.testnet.internalUrl,
         accounts: [
           MemoryAccount({
-            keypair: {
-              secretKey: 'PRIV_KEY_HERE',
-              publicKey: this.account.publicKey
+            keypair: { 
+              secretKey: 'bb9f0b01c8c9553cfbaf7ef81a50f977b1326801ebf7294d1c2cbccdedf27476e9bbf604e611b5460a3b3999e9771b6f60417d73ce7c5519e12f7e127a1225ca',
+              publicKey: 'ak_2mwRmUeYmfuW93ti9HMSUJzCk1EYcQEfikVSzgo6k2VghsWhgU' 
             },
+            // keypair: {
+            //   secretKey: 'PRIV_KEY_HERE',
+            //   publicKey: this.account.publicKey
+            // },
             networkId: store.state.config.ae.network.testnet.networkId
           })
         ],
-        address: this.account.publicKey,
+        address: 'ak_2mwRmUeYmfuW93ti9HMSUJzCk1EYcQEfikVSzgo6k2VghsWhgU',
+        // address: this.account.publicKey,
         onTx: true, // guard returning boolean
         onChain: true, // guard returning boolean
         onAccount: true, // guard returning boolean

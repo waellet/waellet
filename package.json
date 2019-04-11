@@ -20,6 +20,7 @@
     "@aeternity/aepp-sdk": "^2.4.0",
     "argon2-browser": "^1.5.2",
     "axios": "^0.18.0",
+    "bignumber.js": "^8.1.1",
     "bip38": "^2.0.2",
     "bip38-network": "^3.0.0",
     "bitcoinjs-lib": "^4.0.3",
