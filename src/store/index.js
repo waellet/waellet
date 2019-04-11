@@ -9,7 +9,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    account: '',
+    account: {},
     config: {
       ae: {
         network: {

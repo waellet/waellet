@@ -71,9 +71,11 @@ export default {
   },
   methods: {
     init () {
-      chrome.storage.sync.get('account', accountData => {
-        this.account = accountData.account;
-      });
+      // chrome.storage.sync.get('account', accountData => {
+        // this.account = accountData.account;
+      // });
+
+      this.account = store.state.account;
     },
     updateAccountBalance () {
       Ae({

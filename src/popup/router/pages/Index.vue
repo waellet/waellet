@@ -55,21 +55,30 @@ export default {
   methods: {
     init () {
       // check if there is an account generated already
-      chrome.storage.local.get('account', data => {
-        console.log(data.account);
-        if (data.account && data.account.hasOwnProperty('publicKey')) {
+
+      if (store.state.account.hasOwnProperty('publicKey')) {
           this.$router.push('/account');
-        }
-      });
+      }
+
+      // chrome.storage.local.get('account', data => {
+      //   console.log(data.account);
+      //   if (data.account && data.account.hasOwnProperty('publicKey')) {
+      //     this.$router.push('/account');
+      //   }
+      // });
     },
     generateAddress: async function generateAddress({ dispatch }) {
       this.loading = true;
       const keyPair = await addressGenerator.generateKeyPair('test');
-      chrome.storage.local.set({'account': keyPair}, () => {
-        console.log(keyPair);
-        console.log('Account saved');
-        this.$router.push('/account');
-      });
+      store.state.account = keyPair;
+      console.log(keyPair);
+      this.$router.push('/account');
+
+      // chrome.storage.local.set({'account': keyPair}, () => {
+      //   console.log(keyPair);
+      //   console.log('Account saved');
+      //   this.$router.push('/account');
+      // });
     },
     importPrivateKey: function importPrivateKey() {
       alert('Not working yet.');

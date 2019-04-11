@@ -71,39 +71,8 @@ export default {
       });
     },
     send () {
-      let amount = BigNumber(1).shiftedBy(MAGNITUDE);
-      console.log(parseInt(amount));
-      // let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
-      // let receiver = this.form.address;
-      // let keypair = { 
-      //   secretKey: 'bb9f0b01c8c9553cfbaf7ef81a50f977b1326801ebf7294d1c2cbccdedf27476e9bbf604e611b5460a3b3999e9771b6f60417d73ce7c5519e12f7e127a1225ca',
-      //   publicKey: 'ak_2mwRmUeYmfuW93ti9HMSUJzCk1EYcQEfikVSzgo6k2VghsWhgU' 
-      // };
-      let receiver = 'ak_2mwRmUeYmfuW93ti9HMSUJzCk1EYcQEfikVSzgo6k2VghsWhgU';
-      let url = store.state.config.ae.network.testnet.url;
-      let internalUrl = store.state.config.ae.network.testnet.internalUrl;
-      let networkId = store.state.config.ae.network.testnet.networkId;
-
-      let self = this;
-
-      console.log(self.account);
-      // Ae({
-      //   url: url,
-      //   internalUrl: internalUrl,
-      //   keypair: {
-      //     secretKey: this.account.secretKey,
-      //     publicKey: this.account.publicKey
-      //   },
-      //   networkId: 'ae_uat' // or any other networkId your client should connect to
-      // }).then(ae => {
-
-      //   ae.spend(parseInt(amount), receiver)
-      //     .then(result => {
-      //       console.log(result);
-      //     }).catch(e => {
-      //       console.log(e);
-      //     });
-      // })
+      let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
+      let receiver = this.form.address;
 
       Wallet({
         url: store.state.config.ae.network.testnet.url,
@@ -111,13 +80,13 @@ export default {
         accounts: [
           MemoryAccount({
             keypair: {
-              secretKey: self.account.secretKey,
-              publicKey: self.account.publicKey
+              secretKey: store.state.account.secretKey,
+              publicKey: store.state.account.publicKey
             },
             networkId: store.state.config.ae.network.testnet.networkId
           })
         ],
-        address: self.account.publicKey,
+        address: store.state.account.publicKey,
         onTx: confirm, // guard returning boolean
         onChain: confirm, // guard returning boolean
         onAccount: confirm, // guard returning boolean
