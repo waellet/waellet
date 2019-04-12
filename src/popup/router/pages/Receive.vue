@@ -20,20 +20,9 @@
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
-import { AeCard, AeToolbar, AeButton, AeIcon, AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
 
 export default {
   name: 'Receive',
-  mixins: [mixins.events],
-  components: {
-    AeCard,
-    AeToolbar,
-    AeButton,
-    AeIcon,
-    QrcodeVue,
-    AeAddress,
-    AeQrcode
-  },
   data() {
     return {
       heading: 'Receive AE tokens',
@@ -49,10 +38,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-card/ae-card.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-toolbar/ae-toolbar.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-icon/ae-icon.css';
 @import '../../../common/base';
 
 .qr-wrapper {

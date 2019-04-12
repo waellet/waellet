@@ -32,24 +32,9 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
-import { AeAddress, AeButton, AeQrcode, AeCard, AeIdenticon, AeIcon, AeText, AeToolbar, AeInputPlain, mixins } from '@aeternity/aepp-components';
-import { account } from '../../../store/getters';
 
 export default {
   name: 'Account',
-  mixins: [mixins.events],
-  components: {
-    QrcodeVue,
-    AeAddress,
-    AeButton,
-    AeQrcode,
-    AeCard,
-    AeIcon,
-    AeIdenticon,
-    AeText,
-    AeToolbar,
-    AeInputPlain
-  },
   data () {
     return {
       heading: 'Account',
@@ -93,20 +78,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-address/ae-address.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-qrcode/ae-qrcode.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-card/ae-card.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-icon/ae-icon.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-identicon/ae-identicon.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-text/ae-text.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-toolbar/ae-toolbar.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-input-plain/ae-input-plain.css';
 @import '../../../common/base';
 
 .actions {
   margin-top: 5px;
 }
-
 
 </style>

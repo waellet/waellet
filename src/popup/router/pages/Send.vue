@@ -37,25 +37,12 @@ import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
-import { AeLink, AeButton, AeMain, AeInput, AeText, AeAddressInput, AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
 import { MAGNITUDE, MIN_SPEND_TX_FEE } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 
 export default {
   name: 'Send',
-  mixins: [mixins.events],
-  components: {
-    AeLink,
-    AeMain,
-    AeInput,
-    AeText,
-    AeButton,
-    AeAddressInput,
-    QrcodeVue,
-    AeAddress,
-    AeQrcode
-  },
   data() {
     return {
       heading: 'Send AE tokens',
@@ -130,14 +117,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/aeMain/aeMain.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-input/ae-input.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-text/ae-text.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/aeAddressInput/aeAddressInput.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-address/ae-address.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-qrcode/ae-qrcode.css';
 @import '../../../common/base';
-
 
 </style>

@@ -23,15 +23,9 @@
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
-import { AeLoader, AeButton, mixins } from '@aeternity/aepp-components';
 
 export default {
   name: 'Home',
-  mixins: [mixins.events],
-  components: {
-    AeLoader,
-    AeButton
-  },
   data() {
     return {
       loading: false,
@@ -82,8 +76,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/aeLoader/aeLoader.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
 @import '../../../common/base';
 
 main {
