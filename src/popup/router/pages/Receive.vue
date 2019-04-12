@@ -1,7 +1,18 @@
 <template>
   <div class="popup">
     <p>{{heading}}</p>
-      
+    <ae-card fill="neutral" align="center">
+      <div class="qr-wrapper">
+        <qrcode-vue :value="example"></qrcode-vue>
+      </div>
+      <ae-address :value="account.publicKey" gap=0 />
+      <ae-toolbar fill="neutral" align="right" slot="footer">
+        <ae-button face="toolbar" v-clipboard:copy="account.publicKey">
+          <ae-icon name="copy" />
+          Copy
+        </ae-button>
+      </ae-toolbar>
+    </ae-card>
   </div>
 </template>
 
@@ -9,15 +20,19 @@
 import locales from '../../locales/locales.json';
 import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
-import { AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
+import { AeCard, AeToolbar, AeButton, AeIcon, AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
 
 export default {
-  name: 'Account',
+  name: 'Receive',
   mixins: [mixins.events],
   components: {
-    'qrcode-vue': QrcodeVue,
-    'ae-address': AeAddress,
-    'ae-qrcode': AeQrcode
+    AeCard,
+    AeToolbar,
+    AeButton,
+    AeIcon,
+    QrcodeVue,
+    AeAddress,
+    AeQrcode
   },
   data() {
     return {
@@ -26,30 +41,33 @@ export default {
     }
   },
   locales,
-  mounted() {
-    chrome.tabs.query(
-      {
-        active: true,
-        lastFocusedWindow: true,
-      },
-      tabs => {
-        this.heading = 'account';
-        this.account = this.$store.state.account;
-      }
-    );
+  created () {
+    this.init();
   },
   methods: {
-    getAddress: function getAddress() {
-      alert(JSON.stringify(this.account));
+    init () {
+      chrome.storage.sync.get('userAccount', accountData => {
+        this.account = accountData.userAccount;
+      });
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-address/ae-address.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-qrcode/ae-qrcode.css';
+@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-card/ae-card.css';
+@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
+@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-toolbar/ae-toolbar.css';
+@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-icon/ae-icon.css';
 @import '../../../common/base';
 
+.qr-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  background-color: white;
+  border-radius: 6px;
+}
 
 </style>
