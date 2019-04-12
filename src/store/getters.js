@@ -4,6 +4,9 @@ export const getters = {
   account(state) {
     return state.account;
   },
+  balance(state) {
+    return state.balance;
+  },
   network(state) {
     return state.network;
   },
