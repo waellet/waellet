@@ -58,7 +58,7 @@ export default {
   },
   locales,
   computed: {
-    ...mapGetters(['account'])
+    ...mapGetters(['account', 'network', 'currentNetwork'])
   },
   created () {
     this.updateAccountBalance();
@@ -66,22 +66,21 @@ export default {
   methods: {
     updateAccountBalance () {
       Ae({
-        url: this.$store.state.config.ae.network.testnet.url,
-        internalUrl: this.$store.state.config.ae.network.testnet.internalUrl,
+        url: this.network[this.currentNetwork].url,
+        internalUrl: this.network[this.currentNetwork].internalUrl,
         keypair: { 
           secretKey: this.account.secretKey,
           publicKey: this.account.publicKey
         },
-        networkId: this.$store.state.config.ae.network.testnet.networkId
+        networkId: this.network[this.currentNetwork].networkId
       }).then(ae => {
-        console.log(this.account);
-          ae.balance(this.account.publicKey).then(balance => {
-            this.balance = balance / (10**18);
-          }).catch(e => {
-            console.log(e)
-            this.balance = 0;
-          })
+        ae.balance(this.account.publicKey).then(balance => {
+          this.balance = balance / (10**18);
+        }).catch(e => {
+          console.log(e)
+          this.balance = 0;
         })
+      })
     },
     navigateSend () {
       this.$router.push('/send');

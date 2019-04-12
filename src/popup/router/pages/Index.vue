@@ -60,8 +60,6 @@ export default {
     init () {
       // check if there is an account generated already
       chrome.storage.sync.get('userAccount', data => {
-        console.log('got user account');
-        console.log(data.userAccount);
         this.$store.commit('UPDATE_ACCOUNT', data.userAccount);
         if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
           this.$router.push('/account');
@@ -72,8 +70,6 @@ export default {
       this.loading = true;
       const keyPair = await addressGenerator.generateKeyPair('test');
       chrome.storage.sync.set({userAccount: keyPair}, () => {
-        console.log(keyPair);
-        console.log('Account saved');
         this.$store.commit('UPDATE_ACCOUNT', keyPair);
         this.$router.push('/account');
       });

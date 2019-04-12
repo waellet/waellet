@@ -74,7 +74,7 @@ export default {
   },
   locales,
   computed: {
-    ...mapGetters(['account'])
+    ...mapGetters(['account', 'network', 'currentNetwork'])
   },
   methods: {
     send () {
@@ -83,15 +83,15 @@ export default {
       let receiver = this.form.address;
 
       Wallet({
-        url: this.$store.state.config.ae.network.testnet.url,
-        internalUrl: this.$store.state.config.ae.network.testnet.internalUrl,
+        url: this.network[this.currentNetwork].url,
+        internalUrl: this.network[this.currentNetwork].internalUrl,
         accounts: [
           MemoryAccount({
             keypair: {
               secretKey: this.account.secretKey,
               publicKey: this.account.publicKey
             },
-            networkId: this.$store.state.config.ae.network.testnet.networkId
+            networkId: this.network[this.currentNetwork].networkId
           })
         ],
         address: this.account.publicKey,
@@ -99,7 +99,7 @@ export default {
         onChain: confirm, // guard returning boolean
         onAccount: confirm, // guard returning boolean
         onContract: confirm, // guard returning boolean
-        networkId: this.$store.state.config.ae.network.testnet.networkId
+        networkId: this.network[this.currentNetwork].networkId
       })
       .then(ae => {
         ae.spend(parseInt(amount), receiver).then(result => {

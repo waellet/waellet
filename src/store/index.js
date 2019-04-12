@@ -10,20 +10,17 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     account: {},
-    config: {
-      ae: {
-        network: {
-          testnet: {
-            url: 'https://sdk-testnet.aepps.com',
-            internalUrl: 'https://sdk-testnet.aepps.com',
-            networkId: 'ae_uat',
-          },
-          mainnet: {
-            url: 'https://sdk-testnet.aepps.com',
-            internalUrl: 'https://sdk-testnet.aepps.com',
-            networkId: 'ae_uat',
-          },
-        },
+    currentNetwork: 'testnet',
+    network: {
+      testnet: {
+        url: 'https://sdk-testnet.aepps.com',
+        internalUrl: 'https://sdk-testnet.aepps.com',
+        networkId: 'ae_uat',
+      },
+      mainnet: {
+        url: 'https://sdk-mainnet.aepps.com',
+        internalUrl: 'https://sdk-mainnet.aepps.com',
+        networkId: 'ae_mainnet',
       },
     },
   },
