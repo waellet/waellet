@@ -32,42 +32,22 @@
 <script>
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 
 export default {
   name: 'Account',
   data () {
     return {
       heading: 'Account',
-      balance: 0
     }
   },
   locales,
   computed: {
-    ...mapGetters(['account', 'network', 'currentNetwork'])
+    ...mapGetters(['account', 'balance', 'network', 'currentNetwork'])
   },
   created () {
-    this.updateAccountBalance();
+    this.$store.dispatch('updateBalance');
   },
   methods: {
-    updateAccountBalance () {
-      Ae({
-        url: this.network[this.currentNetwork].url,
-        internalUrl: this.network[this.currentNetwork].internalUrl,
-        keypair: { 
-          secretKey: this.account.secretKey,
-          publicKey: this.account.publicKey
-        },
-        networkId: this.network[this.currentNetwork].networkId
-      }).then(ae => {
-        ae.balance(this.account.publicKey).then(balance => {
-          this.balance = balance / (10**18);
-        }).catch(e => {
-          console.log(e)
-          this.balance = 0;
-        })
-      })
-    },
     navigateSend () {
       this.$router.push('/send');
     },

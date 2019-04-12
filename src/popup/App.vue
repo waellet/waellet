@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <ae-main>
     <header>
       <ae-header>
         <span slot="mobile-left">Waellet</span>
@@ -10,13 +10,13 @@
             Network
           </ae-button>
           <li>
-            <ae-button>
+            <ae-button @click="switchNetwork('testnet')">
               <ae-icon name="globe" />
               Testnet
             </ae-button>
           </li>
           <li>
-            <ae-button>
+            <ae-button @click="switchNetwork('mainnet')">
               <ae-icon name="globe" />
               Mainnet
             </ae-button>
@@ -30,7 +30,7 @@
           </ae-button>
           <li>
             <ae-button>
-              <ae-icon name="globe" />
+              <ae-icon fill="primary" name="globe" />
               Account stuff
             </ae-button>
           </li>
@@ -44,34 +44,27 @@
       </ae-header>
     </header>
     <router-view></router-view>
-  </div>
+  </ae-main>
 </template>
 
 <script>
 import store from '../store';
 import locales from './locales/locales.json'
-import { AeIcon, AeDropdown, AeHeader, AeButton } from '@aeternity/aepp-components'
+import { mapGetters } from 'vuex';
 
 export default {
-  components: {
-    AeIcon,
-    AeDropdown,
-    AeHeader,
-    AeButton
-  },
   computed: {
-    account () {
-      return this.$store.state.account;
-    }
+    ...mapGetters (['account', 'currentNetwork', 'network'])
   },
+  methods: {
+    switchNetwork (network) {
+      this.$store.dispatch('switchNetwork', network).then(() => this.$store.dispatch('updateBalance'));
+    }
+  }
 };
 </script>
 
 <style lang="scss">
-@import '../../node_modules/@aeternity/aepp-components/dist/ae-icon/ae-icon.css';
-@import '../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
-@import '../../node_modules/@aeternity/aepp-components/dist/ae-dropdown/ae-dropdown.css';
-@import '../../node_modules/@aeternity/aepp-components/dist/aeHeader/aeHeader.css';
 @import '../common/base';
 
 .ae-button {
