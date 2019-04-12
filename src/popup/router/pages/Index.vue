@@ -20,8 +20,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import store from '../../../store';
 import { addressGenerator } from '../../utils/address-generator';
 import { AeLoader, AeButton, mixins } from '@aeternity/aepp-components';
 
@@ -36,10 +36,12 @@ export default {
     return {
       loading: false,
       heading: '',
-      account: {},
     };
   },
   locales,
+  computed: {
+    ...mapGetters(['account'])
+  },
   mounted() {
     chrome.tabs.query(
       {
@@ -60,6 +62,7 @@ export default {
       chrome.storage.sync.get('userAccount', data => {
         console.log('got user account');
         console.log(data.userAccount);
+        this.$store.commit('UPDATE_ACCOUNT', data.userAccount);
         if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
           this.$router.push('/account');
         }
@@ -71,6 +74,7 @@ export default {
       chrome.storage.sync.set({userAccount: keyPair}, () => {
         console.log(keyPair);
         console.log('Account saved');
+        this.$store.commit('UPDATE_ACCOUNT', keyPair);
         this.$router.push('/account');
       });
     },

@@ -17,8 +17,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
 import { AeCard, AeToolbar, AeButton, AeIcon, AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
 
@@ -37,19 +37,13 @@ export default {
   data() {
     return {
       heading: 'Receive AE tokens',
-      account: {}
     }
   },
   locales,
-  created () {
-    this.init();
+  computed: {
+    ...mapGetters(['account'])
   },
   methods: {
-    init () {
-      chrome.storage.sync.get('userAccount', accountData => {
-        this.account = accountData.userAccount;
-      });
-    }
   }
 }
 </script>

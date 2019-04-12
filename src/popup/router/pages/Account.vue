@@ -10,7 +10,6 @@
         <ae-text fill="white" face="mono-base">{{balance}} AE</ae-text>
       </template>
       <ae-icon name="more" fill="white" size="20px" slot="header" />
-      <ae-text face="uppercase-xs" weight=600 style="margin: 0">Normal Secured</ae-text>
       <ae-address :value="account.publicKey" length="medium" gap=0 />
       <ae-toolbar fill="primary" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey">
@@ -29,8 +28,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { AeAddress, AeButton, AeQrcode, AeCard, AeIdenticon, AeIcon, AeText, AeToolbar, AeInputPlain, mixins } from '@aeternity/aepp-components';
@@ -54,40 +53,33 @@ export default {
   data () {
     return {
       heading: 'Account',
-      account: {},
-      balance: ''
+      balance: 0
     }
   },
   locales,
+  computed: {
+    ...mapGetters(['account'])
+  },
   created () {
-    this.init();
     this.updateAccountBalance();
   },
   methods: {
-    init () {
-      chrome.storage.sync.get(['userAccount'], accountData => {
-        console.log(accountData.userAccount);
-        console.log("account retrieved");
-        this.account = accountData.userAccount;
-      });
-    },
     updateAccountBalance () {
       Ae({
-        url: store.state.config.ae.network.testnet.url,
-        internalUrl: store.state.config.ae.network.testnet.internalUrl,
+        url: this.$store.state.config.ae.network.testnet.url,
+        internalUrl: this.$store.state.config.ae.network.testnet.internalUrl,
         keypair: { 
           secretKey: this.account.secretKey,
           publicKey: this.account.publicKey
         },
-        networkId: store.state.config.ae.network.testnet.networkId
+        networkId: this.$store.state.config.ae.network.testnet.networkId
       }).then(ae => {
-          // getting the balance of a public address
+        console.log(this.account);
           ae.balance(this.account.publicKey).then(balance => {
-            // logs current balance of "A_PUB_ADDRESS"
             this.balance = balance / (10**18);
           }).catch(e => {
-            // logs error
             console.log(e)
+            this.balance = 0;
           })
         })
     },
