@@ -3,8 +3,9 @@
     <p>{{heading}}</p>
     <ae-card fill="neutral" align="center">
       <div class="qr-wrapper">
-        <qrcode-vue :value="example"></qrcode-vue>
+        <qrcode-vue :value="account.publicKey"></qrcode-vue>
       </div>
+      <!-- <ae-qrcode :value="account.publicKey" :options="{ size: 136 }" /> -->
       <ae-address :value="account.publicKey" gap=0 />
       <ae-toolbar fill="neutral" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey">
@@ -23,6 +24,9 @@ import QrcodeVue from 'qrcode.vue';
 
 export default {
   name: 'Receive',
+  components: {
+    QrcodeVue
+  },
   data() {
     return {
       heading: 'Receive AE tokens',

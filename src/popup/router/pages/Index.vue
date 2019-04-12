@@ -1,22 +1,22 @@
 <template>
-  <div class="popup">
-    <main>
-      <div class="wrapper">
-        {{ heading }}
+  <ae-main>
+      <main>
+        <div class="wrapper">
+          {{ heading }}
+        </div>
+      </main>
+      
+      <div v-if="loading" class="loading">
+        <ae-loader />
       </div>
-    </main>
-    
-    <div v-if="loading" class="loading">
-      <ae-loader />
-    </div>
-    
-    <footer>
-      <div class="wrapper">
-          <ae-button face="round" fill="primary" extend @click="generateAddress">Generate wallet</ae-button>
-          <ae-button face="round" extend @click="importPrivateKey">Import secret key</ae-button>
-      </div>
-    </footer>
-  </div>
+      
+      <footer>
+        <div class="wrapper">
+            <ae-button face="round" fill="primary" extend @click="generateAddress">Generate wallet</ae-button>
+            <ae-button face="round" extend @click="importPrivateKey">Import secret key</ae-button>
+        </div>
+      </footer>
+  </ae-main>
 </template>
 
 <script>

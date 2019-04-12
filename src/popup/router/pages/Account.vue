@@ -20,8 +20,10 @@
     </ae-card>
 
     <div class="actions">
-      <ae-button face="round" fill="primary" extend @click="navigateSend">Send</ae-button>
-      <ae-button face="round" fill="secondary" extend @click="navigateReceive">Receive</ae-button>
+      <ae-button-group>
+        <ae-button face="flat" fill="primary" extend @click="navigateSend">Send</ae-button>
+        <ae-button face="flat" fill="secondary" extend @click="navigateReceive">Receive</ae-button>
+      </ae-button-group>
       <ae-button face="round" fill="alternative" disabled extend >Tip website</ae-button>
     </div>
   </div> 
@@ -30,7 +32,6 @@
 <script>
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import QrcodeVue from 'qrcode.vue';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 
 export default {
