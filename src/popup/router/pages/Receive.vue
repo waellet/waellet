@@ -3,8 +3,9 @@
     <p>{{heading}}</p>
     <ae-card fill="neutral" align="center">
       <div class="qr-wrapper">
-        <qrcode-vue :value="example"></qrcode-vue>
+        <qrcode-vue :value="account.publicKey"></qrcode-vue>
       </div>
+      <!-- <ae-qrcode :value="account.publicKey" :options="{ size: 136 }" /> -->
       <ae-address :value="account.publicKey" gap=0 />
       <ae-toolbar fill="neutral" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey">
@@ -17,48 +18,30 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
-import { AeCard, AeToolbar, AeButton, AeIcon, AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
 
 export default {
   name: 'Receive',
-  mixins: [mixins.events],
   components: {
-    AeCard,
-    AeToolbar,
-    AeButton,
-    AeIcon,
-    QrcodeVue,
-    AeAddress,
-    AeQrcode
+    QrcodeVue
   },
   data() {
     return {
       heading: 'Receive AE tokens',
-      account: {}
     }
   },
   locales,
-  created () {
-    this.init();
+  computed: {
+    ...mapGetters(['account'])
   },
   methods: {
-    init () {
-      chrome.storage.sync.get('userAccount', accountData => {
-        this.account = accountData.userAccount;
-      });
-    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-card/ae-card.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-toolbar/ae-toolbar.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-icon/ae-icon.css';
 @import '../../../common/base';
 
 .qr-wrapper {

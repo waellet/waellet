@@ -16,6 +16,7 @@
     "watch:dev": "cross-env HMR=true npm run build:dev -- --watch"
   },
   "dependencies": {
+    "@aeternity/aepp-components-3": "3.0.0-alpha.9",
     "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",
     "@aeternity/aepp-sdk": "^2.4.0",
     "argon2-browser": "^1.5.2",

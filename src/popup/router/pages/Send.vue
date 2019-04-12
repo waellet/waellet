@@ -32,36 +32,20 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
-import { AeLink, AeButton, AeMain, AeInput, AeText, AeAddressInput, AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
 import { MAGNITUDE, MIN_SPEND_TX_FEE } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
-
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
-
 
 export default {
   name: 'Send',
-  mixins: [mixins.events],
-  components: {
-    AeLink,
-    AeMain,
-    AeInput,
-    AeText,
-    AeButton,
-    AeAddressInput,
-    QrcodeVue,
-    AeAddress,
-    AeQrcode
-  },
   data() {
     return {
       heading: 'Send AE tokens',
-      account: {},
       form: {
         address: '',
         amount: '',
@@ -76,30 +60,25 @@ export default {
     }
   },
   locales,
-  created () {
-    this.init();
+  computed: {
+    ...mapGetters(['account', 'network', 'currentNetwork'])
   },
   methods: {
-    init () {
-      chrome.storage.sync.get('userAccount', accountData => {
-        this.account = accountData.userAccount;
-      });
-    },
     send () {
       this.loading = true;
       let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
       let receiver = this.form.address;
 
       Wallet({
-        url: store.state.config.ae.network.testnet.url,
-        internalUrl: store.state.config.ae.network.testnet.internalUrl,
+        url: this.network[this.currentNetwork].url,
+        internalUrl: this.network[this.currentNetwork].internalUrl,
         accounts: [
           MemoryAccount({
             keypair: {
               secretKey: this.account.secretKey,
               publicKey: this.account.publicKey
             },
-            networkId: store.state.config.ae.network.testnet.networkId
+            networkId: this.network[this.currentNetwork].networkId
           })
         ],
         address: this.account.publicKey,
@@ -107,7 +86,7 @@ export default {
         onChain: confirm, // guard returning boolean
         onAccount: confirm, // guard returning boolean
         onContract: confirm, // guard returning boolean
-        networkId: store.state.config.ae.network.testnet.networkId
+        networkId: this.network[this.currentNetwork].networkId
       })
       .then(ae => {
         ae.spend(parseInt(amount), receiver).then(result => {
@@ -138,14 +117,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/aeMain/aeMain.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-input/ae-input.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-text/ae-text.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/aeAddressInput/aeAddressInput.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-address/ae-address.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-qrcode/ae-qrcode.css';
 @import '../../../common/base';
-
 
 </style>

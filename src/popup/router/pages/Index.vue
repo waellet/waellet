@@ -1,45 +1,41 @@
 <template>
-  <div class="popup">
-    <main>
-      <div class="wrapper">
-        {{ heading }}
+  <ae-main>
+      <main>
+        <div class="wrapper">
+          {{ heading }}
+        </div>
+      </main>
+      
+      <div v-if="loading" class="loading">
+        <ae-loader />
       </div>
-    </main>
-    
-    <div v-if="loading" class="loading">
-      <ae-loader />
-    </div>
-    
-    <footer>
-      <div class="wrapper">
-          <ae-button face="round" fill="primary" extend @click="generateAddress">Generate wallet</ae-button>
-          <ae-button face="round" extend @click="importPrivateKey">Import secret key</ae-button>
-      </div>
-    </footer>
-  </div>
+      
+      <footer>
+        <div class="wrapper">
+            <ae-button face="round" fill="primary" extend @click="generateAddress">Generate wallet</ae-button>
+            <ae-button face="round" extend @click="importPrivateKey">Import secret key</ae-button>
+        </div>
+      </footer>
+  </ae-main>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import store from '../../../store';
 import { addressGenerator } from '../../utils/address-generator';
-import { AeLoader, AeButton, mixins } from '@aeternity/aepp-components';
 
 export default {
   name: 'Home',
-  mixins: [mixins.events],
-  components: {
-    AeLoader,
-    AeButton
-  },
   data() {
     return {
       loading: false,
       heading: '',
-      account: {},
     };
   },
   locales,
+  computed: {
+    ...mapGetters(['account'])
+  },
   mounted() {
     chrome.tabs.query(
       {
@@ -58,8 +54,7 @@ export default {
     init () {
       // check if there is an account generated already
       chrome.storage.sync.get('userAccount', data => {
-        console.log('got user account');
-        console.log(data.userAccount);
+        this.$store.commit('UPDATE_ACCOUNT', data.userAccount);
         if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
           this.$router.push('/account');
         }
@@ -69,8 +64,7 @@ export default {
       this.loading = true;
       const keyPair = await addressGenerator.generateKeyPair('test');
       chrome.storage.sync.set({userAccount: keyPair}, () => {
-        console.log(keyPair);
-        console.log('Account saved');
+        this.$store.commit('UPDATE_ACCOUNT', keyPair);
         this.$router.push('/account');
       });
     },
@@ -82,8 +76,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/aeLoader/aeLoader.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
 @import '../../../common/base';
 
 main {

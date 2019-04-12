@@ -10,7 +10,6 @@
         <ae-text fill="white" face="mono-base">{{balance}} AE</ae-text>
       </template>
       <ae-icon name="more" fill="white" size="20px" slot="header" />
-      <ae-text face="uppercase-xs" weight=600 style="margin: 0">Normal Secured</ae-text>
       <ae-address :value="account.publicKey" length="medium" gap=0 />
       <ae-toolbar fill="primary" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey">
@@ -21,75 +20,53 @@
     </ae-card>
 
     <div class="actions">
-      <ae-button face="round" fill="primary" extend @click="navigateSend">Send</ae-button>
-      <ae-button face="round" fill="secondary" extend @click="navigateReceive">Receive</ae-button>
+      <ae-button-group>
+        <ae-button face="flat" fill="primary" extend @click="navigateSend">Send</ae-button>
+        <ae-button face="flat" fill="secondary" extend @click="navigateReceive">Receive</ae-button>
+      </ae-button-group>
       <ae-button face="round" fill="alternative" disabled extend >Tip website</ae-button>
     </div>
   </div> 
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import store from '../../../store';
-import QrcodeVue from 'qrcode.vue';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
-import { AeAddress, AeButton, AeQrcode, AeCard, AeIdenticon, AeIcon, AeText, AeToolbar, AeInputPlain, mixins } from '@aeternity/aepp-components';
-import { account } from '../../../store/getters';
 
 export default {
   name: 'Account',
-  mixins: [mixins.events],
-  components: {
-    QrcodeVue,
-    AeAddress,
-    AeButton,
-    AeQrcode,
-    AeCard,
-    AeIcon,
-    AeIdenticon,
-    AeText,
-    AeToolbar,
-    AeInputPlain
-  },
   data () {
     return {
       heading: 'Account',
-      account: {},
-      balance: ''
+      balance: 0
     }
   },
   locales,
+  computed: {
+    ...mapGetters(['account', 'network', 'currentNetwork'])
+  },
   created () {
-    this.init();
     this.updateAccountBalance();
   },
   methods: {
-    init () {
-      chrome.storage.sync.get(['userAccount'], accountData => {
-        console.log(accountData.userAccount);
-        console.log("account retrieved");
-        this.account = accountData.userAccount;
-      });
-    },
     updateAccountBalance () {
       Ae({
-        url: store.state.config.ae.network.testnet.url,
-        internalUrl: store.state.config.ae.network.testnet.internalUrl,
+        url: this.network[this.currentNetwork].url,
+        internalUrl: this.network[this.currentNetwork].internalUrl,
         keypair: { 
           secretKey: this.account.secretKey,
           publicKey: this.account.publicKey
         },
-        networkId: store.state.config.ae.network.testnet.networkId
+        networkId: this.network[this.currentNetwork].networkId
       }).then(ae => {
-          // getting the balance of a public address
-          ae.balance(this.account.publicKey).then(balance => {
-            // logs current balance of "A_PUB_ADDRESS"
-            this.balance = balance / (10**18);
-          }).catch(e => {
-            // logs error
-            console.log(e)
-          })
+        ae.balance(this.account.publicKey).then(balance => {
+          this.balance = balance / (10**18);
+        }).catch(e => {
+          console.log(e)
+          this.balance = 0;
         })
+      })
     },
     navigateSend () {
       this.$router.push('/send');
@@ -102,20 +79,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-address/ae-address.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-qrcode/ae-qrcode.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-card/ae-card.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-icon/ae-icon.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-identicon/ae-identicon.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-text/ae-text.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-toolbar/ae-toolbar.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-input-plain/ae-input-plain.css';
 @import '../../../common/base';
 
 .actions {
   margin-top: 5px;
 }
-
 
 </style>
