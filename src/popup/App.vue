@@ -29,10 +29,12 @@
             Account
           </ae-button>
           <li>
-            <ae-button>
-              <ae-icon fill="primary" name="globe" />
-              Account stuff
-            </ae-button>
+            <ae-link to="account">
+              <ae-button>
+                <ae-icon fill="primary" name="globe" />
+                My Account
+              </ae-button>
+            </ae-link>
           </li>
           <li>
             <ae-button>
