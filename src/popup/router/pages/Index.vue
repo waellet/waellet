@@ -14,9 +14,18 @@
     <footer v-if="!loading">
       <div class="wrapper">
           <ae-button face="round" fill="primary" extend @click="generateAddress">Generate wallet</ae-button>
-          <ae-button face="round" extend @click="importPrivateKey">Import secret key</ae-button>
+          <ae-button face="round" extend @click="modalVisible = true">Import secret key</ae-button>
       </div>
     </footer>
+
+    <ae-modal
+      v-if="modalVisible"
+      @close="modalVisible = false"
+      title="Import secret key"
+    >
+      <ae-input v-model="secretKey" placeholder="Input secret key" />
+      <ae-button face="round" extend fill="seconday" @click="importPrivateKey(secretKey)">Import</ae-button>
+    </ae-modal>
   </div>
 </template>
 
@@ -31,6 +40,7 @@ export default {
     return {
       loading: false,
       heading: '',
+      modalVisible: false,
     };
   },
   locales,
@@ -69,8 +79,14 @@ export default {
         this.$router.push('/account');
       });
     },
-    importPrivateKey: function importPrivateKey() {
-      alert('Not working yet.');
+    importPrivateKey: async function importPrivateKey(secretKey) {
+      this.modalVisible = false;
+      this.loading = true;
+      const keyPair = await addressGenerator.importPrivateKey('test', secretKey);
+      chrome.storage.sync.set({userAccount: keyPair}, () => {
+        this.$store.commit('UPDATE_ACCOUNT', keyPair);
+        this.$router.push('/account');
+      });
     },
   },
 };

@@ -36,12 +36,6 @@
               </ae-button>
             </ae-link>
           </li>
-          <li>
-            <ae-button>
-              <ae-icon name="globe" />
-              Account stuff
-            </ae-button>
-          </li>
         </ae-dropdown>
       </ae-header>
     </header>
