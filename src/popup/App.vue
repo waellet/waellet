@@ -36,6 +36,12 @@
               </ae-button>
             </ae-link>
           </li>
+          <li>
+              <ae-button @click="logout">
+                <ae-icon name="globe" />
+                Logout
+              </ae-button>
+          </li>
         </ae-dropdown>
       </ae-header>
     </header>
@@ -55,6 +61,12 @@ export default {
   methods: {
     switchNetwork (network) {
       this.$store.dispatch('switchNetwork', network).then(() => this.$store.dispatch('updateBalance'));
+    },
+    logout () {
+      chrome.storage.sync.set({userAccount: ''}, () => {
+        this.$store.commit('UPDATE_ACCOUNT', '');
+        this.$router.push('/');
+      });
     }
   }
 };
