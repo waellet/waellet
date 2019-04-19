@@ -10,7 +10,8 @@ const bip38 = require('./bip38');
 
 
 export const addressGenerator = {
-  generateKeyPair
+  generateKeyPair,
+  importPrivateKey
 }
 
 function encodeBase58Check (input) {
@@ -45,6 +46,18 @@ async function generateKeyPair (passphrase) {
   return {
     publicKey: keystore.public_key,
     secretKey: secretBuffer.toString('hex').trim(), // NOT SECURE
+    encryptedPrivateKey: JSON.stringify(keystore),
+  };
+}
+
+async function importPrivateKey (passphrase, secretKey) {
+  const hexStr = await Crypto.hexStringToByte(secretKey.trim())
+  const keys = await Crypto.generateKeyPairFromSecret(hexStr)
+
+  const keystore = await dump('keystore', passphrase, keys.secretKey);
+  return {
+    publicKey: keystore.public_key,
+    secretKey: secretKey.trim(), // NOT SECURE
     encryptedPrivateKey: JSON.stringify(keystore),
   };
 }
