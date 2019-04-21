@@ -2,12 +2,17 @@
   <ae-main>
     <header>
       <ae-header>
-        <span slot="mobile-left">Waellet</span>
+        <span slot="mobile-left">
+          <div class="logo_top">
+            <img :src="logo_top" alt="">
+            <p>Waellet</p>
+          </div>
+        </span>
 
         <!-- network -->
-        <ae-dropdown slot="mobile-right" direction="right">
+        <ae-dropdown slot="mobile-right" direction="right" class="mr-2">
           <ae-button slot="button">
-            Network
+            <p class="p-top">Network</p>
           </ae-button>
           <li>
             <ae-button @click="switchNetwork('testnet')">
@@ -26,7 +31,7 @@
         <!-- account -->
         <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right">
           <ae-button slot="button">
-            Account
+            <p class="p-top">Account</p>
           </ae-button>
           <li>
             <ae-link to="account">
@@ -55,6 +60,11 @@ import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 
 export default {
+  data () {
+    return {
+      logo_top: chrome.runtime.getURL('../../../icons/icon_48.png')
+    }
+  },
   computed: {
     ...mapGetters (['account', 'currentNetwork', 'network'])
   },
@@ -83,6 +93,32 @@ html {
   min-width: 357px;
   min-height: 600px;
   background-color: #f5f5f5;
+}
+
+.logo_top {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  vertical-align: center;
+}
+
+.logo_top p {
+  font-size: 20px;
+  line-height: 12px;
+}
+
+p {
+  font-weight: bolder;
+  margin-left: 3px;
+}
+
+.p-top {
+  font-size: 16px;
+  margin-right: 2px;
+}
+
+.mr-2 {
+  margin-right: 2em;
 }
 
 .popup {
