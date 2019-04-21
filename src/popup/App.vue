@@ -2,7 +2,12 @@
   <ae-main>
     <header>
       <ae-header>
-        <span slot="mobile-left">Waellet</span>
+        <span slot="mobile-left">
+          <div class="logo_top">
+            <img :src="logo_top" alt="">
+            <p>Waellet</p>
+          </div>
+        </span>
 
         <!-- network -->
         <ae-dropdown slot="mobile-right" direction="right">
@@ -55,6 +60,11 @@ import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 
 export default {
+  data () {
+    return {
+      logo_top: chrome.runtime.getURL('../../../icons/icon_48.png')
+    }
+  },
   computed: {
     ...mapGetters (['account', 'currentNetwork', 'network'])
   },
@@ -83,6 +93,18 @@ html {
   min-width: 357px;
   min-height: 600px;
   background-color: #f5f5f5;
+}
+
+.logo_top {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  vertical-align: center;
+}
+
+.logo_top p {
+  font-weight: bolder;
+  margin-left: 3px;
 }
 
 .popup {

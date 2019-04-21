@@ -2,7 +2,10 @@
   <div>
     <main>
       <div class="wrapper">
-        {{ heading }}
+        <p>{{ heading }}</p>
+        <div class="logo-center">
+          <img :src="logo" alt="Waellet logo">
+        </div>
       </div>
     </main>
     
@@ -41,6 +44,7 @@ export default {
       loading: false,
       heading: '',
       modalVisible: false,
+      logo: chrome.runtime.getURL('../../../icons/icon_128.png')
     };
   },
   locales,
@@ -98,6 +102,12 @@ export default {
 main {
   padding-top: 1rem;
   padding-bottom: 2rem;
+}
+
+.logo-center {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
 }
 
 .wrapper {
