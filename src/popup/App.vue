@@ -10,9 +10,9 @@
         </span>
 
         <!-- network -->
-        <ae-dropdown slot="mobile-right" direction="right">
+        <ae-dropdown slot="mobile-right" direction="right" class="mr-2">
           <ae-button slot="button">
-            Network
+            <p class="p-top">Network</p>
           </ae-button>
           <li>
             <ae-button @click="switchNetwork('testnet')">
@@ -31,7 +31,7 @@
         <!-- account -->
         <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right">
           <ae-button slot="button">
-            Account
+            <p class="p-top">Account</p>
           </ae-button>
           <li>
             <ae-link to="account">
@@ -103,8 +103,22 @@ html {
 }
 
 .logo_top p {
+  font-size: 20px;
+  line-height: 12px;
+}
+
+p {
   font-weight: bolder;
   margin-left: 3px;
+}
+
+.p-top {
+  font-size: 16px;
+  margin-right: 2px;
+}
+
+.mr-2 {
+  margin-right: 2em;
 }
 
 .popup {
