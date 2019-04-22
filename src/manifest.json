@@ -9,7 +9,8 @@
     "clipboardWrite",
     "activeTab",
     "webRequest",
-    "notifications"
+    "notifications",
+    {"fileSystem": ["write", "retainEntries", "directory"]} 
   ],
   "icons": {
     "48": "icons/icon_48.png",

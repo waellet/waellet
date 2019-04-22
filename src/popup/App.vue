@@ -34,18 +34,22 @@
             <p class="p-top">Account</p>
           </ae-button>
           <li>
-            <ae-link to="account">
-              <ae-button>
-                <ae-icon fill="primary" name="globe" />
-                My Account
-              </ae-button>
-            </ae-link>
+            <ae-button @click="myAccount">
+              <ae-icon fill="primary" name="globe" />
+              My Account
+            </ae-button>
           </li>
           <li>
-              <ae-button @click="logout">
-                <ae-icon name="globe" />
-                Logout
-              </ae-button>
+            <ae-button @click="exportKeypair">
+              <ae-icon name="globe" />
+              Export keypair
+            </ae-button>
+          </li>
+          <li>
+            <ae-button @click="logout">
+              <ae-icon name="globe" />
+              Logout
+            </ae-button>
           </li>
         </ae-dropdown>
       </ae-header>
@@ -58,6 +62,7 @@
 import store from '../store';
 import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
+import { saveAs } from 'file-saver';
 
 export default {
   data () {
@@ -77,6 +82,16 @@ export default {
         this.$store.commit('UPDATE_ACCOUNT', '');
         this.$router.push('/');
       });
+    },
+
+    myAccount () {
+      this.$router.push('/account');
+    },
+
+    exportKeypair () {
+      let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
+      let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+      saveAs(blob, "keypair.json");
     }
   }
 };
