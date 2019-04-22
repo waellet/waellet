@@ -1,37 +1,56 @@
 <template>
-  <div class="popup">
+  <div>
     <main>
       <div class="wrapper">
-        {{ heading }}
+        <p>{{ heading }}</p>
+        <div class="logo-center">
+          <img :src="logo" alt="Waellet logo">
+        </div>
       </div>
     </main>
-    <footer>
+    
+    <div v-if="loading" class="loading">
+      Securing your account ...
+      <ae-loader />
+    </div>
+    
+    <footer v-if="!loading">
       <div class="wrapper">
           <ae-button face="round" fill="primary" extend @click="generateAddress">Generate wallet</ae-button>
-          <ae-button face="round" extend @click="importPrivateKey">Import secret key</ae-button>
+          <ae-button face="round" extend @click="modalVisible = true">Import secret key</ae-button>
       </div>
     </footer>
+
+    <ae-modal
+      v-if="modalVisible"
+      @close="modalVisible = false"
+      title="Import secret key"
+    >
+      <ae-input v-model="secretKey" placeholder="Input secret key" />
+      <ae-button face="round" extend fill="seconday" @click="importPrivateKey(secretKey)">Import</ae-button>
+    </ae-modal>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import store from '../../../store';
 import { addressGenerator } from '../../utils/address-generator';
-import { AeButton, mixins } from '@aeternity/aepp-components';
 
 export default {
   name: 'Home',
-  mixins: [mixins.events],
-  components: {
-    'ae-button': AeButton
-  },
   data() {
     return {
+      loading: false,
       heading: '',
+      modalVisible: false,
+      logo: chrome.runtime.getURL('../../../icons/icon_128.png')
     };
   },
   locales,
+  computed: {
+    ...mapGetters(['account'])
+  },
   mounted() {
     chrome.tabs.query(
       {
@@ -49,35 +68,46 @@ export default {
   methods: {
     init () {
       // check if there is an account generated already
-      chrome.storage.local.get('account', data => {
-        console.log(data.account);
-        if (data.account.publicKey) {
+      chrome.storage.sync.get('userAccount', data => {
+        this.$store.commit('UPDATE_ACCOUNT', data.userAccount);
+        if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
           this.$router.push('/account');
         }
       });
     },
     generateAddress: async function generateAddress({ dispatch }) {
+      this.loading = true;
       const keyPair = await addressGenerator.generateKeyPair('test');
-      chrome.storage.local.set({account: keyPair}, () => {
-        console.log(keyPair);
-        console.log('Account saved');
+      chrome.storage.sync.set({userAccount: keyPair}, () => {
+        this.$store.commit('UPDATE_ACCOUNT', keyPair);
+        this.$router.push('/account');
       });
-      this.$router.push('/account');
     },
-    importPrivateKey: function importPrivateKey() {
-      alert('Not working yet.');
+    importPrivateKey: async function importPrivateKey(secretKey) {
+      this.modalVisible = false;
+      this.loading = true;
+      const keyPair = await addressGenerator.importPrivateKey('test', secretKey);
+      chrome.storage.sync.set({userAccount: keyPair}, () => {
+        this.$store.commit('UPDATE_ACCOUNT', keyPair);
+        this.$router.push('/account');
+      });
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-button/ae-button.css';
 @import '../../../common/base';
 
 main {
   padding-top: 1rem;
   padding-bottom: 2rem;
+}
+
+.logo-center {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
 }
 
 .wrapper {

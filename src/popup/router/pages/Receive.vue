@@ -1,55 +1,56 @@
 <template>
   <div class="popup">
     <p>{{heading}}</p>
-      
+    <ae-card fill="neutral" align="center">
+      <div class="qr-wrapper">
+        <qrcode-vue :value="account.publicKey"></qrcode-vue>
+      </div>
+      <!-- <ae-qrcode :value="account.publicKey" :options="{ size: 136 }" /> -->
+      <ae-address :value="account.publicKey" gap=0 />
+      <ae-toolbar fill="neutral" align="right" slot="footer">
+        <ae-button face="toolbar" v-clipboard:copy="account.publicKey">
+          <ae-icon name="copy" />
+          Copy
+        </ae-button>
+      </ae-toolbar>
+    </ae-card>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import store from '../../../store';
 import QrcodeVue from 'qrcode.vue';
-import { AeAddress, AeQrcode, mixins } from '@aeternity/aepp-components';
 
 export default {
-  name: 'Account',
-  mixins: [mixins.events],
+  name: 'Receive',
   components: {
-    'qrcode-vue': QrcodeVue,
-    'ae-address': AeAddress,
-    'ae-qrcode': AeQrcode
+    QrcodeVue
   },
   data() {
     return {
       heading: 'Receive AE tokens',
-      account: {}
     }
   },
   locales,
-  mounted() {
-    chrome.tabs.query(
-      {
-        active: true,
-        lastFocusedWindow: true,
-      },
-      tabs => {
-        this.heading = 'account';
-        this.account = this.$store.state.account;
-      }
-    );
+  computed: {
+    ...mapGetters(['account'])
   },
   methods: {
-    getAddress: function getAddress() {
-      alert(JSON.stringify(this.account));
-    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-address/ae-address.css';
-@import '../../../../node_modules/@aeternity/aepp-components/dist/ae-qrcode/ae-qrcode.css';
 @import '../../../common/base';
 
+.qr-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  background-color: white;
+  border-radius: 6px;
+}
 
 </style>

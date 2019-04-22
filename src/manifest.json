@@ -4,7 +4,13 @@
   "version": null,
   "manifest_version": 2,
   "permissions": [
-    "storage"
+    "storage",
+    "unlimitedStorage",
+    "clipboardWrite",
+    "activeTab",
+    "webRequest",
+    "notifications",
+    {"fileSystem": ["write", "retainEntries", "directory"]} 
   ],
   "icons": {
     "48": "icons/icon_48.png",
