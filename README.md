@@ -4,7 +4,6 @@
 
 Waellet is a browser extension that allows you to interact with Aeternity blockchain in your browser.
 
-
 Steps to build:
 
 1. Clone the develop branch of this repo.
@@ -14,3 +13,5 @@ Steps to build:
 5. Make sure `Developer mode` is On in the right corner.
 6. Click `Load unpacked` button and select the generated `dist` folder in the cloned repo.
 
+=======
+Note: Active development is done on the `develop` branch.
