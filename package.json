@@ -16,8 +16,8 @@
     "watch:dev": "cross-env HMR=true npm run build:dev -- --watch"
   },
   "dependencies": {
-    "@aeternity/aepp-components-3": "3.0.0-alpha.9",
     "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",
+    "@aeternity/aepp-components-3": "3.0.0-alpha.9",
     "@aeternity/aepp-sdk": "^2.4.0",
     "argon2-browser": "^1.5.2",
     "axios": "^0.18.0",
@@ -33,6 +33,7 @@
     "coinkey": "^3.0.0",
     "crypto-browserify": "^3.12.0",
     "emailjs-com": "^2.3.2",
+    "file-saver": "^2.0.1",
     "node-fetch": "^2.3.0",
     "node-sass": "^4.11.0",
     "qrcode.vue": "^1.6.1",
