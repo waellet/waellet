@@ -10,8 +10,13 @@
     </main>
     
     <div v-if="loading" class="loading">
-      Securing your account ...
-      <ae-loader />
+      <div class="wrapper">
+        <div class="center">
+          <span>Securing your account</span>
+          <br>
+          <ae-loader />
+        </div>
+      </div>
     </div>
     
     <footer v-if="!loading">
@@ -105,6 +110,12 @@ main {
 }
 
 .logo-center {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+}
+
+.loading {
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
