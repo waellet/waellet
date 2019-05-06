@@ -30,17 +30,17 @@ jobs:
             - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: Install Dependencies
-          command: yarn install
+          command: yarn
           
-      - run:
-          name: Build
-          command: yarn build  
-
       - save_cache:
           name: Save Yarn Package Cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
+
+      - run:
+          name: Build
+          command: yarn build
 
       # run tests!
      # - run: yarn test
