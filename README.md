@@ -7,8 +7,8 @@ Waellet is a browser extension that allows you to interact with Aeternity blockc
 Steps to build:
 
 1. Clone the develop branch of this repo.
-2. `yarn install`
-3. `yarn watch:dev`
+2. `npm install`
+3. `npm run watch:dev`
 4. Open chrome/brave browser Preferences -> More tools > Extensions
 5. Make sure `Developer mode` is On in the right corner.
 6. Click `Load unpacked` button and select the generated `dist` folder in the cloned repo.
