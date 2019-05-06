@@ -8,7 +8,7 @@ jobs:
     branches:
       only:
         - master
-        # - develop
+        #- develop
         
     docker:
       # specify the version you desire here
@@ -23,24 +23,22 @@ jobs:
 
     steps:
       - checkout
-      
-      - run:
-          name: Clear cache
-          command: yarn cache clean
-      
-      - run:
-          name: Install Dependencies
-          command: yarn
-          
-      - save_cache:
-          name: Save Yarn Package Cache
-          key: yarn-packages-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.cache/yarn
 
-      - run:
-          name: Build
-          command: yarn build
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: npm install
+
+      - run: npm run build
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
 
       # run tests!
      # - run: yarn test

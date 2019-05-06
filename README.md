@@ -1,6 +1,6 @@
 # Waellet
 
-[![CircleCI](https://circleci.com/gh/waellet/waellet/tree/develop.svg?style=svg)](https://circleci.com/gh/waellet/waellet/tree/develop)
+[![CircleCI](https://circleci.com/gh/waellet/waellet/tree/master.svg?style=svg)](https://circleci.com/gh/waellet/waellet/tree/master)
 
 Waellet is a browser extension that allows you to interact with Aeternity blockchain in your browser.
 
@@ -12,6 +12,3 @@ Steps to build:
 4. Open chrome/brave browser Preferences -> More tools > Extensions
 5. Make sure `Developer mode` is On in the right corner.
 6. Click `Load unpacked` button and select the generated `dist` folder in the cloned repo.
-
-=======
-Note: Active development is done on the `develop` branch.
