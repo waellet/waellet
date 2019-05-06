@@ -24,10 +24,10 @@ jobs:
     steps:
       - checkout
       
-      - restore_cache:
-          name: Restore Yarn Package Cache
-          keys:
-            - yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Clear cache
+          command: yarn cache clean
+      
       - run:
           name: Install Dependencies
           command: yarn
