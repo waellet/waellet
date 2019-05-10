@@ -5,7 +5,6 @@
       <div class="qr-wrapper">
         <qrcode-vue :value="account.publicKey"></qrcode-vue>
       </div>
-      <!-- <ae-qrcode :value="account.publicKey" :options="{ size: 136 }" /> -->
       <ae-address :value="account.publicKey" gap=0 />
       <ae-toolbar fill="neutral" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert('publicKeyCopied')">

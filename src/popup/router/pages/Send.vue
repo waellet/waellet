@@ -17,6 +17,9 @@
         <div>
             <ae-button face="round" fill="primary" extend @click="send">Send</ae-button>
         </div>
+        <div class="actions">
+          <ae-button face="flat" fill="alternative" extend @click="navigateAccount">Back to account</ae-button>
+        </div>
       </div>
 
       <div v-if="loading" class="loading">
@@ -111,6 +114,9 @@ export default {
         this.form.address = '';
         this.form.amount = '';
       }, 2000);
+    },
+    navigateAccount() {
+      this.$router.push('/account')
     }
   }
 }
@@ -118,5 +124,9 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
+
+.actions {
+  margin-top: 5px;
+}
 
 </style>
