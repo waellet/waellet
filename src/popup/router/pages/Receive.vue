@@ -8,12 +8,14 @@
       <!-- <ae-qrcode :value="account.publicKey" :options="{ size: 136 }" /> -->
       <ae-address :value="account.publicKey" gap=0 />
       <ae-toolbar fill="neutral" align="right" slot="footer">
-        <ae-button face="toolbar" v-clipboard:copy="account.publicKey">
+        <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert('publicKeyCopied')">
           <ae-icon name="copy" />
           Copy
         </ae-button>
       </ae-toolbar>
     </ae-card>
+
+    <ae-button face="round" fill="alternative" extend @click="navigateAccount"> Back to account</ae-button>
   </div>
 </template>
 
@@ -37,6 +39,12 @@ export default {
     ...mapGetters(['account'])
   },
   methods: {
+    popupAlert(payload) {
+      this.$store.dispatch('popupAlert', payload)
+    },
+    navigateAccount() {
+      this.$router.push('/account')
+    }
   }
 }
 </script>
