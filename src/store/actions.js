@@ -34,4 +34,13 @@ export default {
         });
     });
   },
+  popupAlert({ commit }, payload) {
+    switch (payload) {
+      case 'publicKeyCopied':
+        alert('Public key copied to clipboard!')
+        break;
+      default:
+        break;
+    }
+  },
 };
