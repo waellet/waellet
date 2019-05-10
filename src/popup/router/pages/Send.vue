@@ -13,6 +13,8 @@
           <ae-input label="Amount" placeholder="0.0" aemount v-model="form.amount">
             <ae-text slot="header" fill="black">AE</ae-text>
           </ae-input>
+          <p>Maximum spendable value: {{maxValue}}</p>
+          <p>Tx fee: {{txFee}}</p>
         </div>
         <div>
             <ae-button face="round" fill="primary" extend @click="send">Send</ae-button>
@@ -40,7 +42,7 @@ import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
-import { MAGNITUDE, MIN_SPEND_TX_FEE } from '../../utils/constants';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 
@@ -59,18 +61,33 @@ export default {
         hash: '',
         block: '',
         url: ''
-      }
+      },
+      maxValue: (this.balance - MIN_SPEND_TX_FEE).toString(),
+      txFee: MIN_SPEND_TX_FEE
     }
   },
   locales,
   computed: {
-    ...mapGetters(['account', 'network', 'currentNetwork'])
+    ...mapGetters(['account', 'balance', 'network', 'currentNetwork']),
+  },
+  mounted() {
+    this.init()
   },
   methods: {
+    init() {
+      let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
+      this.maxValue = calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0
+    },
     send () {
       this.loading = true;
       let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
       let receiver = this.form.address;
+
+      //is the amount correct
+      if (this.maxValue - this.form.amount <= 0) {
+        this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'})
+        return;
+      } 
 
       Wallet({
         url: this.network[this.currentNetwork].url,

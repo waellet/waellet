@@ -11,7 +11,7 @@
       </template>
       <ae-address :value="account.publicKey" length="medium" gap=0 />
       <ae-toolbar fill="primary" align="right" slot="footer">
-        <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert('publicKeyCopied')">
+        <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert({ name: 'account', type: 'publicKeyCopied' })">
           <ae-icon name="copy" />
           Copy
         </ae-button>

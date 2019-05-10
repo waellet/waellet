@@ -35,9 +35,24 @@ export default {
     });
   },
   popupAlert({ commit }, payload) {
-    switch (payload) {
-      case 'publicKeyCopied':
-        alert('Public key copied to clipboard!')
+    switch (payload.name) {
+      case 'spend':
+        switch (payload.type) {
+          case 'insufficient_balance':
+            alert('Insufficient balance. The requested amount cannot be spent.');
+            break;
+          default:
+            break;
+        }
+        break;
+      case 'account':
+        switch (payload.type) {
+          case 'publicKeyCopied':
+            alert('Public key copied to clipboard!');
+            break;
+          default:
+            break;
+        }
         break;
       default:
         break;
