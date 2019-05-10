@@ -15,7 +15,9 @@
       </ae-toolbar>
     </ae-card>
 
-    <ae-button face="round" fill="alternative" extend @click="navigateAccount"> Back to account</ae-button>
+    <div class="actions">
+      <ae-button face="round" fill="alternative" extend @click="navigateAccount"> Back to account</ae-button>
+    </div>
   </div>
 </template>
 
@@ -59,6 +61,10 @@ export default {
   padding: 5px;
   background-color: white;
   border-radius: 6px;
+}
+
+.actions {
+  margin-top: 5px;
 }
 
 </style>
