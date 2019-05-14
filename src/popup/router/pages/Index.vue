@@ -115,6 +115,10 @@ main {
   justify-content: center;
 }
 
+.center {
+  text-align: center;
+}
+
 .loading {
   display: flex;
   flex-flow: row wrap;
