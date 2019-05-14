@@ -63,7 +63,10 @@ export default {
     navigateReceive () {
       this.$router.push('/receive');
     },
-  }
+  },
+  beforeDestroy () {
+	  clearInterval(this.polling)
+  },
 }
 </script>
 
