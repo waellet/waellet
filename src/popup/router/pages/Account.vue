@@ -9,10 +9,9 @@
       <template slot="header">
         <ae-text fill="white" face="mono-base">{{balance}} AE</ae-text>
       </template>
-      <ae-icon name="more" fill="white" size="20px" slot="header" />
       <ae-address :value="account.publicKey" length="medium" gap=0 />
       <ae-toolbar fill="primary" align="right" slot="footer">
-        <ae-button face="toolbar" v-clipboard:copy="account.publicKey">
+        <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert({ name: 'account', type: 'publicKeyCopied' })">
           <ae-icon name="copy" />
           Copy
         </ae-button>
@@ -48,6 +47,9 @@ export default {
     this.$store.dispatch('updateBalance');
   },
   methods: {
+    popupAlert(payload) {
+      this.$store.dispatch('popupAlert', payload)
+    },
     navigateSend () {
       this.$router.push('/send');
     },
