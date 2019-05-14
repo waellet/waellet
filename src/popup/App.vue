@@ -11,26 +11,34 @@
 
         <!-- network -->
         <ae-dropdown slot="mobile-right" direction="right" class="mr-2">
-          <ae-button slot="button">
-            <p class="p-top">Network</p>
+          <ae-button slot="button" class="top-button">
+            <p class="p-top" v-if="!currentNetwork">Network</p>
+            <p class="p-top status" v-if="currentNetwork == 'testnet'">
+              Testnet
+            </p>
+            <p class="p-top status" v-if="currentNetwork == 'mainnet'">
+              Mainnet
+            </p>
           </ae-button>
           <li>
             <ae-button @click="switchNetwork('testnet')">
-              <ae-icon name="globe" />
-              Testnet
+              <p :class="currentNetwork == 'testnet' ? 'status' : ''">
+                Testnet
+              </p>
             </ae-button>
           </li>
           <li>
             <ae-button @click="switchNetwork('mainnet')">
-              <ae-icon name="globe" />
-              Mainnet
+              <p :class="currentNetwork == 'mainnet' ? 'status' : ''">
+                Mainnet
+              </p>
             </ae-button>
           </li>
         </ae-dropdown>
 
         <!-- account -->
         <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right">
-          <ae-button slot="button">
+          <ae-button slot="button" class="top-button">
             <p class="p-top">Account</p>
           </ae-button>
           <li>
@@ -104,6 +112,17 @@ export default {
   margin-bottom: 1em;
 }
 
+.top-button {
+  border: 1px solid #555 !important;
+  padding: 4px !important;
+  border-radius: 8px;
+  margin-right: 2px;
+}
+
+.ae-dropdown-button {
+  margin-right: 3px;
+}
+
 html {
   min-width: 357px;
   min-height: 600px;
@@ -130,6 +149,7 @@ p {
 .p-top {
   font-size: 16px;
   margin-right: 2px;
+  display: contents;
 }
 
 .mr-2 {
@@ -143,6 +163,19 @@ p {
   font-size: 16px;
   word-break: break-all;
   word-wrap: break-word;
+}
+
+p.status::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  -moz-border-radius: 7.5px;
+  -webkit-border-radius: 7.5px;
+  border-radius: 7.5px;
+  margin-right: 2px;
+  border: 1px solid green;
+  background-color: greenyellow;
 }
 
 </style>
