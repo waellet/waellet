@@ -9,7 +9,7 @@
             v-model="form.address"
           />
         </div>
-        <div>
+        <div v-if="!tx.status">
           <ae-input label="Amount" placeholder="0.0" aemount v-model="form.amount">
             <ae-text slot="header" fill="black">AE</ae-text>
           </ae-input>
