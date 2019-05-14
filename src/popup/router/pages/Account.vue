@@ -31,11 +31,13 @@
 <script>
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
+import { setInterval } from 'timers';
 
 export default {
   name: 'Account',
   data () {
     return {
+      polling: null,
       heading: 'Account',
     }
   },
@@ -44,9 +46,14 @@ export default {
     ...mapGetters(['account', 'balance', 'network', 'currentNetwork'])
   },
   created () {
-    this.$store.dispatch('updateBalance');
+    this.pollData();
   },
   methods: {
+    pollData() { 
+      this.polling = setInterval(() => {
+        this.$store.dispatch('updateBalance');
+      }, 200)
+    },
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
     },
