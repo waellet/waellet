@@ -10,7 +10,7 @@
         </span>
 
         <!-- network -->
-        <ae-dropdown slot="mobile-right" direction="right" class="mr-2">
+        <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right" class="mr-2">
           <ae-button slot="button" class="top-button">
             <p class="p-top status" v-if="currentNetwork == 'testnet'">
               Testnet
