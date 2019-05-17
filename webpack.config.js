@@ -21,6 +21,7 @@ const config = {
   resolve: {
     extensions: ['.js', '.vue'],
   },
+  target: 'node',
   module: {
     rules: [
       {
