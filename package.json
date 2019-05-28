@@ -18,7 +18,7 @@
   "dependencies": {
     "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",
     "@aeternity/aepp-components-3": "3.0.0-alpha.9",
-    "@aeternity/aepp-sdk": "^3.0.0",
+    "@aeternity/aepp-sdk": "^3.2.1",
     "argon2-browser": "^1.5.2",
     "axios": "^0.18.0",
     "bignumber.js": "^8.1.1",
