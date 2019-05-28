@@ -22,8 +22,21 @@
   "background": {
     "scripts": [
       "background.js"
-    ]
+    ],
+    "persistent": true
   },
+  "content_scripts": [{
+    "run_at": "document_start",
+    "all_frames": true,
+    "matches": [
+      "https://*/*",
+      "http://*/*"
+    ],
+    "js": ["inject.js"]
+  }],
+  "web_accessible_resources": [
+    "inject.js"
+  ],
   "options_ui": {
     "page": "options/options.html",
     "chrome_style": true

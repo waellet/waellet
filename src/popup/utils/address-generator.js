@@ -1,13 +1,8 @@
 /* eslint-disable */
-// import { dump } from './keystore'
+import { dump } from './keystore'
 import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto'
-// import { dump } from '@aeternity/aepp-sdk/es/utils/keystore'
-import { dump, getAddressFromPriv, recover } from '@aeternity/aepp-sdk/es/utils/keystore'
 
 const nacl = require('tweetnacl')
-const bs58check = require('bs58check')
-const bip38 = require('./bip38');
-
 
 export const addressGenerator = {
   generateKeyPair,
