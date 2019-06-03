@@ -58,3 +58,30 @@ a {
     clear: both;
   }
 }
+
+.my-2 {
+  margin-top:2em;
+  margin-bottom:2em;
+}
+.input {
+  outline:none;
+  resize:none;
+  background:#F7FAFC !important;
+  border:none;
+  border-color:#F7FAFC !important;
+  box-shadow:none;
+  border-left:2px solid #F7FAFC !important;
+  border-radius: 2px !important;
+  &:focus {
+    border-left:2px solid #FF0D6A !important;
+  }
+}
+.textarea { 
+  outline:none;
+  resize:none;
+  background:#F7FAFC !important;
+  border:none;
+  padding-left:1rem;
+  min-height: 110px;
+  max-height: 200px;
+}
