@@ -18,7 +18,10 @@
         "index": {
           "heading": "Welcome to waellet, to start interacting with aeternity blockchain:"
         },
-        "account": {}
+        "account": {},
+        "receive": {
+          "heading": "Receive AE tokens"
+        }
       },
       "messages": {},
       "buttons": {

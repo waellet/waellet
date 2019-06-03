@@ -1,6 +1,6 @@
 <template>
   <div class="popup">
-    <p>{{heading}}</p>
+    <p>{{language.pages.receive.heading}}</p>
     <ae-card fill="neutral" align="center">
       <div class="qr-wrapper">
         <qrcode-vue :value="account.publicKey"></qrcode-vue>
