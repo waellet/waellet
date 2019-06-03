@@ -10,6 +10,10 @@
         "logout": "Logout",
         "securingAccount": "Securing your account"
       },
+      "networks": {
+        "testnet": "Testnet",
+        "mainnet": "Mainnet"
+      },
       "pages": {
         "index": {
           "heading": "Welcome to waellet, to start interacting with aeternity blockchain:"

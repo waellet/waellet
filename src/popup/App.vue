@@ -13,23 +13,23 @@
         <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right" class="mr-2">
           <ae-button slot="button" class="top-button">
             <p class="p-top status" v-if="currentNetwork == 'testnet'">
-              Testnet
+              {{ language.networks.testnet }}
             </p>
             <p class="p-top status" v-if="currentNetwork == 'mainnet'">
-              Mainnet
+              {{ language.networks.mainnet }}
             </p>
           </ae-button>
           <li>
             <ae-button @click="switchNetwork('testnet')">
               <p :class="currentNetwork == 'testnet' ? 'status' : ''">
-                Testnet
+                {{ language.networks.testnet }}
               </p>
             </ae-button>
           </li>
           <li>
             <ae-button @click="switchNetwork('mainnet')">
               <p :class="currentNetwork == 'mainnet' ? 'status' : ''">
-                Mainnet
+                {{ language.networks.mainnet }}
               </p>
             </ae-button>
           </li>
