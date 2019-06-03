@@ -12,7 +12,7 @@
     <div v-if="loading" class="loading">
       <div class="wrapper">
         <div class="center">
-          <span>Securing your account</span>
+          <span>{{ language.strings.securingAccount }}</span>
           <br>
           <ae-loader />
         </div>
@@ -21,8 +21,8 @@
     
     <footer v-if="!loading">
       <div class="wrapper">
-          <ae-button face="round" fill="primary" extend @click="generateAddress">Generate wallet</ae-button>
-          <ae-button face="round" extend @click="modalVisible = true">Import secret key</ae-button>
+          <ae-button face="round" fill="primary" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
+          <ae-button face="round" extend @click="modalVisible = true">{{ language.buttons.importPrivateKey }}</ae-button>
       </div>
     </footer>
 
@@ -31,8 +31,8 @@
       @close="modalVisible = false"
       title="Import secret key"
     >
-      <ae-input v-model="secretKey" placeholder="Input secret key" />
-      <ae-button face="round" extend fill="seconday" @click="importPrivateKey(secretKey)">Import</ae-button>
+      <ae-input v-model="secretKey" :placeholder="language.placeholders.inputPrivateKey" />
+      <ae-button face="round" extend fill="seconday" @click="importPrivateKey(secretKey)">{{ language.buttons.import }}</ae-button>
     </ae-modal>
   </div>
 </template>

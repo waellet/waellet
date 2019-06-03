@@ -7,7 +7,8 @@
         "account": "Account",
         "myAccount": "My Account",
         "exportKeypair": "Export keypair",
-        "logout": "Logout"
+        "logout": "Logout",
+        "securingAccount": "Securing your account"
       },
       "pages": {
         "index": {
@@ -21,7 +22,11 @@
         "cancel": "Cancel",
         "edit": "Edit",
         "generateWallet": "Generate wallet",
-        "importPrivateKey": "Import secret key"
+        "importPrivateKey": "Import secret key",
+        "import": "Import"
+      },
+      "placeholders": {
+        "inputPrivateKey": "Input secret key"
       }
     },
     "ru": {},
