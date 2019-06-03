@@ -2,15 +2,28 @@
   "en": {
     "okBtn": "OK",
     "cancelBtn": "Cancel",
-    "qrMakeBtn": "GO!(Ctrl+Enter)",
-    "qrMakeMacBtn": "GO!(⌘+Enter)",
-    "appName": "My Webrequest"
+    "appName": "Waellet",
+    "account": {
+      "generateBtn": "Generate wallet",
+      "importBtn": "Import secret key"
+    }
+  },
+  "es": {
+    "okBtn": "OK",
+    "cancelBtn": "Cancelar",
+    "appName": "Waellet",
+    "account": {
+      "generateBtn": "Billetera generar",
+      "importBtn": "Importar clave secreta"
+    }
   },
   "zh-cn": {
     "okBtn": "确认",
     "cancelBtn": "取消",
-    "qrMakeBtn": "GO!(Ctrl+Enter)",
-    "qrMakeMacBtn": "GO!(⌘+Enter)",
-    "appName": "My Webrequest"
+    "appName": "Waellet",
+    "account": {
+      "generateBtn": "生成錢包",
+      "importBtn": "導入密鑰"
+    }
   }
 }
