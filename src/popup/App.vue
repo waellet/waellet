@@ -5,7 +5,7 @@
         <span slot="mobile-left">
           <div class="logo_top">
             <img :src="logo_top" alt="">
-            <p>Waellet</p>
+            <p>{{ language.system.name }}</p>
           </div>
         </span>
 
@@ -38,24 +38,24 @@
         <!-- account -->
         <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right">
           <ae-button slot="button" class="top-button">
-            <p class="p-top">Account</p>
+            <p class="p-top">{{ language.strings.account }}</p>
           </ae-button>
           <li>
             <ae-button @click="myAccount">
               <ae-icon fill="primary" name="globe" />
-              My Account
+              {{ language.strings.myAccount }}
             </ae-button>
           </li>
           <li>
             <ae-button @click="exportKeypair">
               <ae-icon name="globe" />
-              Export keypair
+              {{ language.strings.exportKeypair }}
             </ae-button>
           </li>
           <li>
             <ae-button @click="logout">
               <ae-icon name="globe" />
-              Logout
+              {{ language.strings.logout }}
             </ae-button>
           </li>
         </ae-dropdown>
@@ -74,7 +74,8 @@ import { saveAs } from 'file-saver';
 export default {
   data () {
     return {
-      logo_top: chrome.runtime.getURL('../../../icons/icon_48.png')
+      logo_top: chrome.runtime.getURL('../../../icons/icon_48.png'),
+      language: locales['en']
     }
   },
   computed: {

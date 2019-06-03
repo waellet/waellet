@@ -2,7 +2,7 @@
   <div>
     <main>
       <div class="wrapper">
-        <p>{{ heading }}</p>
+        <p>{{ language.pages.index.heading }}</p>
         <div class="logo-center">
           <img :src="logo" alt="Waellet logo">
         </div>
@@ -47,26 +47,15 @@ export default {
   data() {
     return {
       loading: false,
-      heading: '',
       modalVisible: false,
-      logo: chrome.runtime.getURL('../../../icons/icon_128.png')
+      logo: chrome.runtime.getURL('../../../icons/icon_128.png'),
+      language: locales['en']
     };
   },
-  locales,
   computed: {
     ...mapGetters(['account'])
   },
-  mounted() {
-    chrome.tabs.query(
-      {
-        active: true,
-        lastFocusedWindow: true,
-      },
-      tabs => {
-        this.heading = 'Welcome to waellet, to start interacting with aeternity blockchain:';
-      }
-    );
-  },
+  mounted() {},
   created () {
     this.init();
   },

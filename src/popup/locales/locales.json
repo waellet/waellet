@@ -1,11 +1,31 @@
 {
     "en": {
-      "prompt": "Current page url's QRCode",
-      "actionTip": "( double click QRCode to edit )",
-      "getNew": "You've got a new QRCode",
-      "editPromp": "Edit QRCode content",
-      "editTip": "( Don't type too much )",
-      "moreLink": "more...",
-      "textToolong": "Too much words"
-    }
+      "system": {
+        "name": "Waellet"
+      },
+      "strings": {
+        "account": "Account",
+        "myAccount": "My Account",
+        "exportKeypair": "Export keypair",
+        "logout": "Logout"
+      },
+      "pages": {
+        "index": {
+          "heading": "Welcome to waellet, to start interacting with aeternity blockchain:"
+        },
+        "account": {}
+      },
+      "messages": {},
+      "buttons": {
+        "ok": "Ok",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "generateWallet": "Generate wallet",
+        "importPrivateKey": "Import secret key"
+      }
+    },
+    "ru": {},
+    "es": {},
+    "fr": {},
+    "cn": {}
 }
