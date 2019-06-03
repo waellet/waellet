@@ -1,10 +1,10 @@
 <template>
   <div class="popup">
-    <p>{{heading}}</p>
+    <p>{{language.pages.account.heading}}</p>
     <ae-card fill="primary">
       <template slot="avatar">
         <ae-identicon :address="account.publicKey" />
-        <ae-input-plain fill="white" placeholder="Account name" value="My Account" />
+        <ae-input-plain fill="white" :placeholder="language.strings.accountName" :value="language.strings.myAccount" />
       </template>
       <template slot="header">
         <ae-text fill="white" face="mono-base">{{balance}} AE</ae-text>
@@ -13,17 +13,17 @@
       <ae-toolbar fill="primary" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert({ name: 'account', type: 'publicKeyCopied' })">
           <ae-icon name="copy" />
-          Copy
+          {{language.buttons.copy}}
         </ae-button>
       </ae-toolbar>
     </ae-card>
 
     <div class="actions">
       <ae-button-group>
-        <ae-button face="flat" fill="primary" extend @click="navigateSend">Send</ae-button>
-        <ae-button face="flat" fill="secondary" extend @click="navigateReceive">Receive</ae-button>
+        <ae-button face="flat" fill="primary" extend @click="navigateSend">{{language.buttons.send}}</ae-button>
+        <ae-button face="flat" fill="secondary" extend @click="navigateReceive">{{language.buttons.receive}}</ae-button>
       </ae-button-group>
-      <ae-button face="round" fill="alternative" disabled extend >Tip website</ae-button>
+      <ae-button face="round" fill="alternative" disabled extend >{{language.buttons.tipWebsite}}</ae-button>
     </div>
   </div> 
 </template>
@@ -38,14 +38,14 @@ export default {
   data () {
     return {
       polling: null,
-      heading: 'Account',
+      language: locales['en']
     }
   },
-  locales,
   computed: {
     ...mapGetters(['account', 'balance', 'network', 'current'])
   },
   created () {
+    console.log(current);
     this.pollData();
   },
   methods: {
