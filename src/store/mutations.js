@@ -8,6 +8,6 @@ export default {
     state.balance = payload;
   },
   [types.SWITCH_NETWORK](state, payload) {
-    state.currentNetwork = payload;
+    state.current.network = payload;
   },
 };

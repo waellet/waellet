@@ -14,13 +14,13 @@ export default {
   },
   updateBalance({ commit, state }) {
     Ae({
-      url: state.network[state.currentNetwork].url,
-      internalUrl: state.network[state.currentNetwork].internalUrl,
+      url: state.network[state.current.network].url,
+      internalUrl: state.network[state.current.network].internalUrl,
       keypair: {
         secretKey: state.account.secretKey,
         publicKey: state.account.publicKey,
       },
-      networkId: state.network[state.currentNetwork].networkId,
+      networkId: state.network[state.current.network].networkId,
     }).then(ae => {
       ae.balance(state.account.publicKey)
         .then(balance => {

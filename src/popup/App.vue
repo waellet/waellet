@@ -12,23 +12,23 @@
         <!-- network -->
         <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right" class="mr-2">
           <ae-button slot="button" class="top-button">
-            <p class="p-top status" v-if="currentNetwork == 'testnet'">
+            <p class="p-top status" v-if="current.network == 'testnet'">
               {{ language.networks.testnet }}
             </p>
-            <p class="p-top status" v-if="currentNetwork == 'mainnet'">
+            <p class="p-top status" v-if="current.network == 'mainnet'">
               {{ language.networks.mainnet }}
             </p>
           </ae-button>
           <li>
             <ae-button @click="switchNetwork('testnet')">
-              <p :class="currentNetwork == 'testnet' ? 'status' : ''">
+              <p :class="current.network == 'testnet' ? 'status' : ''">
                 {{ language.networks.testnet }}
               </p>
             </ae-button>
           </li>
           <li>
             <ae-button @click="switchNetwork('mainnet')">
-              <p :class="currentNetwork == 'mainnet' ? 'status' : ''">
+              <p :class="current.network == 'mainnet' ? 'status' : ''">
                 {{ language.networks.mainnet }}
               </p>
             </ae-button>
@@ -79,7 +79,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'currentNetwork', 'network'])
+    ...mapGetters (['account', 'current', 'network'])
   },
   methods: {
     switchNetwork (network) {

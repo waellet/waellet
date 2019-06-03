@@ -43,7 +43,7 @@ export default {
   },
   locales,
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'currentNetwork'])
+    ...mapGetters(['account', 'balance', 'network', 'current'])
   },
   created () {
     this.pollData();
