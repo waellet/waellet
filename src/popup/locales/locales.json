@@ -25,9 +25,11 @@
         "ok": "Ok",
         "cancel": "Cancel",
         "edit": "Edit",
+        "copy": "Copy",
         "generateWallet": "Generate wallet",
         "importPrivateKey": "Import secret key",
-        "import": "Import"
+        "import": "Import",
+        "backToAccount": "Back to account"
       },
       "placeholders": {
         "inputPrivateKey": "Input secret key"
