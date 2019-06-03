@@ -8,7 +8,13 @@
         "myAccount": "My Account",
         "exportKeypair": "Export keypair",
         "logout": "Logout",
-        "securingAccount": "Securing your account"
+        "securingAccount": "Securing your account",
+        "address": "Address",
+        "amount": "Amount",
+        "maxSpendableValue": "Maximum spendable value:",
+        "txFee": "Tx fee:",
+        "success": "Success",
+        "seeTransactionExplorer": "See transaction in the explorer."
       },
       "networks": {
         "testnet": "Testnet",
@@ -21,6 +27,9 @@
         "account": {},
         "receive": {
           "heading": "Receive AE tokens"
+        },
+        "send": {
+          "heading": "Send AE tokens"
         }
       },
       "messages": {},
@@ -29,6 +38,7 @@
         "cancel": "Cancel",
         "edit": "Edit",
         "copy": "Copy",
+        "send": "Send",
         "generateWallet": "Generate wallet",
         "importPrivateKey": "Import secret key",
         "import": "Import",

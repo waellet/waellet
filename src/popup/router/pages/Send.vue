@@ -1,26 +1,26 @@
 <template>
   <div class="popup">
     <ae-main>
-      <p>{{heading}}</p>
+      <p>{{language.pages.send.heading}}</p>
       <div>
         <div>
-          <ae-address-input label="Address"
-            placeholder="Address"
+          <ae-address-input :label="language.strings.address"
+            :placeholder="language.strings.address"
             v-model="form.address"
           />
         </div>
         <div v-if="!tx.status">
-          <ae-input label="Amount" placeholder="0.0" aemount v-model="form.amount">
+          <ae-input :label="language.strings.amount" placeholder="0.0" aemount v-model="form.amount">
             <ae-text slot="header" fill="black">AE</ae-text>
           </ae-input>
-          <p>Maximum spendable value: {{maxValue}}</p>
-          <p>Tx fee: {{txFee}}</p>
+          <p>{{language.strings.maxSpendableValue}} {{maxValue}}</p>
+          <p>{{language.strings.txFee}} {{txFee}}</p>
         </div>
         <div>
-            <ae-button face="round" fill="primary" extend @click="send">Send</ae-button>
+            <ae-button face="round" fill="primary" extend @click="send">{{language.buttons.send}}</ae-button>
         </div>
         <div class="actions">
-          <ae-button face="flat" fill="alternative" extend @click="navigateAccount">Back to account</ae-button>
+          <ae-button face="flat" fill="alternative" extend @click="navigateAccount">{{language.buttons.backToAccount}}</ae-button>
         </div>
       </div>
 
@@ -29,8 +29,8 @@
       </div>
     
       <div class="result" v-if="tx.status">
-        <p>Success</p>
-        <a :href="tx.url">See transaction in the explorer.</a>
+        <p>{{language.strings.success}}</p>
+        <a :href="tx.url">{{language.strings.seeTransactionExplorer}}</a>
       </div>
     </ae-main>
   </div>
@@ -50,7 +50,7 @@ export default {
   name: 'Send',
   data() {
     return {
-      heading: 'Send AE tokens',
+      language: locales['en'],
       form: {
         address: '',
         amount: '',
