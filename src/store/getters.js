@@ -10,7 +10,7 @@ export const getters = {
   network(state) {
     return state.network;
   },
-  currentNetwork(state) {
-    return state.currentNetwork;
+  current(state) {
+    return state.current;
   },
 };
