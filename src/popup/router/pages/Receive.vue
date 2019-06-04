@@ -1,6 +1,6 @@
 <template>
   <div class="popup">
-    <p>{{heading}}</p>
+    <p>{{language.pages.receive.heading}}</p>
     <ae-card fill="neutral" align="center">
       <div class="qr-wrapper">
         <qrcode-vue :value="account.publicKey"></qrcode-vue>
@@ -9,13 +9,13 @@
       <ae-toolbar fill="neutral" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert({ name: 'account', type: 'publicKeyCopied' })">
           <ae-icon name="copy" />
-          Copy
+          {{ language.buttons.copy }}
         </ae-button>
       </ae-toolbar>
     </ae-card>
 
     <div class="actions">
-      <ae-button face="round" fill="alternative" extend @click="navigateAccount"> Back to account</ae-button>
+      <ae-button face="round" fill="alternative" extend @click="navigateAccount">{{language.buttons.backToAccount}}</ae-button>
     </div>
   </div>
 </template>
@@ -33,6 +33,7 @@ export default {
   data() {
     return {
       heading: 'Receive AE tokens',
+      language: locales['en']
     }
   },
   locales,

@@ -11,7 +11,10 @@ export default new Vuex.Store({
   state: {
     account: {},
     balance: 0,
-    currentNetwork: 'Testnet',
+    current: {
+      network: 'testnet',
+      language: 'en'
+    },
     network: {
       Testnet: {
         url: 'https://sdk-testnet.aepps.com',

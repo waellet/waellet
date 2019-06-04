@@ -16,7 +16,7 @@
         <!-- <span slot="mobile-left">
           <div class="logo_top">
             <img :src="logo_top" alt="">
-            <p>Waellet</p>
+            <p>{{ language.system.name }}</p>
           </div>
         </span> -->
 
@@ -47,20 +47,14 @@
           </li>
           <li>
             <ae-button @click="exportKeypair">
-              <ae-icon name="save" />
-              Export keypair
+              <ae-icon name="globe" />
+              {{ language.strings.exportKeypair }}
             </ae-button>
           </li>
           <li>
             <ae-button @click="switchLanguage">
               <ae-icon name="globe" />
-              Language
-            </ae-button>
-          </li>
-          <li>
-            <ae-button @click="logout">
-              <ae-icon name="sign-out" />
-              Logout
+              {{ language.strings.logout }}
             </ae-button>
           </li>
         </ae-dropdown>
@@ -79,11 +73,12 @@ import { saveAs } from 'file-saver';
 export default {
   data () {
     return {
-      logo_top: chrome.runtime.getURL('../../../icons/icon_48.png')
+      logo_top: chrome.runtime.getURL('../../../icons/icon_48.png'),
+      language: locales['en']
     }
   },
   computed: {
-    ...mapGetters (['account', 'currentNetwork', 'network'])
+    ...mapGetters (['account', 'current', 'network'])
   },
   methods: {
     newSubAccount () {
