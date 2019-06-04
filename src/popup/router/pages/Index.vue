@@ -55,7 +55,7 @@
             <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
         </ae-input>
       </div>
-      
+
       <ae-button face="round" extend fill="primary" @click="importShowPassword({importType,privateKey,seedPhrase})">Continue</ae-button>
 
       <!--<ae-button face="round" disabled extend fill="seconday" @click="importPrivateKey(secretKey)">Import</ae-button>-->
@@ -120,13 +120,11 @@ export default {
         this.$router.push('/account');
       });
     },
-
     switchImportType(type) {
       this.importType = type;
       this.errorMsg = "This field is requried! ";
       this.inputError = {}; 
     },
-
     checkSeed(seed) {
       return true;
     },
@@ -192,7 +190,6 @@ export default {
              this.errorMsg = "Plese upload keystore.json file! ";
           }
       }
-      
     }
   },
 };
