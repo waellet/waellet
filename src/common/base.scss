@@ -29,6 +29,28 @@ a {
   pointer-events: none;
 }
 
+.wrapper {
+  max-width: 480px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+
+main {
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}
+.loading {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+}
+.center {
+  text-align: center;
+}
+
+
 @mixin size($width, $height: 0) {
   @if $height <= 0 {
     $height: $width
@@ -57,4 +79,25 @@ a {
     float: none;
     clear: both;
   }
+}
+
+.my-2 {
+  margin-top:2em;
+  margin-bottom:2em;
+}
+.input {
+  outline:none;
+  resize:none;
+  background:#F7FAFC !important;
+  border:none;
+  padding-left:1rem;
+}
+.textarea { 
+  outline:none;
+  resize:none;
+  background:#F7FAFC !important;
+  border:none;
+  padding-left:1rem;
+  min-height: 110px;
+  max-height: 200px;
 }
