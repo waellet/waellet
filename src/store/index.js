@@ -11,14 +11,14 @@ export default new Vuex.Store({
   state: {
     account: {},
     balance: 0,
-    currentNetwork: 'testnet',
+    currentNetwork: 'Testnet',
     network: {
-      testnet: {
+      Testnet: {
         url: 'https://sdk-testnet.aepps.com',
         internalUrl: 'https://sdk-testnet.aepps.com',
         networkId: 'ae_uat',
       },
-      mainnet: {
+      Mainnet: {
         url: 'https://sdk-mainnet.aepps.com',
         internalUrl: 'https://sdk-mainnet.aepps.com',
         networkId: 'ae_mainnet',
