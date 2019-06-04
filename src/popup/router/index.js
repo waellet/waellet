@@ -6,12 +6,12 @@ import Components from '@aeternity/aepp-components-3';
 import routes from './routes';
 // import '@aeternity/aepp-components/dist/aepp.components.css';
 import '@aeternity/aepp-components-3/dist/aepp.components.css';
-import AccountPassword from './components/AccountPassword';
+
 
 Vue.use(VueRouter);
 Vue.use(VueClipboard);
 Vue.use(Components);
-Vue.component('accountPassword', AccountPassword);
+
 export default new VueRouter({
   routes,
 });

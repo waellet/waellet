@@ -26,15 +26,12 @@
       </div>
     </footer>
 
-    <accountPassword 
-      @clickAction="importPrivateKey" 
-      :accountPasswordVisible="accountPasswordVisible"
-      :secretKey="secretKey" />
-
+    <!-- <accountPassword @clickAction="importPrivateKey" :accountPasswordVisible="accountPasswordVisible" :data="accountPasswordData" :confirmPassword="confirmPassword" buttonTitle="Import" />
+     -->
     <ae-modal
       v-if="modalVisible"
       @close="modalVisible = false"
-      title="Import secret key">
+      title="Import waellet">
 
       <div class="tabs">
         <span @click="switchImportType('privateKey')" :class="{'tab-active':importType == 'privateKey'}">Private key</span>
@@ -42,35 +39,24 @@
         <span @click="switchImportType('seedPhrase')"  :class="{'tab-active':importType == 'seedPhrase'}">Seed phrase</span>
       </div>
 
-      <ae-input 
-        label="Secret Key"
-        v-if="importType == 'privateKey'" 
-        v-model="secretKey" 
-        v-bind="inputError"
-        class="my-2" >
-        <ae-toolbar slot="footer">
-          This field is required
-        </ae-toolbar>
+      <ae-input label="Secret Key" v-if="importType == 'privateKey'" v-model="privateKey" v-bind="inputError" class="my-2" >
+        <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
       </ae-input>
 
-      <input  type="file" v-if="importType == 'keystore'" placeholder="Upload keystore.json" class="my-2 input" />
+      <ae-input label="Upload keystore.json" v-if="importType == 'keystore'" class="my-2" v-bind="inputError">
+        <input type="file" @change="uploadWallet" ref="walletFile" class="ae-input" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+        <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
+      </ae-input>
       
       <div v-if="importType == 'seedPhrase'">
         <p>Enter your seed phrase. The one you wrote down during account creation. </p>
-        <!--<ae-textarea  v-model="seedPhrase" placeholder="Enter seed phrase" class="my-2  input" />-->
-          <ae-input label="Seed phrase" class="my-2" >
-            <textarea class="textarea"
-              slot-scope="{ context }"
-              @focus="context.focus = true" 
-              @blur="context.focus = false" 
-            />
-            <ae-toolbar slot="footer">
-              This field is required
-            </ae-toolbar>
-          </ae-input>
+        <ae-input label="Seed phrase" class="my-2" v-bind="inputError">
+            <textarea class="ae-input textarea" v-model="seedPhrase" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+            <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
+        </ae-input>
       </div>
-
-      <ae-button face="round" extend fill="secondary" @click="importShowPassword(secretKey)">Continue</ae-button>
+      
+      <ae-button face="round" extend fill="primary" @click="importShowPassword({importType,privateKey,seedPhrase})">Continue</ae-button>
 
       <!--<ae-button face="round" disabled extend fill="seconday" @click="importPrivateKey(secretKey)">Import</ae-button>-->
     </ae-modal>
@@ -90,10 +76,12 @@ export default {
       heading: '',
       modalVisible: false,
       logo: chrome.runtime.getURL('../../../icons/icon_128.png'),
+      privateKey:'',
+      seedPhrase:'',
       importType:'privateKey',
-      showPassword: false,
-      accountPasswordVisible:false,
-      inputError:''
+      inputError:{},
+      walletFile:'',
+      errorMsg:'This field is requried! '
     };
   },
   locales,
@@ -132,27 +120,79 @@ export default {
         this.$router.push('/account');
       });
     },
-    importPrivateKey: async function importPrivateKey({accountPassword,secretKey}) {
-      this.modalVisible = false;
-      this.loading = true;
-      this.accountPasswordVisible = false;
-      const keyPair = await addressGenerator.importPrivateKey(accountPassword, secretKey);
-      chrome.storage.sync.set({userAccount: keyPair}, () => {
-        this.$store.commit('UPDATE_ACCOUNT', keyPair);
-        this.$router.push('/account');
-      });
-    },
+
     switchImportType(type) {
       this.importType = type;
+      this.errorMsg = "This field is requried! ";
+      this.inputError = {}; 
     },
-    importShowPassword(secretKey) {
-      if(secretKey.length == 128) {
-        this.accountPasswordVisible = true;
-        this.modalVisible = false;
-        this.inputError = '';
-      }else {
-        this.inputError = 'error';
+
+    checkSeed(seed) {
+      return true;
+    },
+    uploadWallet() {
+      this.walletFile = this.$refs.walletFile.files[0];
+    },
+    importShowPassword({importType,privateKey,seedPhrase}) {
+      if(importType == 'privateKey') {
+        if(privateKey.length == 128) {
+          this.$router.push({name:'password',params:{
+            confirmPassword:true,
+            data:privateKey,
+            buttonTitle:'Import',
+            type:importType,
+            title:'Import From Private Key'
+          }});
+          this.modalVisible = false;
+          this.inputError = {}; 
+        }else {
+          this.inputError = {error:''};
+          this.errorMsg = "Private key is incorrect! ";
+        }
+      }else if(importType == 'seedPhrase') {
+        let seed = seedPhrase.split(" ");
+        if(seed.length == 12 && this.checkSeed(seedPhrase)) {
+            this.$router.push({name:'password',params:{
+              confirmPassword:true,
+              data:seedPhrase,
+              buttonTitle:'Restore',
+              type:importType,
+              title:'Import From Seed Phrase'
+            }});
+            this.modalVisible = false;
+            this.inputError = {};
+        }else {
+            this.inputError = {error:''};
+            this.errorMsg = "Incorrect seed phrase! ";
+        }
+      }else if(importType == 'keystore') {
+          if(this.walletFile != "") {
+            let reader = new FileReader();
+            let context = this;
+            reader.onload = function(e){
+              try {
+                let keystore = JSON.parse(e.target.result);
+                context.inputError = {};
+                context.$router.push({name:'password',params:{
+                    confirmPassword:false,
+                    data:e.target.result,
+                    buttonTitle:'Import',
+                    type:importType,
+                    title:'Import From Keystore.json'
+                }});
+                context.modalVisible = false;
+              }catch(err) {
+                 context.inputError = {error:''};
+                 context.errorMsg = "Invalid file format! ";
+              }
+            }
+            reader.readAsText(this.walletFile);
+          }else {
+             this.inputError = {error:''};
+             this.errorMsg = "Plese upload keystore.json file! ";
+          }
       }
+      
     }
   },
 };
@@ -160,33 +200,11 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
-main {
-  padding-top: 1rem;
-  padding-bottom: 2rem;
-}
 
 .logo-center {
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
-}
-
-.center {
-  text-align: center;
-}
-
-.loading {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
-}
-
-.wrapper {
-  max-width: 480px;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  margin: 0 auto;
-  padding: 0 3rem;
 }
 .tabs, .date {
     margin-left: rem(-48px);
@@ -202,8 +220,8 @@ main {
     font-weight: bold;
     text-align: center;
     color: #203040;
+    padding-bottom:5px;
     &.tab-active {
-      padding-bottom: 0;
       border-bottom: 2px solid #FF0D6A;
     }
     
