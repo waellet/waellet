@@ -1,11 +1,60 @@
 {
     "en": {
-      "prompt": "Current page url's QRCode",
-      "actionTip": "( double click QRCode to edit )",
-      "getNew": "You've got a new QRCode",
-      "editPromp": "Edit QRCode content",
-      "editTip": "( Don't type too much )",
-      "moreLink": "more...",
-      "textToolong": "Too much words"
-    }
+      "system": {
+        "name": "Waellet"
+      },
+      "strings": {
+        "account": "Account",
+        "myAccount": "My Account",
+        "exportKeypair": "Export keypair",
+        "logout": "Logout",
+        "securingAccount": "Securing your account",
+        "address": "Address",
+        "amount": "Amount",
+        "maxSpendableValue": "Maximum spendable value:",
+        "txFee": "Tx fee:",
+        "success": "Success",
+        "seeTransactionExplorer": "See transaction in the explorer.",
+        "accountName": "Account name"
+      },
+      "networks": {
+        "testnet": "Testnet",
+        "mainnet": "Mainnet"
+      },
+      "pages": {
+        "index": {
+          "heading": "Welcome to waellet, to start interacting with aeternity blockchain:"
+        },
+        "account": {
+          "heading": "Account"
+        },
+        "receive": {
+          "heading": "Receive AE tokens"
+        },
+        "send": {
+          "heading": "Send AE tokens"
+        }
+      },
+      "messages": {},
+      "buttons": {
+        "ok": "Ok",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "copy": "Copy",
+        "send": "Send",
+        "receive": "Receive",
+        "tipWebsite": "Tip website",
+        "generateWallet": "Generate wallet",
+        "importPrivateKey": "Import secret key",
+        "import": "Import",
+        "backToAccount": "Back to account"
+      },
+      "placeholders": {
+        "inputPrivateKey": "Input secret key"
+      }
+    },
+    "ru": {},
+    "es": {},
+    "fr": {},
+    "cn": {}
 }

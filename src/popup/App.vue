@@ -5,31 +5,31 @@
         <span slot="mobile-left">
           <div class="logo_top">
             <img :src="logo_top" alt="">
-            <p>Waellet</p>
+            <p>{{ language.system.name }}</p>
           </div>
         </span>
 
         <!-- network -->
         <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right" class="mr-2">
           <ae-button slot="button" class="top-button">
-            <p class="p-top status" v-if="currentNetwork == 'testnet'">
-              Testnet
+            <p class="p-top status" v-if="current.network == 'testnet'">
+              {{ language.networks.testnet }}
             </p>
-            <p class="p-top status" v-if="currentNetwork == 'mainnet'">
-              Mainnet
+            <p class="p-top status" v-if="current.network == 'mainnet'">
+              {{ language.networks.mainnet }}
             </p>
           </ae-button>
           <li>
             <ae-button @click="switchNetwork('testnet')">
-              <p :class="currentNetwork == 'testnet' ? 'status' : ''">
-                Testnet
+              <p :class="current.network == 'testnet' ? 'status' : ''">
+                {{ language.networks.testnet }}
               </p>
             </ae-button>
           </li>
           <li>
             <ae-button @click="switchNetwork('mainnet')">
-              <p :class="currentNetwork == 'mainnet' ? 'status' : ''">
-                Mainnet
+              <p :class="current.network == 'mainnet' ? 'status' : ''">
+                {{ language.networks.mainnet }}
               </p>
             </ae-button>
           </li>
@@ -38,24 +38,24 @@
         <!-- account -->
         <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right">
           <ae-button slot="button" class="top-button">
-            <p class="p-top">Account</p>
+            <p class="p-top">{{ language.strings.account }}</p>
           </ae-button>
           <li>
             <ae-button @click="myAccount">
               <ae-icon fill="primary" name="globe" />
-              My Account
+              {{ language.strings.myAccount }}
             </ae-button>
           </li>
           <li>
             <ae-button @click="exportKeypair">
               <ae-icon name="globe" />
-              Export keypair
+              {{ language.strings.exportKeypair }}
             </ae-button>
           </li>
           <li>
             <ae-button @click="logout">
               <ae-icon name="globe" />
-              Logout
+              {{ language.strings.logout }}
             </ae-button>
           </li>
         </ae-dropdown>
@@ -74,11 +74,12 @@ import { saveAs } from 'file-saver';
 export default {
   data () {
     return {
-      logo_top: chrome.runtime.getURL('../../../icons/icon_48.png')
+      logo_top: chrome.runtime.getURL('../../../icons/icon_48.png'),
+      language: locales['en']
     }
   },
   computed: {
-    ...mapGetters (['account', 'currentNetwork', 'network'])
+    ...mapGetters (['account', 'current', 'network'])
   },
   methods: {
     switchNetwork (network) {

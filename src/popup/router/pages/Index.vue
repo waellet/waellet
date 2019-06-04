@@ -2,7 +2,7 @@
   <div>
     <main>
       <div class="wrapper">
-        <p>{{ heading }}</p>
+        <p>{{ language.pages.index.heading }}</p>
         <div class="logo-center">
           <img :src="logo" alt="Waellet logo">
         </div>
@@ -12,7 +12,7 @@
     <div v-if="loading" class="loading">
       <div class="wrapper">
         <div class="center">
-          <span>Securing your account</span>
+          <span>{{ language.strings.securingAccount }}</span>
           <br>
           <ae-loader />
         </div>
@@ -21,8 +21,8 @@
     
     <footer v-if="!loading">
       <div class="wrapper">
-          <ae-button face="round" fill="primary" extend @click="generateAddress">Generate wallet</ae-button>
-          <ae-button face="round" extend @click="modalVisible = true">Import secret key</ae-button>
+          <ae-button face="round" fill="primary" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
+          <ae-button face="round" extend @click="modalVisible = true">{{ language.buttons.importPrivateKey }}</ae-button>
       </div>
     </footer>
 
@@ -73,7 +73,7 @@ export default {
   data() {
     return {
       loading: false,
-      heading: '',
+      language: locales['en'],
       modalVisible: false,
       logo: chrome.runtime.getURL('../../../icons/icon_128.png'),
       privateKey:'',
@@ -81,24 +81,13 @@ export default {
       importType:'privateKey',
       inputError:{},
       walletFile:'',
-      errorMsg:'This field is requried! '
+      errorMsg:'This field is requried!'
     };
   },
-  locales,
   computed: {
     ...mapGetters(['account'])
   },
-  mounted() {
-    chrome.tabs.query(
-      {
-        active: true,
-        lastFocusedWindow: true,
-      },
-      tabs => {
-        this.heading = 'Welcome to waellet, to start interacting with aeternity blockchain:';
-      }
-    );
-  },
+  mounted() {},
   created () {
     this.init();
   },
