@@ -9,15 +9,7 @@
       </div>
     </main>
     
-    <div v-if="loading" class="loading">
-      <div class="wrapper">
-        <div class="center">
-          <span>{{ language.strings.securingAccount }}</span>
-          <br>
-          <ae-loader />
-        </div>
-      </div>
-    </div>
+    <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
     
     <footer v-if="!loading">
       <div class="wrapper">
@@ -28,7 +20,7 @@
 
     <!-- <accountPassword @clickAction="importPrivateKey" :accountPasswordVisible="accountPasswordVisible" :data="accountPasswordData" :confirmPassword="confirmPassword" buttonTitle="Import" />
      -->
-    <ae-modal
+    <ae-modal 
       v-if="modalVisible"
       @close="modalVisible = false"
       title="Import waellet">
@@ -43,10 +35,15 @@
         <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
       </ae-input>
 
-      <ae-input label="Upload keystore.json" v-if="importType == 'keystore'" class="my-2" v-bind="inputError">
-        <input type="file" @change="uploadWallet" ref="walletFile" class="ae-input" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-        <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
-      </ae-input>
+      <div v-if="importType == 'keystore'" >
+        <label for="walletFile" class="customFileUpload my-2 ae-input-box">
+          <div class="file-label"> Choose file</div>
+          <div class="file-input">{{walletFile !='' ? walletFile.name : ''}}</div>
+          <div class="file-toolbar">{{errorMsg}}</div>
+        </label>
+        
+        <input type="file" id="walletFile" @change="uploadWallet" ref="walletFile" class="ae-input" />
+      </div>
       
       <div v-if="importType == 'seedPhrase'">
         <p>Enter your seed phrase. The one you wrote down during account creation. </p>
@@ -102,13 +99,17 @@ export default {
       });
     },
     generateAddress: async function generateAddress({ dispatch }) {
-      this.loading = true;
-      const keyPair = await addressGenerator.generateKeyPair('test');
-      chrome.storage.sync.set({userAccount: keyPair}, () => {
-        this.$store.commit('UPDATE_ACCOUNT', keyPair);
-        this.$router.push('/account');
-      });
+        this.loading = true;
+        const keyPair = await addressGenerator.generateKeyPair('test');
+        chrome.storage.sync.set({userAccount: keyPair}, () => {
+            this.$store.commit('UPDATE_ACCOUNT', keyPair);
+            // this.$router.push('/account');
+            this.$router.push('/seed');
+        });
+        
+        
     },
+   
     switchImportType(type) {
       this.importType = type;
       this.errorMsg = "This field is requried! ";
@@ -213,6 +214,8 @@ export default {
     
   }
 }
+#walletFile { display:none; }
+
 
 
 </style>

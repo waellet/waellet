@@ -3,6 +3,7 @@ import AccountComponent from './pages/Account';
 import SendComponent from './pages/Send';
 import ReceiveComponent from './pages/Receive';
 import AccountPasswordComponent from './pages/AccountPassword';
+import SeedPhraseComponent from './pages/SeedPhrase';
 
 export default [
   {
@@ -25,6 +26,12 @@ export default [
     name: 'password',
     path: '/password',
     component: AccountPasswordComponent,
+    props:true
+  },
+  {
+    name:'seed',
+    path:'/seed',
+    component:SeedPhraseComponent,
     props:true
   }
 ];

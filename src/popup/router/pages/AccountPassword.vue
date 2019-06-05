@@ -14,13 +14,7 @@
                     </ae-input>
                     <ae-button face="round" extend fill="primary" @click="clickAction({accountPassword,data,confirmAccountPassword})">{{buttonTitle}}</ae-button>
                 </div>
-                <div v-if="loading" class="loading">
-                    <div class="center">
-                    <span>Securing your account</span>
-                    <br>
-                    <ae-loader />
-                    </div>
-                </div>
+                <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
             </div>
         </main>
     </div>
@@ -33,11 +27,12 @@ export default {
     props: ['data','confirmPassword','buttonTitle','type','title'],
     data() {
         return {
-           accountPassword:'',
-           confirmAccountPassword:'',
-           inputError:{},
-           loading:false,
-           errorMsg:''
+            language: locales['en'],
+            accountPassword:'',
+            confirmAccountPassword:'',
+            inputError:{},
+            loading:false,
+            errorMsg:''
         }
     },
     locales,
