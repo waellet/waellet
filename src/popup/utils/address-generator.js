@@ -21,6 +21,7 @@ async function generateKeyPair (passphrase) {
   const keys = await Crypto.generateKeyPairFromSecret(hexStr)
 
   const keystore = await dump('keystore', passphrase, keys.secretKey);
+  console.log(keystore);
   return {
     publicKey: keystore.public_key,
     secretKey: secretBuffer.toString('hex').trim(), // NOT SECURE

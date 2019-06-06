@@ -10,7 +10,7 @@
         </span>
 
         <!-- network -->
-        <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right" class="mr-2">
+        <ae-dropdown v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" class="mr-2">
           <ae-button slot="button" class="top-button">
             <p class="p-top status" v-if="current.network == 'testnet'">
               {{ language.networks.testnet }}
@@ -36,7 +36,7 @@
         </ae-dropdown>
 
         <!-- account -->
-        <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right">
+        <ae-dropdown v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right">
           <ae-button slot="button" class="top-button">
             <p class="p-top">{{ language.strings.account }}</p>
           </ae-button>
@@ -99,7 +99,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network','popup']),
+    ...mapGetters (['account', 'current', 'network','popup','isLoggedIn']),
     popupButtonFill(){
       return this.popup.type == 'error' ? 'primary' : 'alternative';
     }
@@ -109,8 +109,9 @@ export default {
       this.$store.dispatch('switchNetwork', network).then(() => this.$store.dispatch('updateBalance'));
     },
     logout () {
-      chrome.storage.sync.set({userAccount: ''}, () => {
+      chrome.storage.sync.set({isLogged: false}, () => {
         this.$store.commit('UPDATE_ACCOUNT', '');
+        this.$store.commit('SWITCH_LOGGED_IN', false);
         this.$router.push('/');
       });
     },

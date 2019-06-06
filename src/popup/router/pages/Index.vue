@@ -91,23 +91,35 @@ export default {
   methods: {
     init () {
       // check if there is an account generated already
-      chrome.storage.sync.get('userAccount', data => {
-        this.$store.commit('UPDATE_ACCOUNT', data.userAccount);
-        if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
-          this.$router.push('/account');
-        }
+       
+      chrome.storage.sync.get('isLogged', data => {
+        chrome.storage.sync.get('userAccount', user => {
+            if(user.userAccount && user.hasOwnProperty('userAccount')) {
+              this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
+            }
+            if (data.isLogged && data.hasOwnProperty('isLogged')) {
+              this.$store.commit('SWITCH_LOGGED_IN', true);
+              this.$router.push('/account');
+            }else {
+              this.$router.push({name:'password',params: {
+                confirmPassword:false,
+                data:'',
+                buttonTitle:'Login',
+                type:'login',
+                title:'Login into your Waellet'
+              }});
+            }
+        });
       });
     },
     generateAddress: async function generateAddress({ dispatch }) {
-        this.loading = true;
-        const keyPair = await addressGenerator.generateKeyPair('test');
-        chrome.storage.sync.set({userAccount: keyPair}, () => {
-            this.$store.commit('UPDATE_ACCOUNT', keyPair);
-            // this.$router.push('/account');
-            this.$router.push('/seed');
-        });
-        
-        
+        this.$router.push({name:'password',params:{
+          confirmPassword:true,
+          data:'',
+          buttonTitle:'Continue',
+          type:'generateEncrypt',
+          title:'Protect Account with Password'
+        }});
     },
    
     switchImportType(type) {

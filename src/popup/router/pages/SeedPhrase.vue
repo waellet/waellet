@@ -97,7 +97,10 @@ export default {
                         this.seedError = {"error":"Oops! Not the correct order, try again"}
                     }else {
                         this.seedError = {};
-                        this.$router.push('/account');
+                        chrome.storage.sync.set({isLogged: true}, () => {
+                            this.$router.push('/account');
+                        });
+                        
                     }
                 }
             }

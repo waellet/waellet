@@ -7,6 +7,7 @@
                     <ae-input  placeholder="" class="my-2" label="Password" v-bind="inputError">
                         <input type="password" class="ae-input" min="4"  v-model="accountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest 4 symbols! </ae-toolbar>
+                        <ae-toolbar v-if="loginError" slot="footer">Incorrect password !</ae-toolbar>
                     </ae-input>
                     <ae-input  v-if="confirmPassword"   placeholder="" class="my-2" label="Repeat Password" v-bind="inputError">
                         <input type="password" class="ae-input" min="4" v-model="confirmAccountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
@@ -23,6 +24,7 @@
 <script>
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
+import { decrypt } from '../../utils/keystore';
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title'],
     data() {
@@ -32,7 +34,8 @@ export default {
             confirmAccountPassword:'',
             inputError:{},
             loading:false,
-            errorMsg:''
+            errorMsg:'',
+            loginError:false
         }
     },
     locales,
@@ -55,6 +58,10 @@ export default {
                 this.importSeedPhrase({accountPassword,data});
             }else if(this.type == 'keystore') {
                 this.importKeystore({accountPassword,data});
+            }else if(this.type == 'generateEncrypt') {
+                this.generateAddress({accountPassword});
+            }else if(this.type == 'login') {
+                this.login({accountPassword});
             }
             // this.$emit('clickAction',{accountPassword,data});
         },
@@ -77,7 +84,35 @@ export default {
             console.log("Import Keystore");
             console.log("password" + accountPassword);
             console.log("keystore data" + data);
-        }
+        },
+        generateAddress: async function generateAddress({ accountPassword }) {
+            this.loading = true;
+            const keyPair = await addressGenerator.generateKeyPair(accountPassword);
+            chrome.storage.sync.set({userAccount: keyPair}, () => {
+                this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                // this.$router.push('/account');
+                this.$router.push('/seed');
+            });
+        },
+        login: async function login ({accountPassword}) {
+            this.loading = true;
+            chrome.storage.sync.get('userAccount', async user => {
+                if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                    let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                    let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                    if(match) {
+                        this.loginError = false;
+                         chrome.storage.sync.set({isLogged: true}, () => {
+                            this.$store.commit('SWITCH_LOGGED_IN', true);
+                            this.$router.push('/account');
+                        });
+                    }else {
+                        this.loginError = true;
+                    }
+                    this.loading = false;
+                }
+            });
+        },
     }
 }
 

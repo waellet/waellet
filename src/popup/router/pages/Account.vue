@@ -25,6 +25,7 @@
       </ae-button-group>
       <ae-button face="round" fill="alternative" disabled extend >{{language.buttons.tipWebsite}}</ae-button>
     </div>
+  
   </div> 
 </template>
 
@@ -32,7 +33,6 @@
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { setInterval } from 'timers';
-
 export default {
   name: 'Account',
   data () {
@@ -51,6 +51,7 @@ export default {
   methods: {
     pollData() { 
       this.polling = setInterval(() => {
+        
         this.$store.dispatch('updateBalance');
       }, 200)
     },

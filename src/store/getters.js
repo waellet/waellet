@@ -15,5 +15,8 @@ export const getters = {
   },
   popup(state) {
     return state.popup;
+  },
+  isLoggedIn(state) {
+    return state.isLoggedIn;
   }
 };
