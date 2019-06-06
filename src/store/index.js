@@ -27,6 +27,12 @@ export default new Vuex.Store({
         networkId: 'ae_mainnet',
       },
     },
+    popup:{
+      show:false,
+      type:'',
+      title:'',
+      msg:''
+    }
   },
   getters,
   mutations,

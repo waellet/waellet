@@ -36,6 +36,7 @@
 
 <script>
 import locales from '../../locales/locales.json';
+
 export default {
     data() {
         return {
@@ -67,7 +68,7 @@ export default {
         nextSeedStep(step) {
             step += 1;
             if(step <= 3) {
-                this.step = step;
+                
                 if(step == 2) {
                     this.buttonTitle = "next";
                     let context = this;
@@ -78,9 +79,15 @@ export default {
                         }
                     },8);
                 }else if(step == 3) {
-                    this.buttonTitle = "Confirm";
-                    this.buttonFill = "";
+                    if(this.progress >= 100) {
+                        this.buttonTitle = "Confirm";
+                        this.buttonFill = "";
+                    }else {
+                        this.$store.dispatch('popupAlert', {name:'account',type:'seedFastCopy'});
+                        return;
+                    }
                 }
+                this.step = step;
             }else if(step == 4) {
                 const originalSeed = this.seeds.map(seed => seed.name).join(",");
                 const selectSeed = this.selectedSeed.map(seed => seed.name).join(",");

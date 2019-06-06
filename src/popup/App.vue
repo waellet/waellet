@@ -61,6 +61,26 @@
         </ae-dropdown>
       </ae-header>
     </header>
+    
+    
+   
+    <ae-modal-light
+        v-if="popup.show"
+        @close="closePopup"
+        :title="popup.title"
+      >
+        {{popup.msg}}
+        <ae-button
+          size="small"
+          type="exciting"
+          class="popup-button"
+          face="round"
+          :fill="popupButtonFill"
+          uppercase
+          @click.native="closePopup"
+          slot="buttons"
+        >OK</ae-button>
+      </ae-modal-light>
     <router-view></router-view>
   </ae-main>
 </template>
@@ -79,7 +99,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network'])
+    ...mapGetters (['account', 'current', 'network','popup']),
+    popupButtonFill(){
+      return this.popup.type == 'error' ? 'primary' : 'alternative';
+    }
   },
   methods: {
     switchNetwork (network) {
@@ -91,7 +114,12 @@ export default {
         this.$router.push('/');
       });
     },
-
+    closePopup() {
+      this.$store.commit('HIDE_POPUP');
+    },
+    popupAlert(payload) {
+      this.$store.dispatch('popupAlert', payload)
+    },
     myAccount () {
       this.$router.push('/account');
     },
@@ -177,5 +205,7 @@ p.status::before {
   border: 1px solid green;
   background-color: greenyellow;
 }
-
+.popup-button { 
+  width:100px !important;
+}
 </style>

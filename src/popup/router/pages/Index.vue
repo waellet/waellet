@@ -35,7 +35,7 @@
         <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
       </ae-input>
 
-      <div v-if="importType == 'keystore'" >
+      <div v-if="importType == 'keystore'" class="walletFileHolder" :class="{'walletFileHolderError':inputError.hasOwnProperty('error')}">
         <label for="walletFile" class="customFileUpload my-2 ae-input-box">
           <div class="file-label"> Choose file</div>
           <div class="file-input">{{walletFile !='' ? walletFile.name : ''}}</div>
@@ -46,7 +46,7 @@
       </div>
       
       <div v-if="importType == 'seedPhrase'">
-        <p>Enter your seed phrase. The one you wrote down during account creation. </p>
+        <p class="importTitle">Enter your seed phrase. The one you wrote down during account creation. </p>
         <ae-input label="Seed phrase" class="my-2" v-bind="inputError">
             <textarea class="ae-input textarea" v-model="seedPhrase" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
             <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
@@ -157,10 +157,12 @@ export default {
           if(this.walletFile != "") {
             let reader = new FileReader();
             let context = this;
+            console.log(this.inputError);
             reader.onload = function(e){
               try {
                 let keystore = JSON.parse(e.target.result);
                 context.inputError = {};
+                
                 context.$router.push({name:'password',params:{
                     confirmPassword:false,
                     data:e.target.result,
@@ -209,13 +211,21 @@ export default {
     color: #203040;
     padding-bottom:5px;
     &.tab-active {
-      border-bottom: 2px solid #FF0D6A;
+      border-bottom: 2px solid $primary-color;
     }
-    
   }
 }
 #walletFile { display:none; }
-
+.walletFileHolder {
+  border-left:2px solid transparent;
+  &.walletFileHolderError {
+    border-left:2px solid $input-border-color;
+  }
+}
+.importTitle { 
+    font-size: 1.5rem;
+    font-weight: 500;
+}
 
 
 </style>

@@ -13,4 +13,7 @@ export const getters = {
   current(state) {
     return state.current;
   },
+  popup(state) {
+    return state.popup;
+  }
 };

@@ -6,12 +6,14 @@ $input-background:#ececec;
 $input-toolbar-background:#d0d0d0;
 $input-toolbar-color:#000;
 $primary-color:#FF0D6A;
+$input-border-color:#B300FF;
+
 * {
   box-sizing: border-box;
 }
 
 html {
-  font-family: "Helvetica Neue", HelveticaNeue, Helvetica, Arial, sans-serif;;
+  font-family: "Helvetica Neue", HelveticaNeue, Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
   color: $main-font-color;
@@ -60,7 +62,8 @@ main {
   .ae-toolbar { background: $input-toolbar-background; color:$input-toolbar-color;}
 }
 
-.ae-phraser {  }
+.ae-overlay .ae-modal-light .buttons { margin-top:5px !important;  }
+.ae-overlay .ae-modal-light main { padding-bottom:1rem; }
 
 .customFileUpload {
   display: block;
@@ -110,7 +113,9 @@ main {
     border: none;
     outline: none;
   }
-  
+}
+.ae-overlay {
+  z-index:5;
 }
 
 @mixin size($width, $height: 0) {
