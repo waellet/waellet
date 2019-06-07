@@ -248,26 +248,7 @@ export default {
   flex-flow: row wrap;
   justify-content: center;
 }
-.tabs, .date {
-    margin-left: rem(-48px);
-    margin-right: rem(-48px);
-    padding-left: rem(48px);
-}
-.tabs {
-  box-shadow: 0 4px 2px -2px rgba(27, 68, 121, 0.1);
-  span {
-    cursor: pointer;
-    display:inline-block;
-    width:32%;
-    font-weight: bold;
-    text-align: center;
-    color: #203040;
-    padding-bottom:5px;
-    &.tab-active {
-      border-bottom: 2px solid $primary-color;
-    }
-  }
-}
+
 #walletFile { display:none; }
 .walletFileHolder {
   border-left:2px solid transparent;

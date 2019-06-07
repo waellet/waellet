@@ -4,7 +4,8 @@ import SendComponent from './pages/Send';
 import ReceiveComponent from './pages/Receive';
 import AccountPasswordComponent from './pages/AccountPassword';
 import SeedPhraseComponent from './pages/SeedPhrase';
-
+import TransactionsComponent from './pages/Transactions';
+import TransactionDetailsComponent from './pages/TransactionDetails';
 export default [
   {
     path: '/',
@@ -32,6 +33,16 @@ export default [
     name:'seed',
     path:'/seed',
     component:SeedPhraseComponent,
+    props:true
+  },
+  {
+    path:'/transactions',
+    component:TransactionsComponent
+  },
+  {
+    name:'transaction-details',
+    path:'/transaction-details',
+    component:TransactionDetailsComponent,
     props:true
   }
 ];
