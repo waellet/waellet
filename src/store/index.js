@@ -32,7 +32,8 @@ export default new Vuex.Store({
       type:'',
       title:'',
       msg:''
-    }
+    },
+    isLoggedIn:false
   },
   getters,
   mutations,

@@ -47,9 +47,15 @@
             </ae-button>
           </li>
           <li>
-            <ae-button @click="exportKeypair">
+            <ae-button @click="exportKeypair('keypair')">
               <ae-icon name="globe" />
               {{ language.strings.exportKeypair }}
+            </ae-button>
+          </li>
+          <li>
+            <ae-button @click="exportKeypair('keystore')">
+              <ae-icon name="globe" />
+              Export keystore.json
             </ae-button>
           </li>
           <li>
@@ -124,11 +130,17 @@ export default {
     myAccount () {
       this.$router.push('/account');
     },
-
-    exportKeypair () {
-      let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
-      let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
-      saveAs(blob, "keypair.json");
+    exportKeypair (type) {
+      if(type == 'keypair'){
+        let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
+        let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+        saveAs(blob, "keypair.json");
+      }else if(type == 'keystore') {
+         let blobData = this.account.encryptedPrivateKey;
+        let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+        saveAs(blob, "keystore.json");
+      }
+      
     }
   }
 };

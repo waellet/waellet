@@ -14,7 +14,7 @@
                 </div>
                 <div v-if="step == 3">
                     <h3  class="phraseTitle">Confirm your phrase. Tap the words below to compose your phrase, note correct order! </h3>
-                    <ae-phraser >
+                    <ae-phraser>
                         <ae-badge class="seedBadge" :class="{'selected':seed.selected}" v-for="(seed,index) in seeds" @click.native="selectSeed(seed.name,index)">{{seed.name}}</ae-badge>
                     </ae-phraser>
                     <div class="phraseSubTitle">Your recovery phrase</div>
@@ -24,7 +24,7 @@
                         <ae-badge class="seedBadge selected">third</ae-badge>
                         <ae-badge class="seedBadge selected">...</ae-badge>
                     </ae-phraser>
-                    <ae-phraser  v-bind="seedError">
+                    <ae-phraser v-bind="seedError">
                         <ae-badge class="seedBadge" v-for="(seed,index) in selectedSeed" @click.native="removeSeed(seed.parent,index)">{{seed.name}} <ae-icon name="close" class="seedClose" /></ae-badge>
                     </ae-phraser>
                 </div>
@@ -64,11 +64,9 @@ export default {
     },
     locales,
     methods: { 
-    
         nextSeedStep(step) {
             step += 1;
             if(step <= 3) {
-                
                 if(step == 2) {
                     this.buttonTitle = "next";
                     let context = this;
@@ -91,16 +89,15 @@ export default {
             }else if(step == 4) {
                 const originalSeed = this.seeds.map(seed => seed.name).join(",");
                 const selectSeed = this.selectedSeed.map(seed => seed.name).join(",");
-               
                 if(this.selectedSeed.length == 12) {
                     if(originalSeed != selectSeed) {
                         this.seedError = {"error":"Oops! Not the correct order, try again"}
                     }else {
                         this.seedError = {};
                         chrome.storage.sync.set({isLogged: true}, () => {
+                            this.$store.commit('SWITCH_LOGGED_IN', true);
                             this.$router.push('/account');
                         });
-                        
                     }
                 }
             }

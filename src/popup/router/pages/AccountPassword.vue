@@ -69,8 +69,11 @@ export default {
             this.loading = true;
             const keyPair = await addressGenerator.importPrivateKey(accountPassword, data);
             chrome.storage.sync.set({userAccount: keyPair}, () => {
-                this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                this.$router.push('/account');
+                chrome.storage.sync.set({isLogged: true}, () => {
+                    this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                    this.$store.commit('SWITCH_LOGGED_IN', true);
+                    this.$router.push('/account');
+                }); 
             });
         },
         importSeedPhrase({accountPassword,data}) {
@@ -79,11 +82,25 @@ export default {
             console.log("password" + accountPassword);
             console.log("seed" + data);
         },
-        importKeystore({accountPassword,data}) {
+        importKeystore:async function importKeystore({accountPassword,data}) {
             this.loading = true;
-            console.log("Import Keystore");
-            console.log("password" + accountPassword);
-            console.log("keystore data" + data);
+            const encryptedPrivateKey = JSON.parse(data);
+            let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+            if(match) {
+                let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),secretKey:'',publicKey:encryptedPrivateKey.public_key};
+                chrome.storage.sync.set({userAccount: keyPair}, () => {
+                    chrome.storage.sync.set({isLogged: true}, () => {
+                        this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                        this.$store.commit('SWITCH_LOGGED_IN', true);
+                        this.$router.push('/account');
+                    });
+                });
+            }else {
+                this.loginError = true;
+                this.inputError = {error:''};
+                this.loading = false;
+                
+            }
         },
         generateAddress: async function generateAddress({ accountPassword }) {
             this.loading = true;
@@ -92,25 +109,6 @@ export default {
                 this.$store.commit('UPDATE_ACCOUNT', keyPair);
                 // this.$router.push('/account');
                 this.$router.push('/seed');
-            });
-        },
-        login: async function login ({accountPassword}) {
-            this.loading = true;
-            chrome.storage.sync.get('userAccount', async user => {
-                if(user.userAccount && user.hasOwnProperty('userAccount')) {
-                    let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-                    let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
-                    if(match) {
-                        this.loginError = false;
-                         chrome.storage.sync.set({isLogged: true}, () => {
-                            this.$store.commit('SWITCH_LOGGED_IN', true);
-                            this.$router.push('/account');
-                        });
-                    }else {
-                        this.loginError = true;
-                    }
-                    this.loading = false;
-                }
             });
         },
     }

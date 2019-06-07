@@ -10,11 +10,19 @@
     </main>
     
     <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
-    
     <footer v-if="!loading">
       <div class="wrapper">
-          <ae-button face="round" fill="primary" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
-          <ae-button face="round" extend @click="modalVisible = true">{{ language.buttons.importPrivateKey }}</ae-button>
+          <div v-if="account.encryptedPrivateKey">
+            <ae-input  placeholder="" class="my-2" label="Password" v-bind="inputError">
+                <input type="password" class="ae-input" min="4"  v-model="accountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest 4 symbols! </ae-toolbar>
+                <ae-toolbar v-if="loginError" slot="footer">Incorrect password !</ae-toolbar>
+            </ae-input>
+            <ae-button face="round" extend fill="primary" @click="login({accountPassword})">Login</ae-button>
+            <ae-divider />
+          </div>
+          <ae-button face="round" v-if="!account.encryptedPrivateKey" fill="primary" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
+          <ae-button face="round" extend @click="openImportModal">{{ language.buttons.importPrivateKey }}</ae-button>
       </div>
     </footer>
 
@@ -64,7 +72,7 @@
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
-
+import { decrypt } from '../../utils/keystore';
 export default {
   name: 'Home',
   data() {
@@ -78,11 +86,14 @@ export default {
       importType:'privateKey',
       inputError:{},
       walletFile:'',
-      errorMsg:'This field is requried!'
+      errorMsg:'This field is requried!',
+      errorMsg:'',
+      loginError:false,
+      accountPassword:''
     };
   },
   computed: {
-    ...mapGetters(['account'])
+    ...mapGetters(['account','isLoggedIn'])
   },
   mounted() {},
   created () {
@@ -91,7 +102,8 @@ export default {
   methods: {
     init () {
       // check if there is an account generated already
-       
+      // chrome.storage.sync.set({userAccount: ''}, () => {});
+      // chrome.storage.sync.set({isLogged: ''}, () => {});
       chrome.storage.sync.get('isLogged', data => {
         chrome.storage.sync.get('userAccount', user => {
             if(user.userAccount && user.hasOwnProperty('userAccount')) {
@@ -100,14 +112,6 @@ export default {
             if (data.isLogged && data.hasOwnProperty('isLogged')) {
               this.$store.commit('SWITCH_LOGGED_IN', true);
               this.$router.push('/account');
-            }else {
-              this.$router.push({name:'password',params: {
-                confirmPassword:false,
-                data:'',
-                buttonTitle:'Login',
-                type:'login',
-                title:'Login into your Waellet'
-              }});
             }
         });
       });
@@ -169,20 +173,23 @@ export default {
           if(this.walletFile != "") {
             let reader = new FileReader();
             let context = this;
-            console.log(this.inputError);
             reader.onload = function(e){
               try {
                 let keystore = JSON.parse(e.target.result);
                 context.inputError = {};
-                
-                context.$router.push({name:'password',params:{
-                    confirmPassword:false,
-                    data:e.target.result,
-                    buttonTitle:'Import',
-                    type:importType,
-                    title:'Import From Keystore.json'
-                }});
-                context.modalVisible = false;
+                if(keystore.crypto.ciphertext.length && keystore.crypto.cipher_params.nonce && keystore.crypto.kdf_params.salt.length){
+                    context.$router.push({name:'password',params:{
+                      confirmPassword:false,
+                      data:e.target.result,
+                      buttonTitle:'Import',
+                      type:importType,
+                      title:'Import From Keystore.json'
+                  }});
+                  context.modalVisible = false;
+                }else {
+                  context.inputError = {error:''};
+                  context.errorMsg = "Invalid file format! ";
+                }
               }catch(err) {
                  context.inputError = {error:''};
                  context.errorMsg = "Invalid file format! ";
@@ -194,7 +201,41 @@ export default {
              this.errorMsg = "Plese upload keystore.json file! ";
           }
       }
-    }
+    },
+    openImportModal() {
+      this.modalVisible = true;
+      this.inputError = {};
+      this.errorMsg = "This field is requried! ";
+    },
+    login: async function login ({accountPassword}) {
+        let context = this;
+        if(accountPassword.length >= 4){
+          context.loading = true;
+          chrome.storage.sync.get('userAccount', async user => {
+              this.errorMsg = "";
+              if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                  let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                  let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                  if(match) {
+                      this.loginError = false;
+                      this.inputError = {};
+                      chrome.storage.sync.set({isLogged: true}, () => {
+                          this.$store.commit('SWITCH_LOGGED_IN', true);
+                          this.$router.push('/account');
+                      });
+                  }else {
+                      this.loginError = true;
+                      this.inputError = {error:''};
+                  }
+                  context.loading = false;
+              }
+          });
+        }else {
+          this.errorMsg = "length";
+          this.inputError = {error:''};
+          context.loading = false;
+        }
+    },
   },
 };
 </script>
