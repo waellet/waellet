@@ -4,9 +4,10 @@
             <ae-identicon :address="transactionData.tx.sender_id" />
             <div class="transaction-address">
                 <ae-address :value="transactionData.tx.sender_id" length="short" />
-                <ae-text face="mono-xs">{{ new Date(transactionData.time).toLocaleTimeString() }}</ae-text>
+                <ae-text face="mono-xs">{{ new Date(transactionData.time).toDateString() + ' ' + new Date(transactionData.time).toLocaleTimeString() }}</ae-text>
             </div>
             <div class="text-right balance-change">
+                <ae-badge class="badgeTransactionType" :class="transactionTypeClass">{{transactionType}}</ae-badge>
                 <div class="balance" :class="balanceSign" >{{transactionData.tx.amount / 10 ** 18}}</div>
                 <small><span class="balance">{{transactionData.tx.fee / 10 ** 18}}</span></small>
             </div>
@@ -26,6 +27,12 @@ export default  {
         ...mapGetters(['account']),
         balanceSign() {
             return this.transactionData.tx.sender_id == this.account.publicKey ? 'minus' : 'plus';
+        },
+        transactionTypeClass() {
+            return "transaction" + (this.transactionData.tx.sender_id == this.account.publicKey ? 'Outgoing' : 'Incoming');
+        },
+        transactionType() {
+            return this.transactionData.tx.sender_id == this.account.publicKey ? 'outgoing' : 'incoming'
         }
     },
     locales,
@@ -39,26 +46,22 @@ export default  {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
-$color-neutral-negative-3: #203040;
-$color-alternative: #14CCB7;
-$color-neutral-negative-1: #76818C;
-
 .list-item-transaction {
     justify-content: space-around;
     .ae-address {
         
         font-weight: bold;
-        color: $color-neutral-negative-3;
+        color: $color-neutral-negative-2;
     }
     .pending {
         
         font-weight: bold;
-        color: $primary-color;
+        color: $color-secondary;
     }
     .balance-change {
         
         font-weight: bold;
-        color: $primary-color;
+        color: $color-secondary;
         text-align: right;
         .plus {
             color: $color-alternative !important;
@@ -67,14 +70,14 @@ $color-neutral-negative-1: #76818C;
             }
         }
         .minus {
-            color: $primary-color !important;
+            color: $color-secondary !important;
             &:before {
                 content: '-';
             }
         }
         .balance {
             font-weight: bold;
-            color: $color-neutral-negative-3;
+            color: $color-neutral-negative-2;
         }
         small {
             display: block;
@@ -95,7 +98,7 @@ $color-neutral-negative-1: #76818C;
         }
 
         &:after {
-            content: 'AE';
+            content: ' AE';
         }
     }
     .transaction-address {

@@ -7,7 +7,10 @@ $input-toolbar-background:#d0d0d0;
 $input-toolbar-color:#000;
 $primary-color:#FF0D6A;
 $input-border-color:#B300FF;
-
+$color-neutral-negative-1: #76818C;
+$color-neutral-negative-2: #203040;
+$color-alternative: #14CCB7;
+$color-secondary:#6948A1;
 * {
   box-sizing: border-box;
 }
@@ -61,13 +64,24 @@ main {
 }
 
 .ae-input-container {
-  .ae-input-box { background: $input-background !important; }
-  .ae-toolbar { background: $input-toolbar-background; color:$input-toolbar-color;}
+  .ae-input-box { 
+    background: $input-background !important;
+  }
+  .ae-toolbar { 
+    background: $input-toolbar-background;
+    color:$input-toolbar-color;
+  }
 }
 
-.ae-overlay .ae-modal-light .buttons { margin-top:5px !important;  }
-.ae-overlay .ae-modal-light main { padding-bottom:1rem; }
-
+.ae-overlay .ae-modal-light .buttons { 
+  margin-top:5px !important;  
+}
+.ae-overlay .ae-modal-light main { 
+  padding-bottom:1rem; 
+}
+.ae-button {
+  margin-bottom:0 !important;
+}
 .customFileUpload {
   display: block;
   padding:0;
@@ -121,7 +135,11 @@ main {
   z-index:5;
 }
 .transactionList {
-  padding:20px !important;
+  padding:1rem !important;
+}
+.transactionsPadding {
+  padding:1rem !important;
+  margin:0;
 }
 .tabs, .date {
   margin-left: rem(-48px);
@@ -175,7 +193,9 @@ main {
   margin-top:2em;
   margin-bottom:2em;
 }
-
+.mb-1 {
+  margin-bottom:10px;
+}
 .input {
   outline:none;
   resize:none;
@@ -205,4 +225,23 @@ main {
 }
 .flex-justify-between{
   justify-content: space-between;
+}
+.flex-justify-items-left {
+  justify-items: left !important;
+}
+.flex-align-center { 
+  align-items: center;
+}
+
+.transactionOutgoing {
+  background:$color-secondary !important;
+  color:#fff !important;
+}
+.transactionIncoming {
+  background:$color-alternative !important;
+  color:#fff !important;
+}
+.badgeTransactionType {
+  height:auto !important;
+  padding:0.2rem 0.5rem !important;
 }

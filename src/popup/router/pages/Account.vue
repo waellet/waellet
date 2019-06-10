@@ -25,14 +25,17 @@
       </ae-button-group>
       <ae-button face="round" fill="alternative" disabled extend >{{language.buttons.tipWebsite}}</ae-button>
     </div>
-    <div v-if=transactions.length>
-      <h3>Latest transactions</h3>
+    <h3>Latest transactions</h3>
+    <div v-if="transactions.length && !loading">
       <ae-list class="transactionList">
         <TransactionItem v-for="transaction in transactions" :transactionData="transaction"></TransactionItem>
       </ae-list>
       <ae-button face="round" fill="primary" @click="showAllTranactions">Whole transaction history</ae-button>
-    
     </div>
+    <div v-if="transactions.length == 0 && !loading">
+        <p class="paragraph">No transactions found!</p>
+    </div>
+    <Loader :loading="loading" v-bind="{'content':''}"></Loader>
   </div> 
 </template>
 
@@ -48,7 +51,8 @@ export default {
     return {
       polling: null,
       language: locales['en'],
-      transactions: []
+      transactions: [],
+      loading:true
     }
   },
   computed: {
@@ -57,8 +61,11 @@ export default {
   created () {
     // getTranscationByPublicAddress(this.account.publicKey);
     let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
-    transactions.then(res => this.transactions = res);
-    // this.pollData();
+    transactions.then(res => {
+      this.transactions = res;
+      this.loading = false;
+    });
+    this.pollData();
   },
   methods: {
     showAllTranactions() {
@@ -93,5 +100,7 @@ export default {
 .actions {
   margin-top: 5px;
 }
-
+.paragraph {
+  font-weight: normal;
+}
 </style>

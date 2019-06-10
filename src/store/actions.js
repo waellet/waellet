@@ -63,12 +63,18 @@ export default {
   },
   getTransactionsByPublicKey({commit,state}, payload) {
     const middlewareUrl = state.network[state.current.network].middlewareUrl;
-    let limit = "";
+    let limit = "",page = "" ,param = "";
     let account = payload.publicKey;
     if(payload.limit) {
       limit = "?limit=" + payload.limit;
     }
-    return fetch(middlewareUrl + "/middleware/transactions/account/" + account + limit)
+    if(payload.page) {
+      page = "&page=" + payload.page;
+    }
+    if(payload.param) {
+      param = "/" + payload.param;
+    }
+    return fetch(middlewareUrl + "/middleware/transactions/account/" + account + limit + page + param)
     .then(res => res.json());
   }
 };
