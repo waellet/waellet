@@ -10,7 +10,7 @@
         </span>
 
         <!-- network -->
-        <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right" class="mr-2">
+        <ae-dropdown v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" class="mr-2">
           <ae-button slot="button" class="top-button">
             <p class="p-top status" v-if="current.network == 'testnet'">
               {{ language.networks.testnet }}
@@ -36,7 +36,7 @@
         </ae-dropdown>
 
         <!-- account -->
-        <ae-dropdown v-if="account.publicKey" slot="mobile-right" direction="right">
+        <ae-dropdown v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right">
           <ae-button slot="button" class="top-button">
             <p class="p-top">{{ language.strings.account }}</p>
           </ae-button>
@@ -47,9 +47,15 @@
             </ae-button>
           </li>
           <li>
-            <ae-button @click="exportKeypair">
+            <ae-button @click="exportKeypair('keypair')">
               <ae-icon name="globe" />
               {{ language.strings.exportKeypair }}
+            </ae-button>
+          </li>
+          <li>
+            <ae-button @click="exportKeypair('keystore')">
+              <ae-icon name="globe" />
+              Export keystore.json
             </ae-button>
           </li>
           <li>
@@ -61,6 +67,26 @@
         </ae-dropdown>
       </ae-header>
     </header>
+    
+    
+   
+    <ae-modal-light
+        v-if="popup.show"
+        @close="closePopup"
+        :title="popup.title"
+      >
+        {{popup.msg}}
+        <ae-button
+          size="small"
+          type="exciting"
+          class="popup-button"
+          face="round"
+          :fill="popupButtonFill"
+          uppercase
+          @click.native="closePopup"
+          slot="buttons"
+        >OK</ae-button>
+      </ae-modal-light>
     <router-view></router-view>
   </ae-main>
 </template>
@@ -79,27 +105,42 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network'])
+    ...mapGetters (['account', 'current', 'network','popup','isLoggedIn']),
+    popupButtonFill(){
+      return this.popup.type == 'error' ? 'primary' : 'alternative';
+    }
   },
   methods: {
     switchNetwork (network) {
       this.$store.dispatch('switchNetwork', network).then(() => this.$store.dispatch('updateBalance'));
     },
     logout () {
-      chrome.storage.sync.set({userAccount: ''}, () => {
+      chrome.storage.sync.set({isLogged: false}, () => {
         this.$store.commit('UPDATE_ACCOUNT', '');
+        this.$store.commit('SWITCH_LOGGED_IN', false);
         this.$router.push('/');
       });
     },
-
+    closePopup() {
+      this.$store.commit('HIDE_POPUP');
+    },
+    popupAlert(payload) {
+      this.$store.dispatch('popupAlert', payload)
+    },
     myAccount () {
       this.$router.push('/account');
     },
-
-    exportKeypair () {
-      let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
-      let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
-      saveAs(blob, "keypair.json");
+    exportKeypair (type) {
+      if(type == 'keypair'){
+        let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
+        let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+        saveAs(blob, "keypair.json");
+      }else if(type == 'keystore') {
+         let blobData = this.account.encryptedPrivateKey;
+        let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+        saveAs(blob, "keystore.json");
+      }
+      
     }
   }
 };
@@ -177,5 +218,7 @@ p.status::before {
   border: 1px solid green;
   background-color: greenyellow;
 }
-
+.popup-button { 
+  width:100px !important;
+}
 </style>

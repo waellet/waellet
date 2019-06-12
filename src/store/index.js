@@ -20,13 +20,24 @@ export default new Vuex.Store({
         url: 'https://sdk-testnet.aepps.com',
         internalUrl: 'https://sdk-testnet.aepps.com',
         networkId: 'ae_uat',
+        middlewareUrl: 'https://testnet.mdw.aepps.com/',
+        explorerUrl:'https://testnet.explorer.aepps.com'
       },
       mainnet: {
         url: 'https://sdk-mainnet.aepps.com',
         internalUrl: 'https://sdk-mainnet.aepps.com',
         networkId: 'ae_mainnet',
+        middlewareUrl: 'http://mdw.aepps.com/',
+        explorerUrl:'https://testnet.explorer.aepps.com'
       },
     },
+    popup:{
+      show:false,
+      type:'',
+      title:'',
+      msg:''
+    },
+    isLoggedIn:false
   },
   getters,
   mutations,

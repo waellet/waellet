@@ -1,6 +1,6 @@
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import * as types from './mutation-types';
-
+import * as popupMessages from '../popup/utils/popup-messages';
 export default {
   setAccount({ commit }, payload) {
     commit(types.UPDATE_ACCOUNT, payload);
@@ -39,7 +39,7 @@ export default {
       case 'spend':
         switch (payload.type) {
           case 'insufficient_balance':
-            alert('Insufficient balance. The requested amount cannot be spent.');
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.INSUFFICIENT_BALANCE});
             break;
           default:
             break;
@@ -48,7 +48,10 @@ export default {
       case 'account':
         switch (payload.type) {
           case 'publicKeyCopied':
-            alert('Public key copied to clipboard!');
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.PUBLIC_KEY_COPIED});
+            break;
+          case 'seedFastCopy':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.SEED_FAST_COPY});
             break;
           default:
             break;
@@ -58,4 +61,20 @@ export default {
         break;
     }
   },
+  getTransactionsByPublicKey({commit,state}, payload) {
+    const middlewareUrl = state.network[state.current.network].middlewareUrl;
+    let limit = "",page = "" ,param = "";
+    let account = payload.publicKey;
+    if(payload.limit) {
+      limit = "?limit=" + payload.limit;
+    }
+    if(payload.page) {
+      page = "&page=" + payload.page;
+    }
+    if(payload.param) {
+      param = "/" + payload.param;
+    }
+    return fetch(middlewareUrl + "/middleware/transactions/account/" + account + limit + page + param)
+    .then(res => res.json());
+  }
 };

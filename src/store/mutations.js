@@ -10,4 +10,13 @@ export default {
   [types.SWITCH_NETWORK](state, payload) {
     state.current.network = payload;
   },
-};
+  [types.SHOW_POPUP](state,payload) {
+    state.popup = payload;
+  },
+  [types.HIDE_POPUP](state) {
+    state.popup.show = false;
+  },
+  [types.SWITCH_LOGGED_IN](state,payload) {
+    state.isLoggedIn = payload;
+  }
+}; 

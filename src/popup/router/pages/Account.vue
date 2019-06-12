@@ -25,6 +25,17 @@
       </ae-button-group>
       <ae-button face="round" fill="alternative" disabled extend >{{language.buttons.tipWebsite}}</ae-button>
     </div>
+    <h3>Latest transactions</h3>
+    <div v-if="transactions.length && !loading">
+      <ae-list class="transactionList">
+        <TransactionItem v-for="transaction in transactions" :transactionData="transaction"></TransactionItem>
+      </ae-list>
+      <ae-button face="round" fill="primary" @click="showAllTranactions">Whole transaction history</ae-button>
+    </div>
+    <div v-if="transactions.length == 0 && !loading">
+        <p class="paragraph">No transactions found!</p>
+    </div>
+    <Loader :loading="loading" v-bind="{'content':''}"></Loader>
   </div> 
 </template>
 
@@ -32,27 +43,40 @@
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { setInterval } from 'timers';
+import { getTranscationByPublicAddress }  from '../../utils/transactions';
 
 export default {
   name: 'Account',
   data () {
     return {
       polling: null,
-      language: locales['en']
+      language: locales['en'],
+      transactions: [],
+      loading:true
     }
   },
   computed: {
     ...mapGetters(['account', 'balance', 'network', 'current'])
   },
   created () {
-    console.log(current);
+    // getTranscationByPublicAddress(this.account.publicKey);
+    let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
+    transactions.then(res => {
+      this.transactions = res;
+      this.loading = false;
+    });
     this.pollData();
   },
   methods: {
+    showAllTranactions() {
+        this.$router.push('/transactions');
+    },
+
     pollData() { 
-      this.polling = setInterval(() => {
+      // this.polling = setInterval(() => {
+        
         this.$store.dispatch('updateBalance');
-      }, 200)
+      // }, 200)
     },
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -76,5 +100,7 @@ export default {
 .actions {
   margin-top: 5px;
 }
-
+.paragraph {
+  font-weight: normal;
+}
 </style>

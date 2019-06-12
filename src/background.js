@@ -28,7 +28,6 @@ function getAccount() {
         })
     });
   }
-
 // async function asyncCall() {
 //     console.log('calling');
 //     await 

@@ -9,26 +9,26 @@
       </div>
     </main>
     
-    <div v-if="loading" class="loading">
-      <div class="wrapper">
-        <div class="center">
-          <span>{{ language.strings.securingAccount }}</span>
-          <br>
-          <ae-loader />
-        </div>
-      </div>
-    </div>
-    
+    <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
     <footer v-if="!loading">
       <div class="wrapper">
-          <ae-button face="round" fill="primary" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
-          <ae-button face="round" extend @click="modalVisible = true">{{ language.buttons.importPrivateKey }}</ae-button>
+          <div v-if="account.encryptedPrivateKey">
+            <ae-input  placeholder="" class="my-2" label="Password" v-bind="inputError">
+                <input type="password" class="ae-input" min="4"  v-model="accountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest 4 symbols! </ae-toolbar>
+                <ae-toolbar v-if="loginError" slot="footer">Incorrect password !</ae-toolbar>
+            </ae-input>
+            <ae-button face="round" extend fill="primary" @click="login({accountPassword})">Login</ae-button>
+            <ae-divider />
+          </div>
+          <ae-button face="round" v-if="!account.encryptedPrivateKey" fill="primary" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
+          <ae-button face="round" extend @click="openImportModal">{{ language.buttons.importPrivateKey }}</ae-button>
       </div>
     </footer>
 
     <!-- <accountPassword @clickAction="importPrivateKey" :accountPasswordVisible="accountPasswordVisible" :data="accountPasswordData" :confirmPassword="confirmPassword" buttonTitle="Import" />
      -->
-    <ae-modal
+    <ae-modal 
       v-if="modalVisible"
       @close="modalVisible = false"
       title="Import waellet">
@@ -43,19 +43,24 @@
         <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
       </ae-input>
 
-      <ae-input label="Upload keystore.json" v-if="importType == 'keystore'" class="my-2" v-bind="inputError">
-        <input type="file" @change="uploadWallet" ref="walletFile" class="ae-input" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-        <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
-      </ae-input>
+      <div v-if="importType == 'keystore'" class="walletFileHolder" :class="{'walletFileHolderError':inputError.hasOwnProperty('error')}">
+        <label for="walletFile" class="customFileUpload my-2 ae-input-box">
+          <div class="file-label"> Choose file</div>
+          <div class="file-input">{{walletFile !='' ? walletFile.name : ''}}</div>
+          <div class="file-toolbar">{{errorMsg}}</div>
+        </label>
+        
+        <input type="file" id="walletFile" @change="uploadWallet" ref="walletFile" class="ae-input" />
+      </div>
       
       <div v-if="importType == 'seedPhrase'">
-        <p>Enter your seed phrase. The one you wrote down during account creation. </p>
+        <p class="importTitle">Enter your seed phrase. The one you wrote down during account creation. </p>
         <ae-input label="Seed phrase" class="my-2" v-bind="inputError">
             <textarea class="ae-input textarea" v-model="seedPhrase" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
             <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
         </ae-input>
       </div>
-      
+
       <ae-button face="round" extend fill="primary" @click="importShowPassword({importType,privateKey,seedPhrase})">Continue</ae-button>
 
       <!--<ae-button face="round" disabled extend fill="seconday" @click="importPrivateKey(secretKey)">Import</ae-button>-->
@@ -67,7 +72,7 @@
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
-
+import { decrypt } from '../../utils/keystore';
 export default {
   name: 'Home',
   data() {
@@ -81,11 +86,14 @@ export default {
       importType:'privateKey',
       inputError:{},
       walletFile:'',
-      errorMsg:'This field is requried!'
+      errorMsg:'This field is requried!',
+      errorMsg:'',
+      loginError:false,
+      accountPassword:''
     };
   },
   computed: {
-    ...mapGetters(['account'])
+    ...mapGetters(['account','isLoggedIn'])
   },
   mounted() {},
   created () {
@@ -94,28 +102,35 @@ export default {
   methods: {
     init () {
       // check if there is an account generated already
-      chrome.storage.sync.get('userAccount', data => {
-        this.$store.commit('UPDATE_ACCOUNT', data.userAccount);
-        if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
-          this.$router.push('/account');
-        }
+      // chrome.storage.sync.set({userAccount: ''}, () => {});
+      // chrome.storage.sync.set({isLogged: ''}, () => {});
+      chrome.storage.sync.get('isLogged', data => {
+        chrome.storage.sync.get('userAccount', user => {
+            if(user.userAccount && user.hasOwnProperty('userAccount')) {
+              this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
+            }
+            if (data.isLogged && data.hasOwnProperty('isLogged')) {
+              this.$store.commit('SWITCH_LOGGED_IN', true);
+              this.$router.push('/account');
+            }
+        });
       });
     },
     generateAddress: async function generateAddress({ dispatch }) {
-      this.loading = true;
-      const keyPair = await addressGenerator.generateKeyPair('test');
-      chrome.storage.sync.set({userAccount: keyPair}, () => {
-        this.$store.commit('UPDATE_ACCOUNT', keyPair);
-        this.$router.push('/account');
-      });
+        this.$router.push({name:'password',params:{
+          confirmPassword:true,
+          data:'',
+          buttonTitle:'Continue',
+          type:'generateEncrypt',
+          title:'Protect Account with Password'
+        }});
     },
-
+   
     switchImportType(type) {
       this.importType = type;
       this.errorMsg = "This field is requried! ";
       this.inputError = {}; 
     },
-
     checkSeed(seed) {
       return true;
     },
@@ -162,14 +177,19 @@ export default {
               try {
                 let keystore = JSON.parse(e.target.result);
                 context.inputError = {};
-                context.$router.push({name:'password',params:{
-                    confirmPassword:false,
-                    data:e.target.result,
-                    buttonTitle:'Import',
-                    type:importType,
-                    title:'Import From Keystore.json'
-                }});
-                context.modalVisible = false;
+                if(keystore.crypto.ciphertext.length && keystore.crypto.cipher_params.nonce && keystore.crypto.kdf_params.salt.length){
+                    context.$router.push({name:'password',params:{
+                      confirmPassword:false,
+                      data:e.target.result,
+                      buttonTitle:'Import',
+                      type:importType,
+                      title:'Import From Keystore.json'
+                  }});
+                  context.modalVisible = false;
+                }else {
+                  context.inputError = {error:''};
+                  context.errorMsg = "Invalid file format! ";
+                }
               }catch(err) {
                  context.inputError = {error:''};
                  context.errorMsg = "Invalid file format! ";
@@ -181,8 +201,41 @@ export default {
              this.errorMsg = "Plese upload keystore.json file! ";
           }
       }
-      
-    }
+    },
+    openImportModal() {
+      this.modalVisible = true;
+      this.inputError = {};
+      this.errorMsg = "This field is requried! ";
+    },
+    login: async function login ({accountPassword}) {
+        let context = this;
+        if(accountPassword.length >= 4){
+          context.loading = true;
+          chrome.storage.sync.get('userAccount', async user => {
+              this.errorMsg = "";
+              if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                  let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                  let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                  if(match) {
+                      this.loginError = false;
+                      this.inputError = {};
+                      chrome.storage.sync.set({isLogged: true}, () => {
+                          this.$store.commit('SWITCH_LOGGED_IN', true);
+                          this.$router.push('/account');
+                      });
+                  }else {
+                      this.loginError = true;
+                      this.inputError = {error:''};
+                  }
+                  context.loading = false;
+              }
+          });
+        }else {
+          this.errorMsg = "length";
+          this.inputError = {error:''};
+          context.loading = false;
+        }
+    },
   },
 };
 </script>
@@ -195,26 +248,17 @@ export default {
   flex-flow: row wrap;
   justify-content: center;
 }
-.tabs, .date {
-    margin-left: rem(-48px);
-    margin-right: rem(-48px);
-    padding-left: rem(48px);
-}
-.tabs {
-  box-shadow: 0 4px 2px -2px rgba(27, 68, 121, 0.1);
-  span {
-    cursor: pointer;
-    display:inline-block;
-    width:32%;
-    font-weight: bold;
-    text-align: center;
-    color: #203040;
-    padding-bottom:5px;
-    &.tab-active {
-      border-bottom: 2px solid #FF0D6A;
-    }
-    
+
+#walletFile { display:none; }
+.walletFileHolder {
+  border-left:2px solid transparent;
+  &.walletFileHolderError {
+    border-left:2px solid $input-border-color;
   }
+}
+.importTitle { 
+    font-size: 1.5rem;
+    font-weight: 500;
 }
 
 

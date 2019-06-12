@@ -34,6 +34,20 @@ function encrypt(plaintext, key, nonce, algo = DEFAULTS.crypto.symmetric_alg) {
   return CRYPTO_FUNCTIONS[algo].encrypt({ plaintext, nonce, key });
 }
 
+export async function decrypt(ciphertext,password,nonce, salt , options = {}) {
+  const opt = Object.assign({}, DEFAULTS.crypto, options);
+  ciphertext = Buffer.from(ciphertext,'hex');
+  nonce = Buffer.from(nonce,'hex');
+  salt = Buffer.from(salt,'hex');
+  let key = await deriveKey(password, salt, opt);
+  key = key.hash;
+  try {
+    let res = CRYPTO_FUNCTIONS[DEFAULTS.crypto.symmetric_alg].decrypt({ ciphertext, nonce, key });
+    return true;
+  }catch {
+    return false;
+  }
+}
 function marshal(name, derivedKey, privateKey, nonce, salt, options = {}) {
   const opt = Object.assign({}, DEFAULTS.crypto, options);
   const test = Object.assign(
@@ -87,6 +101,8 @@ export async function dump(name, password, privateKey, nonce = nacl.randomBytes(
   const opt = Object.assign({}, DEFAULTS.crypto, options);
   return marshal(name, await deriveKey(password, salt, opt), privateKey, nonce, salt, opt);
 }
+
+
 
 async function deriveKey(
   password,
