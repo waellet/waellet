@@ -12,18 +12,18 @@ export default new Vuex.Store({
     account: {},
     balance: 0,
     current: {
-      network: 'testnet',
+      network: 'Testnet',
       language: 'en'
     },
     network: {
-      testnet: {
+      Testnet: {
         url: 'https://sdk-testnet.aepps.com',
         internalUrl: 'https://sdk-testnet.aepps.com',
         networkId: 'ae_uat',
         middlewareUrl: 'https://testnet.mdw.aepps.com/',
         explorerUrl:'https://testnet.explorer.aepps.com'
       },
-      mainnet: {
+      Mainnet: {
         url: 'https://sdk-mainnet.aepps.com',
         internalUrl: 'https://sdk-mainnet.aepps.com',
         networkId: 'ae_mainnet',
