@@ -12,7 +12,7 @@ export default new Vuex.Store({
     account: {},
     balance: 0,
     current: {
-      network: 'testnet',
+      network: 'Testnet',
       language: 'en'
     },
     network: {
