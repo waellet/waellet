@@ -22,7 +22,7 @@
             <ae-divider />
           </div>
           <ae-button face="round" v-if="!account.encryptedPrivateKey" fill="primary" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
-          <ae-button face="round" extend @click="openImportModal">{{ language.buttons.importPrivateKey }}</ae-button>
+          <ae-button face="round" extend @click="openImportModal" class="importBtn">{{ language.buttons.importPrivateKey }}</ae-button>
       </div>
     </footer>
 
@@ -104,7 +104,9 @@ export default {
       // check if there is an account generated already
       // chrome.storage.sync.set({userAccount: ''}, () => {});
       // chrome.storage.sync.set({isLogged: ''}, () => {});
+     
       chrome.storage.sync.get('isLogged', data => {
+        
         chrome.storage.sync.get('userAccount', user => {
             if(user.userAccount && user.hasOwnProperty('userAccount')) {
               this.$store.commit('UPDATE_ACCOUNT', user.userAccount);

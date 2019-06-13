@@ -36,6 +36,7 @@
         <p class="paragraph">No transactions found!</p>
     </div>
     <Loader :loading="loading" v-bind="{'content':''}"></Loader>
+    <!-- <button @click="showSign">Show sign transaction</button> -->
   </div> 
 </template>
 
@@ -71,7 +72,17 @@ export default {
     showAllTranactions() {
         this.$router.push('/transactions');
     },
-
+    showSign() {
+      this.$router.push('/sign-transaction');
+      /*chrome.windows.create({
+        url: chrome.runtime.getURL('./popup/popup.html'),
+        type: "popup",
+        height: 600,
+        width:420
+      },() => {
+        console.log("created");
+      });*/
+    },
     pollData() { 
       // this.polling = setInterval(() => {
         

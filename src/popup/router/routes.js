@@ -6,6 +6,7 @@ import AccountPasswordComponent from './pages/AccountPassword';
 import SeedPhraseComponent from './pages/SeedPhrase';
 import TransactionsComponent from './pages/Transactions';
 import TransactionDetailsComponent from './pages/TransactionDetails';
+import SignTransactionComponent from './pages/SignTransaction';
 export default [
   {
     path: '/',
@@ -44,5 +45,9 @@ export default [
     path:'/transaction-details',
     component:TransactionDetailsComponent,
     props:true
+  },
+  {
+    path:'/sign-transaction',
+    component:SignTransactionComponent,
   }
 ];

@@ -4,3 +4,5 @@
 /dist-zip
 /bower_components
 /.history
+/cypress
+/.nyc_output

@@ -75,7 +75,7 @@
         @close="closePopup"
         :title="popup.title"
       >
-        {{popup.msg}}
+        <div v-html="popup.msg"></div>
         <ae-button
           size="small"
           type="exciting"
@@ -86,6 +86,15 @@
           @click.native="closePopup"
           slot="buttons"
         >OK</ae-button>
+        <ae-button
+          v-if="popup.secondBtn"
+          class="popup-button"
+          face="round"
+          fill="secondary"
+          uppercase
+          @click.native="popupSecondBtnClick"
+          slot="buttons"
+        >See in explorer</ae-button>
       </ae-modal-light>
     <router-view></router-view>
   </ae-main>
@@ -129,6 +138,12 @@ export default {
     },
     myAccount () {
       this.$router.push('/account');
+    },
+    popupSecondBtnClick(){
+      this[this.popup.secondBtnClick]();
+    },
+    showTransaction(){
+      chrome.tabs.create({url: this.popup.data, active: false});
     },
     exportKeypair (type) {
       if(type == 'keypair'){

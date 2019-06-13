@@ -111,11 +111,14 @@ export default {
       .then(ae => {
         ae.spend(parseInt(amount), receiver).then(result => {
           if(typeof result == "object") {
-            console.log(result);
-            this.tx.status = true;
+            let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash;
+            // this.tx.status = true;
             this.tx.hash = result.hash;
             this.tx.block = result.blockNumber;
-            this.tx.url = "//testnet.explorer.aepps.com/#/tx/" + result.hash;
+            this.tx.url = txUrl;
+           
+            let msg = 'You send ' + this.form.amount + ' AE';
+            this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl});
             this.clearForm();
           }
           else {
@@ -134,6 +137,9 @@ export default {
     },
     navigateAccount() {
       this.$router.push('/account')
+    },
+    openExplorer(url) {
+      chrome.tabs.create({url,active:false});
     }
   }
 }

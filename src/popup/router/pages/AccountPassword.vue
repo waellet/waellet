@@ -110,6 +110,7 @@ export default {
                 // this.$router.push('/account');
                 this.$router.push('/seed');
             });
+            
         },
     }
 }

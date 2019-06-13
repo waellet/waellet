@@ -41,6 +41,9 @@ export default {
           case 'insufficient_balance':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.INSUFFICIENT_BALANCE});
             break;
+          case 'success_transfer':
+            commit(types.SHOW_POPUP,{show:true,secondBtn:true,secondBtnClick:'showTransaction',...popupMessages.SUCCESS_TRANSFER,msg:payload.msg,data:payload.data})
+            break;
           default:
             break;
         }
