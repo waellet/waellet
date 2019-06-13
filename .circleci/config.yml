@@ -35,12 +35,14 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: npm install
-
-      - run: npm run build
+      - run: 
+          command: npm install
+          no_output_timeout: 20m
       
-      - run: npm test
+      - run: npm run build
 
+      - run: npm test
+      
       - save_cache:
           paths:
             - node_modules
