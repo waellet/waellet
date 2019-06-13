@@ -116,7 +116,9 @@ import store from '../store';
 import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
+
 export default {
+  
   data () {
     return {
       logo_top: chrome.runtime.getURL('../../../icons/icon_48.png'),
@@ -179,7 +181,7 @@ export default {
         this.$store.commit('SWITCH_LOGGED_IN', false);
         this.$router.push('/');
       });
-    },
+    }, 
     closePopup() {
       this.$store.commit('HIDE_POPUP');
     },

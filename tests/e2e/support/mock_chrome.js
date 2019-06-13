@@ -1,6 +1,7 @@
+
 const onBeforeLoad = (win) => {
     win.chrome = win.chrome || {};
-    
+    console.log(window);
     try {
         win.chrome.runtime = {
             getURL(url){
