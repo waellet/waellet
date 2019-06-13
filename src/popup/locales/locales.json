@@ -6,6 +6,9 @@
       "strings": {
         "account": "Account",
         "myAccount": "My Account",
+        "currentAccountName" : "My Account 1",
+        "newSubaccount": "New subaccount",
+        "manageAccounts": "Manage accounts",
         "exportKeypair": "Export keypair",
         "logout": "Logout",
         "securingAccount": "Securing your account",
@@ -15,7 +18,10 @@
         "txFee": "Tx fee:",
         "success": "Success",
         "seeTransactionExplorer": "See transaction in the explorer.",
-        "accountName": "Account name"
+        "accountName": "Account name",
+        "switchLanguage" : "Language",
+        "settings": "Settings",
+        "back": "Back"
       },
       "networks": {
         "testnet": "Testnet",
