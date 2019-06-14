@@ -15,8 +15,8 @@
     "watch": "npm run build -- --watch",
     "watch:dev": "cross-env HMR=true npm run build:dev -- --watch",
     "test": " start-server-and-test start http://localhost:5000 start:tests",
-    "start" :"serve",
-    "start:tests":"cypress run "
+    "start": "serve",
+    "start:tests": "cypress run  "
   },
   "dependencies": {
     "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",

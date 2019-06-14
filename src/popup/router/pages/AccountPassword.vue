@@ -97,6 +97,7 @@ export default {
                 });
             }else {
                 this.loginError = true;
+                this.errorMsg = "";
                 this.inputError = {error:''};
                 this.loading = false;
                 

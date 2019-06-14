@@ -21,7 +21,7 @@
             <ae-button face="round" extend fill="primary" @click="login({accountPassword})">Login</ae-button>
             <ae-divider />
           </div>
-          <ae-button face="round" v-if="!account.encryptedPrivateKey" fill="primary" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
+          <ae-button face="round" v-if="!account.encryptedPrivateKey" fill="primary" class="mb-1" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
           <ae-button face="round" extend @click="openImportModal" class="importBtn">{{ language.buttons.importPrivateKey }}</ae-button>
       </div>
     </footer>
@@ -109,8 +109,13 @@ export default {
         
         chrome.storage.sync.get('userAccount', user => {
             if(user.userAccount && user.hasOwnProperty('userAccount')) {
+              try {
+                user.userAccount.encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+              }catch(e) {
+                user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
+              }
               this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
-            }
+            } 
             if (data.isLogged && data.hasOwnProperty('isLogged')) {
               this.$store.commit('SWITCH_LOGGED_IN', true);
               this.$router.push('/account');
@@ -177,6 +182,7 @@ export default {
             let context = this;
             reader.onload = function(e){
               try {
+                console.log(e.target.result);
                 let keystore = JSON.parse(e.target.result);
                 context.inputError = {};
                 if(keystore.crypto.ciphertext.length && keystore.crypto.cipher_params.nonce && keystore.crypto.kdf_params.salt.length){
@@ -193,6 +199,7 @@ export default {
                   context.errorMsg = "Invalid file format! ";
                 }
               }catch(err) {
+                console.log(err);
                  context.inputError = {error:''};
                  context.errorMsg = "Invalid file format! ";
               }
@@ -216,8 +223,14 @@ export default {
           chrome.storage.sync.get('userAccount', async user => {
               this.errorMsg = "";
               if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                  try {
+                    JSON.parse(user.userAccount.encryptedPrivateKey);
+                  }catch(e) {
+                    user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
+                  }
                   let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                   let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                  
                   if(match) {
                       this.loginError = false;
                       this.inputError = {};

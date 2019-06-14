@@ -1,16 +1,16 @@
 <template>
   <ae-main @click.native="hideMenu">
-      <ae-header :class="account.publicKey ? 'logged' : ''">
+      <ae-header :class="account.publicKey && isLoggedIn ? 'logged' : ''">
 
         <!-- login screen header -->
-        <div class="logo_top" slot="mobile-left" v-if="!account.publicKey">
+        <div class="logo_top" slot="mobile-left" v-if="!isLoggedIn">
           <img :src="logo_top" alt="">
           <p>{{ language.system.name }}</p>
         </div>
         
         <!-- logged in header START -->
           <!-- network dropdown -->
-          <div id="network" class="dropdown" v-if="account.publicKey" slot="mobile-left" direction="left" ref="network">
+          <div id="network" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-left" direction="left" ref="network">
             <button v-on:click.prevent="toggleDropdown">
               <ae-icon class="dropdown-button-icon status" name="globe" slot="button" />
               <span class="dropdown-button-name" v-html="current.network" slot="button"></span>
@@ -27,7 +27,7 @@
           </div>
 
           <!-- account dropdown -->
-          <div id="account" class="dropdown" v-if="account.publicKey" slot="mobile-right" direction="center" ref="account">
+          <div id="account" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="center" ref="account">
             <button v-on:click.prevent="toggleDropdown">
               <ae-identicon id="identIcon" class="dropdown-button-icon" v-bind:address="this.account.publicKey" size="base" slot="button" />
               <span class="dropdown-button-name" slot="button">{{ language.strings.currentAccountName }}</span>
@@ -59,7 +59,7 @@
           </div>
 
           <!-- settings dropdown -->
-          <div id="settings" class="dropdown" v-if="account.publicKey" slot="mobile-right" direction="right" ref="settings">
+          <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" ref="settings">
             <button v-on:click="toggleDropdown">
               <ae-icon class="dropdown-button-icon" name="settings" slot="button" />
               <span class="dropdown-button-name" slot="button">{{ language.strings.settings }}</span>
@@ -73,9 +73,15 @@
                   </ae-button>
                 </li>
                 <li>
-                  <ae-button @click="exportKeypair">
+                  <ae-button @click="exportKeypair('keypair')">
                     <ae-icon name="save" />
                     {{ language.strings.exportKeypair }}
+                  </ae-button>
+                </li>
+                <li>
+                  <ae-button @click="exportKeypair('keystore')">
+                    <ae-icon name="save" />
+                    {{ language.strings.exportKeystore }}
                   </ae-button>
                 </li>
                 <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
@@ -107,6 +113,32 @@
           </div>
         <!-- logged in header END -->
       </ae-header>
+      <ae-modal-light
+        v-if="popup.show"
+        @close="closePopup"
+        :title="popup.title"
+      >
+        <div v-html="popup.msg"></div>
+        <ae-button
+          size="small"
+          type="exciting"
+          class="popup-button"
+          face="round"
+          :fill="popupButtonFill"
+          uppercase
+          @click.native="closePopup"
+          slot="buttons"
+        >OK</ae-button>
+        <ae-button
+          v-if="popup.secondBtn"
+          class="popup-button"
+          face="round"
+          fill="secondary"
+          uppercase
+          @click.native="popupSecondBtnClick"
+          slot="buttons"
+        >See in explorer</ae-button>
+      </ae-modal-light>
     <router-view></router-view>
   </ae-main>
 </template>
@@ -194,10 +226,17 @@ export default {
     manageAccounts () {
       this.$router.push('/manageAccounts');
     },
-    exportKeypair () {
-      let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
-      let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
-      saveAs(blob, "keypair.json");
+    exportKeypair (type) {
+      if(type == 'keypair') {
+        let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
+        let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+        saveAs(blob, "keypair.json");
+      }else if(type == 'keystore') {
+        let blobData = this.account.encryptedPrivateKey;
+        let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+        saveAs(blob, "keystore.json");
+      }
+      
     }
   }
 };
@@ -211,7 +250,7 @@ input { background: transparent; border: none; border-bottom: 1px; height: 25px;
 input:focus { border-bottom: 1px solid #DDD; }
 button:focus { outline: none; }
 button { background: none; border: none; color: #717C87; cursor: pointer; transition: all 0.2s; }
-.ae-button + .ae-button { margin-top: 1rem; }
+// .ae-button + .ae-button { margin-top: 1rem; }
 .pageTitle { margin: 0 0 10px; }
 .ae-header { border-bottom: 1px solid #EEE; margin-bottom: 10px; }
 .ae-header.logged { background: #001833; }

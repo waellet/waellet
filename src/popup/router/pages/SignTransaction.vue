@@ -16,15 +16,15 @@
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between">
-                <div class="balance balanceSpend">5</div>
+                <div class="balance balanceSpend">0.004712</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div>Transaction fee</div>
-                <div class="balance balanceBig">0.5</div>
+                <div class="balance balanceBig">0.000318</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div>Total</div>
-                <div class="balance balanceBig balanceTotalSpend">5.5</div>
+                <div class="balance balanceBig balanceTotalSpend">0.00503</div>
             </ae-list-item>
             <ae-list-item fill="neutral">
                 <ae-button-group class="fullWidth">
@@ -57,7 +57,7 @@ export default {
 <style lang="scss" scoped>
 @import '../../../common/base';
 .balanceSpend {
-    font-size:2rem;
+    font-size:2.5rem;
     color:#000;
 }
 .spendTxDetailsList .ae-list-item {

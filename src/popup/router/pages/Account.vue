@@ -67,6 +67,7 @@ export default {
       this.loading = false;
     });
     this.pollData();
+    console.log(this.account);
   },
   methods: {
     showAllTranactions() {

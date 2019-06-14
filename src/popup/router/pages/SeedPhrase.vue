@@ -28,7 +28,7 @@
                         <ae-badge class="seedBadge" v-for="(seed,index) in selectedSeed" @click.native="removeSeed(seed.parent,index)">{{seed.name}} <ae-icon name="close" class="seedClose" /></ae-badge>
                     </ae-phraser>
                 </div>
-                <ae-button extend face="round" :fill="buttonFill" class="mt-3" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
+                <ae-button extend face="round" :fill="buttonFill" class="mt-3 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
             </div>
         </main>
     </div>
