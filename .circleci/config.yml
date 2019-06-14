@@ -28,6 +28,10 @@ jobs:
           name: Check current version of node
           command: node -v
 
+      - run:
+          name: Install dependecies for test
+          command: sudo apt install xsel
+
       # Download and cache dependencies
       - restore_cache:
           keys:
