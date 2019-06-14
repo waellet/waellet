@@ -16,8 +16,11 @@ describe("Account Page" , () => {
         .should('have.class','current')
         .get('.dropdown-holder li button').eq(1)
         .click()
+        .get('#network')
+        .click()
         .get('.dropdown-holder li button').eq(1)
         .should('have.class','current')
+        .click()
         .get('.dropdown-holder')
         .should('not.be.visible');
     });

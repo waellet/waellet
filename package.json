@@ -16,7 +16,7 @@
     "watch:dev": "cross-env HMR=true npm run build:dev -- --watch",
     "test": " start-server-and-test start http://localhost:5000 start:tests",
     "start": "serve",
-    "start:tests": "cypress run  "
+    "start:tests": "cypress run "
   },
   "dependencies": {
     "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",
@@ -46,7 +46,6 @@
     "nyc": "^14.1.1",
     "qrcode.vue": "^1.6.1",
     "sass-loader": "^7.1.0",
-    "serve": "^11.0.1",
     "tweetnacl": "^1.0.1",
     "uuid": "^3.3.2",
     "vue": "^2.6.10",
@@ -92,6 +91,7 @@
     "web-ext-types": "^2.1.0",
     "webpack": "^4.20.2",
     "webpack-chrome-extension-reloader": "^0.8.3",
-    "webpack-cli": "^3.3.4"
+    "webpack-cli": "^3.3.4",
+    "serve": "^11.0.1"
   }
 }

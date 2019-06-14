@@ -1,5 +1,6 @@
 import {onBeforeLoad} from '../support/mock_chrome.js';
 import login from '../login';
+import {prepareEncryptedPrivateKey} from '../utils.js';
 
 describe('IndexPage', () => {
     const privateKey = "ef07a269ce62e81dbd507d2d677e06654765984aa4650bcf2ed68bbfc783f8e4301ba902bf2b2c176ac934eb41181866ae25f19dcbdd42c4aa448c0f82c913f9";
@@ -12,6 +13,42 @@ describe('IndexPage', () => {
     it('have generate wallet button', () => {
         cy.visit('popup/popup.html',{onBeforeLoad});
         cy.get('button').should('contain','Generate wallet');
+    });
+
+
+    it("have login button and logout", () => {
+        prepareEncryptedPrivateKey();
+        cy.visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,true) }})
+        .get('input[type="password"]')
+        .should('be.visible')
+        .get('.logo_top')
+        .should('be.visible')
+        .get('.ae-button').eq(0)
+        .should('contain','Login')
+        .get('input[type="password"]')
+        .type("123")
+        .get('.ae-button').eq(0)
+        .click()
+        .get('.ae-toolbar')
+        .should('be.visible')
+        .get('input[type="password"]')
+        .clear()
+        .type("1234")
+        .get('.ae-button').eq(0)
+        .click()
+        .get('.ae-toolbar')
+        .should('be.visible')
+        .get('input[type="password"]')
+        .clear()
+        .type("qwerty")
+        .get('.ae-button').eq(0)
+        .click()
+        .get('.ae-card')
+        .should('be.visible')
+        .get('#settings')
+        .click()
+        .get('.dropdown-holder')
+        .should('be.visible');
     });
 
     it('show import modal', () => {
@@ -167,7 +204,6 @@ describe('IndexPage', () => {
         cy.get('.ae-phraser-error').should('be.visible');
         // cy.get('.ae-card').should('be.visible');
     });
-
 
     it('login', () => {
         login();
