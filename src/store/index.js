@@ -35,7 +35,10 @@ export default new Vuex.Store({
       show:false,
       type:'',
       title:'',
-      msg:''
+      msg:'',
+      secondBtn:false,
+      secondBtnClick:'',
+      data:''
     },
     isLoggedIn:false
   },

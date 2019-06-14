@@ -15,6 +15,7 @@ export default {
   },
   [types.HIDE_POPUP](state) {
     state.popup.show = false;
+    state.popup.secondBtn = false;
   },
   [types.SWITCH_LOGGED_IN](state,payload) {
     state.isLoggedIn = payload;

@@ -80,7 +80,7 @@ main {
   padding-bottom:1rem; 
 }
 .ae-button {
-  margin-bottom:0 !important;
+ 
 }
 .customFileUpload {
   display: block;
@@ -194,7 +194,7 @@ main {
   margin-bottom:2em;
 }
 .mb-1 {
-  margin-bottom:10px;
+  margin-bottom:1rem;
 }
 .input {
   outline:none;
@@ -226,6 +226,9 @@ main {
 .flex-justify-between{
   justify-content: space-between;
 }
+.flex-justify-content-arround {
+  justify-content: space-around;
+}
 .flex-justify-items-left {
   justify-items: left !important;
 }
@@ -244,4 +247,23 @@ main {
 .badgeTransactionType {
   height:auto !important;
   padding:0.2rem 0.5rem !important;
+}
+.balance {
+  font-weight: bold;
+  color: $color-neutral-negative-1;
+  font-family: monospace;
+  &.invert {
+      color: #fff;
+  }
+
+  &:after {
+      content: ' AE';
+  }
+}
+.balanceBig {
+  font-size:1.8rem;
+  color:#000;
+}
+.balanceTotalSpend {
+  color:$primary-color;
 }

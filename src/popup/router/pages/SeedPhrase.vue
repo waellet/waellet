@@ -15,7 +15,7 @@
                 <div v-if="step == 3">
                     <h3  class="phraseTitle">Confirm your phrase. Tap the words below to compose your phrase, note correct order! </h3>
                     <ae-phraser>
-                        <ae-badge class="seedBadge" :class="{'selected':seed.selected}" v-for="(seed,index) in seeds" @click.native="selectSeed(seed.name,index)">{{seed.name}}</ae-badge>
+                        <ae-badge class="seedBadge" :class="{'selected':seed.selected}" v-for="(seed,index) in shiffledSeed" @click.native="selectSeed(seed.name,index,seed.id)">{{seed.name}}</ae-badge>
                     </ae-phraser>
                     <div class="phraseSubTitle">Your recovery phrase</div>
                     <ae-phraser v-if="selectedSeed.length == 0">
@@ -28,7 +28,7 @@
                         <ae-badge class="seedBadge" v-for="(seed,index) in selectedSeed" @click.native="removeSeed(seed.parent,index)">{{seed.name}} <ae-icon name="close" class="seedClose" /></ae-badge>
                     </ae-phraser>
                 </div>
-                <ae-button extend face="round" :fill="buttonFill" class="mt-3" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
+                <ae-button extend face="round" :fill="buttonFill" class="mt-3 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
             </div>
         </main>
     </div>
@@ -36,7 +36,7 @@
 
 <script>
 import locales from '../../locales/locales.json';
-
+import {shuffleArray} from '../../utils/helper';
 export default {
     data() {
         return {
@@ -44,23 +44,28 @@ export default {
             buttonTitle:'SHOW SEED PHRASE',
             buttonFill:'primary',
             seeds:[
-                {name:"volcano",selected:false},
-                {name:"entire",selected:false},
-                {name:"magnet",selected:false},
-                {name:"glow",selected:false},
-                {name:"zero",selected:false},
-                {name:"crack",selected:false},
-                {name:"arena",selected:false},
-                {name:"episode",selected:false},
-                {name:"shrimp",selected:false},
-                {name:"buffalo",selected:false},
-                {name:"tiny",selected:false},
-                {name:"aunt",selected:false}
+                {id:0,name:"volcano",selected:false},
+                {id:1,name:"entire",selected:false},
+                {id:2,name:"magnet",selected:false},
+                {id:3,name:"glow",selected:false},
+                {id:4,name:"zero",selected:false},
+                {id:5,name:"crack",selected:false},
+                {id:6,name:"arena",selected:false},
+                {id:7,name:"episode",selected:false},
+                {id:8,name:"shrimp",selected:false},
+                {id:9,name:"buffalo",selected:false},
+                {id:10,name:"tiny",selected:false},
+                {id:11,name:"aunt",selected:false}
             ],
             selectedSeed:[],
             seedError:{},
             progress:0
         };
+    },
+    computed: {
+        shiffledSeed() {
+            return shuffleArray(this.seeds);
+        }
     },
     locales,
     methods: { 
@@ -87,8 +92,11 @@ export default {
                 }
                 this.step = step;
             }else if(step == 4) {
-                const originalSeed = this.seeds.map(seed => seed.name).join(",");
+                let seed = this.seeds.slice();
+                let sorted = seed.sort((a, b) => (a.id > b.id) ? 1 : -1);
+                const originalSeed = sorted.map(seed => seed.name).join(",");
                 const selectSeed = this.selectedSeed.map(seed => seed.name).join(",");
+                
                 if(this.selectedSeed.length == 12) {
                     if(originalSeed != selectSeed) {
                         this.seedError = {"error":"Oops! Not the correct order, try again"}
@@ -102,10 +110,11 @@ export default {
                 }
             }
         },
-        selectSeed(seed,index) {
+        selectSeed(seed,index,id) {
             if(!this.selectedSeed.find(s => {return s.name == seed })) {
-                this.selectedSeed.push({name:seed,parent:index});
-                this.seeds[index].selected = true;
+                this.selectedSeed.push({name:seed,parent:id});
+                // this.seeds[index].selected = true;
+                this.seeds.find(s => s.id == id).selected = true;
             }
             if(this.selectedSeed.length == 12) {
                 this.buttonFill = "primary";
@@ -114,7 +123,8 @@ export default {
             }
         },
         removeSeed(parent,index) {
-            this.seeds[parent].selected = false;
+            this.seeds.find(s => s.id == parent).selected = false;
+            // this.seeds[parent].selected = false;
             this.selectedSeed.splice(index,1);
             if(this.selectedSeed.length == 12) {
                 this.buttonFill = "primary";

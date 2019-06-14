@@ -10,6 +10,7 @@
         "newSubaccount": "New subaccount",
         "manageAccounts": "Manage accounts",
         "exportKeypair": "Export keypair",
+        "exportKeystore": "Export keystore",
         "logout": "Logout",
         "securingAccount": "Securing your account",
         "address": "Address",

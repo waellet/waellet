@@ -102,18 +102,7 @@ export default {
     }
 }
 
-.balance {
-    font-weight: bold;
-    color: $color-neutral-negative-1;
-    font-family: monospace;
-    &.invert {
-        color: #fff;
-    }
 
-    &:after {
-        content: ' AE';
-    }
-}
 .detailTitle {
     color:$color-neutral-negative-1;
 }
