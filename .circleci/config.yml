@@ -1,11 +1,11 @@
 version: 2.1
 orbs:
-  cypress: cypress-io/cypress@1.7.0
+  cypress: cypress-io/cypress@1
 executors:
   node_linux:
     docker:
       - image: circleci/node:latest
-    working_directory: ~/repo
+    working_directory: ~/project
 jobs:
   build:
     executor: node_linux
@@ -37,8 +37,6 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests!
-    # - run: yarn test
   test:
     executor: cypress/base-8
     steps:
