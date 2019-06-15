@@ -2,23 +2,19 @@
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
-version: 2
+version: 2.1
+orbs:
+  cypress: cypress-io/cypress@1.1.0
+executors:
+  node_linux:
+    docker:
+      - image: circleci/node:latest
+    working_directory: ~/repo
 jobs:
   build:
-    branches:
-      only:
-        - master
-        #- develop
-        
-    docker:
-      # specify the version you desire here
-      - image: circleci/node:latest
-
-    working_directory: ~/repo
-
+    executor: node_linux
     steps:
       - checkout
-      
       - run:
           name: "Update Node.js and npm"
           command: |
@@ -27,24 +23,19 @@ jobs:
       - run:
           name: Check current version of node
           command: node -v
-
       - run:
           name: Install dependecies for test
           command: sudo apt install xsel
-
       # Download and cache dependencies
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
-      
       - run: npm install
 
       - run: npm run build
 
-      - run: npm test
-      
       - save_cache:
           paths:
             - node_modules
@@ -52,3 +43,7 @@ jobs:
 
       # run tests!
      # - run: yarn test
+  test:
+    executor: cypress
+    steps:
+      - npm test
