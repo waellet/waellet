@@ -15,7 +15,8 @@
     "watch": "npm run build -- --watch",
     "watch:dev": "cross-env HMR=true npm run build:dev -- --watch",
     "test": " start-server-and-test start http://localhost:5000 start:tests",
-    "start": "serve",
+    "start": "serve --no-clipboard",
+    "start:ci": "serve --no-clipboard",
     "start:tests": "cypress run "
   },
   "dependencies": {
@@ -68,6 +69,7 @@
     "core-js": "^2.6.5",
     "cross-env": "^5.2.0",
     "css-loader": "^0.28.11",
+    "cypress": "^3.3.1",
     "ejs": "^2.6.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.0.0",
@@ -85,13 +87,13 @@
     "precise-commits": "^1.0.2",
     "prettier": "^1.14.3",
     "sass-loader": "^7.1.0",
+    "serve": "^11.0.1",
     "start-server-and-test": "^1.9.1",
     "vue-loader": "^15.4.2",
     "vue-template-compiler": "^2.6.10",
     "web-ext-types": "^2.1.0",
     "webpack": "^4.20.2",
     "webpack-chrome-extension-reloader": "^0.8.3",
-    "webpack-cli": "^3.3.4",
-    "serve": "^11.0.1"
+    "webpack-cli": "^3.3.4"
   }
 }
