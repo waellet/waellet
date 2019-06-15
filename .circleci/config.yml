@@ -1,7 +1,3 @@
-# Javascript Node CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
 version: 2.1
 orbs:
   cypress: cypress-io/cypress@1.7.0
@@ -42,8 +38,14 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       # run tests!
-     # - run: yarn test
+    # - run: yarn test
   test:
-    executor: cypress
+    executor: cypress/base-8
     steps:
-      - npm test
+      - run: npm test
+
+workflows:
+  build-test:
+    jobs:
+      - build
+      - test
