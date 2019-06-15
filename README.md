@@ -11,9 +11,9 @@ We see Waellet as user’s first choice wallet when it comes to interacting with
 Currently, Waellet is still in beta and under heavy development. Last week we on-boarded three more people to work along with Milen, pushing to bring you our best vision of the wallet as soon as possible.
 
 
-## Build from source
+## Build and run
 
-Steps to build:
+### Steps to build and run locally:
 
 1. Clone the develop branch of this repo.
 2. `npm install`
@@ -21,6 +21,10 @@ Steps to build:
 4. Open chrome/brave browser Preferences -> More tools > Extensions
 5. Make sure `Developer mode` is On in the right corner.
 6. Click `Load unpacked` button and select the generated `dist` folder in the cloned repo.
+
+### Running tests
+
+`npm run test`
 
 ## Contribution
 
