@@ -40,7 +40,13 @@ jobs:
   test:
     executor: cypress/base-8
     steps:
-      - run: npm test
+      - checkout
+      - run:
+          name: "Install dependencies"
+          command: npm install
+      - run:
+          name: "Run tests"
+          command: npm test
 
 workflows:
   build-test:
