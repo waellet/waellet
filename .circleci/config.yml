@@ -4,11 +4,13 @@
 #
 version: 2
 jobs:
-  detect_changes:
+  build:
     docker:
       - image: circleci/node:latest
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/app
       - run:
           name: "Update Node.js and npm"
           command: |
@@ -25,30 +27,21 @@ jobs:
       - run:
           name: Install Dependencies
           command: npm install
+
+      - run:
+          name: Build Application
+          command: npm run build
+
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - build
+
       - save_cache:
           paths:
             - node_modules
             - ~/.cache
           key: v1-dependencies-{{ checksum "package.json" }}
-  
-  build_application:
-    docker:
-      - image: circleci/node:latest
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/app
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            - v1-dependencies-
-      - run:
-          name: Build Application
-          command: npm run build
-      - persist_to_workspace:
-          root: ./
-          paths:
-            - build
  
   run_integration_test:
     docker:
@@ -73,10 +66,7 @@ workflows:
   version: 2
   myapp_ci:
     jobs:
-      - detect_changes
-      - build_application:
-          requires:
-            - detect_changes
+      - build
       - run_integration_test:
           requires:
-            - build_application
+            - build
