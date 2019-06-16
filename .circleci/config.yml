@@ -1,68 +1,49 @@
-version: 2.1
-orbs:
-  # use Cypress orb from CircleCI registry
-  cypress: cypress-io/cypress@1
-
-executors:
-  node_linux:
-    docker:
-      - image: circleci/node:latest
-    working_directory: ~/project
-
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
 jobs:
-  release:
-    executor: cypress/base-10
+  build:
+    branches:
+      only:
+        - master
+        #- develop
+        
+    docker:
+      # specify the version you desire here
+      - image: cypress/base:8
+
+    working_directory: ~/repo
+
     steps:
-      - attach_workspace:
-          at: ~/
+      - checkout
+      
+      - run:
+          name: "Update Node.js and npm"
+          command: |
+            curl -sSL "https://nodejs.org/dist/v11.10.0/node-v11.10.0-linux-x64.tar.xz" | sudo tar --strip-components=2 -xJ -C /usr/local/bin/ node-v11.10.0-linux-x64/bin/node
+            curl https://www.npmjs.com/install.sh | sudo bash
+      - run:
+          name: Check current version of node
+          command: node -v
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      
+      - run: npm install
+
+      - run:
+          name: Running E2E tests with multiple reporters
+          command: npm run test
+
       - run: npm run build
 
-workflows:
-  linux-build:
-    jobs:
-      # checks out code and installs dependencies once
-      - cypress/install:
-          name: 'Linux install'
-          # and builds the app using this command
-          build: 'npm install'
-
-      # runs on 3 machines, load balances tests
-      # and records on Cypress Dashboard
-      - cypress/run:
-          # name this job because we are running "cypress/run" several times
-          # with different parameters
-          name: '3 machines'
-          # job will use workspace with code and dependencies
-          # installed by the "install" job
-          requires:
-            - Linux install
-          record: true # record results on Cypress dashboard
-          parallel: true # load balance all tests
-          parallelism: 3 # across 3 machines
-          group: '3x-electron' # name this group
-          start: 'npm run start:ci' # start server before running tests
-
-      # run on 2 machines using Chrome browser
-      - cypress/run:
-          name: '2 machines using Chrome'
-          # job will use workspace with code and dependencies
-          # installed by the "install" job
-          requires:
-            - Linux install
-          # use executor with Chrome installed
-          executor: cypress/browsers-chrome69
-          # use browser "chrome" for running tests
-          browser: chrome
-          record: true
-          parallel: true
-          parallelism: 2
-          group: '2x-chrome'
-          start: 'npm run start:ci'
-
-      - release:
-          filters:
-            branches:
-              only:
-                - master
-          requires:
-            - 3 machines
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
