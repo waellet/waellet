@@ -4,37 +4,58 @@
 #
 version: 2
 jobs:
-  build:
-    branches:
-      only:
-        - master
-        #- develop
-        
+  detect_changes:
     docker:
-      # specify the version you desire here
-      - image: cypress/base:8
-
-    working_directory: ~/repo
-
+      - image: circleci/node:latest
     steps:
       - checkout
-      
-      # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-      
-      - run: npm install
-
+            - application-v1-{{ checksum "package-lock.json" }}
+            - application-v1-
       - run:
-          name: Running E2E tests with multiple reporters
-          command: npm run test
-
-      - run: npm run build
-
+          name: Install Dependencies
+          command: npm install
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+            - ~/.cache
+          key: application-v1-{{ checksum "package-lock.json" }}
+  
+  build_application:
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/app
+      - restore_cache:
+          keys:
+            - application-v1-{{ checksum "package-lock.json" }}
+            - application-v1-
+      - run:
+          name: Build Application
+          command: npm run build
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - build
+ 
+  run_integration_test:
+    docker:
+      - image: cypress/browsers:latest
+    working_directory: /home/circleci/app
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/cricleci/app
+      - restore_cache:
+          keys:
+            - application-v1-{{ checksum "package-lock.json" }}
+            - application-v1-
+      - run:
+          name: Link Cypress Binary
+          command: ln -s /home/circleci/.cache ~/.cache
+      - run:
+          name: Run Acceptance Tests
+          command: npm run test
