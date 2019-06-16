@@ -59,3 +59,15 @@ jobs:
       - run:
           name: Run Acceptance Tests
           command: npm run test
+          
+workflows:
+  version: 2
+  myapp_ci:
+    jobs:
+      - detect_changes
+      - build_application:
+          requires:
+            - detect_changes
+      - run_integration_test:
+          requires:
+            - build_application
