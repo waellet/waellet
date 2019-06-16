@@ -7,10 +7,9 @@ jobs:
   build:
     docker:
       - image: circleci/node:latest
+    working_directory: /home/circleci/project
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/app
       - run:
           name: "Update Node.js and npm"
           command: |
@@ -32,11 +31,6 @@ jobs:
           name: Build Application
           command: npm run build
 
-      - persist_to_workspace:
-          root: ./
-          paths:
-            - build
-
       - save_cache:
           paths:
             - node_modules
@@ -46,11 +40,11 @@ jobs:
   run_integration_test:
     docker:
       - image: cypress/browsers:latest
-    working_directory: /home/circleci/app
+    working_directory: /home/circleci/project
     steps:
       - checkout
       - attach_workspace:
-          at: /home/cricleci/app
+          at: /home/cricleci/project
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
