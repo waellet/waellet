@@ -9,10 +9,19 @@ jobs:
       - image: circleci/node:latest
     steps:
       - checkout
+      - run:
+          name: "Update Node.js and npm"
+          command: |
+            curl -sSL "https://nodejs.org/dist/v11.10.0/node-v11.10.0-linux-x64.tar.xz" | sudo tar --strip-components=2 -xJ -C /usr/local/bin/ node-v11.10.0-linux-x64/bin/node
+            curl https://www.npmjs.com/install.sh | sudo bash
+      - run:
+          name: Check current version of node
+          command: node -v
+
       - restore_cache:
           keys:
-            - application-v1-{{ checksum "package-lock.json" }}
-            - application-v1-
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
       - run:
           name: Install Dependencies
           command: npm install
@@ -20,7 +29,7 @@ jobs:
           paths:
             - node_modules
             - ~/.cache
-          key: application-v1-{{ checksum "package-lock.json" }}
+          key: v1-dependencies-{{ checksum "package.json" }}
   
   build_application:
     docker:
@@ -31,8 +40,8 @@ jobs:
           at: ~/app
       - restore_cache:
           keys:
-            - application-v1-{{ checksum "package-lock.json" }}
-            - application-v1-
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
       - run:
           name: Build Application
           command: npm run build
@@ -51,8 +60,8 @@ jobs:
           at: /home/cricleci/app
       - restore_cache:
           keys:
-            - application-v1-{{ checksum "package-lock.json" }}
-            - application-v1-
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
       - run:
           name: Link Cypress Binary
           command: ln -s /home/circleci/.cache ~/.cache
