@@ -1,6 +1,6 @@
 {
   "name": "waellet",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "waellet - aeternity browser extension",
   "author": "Milen Radkov <milenradkov@me.com>",
   "license": "MIT",
@@ -15,8 +15,8 @@
     "watch": "npm run build -- --watch",
     "watch:dev": "cross-env HMR=true npm run build:dev -- --watch",
     "test": " start-server-and-test start http://localhost:5000 start:tests",
-    "start": "serve --no-clipboard",
-    "start:ci": "serve --no-clipboard",
+    "start": "serve",
+    "start:ci": "serve",
     "start:tests": "cypress run "
   },
   "dependencies": {
