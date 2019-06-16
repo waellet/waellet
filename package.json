@@ -41,7 +41,6 @@
     "emailjs-com": "^2.3.2",
     "extensionizer": "^1.0.1",
     "file-saver": "^2.0.1",
-    "fs": "0.0.1-security",
     "node-fetch": "^2.3.0",
     "node-sass": "^4.11.0",
     "nyc": "^14.1.1",
