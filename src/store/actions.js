@@ -56,6 +56,13 @@ export default {
           case 'seedFastCopy':
               commit(types.SHOW_POPUP,{show:true,...popupMessages.SEED_FAST_COPY});
             break;
+            case 'requiredField':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_FIELD});
+              break;
+            case 'added_success':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_ADDED});
+              break;
+            SUCCESS_ADDED
           default:
             break;
         }

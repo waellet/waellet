@@ -86,7 +86,7 @@ export default {
     pollData() { 
       // this.polling = setInterval(() => {
         
-        this.$store.dispatch('updateBalance');
+        // this.$store.dispatch('updateBalance');
       // }, 200)
     },
     popupAlert(payload) {

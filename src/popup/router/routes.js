@@ -7,6 +7,8 @@ import SeedPhraseComponent from './pages/SeedPhrase';
 import TransactionsComponent from './pages/Transactions';
 import TransactionDetailsComponent from './pages/TransactionDetails';
 import SignTransactionComponent from './pages/SignTransaction';
+import ManageAccount from './pages/manageAccounts';
+
 export default [
   {
     path: '/',
@@ -49,5 +51,9 @@ export default [
   {
     path:'/sign-transaction',
     component:SignTransactionComponent,
-  }
+  },
+  {
+    path:'/manageAccounts',
+    component:ManageAccount,
+  },
 ];
