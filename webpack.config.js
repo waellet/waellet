@@ -14,6 +14,7 @@ const config = {
     'inject': './inject.js',
     'popup/popup': './popup/popup.js',
     'options/options': './options/options.js',
+    'main':'./main.js'
   },
   output: {
     path: __dirname + '/dist',

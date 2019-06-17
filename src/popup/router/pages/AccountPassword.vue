@@ -97,6 +97,7 @@ export default {
                 });
             }else {
                 this.loginError = true;
+                this.errorMsg = "";
                 this.inputError = {error:''};
                 this.loading = false;
                 
@@ -110,6 +111,7 @@ export default {
                 // this.$router.push('/account');
                 this.$router.push('/seed');
             });
+            
         },
     }
 }

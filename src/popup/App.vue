@@ -1,16 +1,16 @@
 <template>
   <ae-main @click.native="hideMenu">
-      <ae-header :class="account.publicKey ? 'logged' : ''">
+      <ae-header :class="account.publicKey && isLoggedIn ? 'logged' : ''">
 
         <!-- login screen header -->
-        <div class="logo_top" slot="mobile-left" v-if="!account.publicKey">
+        <div class="logo_top" slot="mobile-left" v-if="!isLoggedIn">
           <img :src="logo_top" alt="">
           <p>{{ language.system.name }}</p>
         </div>
         
         <!-- logged in header START -->
           <!-- network dropdown -->
-          <div id="network" class="dropdown" v-if="account.publicKey" slot="mobile-left" direction="left" ref="network">
+          <div id="network" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-left" direction="left" ref="network">
             <button v-on:click.prevent="toggleDropdown">
               <ae-icon class="dropdown-button-icon status" name="globe" slot="button" />
               <span class="dropdown-button-name" v-html="current.network" slot="button"></span>
@@ -27,7 +27,7 @@
           </div>
 
           <!-- account dropdown -->
-          <div id="account" class="dropdown" v-if="account.publicKey" slot="mobile-right" direction="center" ref="account">
+          <div id="account" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="center" ref="account">
             <button v-on:click.prevent="toggleDropdown">
               <ae-identicon id="identIcon" class="dropdown-button-icon" v-bind:address="this.account.publicKey" size="base" slot="button" />
               <span class="dropdown-button-name" slot="button">{{ language.strings.currentAccountName }}</span>
@@ -59,7 +59,7 @@
           </div>
 
           <!-- settings dropdown -->
-          <div id="settings" class="dropdown" v-if="account.publicKey" slot="mobile-right" direction="right" ref="settings">
+          <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" ref="settings">
             <button v-on:click="toggleDropdown">
               <ae-icon class="dropdown-button-icon" name="settings" slot="button" />
               <span class="dropdown-button-name" slot="button">{{ language.strings.settings }}</span>
@@ -73,9 +73,15 @@
                   </ae-button>
                 </li>
                 <li>
-                  <ae-button @click="exportKeypair">
+                  <ae-button @click="exportKeypair('keypair')">
                     <ae-icon name="save" />
                     {{ language.strings.exportKeypair }}
+                  </ae-button>
+                </li>
+                <li>
+                  <ae-button @click="exportKeypair('keystore')">
+                    <ae-icon name="save" />
+                    {{ language.strings.exportKeystore }}
                   </ae-button>
                 </li>
                 <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
@@ -107,6 +113,32 @@
           </div>
         <!-- logged in header END -->
       </ae-header>
+      <ae-modal-light
+        v-if="popup.show"
+        @close="closePopup"
+        :title="popup.title"
+      >
+        <div v-html="popup.msg"></div>
+        <ae-button
+          size="small"
+          type="exciting"
+          class="popup-button"
+          face="round"
+          :fill="popupButtonFill"
+          uppercase
+          @click.native="closePopup"
+          slot="buttons"
+        >OK</ae-button>
+        <ae-button
+          v-if="popup.secondBtn"
+          class="popup-button"
+          face="round"
+          fill="secondary"
+          uppercase
+          @click.native="popupSecondBtnClick"
+          slot="buttons"
+        >See in explorer</ae-button>
+      </ae-modal-light>
     <router-view></router-view>
   </ae-main>
 </template>
@@ -118,6 +150,7 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 
 export default {
+  
   data () {
     return {
       logo_top: chrome.runtime.getURL('../../../icons/icon_48.png'),
@@ -154,8 +187,6 @@ export default {
           this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
         }
       }
-
-
       for (var tar in this.dropdown) {
         let el = this.$refs[tar];
         if ( tar != 'languages' && typeof el != 'undefined' && el !== target && !el.contains(target)) {
@@ -182,7 +213,7 @@ export default {
         this.$store.commit('SWITCH_LOGGED_IN', false);
         this.$router.push('/');
       });
-    },
+    }, 
     closePopup() {
       this.$store.commit('HIDE_POPUP');
     },
@@ -192,15 +223,20 @@ export default {
     myAccount () {
       this.$router.push('/account');
     },
-
     manageAccounts () {
       this.$router.push('/manageAccounts');
     },
-
-    exportKeypair () {
-      let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
-      let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
-      saveAs(blob, "keypair.json");
+    exportKeypair (type) {
+      if(type == 'keypair') {
+        let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
+        let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+        saveAs(blob, "keypair.json");
+      }else if(type == 'keystore') {
+        let blobData = this.account.encryptedPrivateKey;
+        let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+        saveAs(blob, "keystore.json");
+      }
+      
     }
   }
 };
@@ -208,30 +244,23 @@ export default {
 
 <style lang="scss">
 @import '../common/base';
-
 html { min-width: 357px; min-height: 600px; background-color: #f5f5f5; }
 p { font-weight: bolder; margin-left: 3px; }
 input { background: transparent; border: none; border-bottom: 1px; height: 25px; line-height: 25px; }
 input:focus { border-bottom: 1px solid #DDD; }
 button:focus { outline: none; }
 button { background: none; border: none; color: #717C87; cursor: pointer; transition: all 0.2s; }
-.ae-button + .ae-button { margin-top: 1rem; }
-
+// .ae-button + .ae-button { margin-top: 1rem; }
 .pageTitle { margin: 0 0 10px; }
-
 .ae-header { border-bottom: 1px solid #EEE; margin-bottom: 10px; }
 .ae-header.logged { background: #001833; }
 .ae-header.logged > * { color: #717C87; }
-
 .logo_top { display: flex; flex-flow: row wrap; justify-content: center; vertical-align: center; }
 .logo_top p { color: #FF0D6A; font-size: 20px; line-height: 12px; }
-
 .popup { color: #555; padding: 4px 14px; text-align: center; font-size: 16px; word-break: break-all; word-wrap: break-word; }
-
 #network li .status::before { content: ''; display: inline-block; width: 8px; height: 8px; -moz-border-radius: 7.5px; -webkit-border-radius: 7.5px; border-radius: 7.5px; margin-right: 5px;
                 border: 1px solid #DDD; background-color: #EFEFEF; }
 #network li .status.current::before { border-color: green; background-color: greenyellow; }
-
 #account { position: absolute; left: 50%; margin-left: -60px; top: 50%; margin-top: -27px; }
 #account  > button { width: 120px; }
 #account .dropdown-button-icon.ae-identicon.base { height: 1.8rem; margin-bottom: 3px; vertical-align: top; }
@@ -243,10 +272,8 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .ae-check-button:before { position: static !important; }
 .ae-check-button:after { left: 0 !important; top: 0 !important; width: 28px !important; height: 28px !important; }
 .ae-check > input[type="radio"]:checked + .ae-check-button:before, .ae-check > input[type="checkbox"]:checked + .ae-check-button:before { border-color: #dae1ea !important; }
-
 #settings li .ae-icon { font-size: 1.2rem; margin-right: 10px; }
 #languages .ae-button img { margin-right: 5px; }
-
 .dropdown { display: inline-block; position: relative; vertical-align: top; }
 .dropdown[direction="left"] ul { left: 0; }
 .dropdown[direction="right"] ul { right: 0; }
@@ -268,7 +295,6 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .dropdown .dropdown-button-icon { font-size: 1.5rem; margin: 0 auto 5px; display: block; }
 .dropdown .dropdown-button-name { display: block; margin: 0 auto; }
 .dropdown > button:hover, .dropdown > .ae-dropdown-button:hover { color: #FFF; }
-
 .slide-fade-enter-active { transition: all .3s ease; }
 .slide-fade-leave-active { transition: all .2s ease; }
 .slide-fade-enter { transform: translateY(-50px); }

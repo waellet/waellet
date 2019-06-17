@@ -5,20 +5,11 @@
 version: 2
 jobs:
   build:
-    branches:
-      only:
-        - master
-        #- develop
-        
     docker:
-      # specify the version you desire here
       - image: circleci/node:latest
-
-    working_directory: ~/repo
-
+    working_directory: /home/circleci/project
     steps:
       - checkout
-      
       - run:
           name: "Update Node.js and npm"
           command: |
@@ -28,21 +19,48 @@ jobs:
           name: Check current version of node
           command: node -v
 
-      # Download and cache dependencies
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
+      - run:
+          name: Install Dependencies
+          command: npm install
 
-      - run: npm install
-
-      - run: npm run build
+      - run:
+          name: Build Application
+          command: npm run build
 
       - save_cache:
           paths:
             - node_modules
+            - ~/.cache
           key: v1-dependencies-{{ checksum "package.json" }}
-
-      # run tests!
-     # - run: yarn test
+ 
+  run_integration_test:
+    docker:
+      - image: cypress/browsers:latest
+    working_directory: /home/circleci/project
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/cricleci/project
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+      - run:
+          name: Link Cypress Binary
+          command: ln -s /home/circleci/.cache ~/.cache
+      - run:
+          name: Run Acceptance Tests
+          command: npm run test
+          
+workflows:
+  version: 2
+  myapp_ci:
+    jobs:
+      - build
+      - run_integration_test:
+          requires:
+            - build

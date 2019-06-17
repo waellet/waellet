@@ -4,3 +4,4 @@ export const SEED_FAST_COPY = {type:'error',title:'That was too fast!', msg:'Ple
 
 //success messages
 export const PUBLIC_KEY_COPIED = {type:'success',title:'Copied',msg:'Public key copied to clipboard! '};
+export const SUCCESS_TRANSFER = {type:'success',title:'Transfer completed', msg:''}
