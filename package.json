@@ -22,7 +22,7 @@
   "dependencies": {
     "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",
     "@aeternity/aepp-components-3": "3.0.0-alpha.9",
-    "@aeternity/aepp-sdk": "^3.2.1",
+    "@aeternity/aepp-sdk": "^4.0.0",
     "@vue/cli-plugin-e2e-cypress": "^3.8.0",
     "@vue/cli-service": "^3.8.0",
     "argon2-browser": "^1.5.2",
