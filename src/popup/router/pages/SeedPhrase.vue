@@ -37,6 +37,7 @@
 <script>
 import locales from '../../locales/locales.json';
 import {shuffleArray} from '../../utils/helper';
+import { generateMnemonic, mnemonicToSeed } from '@aeternity/bip39';
 export default {
     data() {
         return {
@@ -62,6 +63,9 @@ export default {
             progress:0
         };
     },
+    mounted() {
+        this.generateSeeds()
+    },
     computed: {
         shiffledSeed() {
             return shuffleArray(this.seeds);
@@ -69,6 +73,12 @@ export default {
     },
     locales,
     methods: { 
+        generateSeeds() {
+            let mnemonic = generateMnemonic().split(" ");
+            this.seeds.forEach(function(item, index) {
+                item.name = mnemonic[index]
+            })
+        },
         nextSeedStep(step) {
             step += 1;
             if(step <= 3) {
