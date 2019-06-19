@@ -59,6 +59,7 @@ export default {
     ...mapGetters(['account', 'balance', 'network', 'current','transactions'])
   },
   created () {
+    console.log(this.account.secretKey)
     // getTranscationByPublicAddress(this.account.publicKey);
     let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
     transactions.then(res => {

@@ -73,6 +73,7 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
+import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 export default {
   name: 'Home',
   data() {
@@ -104,6 +105,7 @@ export default {
       // check if there is an account generated already
       // chrome.storage.sync.set({userAccount: ''}, () => {});
       // chrome.storage.sync.set({isLogged: ''}, () => {});
+      // chrome.storage.sync.set({confirmSeed: true}, () => {});
      
       chrome.storage.sync.get('isLogged', data => {
         
@@ -116,6 +118,13 @@ export default {
               }
               this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
             } 
+            chrome.storage.sync.get('confirmSeed', seed => {
+              if(seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
+                
+                this.$router.push('/seed');
+                return;
+              }
+            });
             if (data.isLogged && data.hasOwnProperty('isLogged')) {
               this.$store.commit('SWITCH_LOGGED_IN', true);
               this.$router.push('/account');
@@ -139,7 +148,7 @@ export default {
       this.inputError = {}; 
     },
     checkSeed(seed) {
-      return true;
+      return validateMnemonic(seed);
     },
     uploadWallet() {
       this.walletFile = this.$refs.walletFile.files[0];

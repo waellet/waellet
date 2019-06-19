@@ -1,7 +1,7 @@
 <template>
     <div>
         <main>
-            <div class="wrapper">
+            <div class="wrapper" v-if="!loading">
                 <div v-if="step == 1" >
                     <h3 class="phraseTitle">Check the spelling of each word and never create a screenshot or photo of this phrase!</h3> 
                 </div>
@@ -29,7 +29,9 @@
                     </ae-phraser>
                 </div>
                 <ae-button extend face="round" :fill="buttonFill" class="mt-3 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
+                
             </div>
+            <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
         </main>
     </div>
 </template>
@@ -37,7 +39,8 @@
 <script>
 import locales from '../../locales/locales.json';
 import {shuffleArray} from '../../utils/helper';
-import { generateMnemonic, mnemonicToSeed } from '@aeternity/bip39';
+import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
+import { addressGenerator } from '../../utils/address-generator';
 export default {
     data() {
         return {
@@ -60,11 +63,16 @@ export default {
             ],
             selectedSeed:[],
             seedError:{},
-            progress:0
+            progress:0,
+            loading:false,
+            language: locales['en']
         };
     },
     mounted() {
-        this.generateSeeds()
+        this.generateSeeds();
+        chrome.storage.sync.set({confirmSeed: false}, () => {});
+        
+
     },
     computed: {
         shiffledSeed() {
@@ -77,9 +85,10 @@ export default {
             let mnemonic = generateMnemonic().split(" ");
             this.seeds.forEach(function(item, index) {
                 item.name = mnemonic[index]
-            })
+            });
+            console.log(this.seeds);
         },
-        nextSeedStep(step) {
+        nextSeedStep:async function nextSeedStep (step) {
             step += 1;
             if(step <= 3) {
                 if(step == 2) {
@@ -104,7 +113,7 @@ export default {
             }else if(step == 4) {
                 let seed = this.seeds.slice();
                 let sorted = seed.sort((a, b) => (a.id > b.id) ? 1 : -1);
-                const originalSeed = sorted.map(seed => seed.name).join(",");
+                let originalSeed = sorted.map(seed => seed.name).join(",");
                 const selectSeed = this.selectedSeed.map(seed => seed.name).join(",");
                 
                 if(this.selectedSeed.length == 12) {
@@ -112,9 +121,25 @@ export default {
                         this.seedError = {"error":"Oops! Not the correct order, try again"}
                     }else {
                         this.seedError = {};
-                        chrome.storage.sync.set({isLogged: true}, () => {
-                            this.$store.commit('SWITCH_LOGGED_IN', true);
-                            this.$router.push('/account');
+                        this.loading = true;
+                        chrome.storage.sync.set({isLogged: true}, async () => {
+                            chrome.storage.sync.set({confirmSeed: true}, () => {});
+                            chrome.storage.sync.get('accountPassword',async pass => {
+                                if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
+                                    originalSeed = originalSeed.replace(/,/g, ' ');
+                                    let privateKey = mnemonicToSeed(originalSeed)
+
+                                    const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,privateKey.toString('hex'));
+                                    
+                                    chrome.storage.sync.set({userAccount: keyPair}, () => {
+                                        this.loading = false;
+                                        chrome.storage.sync.set({accountPassword: ''}, () => {});
+                                        this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                                        this.$store.commit('SWITCH_LOGGED_IN', true);
+                                        this.$router.push('/account');
+                                    });
+                                }
+                            });
                         });
                     }
                 }

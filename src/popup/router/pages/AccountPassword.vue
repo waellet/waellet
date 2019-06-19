@@ -25,6 +25,7 @@
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
+import {  mnemonicToSeed } from '@aeternity/bip39';
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title'],
     data() {
@@ -76,16 +77,26 @@ export default {
                 }); 
             });
         },
-        importSeedPhrase({accountPassword,data}) {
+        importSeedPhrase:async function importSeedPhrase({accountPassword,data}) {
             this.loading = true;
-            console.log("Import seed Phrase");
-            console.log("password" + accountPassword);
-            console.log("seed" + data);
+            let privateKey = mnemonicToSeed(data)
+            console.log(privateKey.toString('hex'))
+            console.log(data);
+
+            const keyPair = await addressGenerator.generateKeyPair(accountPassword,privateKey.toString('hex'));
+            
+            chrome.storage.sync.set({userAccount: keyPair}, () => {
+                this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                this.$store.commit('SWITCH_LOGGED_IN', true);
+                this.loading = false;
+                this.$router.push('/account');
+            });
         },
         importKeystore:async function importKeystore({accountPassword,data}) {
             this.loading = true;
             const encryptedPrivateKey = JSON.parse(data);
             let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+            
             if(match) {
                 let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),secretKey:'',publicKey:encryptedPrivateKey.public_key};
                 chrome.storage.sync.set({userAccount: keyPair}, () => {
@@ -105,11 +116,14 @@ export default {
         },
         generateAddress: async function generateAddress({ accountPassword }) {
             this.loading = true;
-            const keyPair = await addressGenerator.generateKeyPair(accountPassword);
-            chrome.storage.sync.set({userAccount: keyPair}, () => {
-                this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                // this.$router.push('/account');
-                this.$router.push('/seed');
+
+            // const keyPair = await addressGenerator.generateKeyPair(accountPassword);
+            // chrome.storage.sync.set({userAccount: keyPair}, () => {
+            //     this.$store.commit('UPDATE_ACCOUNT', keyPair);
+            //     this.$router.push('/seed');
+            // });
+            chrome.storage.sync.set({accountPassword: accountPassword}, () => {
+                 this.$router.push('/seed');
             });
             
         },

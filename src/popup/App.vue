@@ -238,7 +238,15 @@ export default {
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keypair.json");
       }else if(type == 'keystore') {
-        let blobData = this.account.encryptedPrivateKey;
+        let blobData = "";
+        try {
+          blobData = JSON.parse(this.account.encryptedPrivateKey);
+          blobData = JSON.stringify(this.account.encryptedPrivateKey);
+        }catch(err) {
+          blobData = JSON.stringify(this.account.encryptedPrivateKey);
+        }
+        
+        console.log( this.account.encryptedPrivateKey);
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keystore.json");
       }
