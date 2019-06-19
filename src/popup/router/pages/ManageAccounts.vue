@@ -12,6 +12,7 @@
                     <!-- IF edit -->
                     <div v-if="editAccountName">
                         <ae-input-plain placeholder="Type here.." v-model="new_accname" :value="language.strings.currentAccountName" />
+                        <button v-on:click="cancelEdit"><ae-icon name="close" /></button>
                         <button @click="nameSave"><ae-icon name="check" /></button>
                     </div>
                 </ae-list-item>
@@ -41,6 +42,7 @@
         </div>
     </ae-main>
 </template>
+
 <script>
 import store from '../../../store';
 import locales from '../../locales/locales.json'
@@ -101,13 +103,15 @@ export default {
                 });
             }
             this.newSubAcc = "";
+        },
+        cancelEdit() {
+            this.editAccountName = false;
         }
     }
 }
 </script>
 
 <style lang="scss">
-
 @import '../../../common/base';
 
 #manageAccounts .btnBack { display: block; margin-bottom: 15px; }
@@ -120,7 +124,7 @@ export default {
 .editaccount div, .addaccount div { width: 100%; }
 .editaccount div span, .editaccount div input, .addaccount div span { float: left; }
 .editaccount div button, .addaccount div button { float: right; }
-.editaccount div input { width: 80% !important; }
+.editaccount div input { width: 70% !important; }
 
 .slideform { position: relative; width: 100%; overflow: hidden; padding: 0; top: 10px; list-style-type: none;
     box-shadow: 0 0 8px rgba(0, 33, 87, 0.15); transform-origin: top; transition: transform .4s ease-in-out; }

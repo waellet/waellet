@@ -57,7 +57,8 @@
         "generateWallet": "Generate wallet",
         "importPrivateKey": "Import secret key",
         "import": "Import",
-        "backToAccount": "Back to account"
+        "backToAccount": "Back to account",
+        "wholeTransaction": "Whole transaction history"
       },
       "placeholders": {
         "inputPrivateKey": "Input secret key"

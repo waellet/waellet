@@ -1,26 +1,24 @@
 <template>
   <div class="popup">
     <ae-main>
+      <div class="actions">
+        <button class="backbutton" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+      </div>
       <p>{{language.pages.send.heading}}</p>
-      <div>
-        <div>
-          <ae-address-input :label="language.strings.address"
-            :placeholder="language.strings.address"
-            v-model="form.address"
-          />
+      <div class="sendContent">
+        <div class="address">
+          <ae-address-input v-model="form.address" />
+          <ae-text class='addresslbl' slot="header">Address </ae-text>
         </div>
-        <div v-if="!tx.status">
-          <ae-input :label="language.strings.amount" placeholder="0.0" aemount v-model="form.amount">
+        <div class="amount" v-if="!tx.status">
+          <ae-input :label="language.strings.amount" aemount v-model="form.amount">
             <ae-text slot="header" fill="black">AE</ae-text>
           </ae-input>
           <p>{{language.strings.maxSpendableValue}} {{maxValue}}</p>
           <p>{{language.strings.txFee}} {{txFee}}</p>
         </div>
         <div>
-            <ae-button face="round" fill="primary" extend @click="send">{{language.buttons.send}}</ae-button>
-        </div>
-        <div class="actions">
-          <ae-button face="flat" fill="alternative" extend @click="navigateAccount">{{language.buttons.backToAccount}}</ae-button>
+          <ae-button face="round" fill="primary" extend @click="send">{{language.buttons.send}}</ae-button>
         </div>
       </div>
 
@@ -149,7 +147,45 @@ export default {
 @import '../../../common/base';
 
 .actions {
+  width: 50%;
   margin-top: 5px;
+}
+.backbutton {
+  color: #62D9CB; 
+  text-transform: uppercase; 
+  font-weight: 700;
+}
+.sendContent div { 
+  margin-bottom: 10px;
+}
+.ae-input-container .ae-input-box {
+  background: #fff !important;
+  border: solid 2px #dcdcdc;
+  border-radius: 10px;
+}
+.address {
+  position: relative;
+  background: #ececec;
+}
+.address:focus-within { border-left: #FF0D6A 2px solid; }
+.address:focus-within {
+  p { color: #ff0d6a; }
+  p:after { content: '*'; color:#ff0d6a; }
+}
+.address textarea {
+  background: none;
+  border: none;
+  caret-color: #ff0d6a;
+  font-size: 20px;
+  outline: none;
+}
+.address p {
+  position: absolute;
+  top: 5px;
+  left: 15px;
+  font-size: 11px;
+  color: #76818c;
+  font-weight: 100;
 }
 
 </style>
