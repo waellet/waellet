@@ -7,7 +7,7 @@
             <span @click="changeTransactionType('outgoing')" :class="{'tab-active':transactionsType == 'outgoing'}">Outgoing</span>
         </div>-->
 
-        <ae-list>
+        <ae-list class="allTransactions">
             <div v-for="(trans,index) in groupedTransactions">
                 <div class="date">{{index == new Date().toDateString() ? 'Today' : index}}</div>
                 <TransactionItem v-for="transaction in trans" :transactionData="transaction"></TransactionItem>

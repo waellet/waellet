@@ -1,10 +1,8 @@
 import {onBeforeLoad} from '../support/mock_chrome.js';
-import login from '../login';
-import {prepareEncryptedPrivateKey} from '../utils.js';
+import {login} from '../login';
+import {prepareEncryptedPrivateKey, ACCOUNT_PASSWORD, PRIVATE_KEY} from '../utils.js';
 
-describe('IndexPage', () => {
-    const privateKey = "ef07a269ce62e81dbd507d2d677e06654765984aa4650bcf2ed68bbfc783f8e4301ba902bf2b2c176ac934eb41181866ae25f19dcbdd42c4aa448c0f82c913f9";
-    const accountPass = "qwerty";
+describe('Test cases for Index Page', () => {
     it('have import button', () => {
         cy.visit('popup/popup.html',{onBeforeLoad});
         cy.get('button').should('contain','Import secret key');
@@ -72,7 +70,7 @@ describe('IndexPage', () => {
         cy.get('.ae-modal button').contains('Continue').click();
         cy.get('.ae-modal .ae-toolbar').should('contain','Private key is incorrect!');
         cy.get('.ae-modal input').clear();
-        cy.get('.ae-modal input').type(privateKey);
+        cy.get('.ae-modal input').type(PRIVATE_KEY);
         cy.get('.ae-modal button').contains('Continue').click();
         cy.get('p').should('contain','Import From Private Key');
         cy.get('input[type="password"]').should('be.visible');
@@ -85,8 +83,8 @@ describe('IndexPage', () => {
         cy.get('input[type="password"]').eq(1).type('123');
         cy.get('button').contains('Import').click();
         cy.get('.ae-toolbar').should('contain',"Password must be at lest 4 symbols!");
-        cy.get('input[type="password"]').eq(0).clear().type(accountPass);
-        cy.get('input[type="password"]').eq(1).clear().type(accountPass);
+        cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD);
+        cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD);
         cy.get('button').contains('Import').click();
         cy.get('.ae-loader').should('be.visible');
         cy.get('.ae-card').should('be.visible');
@@ -117,7 +115,7 @@ describe('IndexPage', () => {
         cy.get('button').contains('Import').click();
         // cy.get('.ae-loader').should('be.visible');
         cy.get('.ae-toolbar').should('contain','Incorrect password !');
-        cy.get('input[type="password"]').clear().type(accountPass);
+        cy.get('input[type="password"]').clear().type(ACCOUNT_PASSWORD);
         cy.get('button').contains('Import').click();
         cy.get('.ae-card').should('be.visible');
     });
@@ -151,8 +149,8 @@ describe('IndexPage', () => {
         cy.get('button').contains('Restore').click();
         cy.get('.ae-toolbar').should('contain',"Password must be at lest 4 symbols!");
 
-        cy.get('input[type="password"]').eq(0).clear().type(accountPass);
-        cy.get('input[type="password"]').eq(1).clear().type(accountPass);
+        cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD);
+        cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD);
         cy.get('button').contains('Restore').click();
         cy.get('.ae-loader').should('be.visible');
         
@@ -176,8 +174,8 @@ describe('IndexPage', () => {
         cy.get('button').contains('Continue').click();
         cy.get('.ae-toolbar').should('contain',"Password must be at lest 4 symbols!");
 
-        cy.get('input[type="password"]').eq(0).clear().type(accountPass);
-        cy.get('input[type="password"]').eq(1).clear().type(accountPass);
+        cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD);
+        cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD);
         cy.get('button').contains('Continue').click();
 
         cy.get('button.nextStep').click();
@@ -194,7 +192,6 @@ describe('IndexPage', () => {
         cy.get('.ae-phraser-container').eq(0).within(() => {
             cy.get('.ae-badge.seedBadge').each(($el, index, $list) => {
                 cy.wrap($el).click().should('have.class','selected');
-
             });
         });
         cy.get('.ae-phraser-container').eq(1).children().should('have.length', 12);
@@ -202,7 +199,6 @@ describe('IndexPage', () => {
         cy.get('button.nextStep').should('have.class','primary');
         cy.get('button.nextStep').click();
         cy.get('.ae-phraser-error').should('be.visible');
-        // cy.get('.ae-card').should('be.visible');
     });
 
     it('login', () => {

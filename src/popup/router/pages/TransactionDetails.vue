@@ -4,20 +4,20 @@
         <ae-list class="transactionList">
             <ae-list-item fill="neutral">
                 <div class="detailTitle">Date</div>
-                <div>{{new Date(transaction.time).toLocaleString()}}</div>
+                <div class="transactionDate">{{new Date(transaction.time).toLocaleString()}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral">
                 <div class="detailTitle">Type</div>
-                <ae-badge :class="txTypeBadge">{{transaction.tx.type}}</ae-badge>
+                <ae-badge :class="txTypeBadge" class="transactionType">{{transaction.tx.type}}</ae-badge>
             </ae-list-item> 
             <ae-list-item fill="neutral" class="flex-direction-column">
                 <div class="flex-col flex-justify-between flex mb-1">
                     <div class="detailTitle">Amount</div>
-                    <div class="balance">{{txAmount}}</div>
+                    <div class="balance transactionAmount">{{txAmount}}</div>
                 </div>
                 <div class="flex-col flex-justify-between flex mb-1">
                     <div class="detailTitle">Transaction Fee</div>
-                    <div class="balance">{{txFee}}</div>
+                    <div class="balance transactionFee">{{txFee}}</div>
                 </div>
                 <div class="flex-col flex-justify-between flex flex-align-center">
                     <div class="detailTitle">Total</div>
@@ -26,15 +26,15 @@
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column">
                 <div class="flex-col text-left mb-1 detailTitle">From</div>
-                <ae-address :value="transaction.tx.sender_id" length="flat"  class="flex-justify-items-left"/>
+                <ae-address :value="transaction.tx.sender_id" length="flat"  class="flex-justify-items-left transationFrom"/>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column">
                 <div class="flex-col text-left mb-1 detailTitle">To</div>
-                <ae-address :value="transaction.tx.recipient_id" length="flat" class="flex-justify-items-left" />
+                <ae-address :value="transaction.tx.recipient_id" length="flat" class="flex-justify-items-left transactionTo" />
             </ae-list-item>
                 <ae-list-item fill="neutral" class="flex-direction-column">
                 <div class="flex-col text-left mb-1 detailTitle">Tx hash</div>
-                <ae-address :value="transaction.hash" length="flat"  class="flex-justify-items-left"/>
+                <ae-address :value="transaction.hash" length="flat"  class="flex-justify-items-left transactionHash"/>
             </ae-list-item>
             <ae-button-group  class="btnFixed">
                 <ae-button face="round" class=" backBtn " fill="primary" @click="back"><ae-icon name="back" size="50px" /> Back </ae-button>

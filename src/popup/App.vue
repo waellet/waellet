@@ -67,7 +67,7 @@
             <transition name="slide-fade">
               <ul v-if="dropdown.settings" class="dropdown-holder">
                 <li>
-                  <ae-button @click="myAccount">
+                  <ae-button @click="myAccount" class="toAccount">
                     <ae-icon name="home" />
                     {{ language.strings.myAccount }}
                   </ae-button>
@@ -103,7 +103,7 @@
 
                 </li>
                 <li>
-                  <ae-button @click="logout">
+                  <ae-button @click="logout" class="toLogout">
                     <ae-icon name="sign-out" />
                     {{ language.strings.logout }}
                   </ae-button>
@@ -205,7 +205,13 @@ export default {
       console.log('switch language to', language);
     },
     switchNetwork (network) {
-      this.$store.dispatch('switchNetwork', network).then(() => this.$store.dispatch('updateBalance'));
+      this.$store.dispatch('switchNetwork', network).then(() => {
+        this.$store.dispatch('updateBalance');
+        let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
+        transactions.then(res => {
+          this.$store.dispatch('updateLatestTransactions',res);
+        });
+      }); 
     },
     logout () {
       chrome.storage.sync.set({isLogged: false}, () => {
@@ -237,7 +243,13 @@ export default {
         saveAs(blob, "keystore.json");
       }
       
-    }
+    },
+    popupSecondBtnClick(){
+      this[this.popup.secondBtnClick]();
+    },
+    showTransaction(){
+      chrome.tabs.create({url: this.popup.data, active: false});
+    },
   }
 };
 </script>
