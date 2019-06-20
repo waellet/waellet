@@ -45,7 +45,7 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { setInterval } from 'timers';
 import { getTranscationByPublicAddress }  from '../../utils/transactions';
-
+import { derivePathFromKey, getKeyPair } from '@aeternity/hd-wallet/src/hd-key';
 export default {
   name: 'Account',
   data () {
@@ -59,8 +59,6 @@ export default {
     ...mapGetters(['account', 'balance', 'network', 'current','transactions'])
   },
   created () {
-    console.log(this.account.secretKey)
-    // getTranscationByPublicAddress(this.account.publicKey);
     let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
     transactions.then(res => {
       this.loading = false;

@@ -38,6 +38,7 @@
 
 <script>
 import locales from '../../locales/locales.json';
+
 import {shuffleArray} from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { addressGenerator } from '../../utils/address-generator';
@@ -47,7 +48,7 @@ export default {
             step:1,
             buttonTitle:'SHOW SEED PHRASE',
             buttonFill:'primary',
-            seeds:[
+            seeds: [
                 {id:0,name:"volcano",selected:false},
                 {id:1,name:"entire",selected:false},
                 {id:2,name:"magnet",selected:false},
@@ -71,8 +72,6 @@ export default {
     mounted() {
         this.generateSeeds();
         chrome.storage.sync.set({confirmSeed: false}, () => {});
-        
-
     },
     computed: {
         shiffledSeed() {
@@ -82,11 +81,19 @@ export default {
     locales,
     methods: { 
         generateSeeds() {
-            let mnemonic = generateMnemonic().split(" ");
-            this.seeds.forEach(function(item, index) {
-                item.name = mnemonic[index]
+            let mnemonic;
+            chrome.storage.sync.get('mnemonic', data => {
+                if(data.hasOwnProperty("mnemonic") && data.mnemonic != "" ) {
+                    mnemonic = data.mnemonic;
+                }else {
+                    mnemonic = generateMnemonic();
+                    chrome.storage.sync.set({mnemonic: mnemonic}, () => {});
+                }
+                mnemonic = mnemonic.split(" ");
+                this.seeds.forEach(function(item, index) {
+                    item.name = mnemonic[index]
+                });
             });
-            console.log(this.seeds);
         },
         nextSeedStep:async function nextSeedStep (step) {
             step += 1;
@@ -123,17 +130,16 @@ export default {
                         this.seedError = {};
                         this.loading = true;
                         chrome.storage.sync.set({isLogged: true}, async () => {
-                            chrome.storage.sync.set({confirmSeed: true}, () => {});
                             chrome.storage.sync.get('accountPassword',async pass => {
                                 if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
                                     originalSeed = originalSeed.replace(/,/g, ' ');
-                                    let privateKey = mnemonicToSeed(originalSeed)
-
+                                    let privateKey = mnemonicToSeed(originalSeed);
                                     const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,privateKey.toString('hex'));
-                                    
                                     chrome.storage.sync.set({userAccount: keyPair}, () => {
                                         this.loading = false;
                                         chrome.storage.sync.set({accountPassword: ''}, () => {});
+                                        chrome.storage.sync.set({mnemonic: ''}, () => {});
+                                        chrome.storage.sync.set({confirmSeed: true}, () => {});
                                         this.$store.commit('UPDATE_ACCOUNT', keyPair);
                                         this.$store.commit('SWITCH_LOGGED_IN', true);
                                         this.$router.push('/account');

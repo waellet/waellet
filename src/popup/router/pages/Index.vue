@@ -106,7 +106,7 @@ export default {
       // chrome.storage.sync.set({userAccount: ''}, () => {});
       // chrome.storage.sync.set({isLogged: ''}, () => {});
       // chrome.storage.sync.set({confirmSeed: true}, () => {});
-     
+      // chrome.storage.sync.set({mnemonic: ''}, () => {});
       chrome.storage.sync.get('isLogged', data => {
         
         chrome.storage.sync.get('userAccount', user => {
@@ -239,7 +239,7 @@ export default {
                   }
                   let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                   let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
-                  
+                  user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
                   if(match) {
                       this.loginError = false;
                       this.inputError = {};

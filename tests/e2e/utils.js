@@ -30,6 +30,10 @@ export const current = {
   network: 'Testnet',
   language: 'en'
 };
+export const ACCOUNT_PASSWORD = "qwerty";
+export const PRIVATE_KEY = "ef07a269ce62e81dbd507d2d677e06654765984aa4650bcf2ed68bbfc783f8e4301ba902bf2b2c176ac934eb41181866ae25f19dcbdd42c4aa448c0f82c913f9";
+export const PUBLIC_KEY_SEND = "ak_2uhfvqH1NhiTcZ6F8QmDRvZQdoYGN3agdZi9AZyY4pP3A9zdFZ";
+export const mnemonic = 'shop sound chef return calm outdoor easily picnic circle wine walnut belt';
 
 export const prepareEncryptedPrivateKey = (customState = {}) => {
     
@@ -63,6 +67,3 @@ export const getLatestThreeTransactions = (publicKey) => {
   .then(res => res.json() )
 };
 
-export const ACCOUNT_PASSWORD = "qwerty";
-export const PRIVATE_KEY = "ef07a269ce62e81dbd507d2d677e06654765984aa4650bcf2ed68bbfc783f8e4301ba902bf2b2c176ac934eb41181866ae25f19dcbdd42c4aa448c0f82c913f9";
-export const PUBLIC_KEY_SEND = "ak_2uhfvqH1NhiTcZ6F8QmDRvZQdoYGN3agdZi9AZyY4pP3A9zdFZ";

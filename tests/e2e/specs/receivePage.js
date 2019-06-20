@@ -27,4 +27,19 @@ describe("Test cases for Receive Page", () => {
         .get('.ae-overlay')
         .should('not.be.visible')
     });
+
+    it("open receive page and back to account", () => {
+        login();
+        cy
+        .visit("popup/popup.html",{onBeforeLoad})
+        .get('.receiveBtn')
+        .click()
+        .get('.ae-card.neutral')
+        .should('be.visible')
+        .get('.actions .toAccount')
+        .should('be.visible')
+        .click()
+        .get('.ae-card.primary')
+        .should('be.visible')
+    });
 });

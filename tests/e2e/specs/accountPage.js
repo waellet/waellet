@@ -5,6 +5,16 @@ import { equal } from 'assert';
 
 describe("Test cases for Account Page" , () => {
    
+    // it("export keystore",() => {
+    //     login();
+    //     cy.visit('popup/popup.html',{onBeforeLoad})
+    //     .get('#settings')
+    //     .should('be.visible')
+    //     .click()
+    //     .get('#exportKeystore')
+    //     .click()
+    // });
+
     it('change network', () => {
         login();
         cy
@@ -34,6 +44,85 @@ describe("Test cases for Account Page" , () => {
         });
     });
 
+    it("have settings menu", () => {
+        login();
+        cy
+        .visit('popup/popup.html',{onBeforeLoad})
+        .get('#settings')
+        .should('be.visible')
+    });
+
+    it("have accounts menu", () => {
+        login();
+        cy
+        .visit('popup/popup.html',{onBeforeLoad})
+        .get('#account')
+        .should('be.visible')
+    }); 
+
+    it("have switch network menu", () => {
+        login();
+        cy
+        .visit('popup/popup.html',{onBeforeLoad})
+        .get('#network')
+        .should('be.visible')
+    }); 
+
+    it("show accounts submenu ", () => {
+        login();
+        cy
+        .visit('popup/popup.html',{onBeforeLoad})
+        .get('#account')
+        .should('be.visible')
+        .click()
+        .get('.dropdown-holder')
+        .should('be.visible')
+        .get('.newSubaccount')
+        .should('be.visible')
+    }); 
+
+    it("open manage accounts page", () => {
+        login();
+        cy
+        .visit('popup/popup.html',{onBeforeLoad})
+        .get('#account')
+        .click()
+        .get('.newSubaccount')
+        .click()
+        .get('.dropdown-holder')
+        .should('not.be.visible')
+    }); 
+
+    it("open language submenu", () => {
+        login();
+        cy
+        .visit('popup/popup.html',{onBeforeLoad})
+        .get('#settings')
+        .click()
+        .get('.dropdown-holder')
+        .should('be.visible')
+        .get('#languages')
+        .should('be.visible')
+        .click()
+        .get('.sub-dropdown')
+        .should('be.visible')
+        .get('.have-subDropdown')
+        .should('have.class','show')
+        .get('#languages > button')
+        .click()
+        .get('.sub-dropdown')
+        .should('not.be.visible')
+        .get('.have-subDropdown')
+        .should('not.have.class','show')
+        .get('#languages')
+        .click()
+        .get('.sub-dropdown button').eq(0)
+        .click()
+        .get('.dropdown-holder')
+        .should('not.be.visible')
+    }); 
+
+
     it('check latests 3 transactions', () => {
         login();
         cy.visit('popup/popup.html',{onBeforeLoad})
@@ -47,7 +136,7 @@ describe("Test cases for Account Page" , () => {
         .should('have.class','primary')
     });
 
-    //problems with cors on main network
+    /* not working for now problems with cors on main network */
     it("switch network check latest 3 transactions", () => {
         login();
         cy
@@ -137,6 +226,12 @@ describe("Test cases for Account Page" , () => {
         .should('be.visible')
         .get('.transactionHistory')
         .should('be.visible')
+        .get('.receiveBtn')
+        .click()
+        .get('.actions .toAccount')
+        .click()
+        .get('.ae-card')
+        .should('be.visible')
     });
 
     it("open send page", () => {
@@ -164,6 +259,12 @@ describe("Test cases for Account Page" , () => {
         .get('.transactionList')
         .should('be.visible')
         .get('.transactionHistory')
+        .should('be.visible')
+        .get('.sendBtn')
+        .click()
+        .get('.actions .toAccount')
+        .click()
+        .get('.ae-card')
         .should('be.visible')
     });
 

@@ -18,6 +18,23 @@ describe("Test cases for Send Page", () => {
         .should('be.visible');
     });
 
+    it("open send page and back to account", () => {
+        login();
+        cy
+        .visit("popup/popup.html",{onBeforeLoad})
+        .get('.sendBtn')
+        .click()
+        .get('.ae-address-input')
+        .should('be.visible')
+        .get('.sendAmount')
+        .should('be.visible')
+        .get('.actions .toAccount')
+        .should('be.visible')
+        .click()
+        .get('.ae-card.primary')
+        .should('be.visible')
+    });
+
     it("check enter public key",() => {
         login();
         cy
