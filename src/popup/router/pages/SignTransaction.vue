@@ -3,28 +3,28 @@
         <ae-list class="spendTxDetailsList">
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div class="flex flex-align-center">
-                    <ae-identicon :address="account.publicKey" />
-                    <ae-address :value="account.publicKey" length="short" class="spendAccountAddr" />
+                    <ae-identicon :address="data.senderId" />
+                    <ae-address :value="data.senderId" length="short" class="spendAccountAddr" />
                 </div>
                 <ae-filter-separator />
                 <div class="arrowSeprator">
                     <ae-icon name="left-more" />
                 </div>
                 <div class="flex flex-align-center">
-                    <ae-identicon :address="account.publicKey" />
-                    <ae-address :value="account.publicKey" length="short" class="spendAccountAddr" />
+                    <ae-identicon :address="data.recipientId" />
+                    <ae-address :value="data.recipientId" length="short" class="spendAccountAddr" />
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between">
-                <div class="balance balanceSpend">0.004712</div>
+                <div class="balance balanceSpend">{{amount}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div>Transaction fee</div>
-                <div class="balance balanceBig">0.000318</div>
+                <div class="balance balanceBig">{{fee}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div>Total</div>
-                <div class="balance balanceBig balanceTotalSpend">0.00503</div>
+                <div class="balance balanceBig balanceTotalSpend">{{amount + fee}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral">
                 <ae-button-group class="fullWidth">
@@ -44,12 +44,19 @@ export default {
     data(){
         return {};
     },
+    props:['data'],
     locales,
     methods: {
 
     },
     computed: {
-        ...mapGetters(['account'])
+        ...mapGetters(['account']),
+        amount() {
+            return this.data.amount / 10 ** 18;
+        },
+        fee() {
+            return this.data.fee / 10 ** 18;
+        }
     }
 }
 </script>

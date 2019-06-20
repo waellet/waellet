@@ -22,7 +22,7 @@
   "dependencies": {
     "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",
     "@aeternity/aepp-components-3": "3.0.0-alpha.9",
-    "@aeternity/aepp-sdk": "^4.0.0",
+    "@aeternity/aepp-sdk": "https://github.com/aeternity/aepp-sdk-js#feature/identity-provider-PoC",
     "@aeternity/bip39": "^0.1.0",
     "@vue/cli-plugin-e2e-cypress": "^3.8.0",
     "@vue/cli-service": "^3.8.0",

@@ -107,30 +107,50 @@ export default {
       // chrome.storage.sync.set({isLogged: ''}, () => {});
       // chrome.storage.sync.set({confirmSeed: true}, () => {});
       // chrome.storage.sync.set({mnemonic: ''}, () => {});
-      chrome.storage.sync.get('isLogged', data => {
-        
-        chrome.storage.sync.get('userAccount', user => {
-            if(user.userAccount && user.hasOwnProperty('userAccount')) {
-              try {
-                user.userAccount.encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-              }catch(e) {
-                user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
-              }
-              this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
-            } 
-            chrome.storage.sync.get('confirmSeed', seed => {
-              if(seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
-                
-                this.$router.push('/seed');
-                return;
-              }
-            });
-            if (data.isLogged && data.hasOwnProperty('isLogged')) {
-              this.$store.commit('SWITCH_LOGGED_IN', true);
-              this.$router.push('/account');
+      var newTab = false;
+      chrome.storage.sync.get('showAeppPopup', data => {
+        console.log(data);
+        if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.type != "" ) {
+          chrome.storage.sync.set({showAeppPopup:{}}, () => {
+            if(data.showAeppPopup.type == 'confirm') {
+              this.$router.push({'name':'confirm-share', params: {
+                data:data.showAeppPopup.data
+              }});
+            }else if(data.showAeppPopup.type == 'sign') {
+              this.$router.push({'name':'sign', params: {
+                data:data.showAeppPopup.data
+              }});
             }
-        });
+            return;
+          });
+        }else {
+          chrome.storage.sync.get('isLogged', data => {
+            chrome.storage.sync.get('userAccount', user => {
+                if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                  try {
+                    user.userAccount.encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                  }catch(e) {
+                    user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
+                  }
+                  this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
+                } 
+                chrome.storage.sync.get('confirmSeed', seed => {
+                  if(seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
+                    
+                    this.$router.push('/seed');
+                    return;
+                  }
+                });
+                if (data.isLogged && data.hasOwnProperty('isLogged')) {
+                  this.$store.commit('SWITCH_LOGGED_IN', true);
+                  this.$router.push('/account');
+                }
+            });
+          });
+        }
       });
+
+      
     },
     generateAddress: async function generateAddress({ dispatch }) {
         this.$router.push({name:'password',params:{
