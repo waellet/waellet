@@ -58,7 +58,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current'])
+    ...mapGetters(['account', 'balance', 'network', 'current', 'subaccounts'])
   },
   created () {
     // getTranscationByPublicAddress(this.account.publicKey);
@@ -87,7 +87,7 @@ export default {
     pollData() { 
       // this.polling = setInterval(() => {
         
-        // this.$store.dispatch('updateBalance');
+      //   this.$store.dispatch('updateBalance');
       // }, 200)
     },
     popupAlert(payload) {

@@ -6,6 +6,9 @@ export default {
     commit(types.UPDATE_ACCOUNT, payload);
     commit(types.UPDATE_BALANCE);
   },
+  setSubAccounts({ commit }, payload) {
+    commit(types.SET_SUBACCOUNTS, payload);
+  },
   switchNetwork({ commit }, payload) {
     return new Promise((resolve, reject) => {
       commit(types.SWITCH_NETWORK, payload);

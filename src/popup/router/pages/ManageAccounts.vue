@@ -63,7 +63,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters (['account', 'current', 'network'])
+        ...mapGetters (['account', 'current', 'network','subaccounts'])
     },
     methods: {
         myAccount () {
@@ -91,6 +91,16 @@ export default {
         },
         addbtn() {
             if (this.newSubAcc != '') {
+                publick_K = getAddressFromPriv(this.account.secretKey, this.subaccounts.length);
+                this.$store.dispatch('setSubAccounts', {
+                    name: this.newSubAcc,
+                    publickKey: publick_K
+                }).then(() => {
+                    chrome.storage.sync.set({ 
+                        subaccounts: this.subaccounts
+                    });
+                });
+
                 this.$store.dispatch('popupAlert', {
                     name: 'account',
                     type: 'added_success'
@@ -106,7 +116,7 @@ export default {
         },
         cancelEdit() {
             this.editAccountName = false;
-        }
+        },
     }
 }
 </script>

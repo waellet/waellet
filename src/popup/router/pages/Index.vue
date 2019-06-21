@@ -30,8 +30,8 @@
      -->
     <ae-modal 
       v-if="modalVisible"
-      @close="modalVisible = false"
-      title="Import waellet">
+      @close="modalVisible = false">
+      <h2 class="modaltitle">Import waellet</h2>
 
       <div class="tabs">
         <span @click="switchImportType('privateKey')" :class="{'tab-active':importType == 'privateKey'}">Private key</span>
@@ -115,8 +115,21 @@ export default {
                 user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
               }
               this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
-            } 
+            }
+            chrome.storage.sync.get('confirmSeed', seed => {
+              if(seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
+                this.$router.push('/seed');
+                return;
+              }
+            });
             if (data.isLogged && data.hasOwnProperty('isLogged')) {
+              
+              chrome.storage.sync.get('subaccounts', (result) => {
+                var context = this;
+                result.subaccounts.forEach(element => {
+                  context.$store.dispatch('setSubAccounts', element);
+                });
+              });
               this.$store.commit('SWITCH_LOGGED_IN', true);
               this.$router.push('/account');
             }
@@ -276,5 +289,10 @@ export default {
     font-weight: 500;
 }
 
-
+.modaltitle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
 </style>

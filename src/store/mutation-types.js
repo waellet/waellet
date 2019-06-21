@@ -4,3 +4,4 @@ export const SWITCH_NETWORK = 'SWITCH_NETWORK';
 export const SHOW_POPUP = 'SHOW_POPUP';
 export const HIDE_POPUP = 'HIDE_POPUP';
 export const SWITCH_LOGGED_IN = 'SWITCH_LOGGED_IN';
+export const SET_SUBACCOUNTS = 'SET_SUBACCOUNTS';

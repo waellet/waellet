@@ -25,6 +25,8 @@
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
+import {  mnemonicToSeed } from '@aeternity/bip39';
+
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title'],
     data() {
@@ -76,11 +78,18 @@ export default {
                 }); 
             });
         },
-        importSeedPhrase({accountPassword,data}) {
+        importSeedPhrase: async function importSeedPhrase({accountPassword,data}) {
             this.loading = true;
-            console.log("Import seed Phrase");
-            console.log("password" + accountPassword);
-            console.log("seed" + data);
+            let privateKey = mnemonicToSeed(data)
+            const keyPair = await addressGenerator.generateKeyPair(accountPassword,privateKey.toString('hex'),privateKey);
+            chrome.storage.sync.set({userAccount: keyPair}, () => {
+                chrome.storage.sync.set({isLogged: true}, () => {
+                    this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                    this.$store.commit('SWITCH_LOGGED_IN', true);
+                    this.loading = false;
+                    this.$router.push('/account');
+                });
+            });
         },
         importKeystore:async function importKeystore({accountPassword,data}) {
             this.loading = true;
@@ -105,13 +114,9 @@ export default {
         },
         generateAddress: async function generateAddress({ accountPassword }) {
             this.loading = true;
-            const keyPair = await addressGenerator.generateKeyPair(accountPassword);
-            chrome.storage.sync.set({userAccount: keyPair}, () => {
-                this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                // this.$router.push('/account');
-                this.$router.push('/seed');
+            chrome.storage.sync.set({accountPassword: accountPassword}, () => {
+                 this.$router.push('/seed');
             });
-            
         },
     }
 }
