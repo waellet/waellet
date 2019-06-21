@@ -22,7 +22,8 @@
         "accountName": "Account name",
         "switchLanguage" : "Language",
         "settings": "Settings",
-        "back": "Back"
+        "back": "Back",
+        "loadMore":"Load More"
       },
       "networks": {
         "testnet": "Testnet",
@@ -40,6 +41,22 @@
         },
         "send": {
           "heading": "Send AE tokens"
+        },
+        "transactions": {
+          "heading": "Transactions history"
+        },
+        "transactionDetails":{
+          "heading":"Transactions Details",
+          "date":"Date",
+          "type":"Type",
+          "amount":"Amount",
+          "fee":"Transaction fee",
+          "total":"Total",
+          "txFrom":"From",
+          "txTo":"To",
+          "txHash":"Tx hash",
+          "transactions":"Transactions",
+          "explorer":"View in explorer"
         }
       },
       "messages": {},
@@ -54,7 +71,8 @@
         "generateWallet": "Generate wallet",
         "importPrivateKey": "Import secret key",
         "import": "Import",
-        "backToAccount": "Back to account"
+        "backToAccount": "Back to account",
+        "loadMore":"Load More"
       },
       "placeholders": {
         "inputPrivateKey": "Input secret key"

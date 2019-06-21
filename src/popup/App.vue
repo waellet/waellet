@@ -5,7 +5,8 @@
         <!-- login screen header -->
         <div class="logo_top" slot="mobile-left" v-if="!isLoggedIn">
           <img :src="logo_top" alt="">
-          <p>{{ language.system.name }}</p>
+          <p>{{ language.system.name }} <span class="extensionVersion extensionVersionTop">{{extensionVersion}}</span></p>
+          
         </div>
         
         <!-- logged in header START -->
@@ -117,6 +118,7 @@
         v-if="popup.show"
         @close="closePopup"
         :title="popup.title"
+        :class="popup.secondBtn ? 'modal-two-buttons' : '' "
       >
         <div v-html="popup.msg"></div>
         <ae-button
@@ -140,6 +142,7 @@
         >See in explorer</ae-button>
       </ae-modal-light>
     <router-view></router-view>
+    <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
   </ae-main>
 </template>
 
@@ -169,6 +172,9 @@ export default {
     ...mapGetters (['account', 'current', 'network','popup','isLoggedIn']),
     popupButtonFill(){
       return this.popup.type == 'error' ? 'primary' : 'alternative';
+    },
+    extensionVersion() {
+      return 'v.' + chrome.app.getDetails().version + 'beta'
     }
   },
   methods: {
@@ -317,4 +323,6 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .slide-fade-leave-active { transition: all .2s ease; }
 .slide-fade-enter { transform: translateY(-50px); }
 .slide-fade-leave-to { transform: translateY(-50px); opacity: 0; }
+.extensionVersion { color: #909090; display:block;text-align:center; padding:1.5rem 1rem; }
+.extensionVersionTop { padding: 0; display: inline-block; font-size: 1rem; line-height: 12px; font-weight: normal; }
 </style>

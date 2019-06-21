@@ -1,9 +1,9 @@
 <template>
     <div >
         <main>
-            <div class="wrapper">
+            <div class="popup">
                 <div v-if="!loading">
-                    <p>{{title}}</p>
+                    <h3>{{title}}</h3>
                     <ae-input  placeholder="" class="my-2" label="Password" v-bind="inputError">
                         <input type="password" class="ae-input" min="4"  v-model="accountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest 4 symbols! </ae-toolbar>
@@ -80,9 +80,7 @@ export default {
         importSeedPhrase:async function importSeedPhrase({accountPassword,data}) {
             this.loading = true;
             let privateKey = mnemonicToSeed(data)
-            console.log(privateKey.toString('hex'))
-            console.log(data);
-
+            
             const keyPair = await addressGenerator.generateKeyPair(accountPassword,privateKey.toString('hex'));
             
             chrome.storage.sync.set({userAccount: keyPair}, () => {

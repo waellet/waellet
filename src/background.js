@@ -80,7 +80,7 @@ function getAccount() {
 //                 // sendDataToPopup(this.getSdks())
 //                 // if (confirm('Do you want to share wallet with sdk ' + sdk.sdkId)) sdk.shareWallet()
 //                 sdk.shareWallet();
-//                 chrome.storage.sync.set({showAeppPopup:{ data: sdk.sdkId.toString(), type:'confirm'  } } , () => {
+//                 chrome.storage.sync.set({showAeppPopup:{ data: sdk.sdkId.toString(), type:'confirm',callback:null } } , () => {
 //                     chrome.windows.create({
 //                         url: chrome.runtime.getURL('./popup/popup.html'),
 //                         type: "popup",
@@ -91,15 +91,14 @@ function getAccount() {
                         
 //                     });
 //                 });
-
-                
 //             },
 //             // Hook for signing transaction
 //             onSign: function ({sdkId, tx, txObject, sign}) {
 //                 // sendDataToPopup(this.getSdks())
 //                 // if (confirm('Do you want to sign ' + JSON.stringify(txObject) + ' ?')) sign() // SIGN TX
-//                 sign();
-//                 chrome.storage.sync.set({showAeppPopup:{ data: txObject, type:'sign'  } } , () => {
+//                 // sign();
+//                 console.log(sign);
+//                 chrome.storage.sync.set({showAeppPopup:{ data: txObject, type:'sign',callback:'asd'  } } , () => {
 //                     chrome.windows.create({
 //                         url: chrome.runtime.getURL('./popup/popup.html'),
 //                         type: "popup",

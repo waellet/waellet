@@ -26,13 +26,11 @@
                 <div>Total</div>
                 <div class="balance balanceBig balanceTotalSpend">{{amount + fee}}</div>
             </ae-list-item>
-            <ae-list-item fill="neutral">
-                <ae-button-group class="fullWidth">
-                    <ae-button face="round" fill="primary">Cancel</ae-button>
-                    <ae-button face="round" fill="alternative">Confirm</ae-button>
-                </ae-button-group>
-            </ae-list-item>
          </ae-list>
+        <ae-button-group class="btnFixed">
+            <ae-button face="round" fill="primary" @click="cancelTransaction">Cancel</ae-button>
+            <ae-button face="round" fill="alternative" @click="signTransaction">Sign</ae-button>
+        </ae-button-group>
     </div>
 </template>
 
@@ -49,6 +47,9 @@ export default {
     methods: {
 
     },
+    mounted() {
+        chrome.storage.sync.set({pendingTransaction:{data:this.data}}, () => { });
+    },
     computed: {
         ...mapGetters(['account']),
         amount() {
@@ -56,6 +57,21 @@ export default {
         },
         fee() {
             return this.data.fee / 10 ** 18;
+        }
+    },
+    methods: {
+        cancelTransaction() {
+            chrome.storage.sync.set({pendingTransaction:''}, () => { });
+            chrome.storage.sync.get('showAeppPopup', data => {
+                if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
+                   
+                }else {
+                    this.$router.push('/');
+                }
+            });
+        },
+        signTransaction() {
+            chrome.storage.sync.set({pendingTransaction:''}, () => { });
         }
     }
 }
@@ -75,9 +91,6 @@ export default {
 }
 .spendTxDetailsList .ae-button {
     margin-bottom:0 !important;
-}
-.fullWidth {
-    width:100%;
 }
 .arrowSeprator {
     position:absolute;

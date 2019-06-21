@@ -1,18 +1,16 @@
 <template>
-    <div >
-        <h3 class="transactionsPadding">Transactions History</h3>
-        <!--<div class="tabs">
-            <span @click="changeTransactionType('all')" :class="{'tab-active':transactionsType == 'all'}">All</span>
-            <span @click="changeTransactionType('incoming')" :class="{'tab-active':transactionsType == 'incoming'}">Incoming</span>
-            <span @click="changeTransactionType('outgoing')" :class="{'tab-active':transactionsType == 'outgoing'}">Outgoing</span>
-        </div>-->
+    <div class="popup">
+        <div class="actions" >
+            <button class="backbutton" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+        </div>
+        <h3 class="transactionsPadding"> {{language.pages.transactions.heading}} </h3>
 
         <ae-list class="allTransactions">
             <div v-for="(trans,index) in groupedTransactions">
                 <div class="date">{{index == new Date().toDateString() ? 'Today' : index}}</div>
                 <TransactionItem v-for="transaction in trans" :transactionData="transaction"></TransactionItem>
             </div>
-            <ae-button v-if="currentCount > 0 && showMore" face="flat" @click="loadMore" fill="neutral">Load more</ae-button>
+            <ae-button v-if="currentCount > 0 && showMore" face="flat" @click="loadMore" fill="neutral">{{language.buttons.loadMore}}</ae-button>
         </ae-list>
         <Loader :loading="loading" v-bind="{'content':''}"></Loader>
     </div>
@@ -32,7 +30,8 @@ export default {
             showMoreBtn:true,
             totalTransactions:0,
             currentCount:0,
-            groupedTransactions:{}
+            groupedTransactions:{},
+            language: locales['en']
         }
     },
     locales,
@@ -83,6 +82,9 @@ export default {
         },
         group() {
             console.log(this.groupedTransactions);
+        },
+        navigateAccount() {
+            this.$router.push('/account')
         }
     }
 }

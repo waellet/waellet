@@ -1,7 +1,7 @@
 <template>
     <div>
         <main>
-            <div class="wrapper" v-if="!loading">
+            <div class="popup" v-if="!loading">
                 <div v-if="step == 1" >
                     <h3 class="phraseTitle">Check the spelling of each word and never create a screenshot or photo of this phrase!</h3> 
                 </div>
@@ -24,7 +24,7 @@
                         <ae-badge class="seedBadge selected">third</ae-badge>
                         <ae-badge class="seedBadge selected">...</ae-badge>
                     </ae-phraser>
-                    <ae-phraser v-bind="seedError">
+                    <ae-phraser v-bind="seedError" class="mb-5">
                         <ae-badge class="seedBadge" v-for="(seed,index) in selectedSeed" @click.native="removeSeed(seed.parent,index)">{{seed.name}} <ae-icon name="close" class="seedClose" /></ae-badge>
                     </ae-phraser>
                 </div>
@@ -134,6 +134,7 @@ export default {
                                 if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
                                     originalSeed = originalSeed.replace(/,/g, ' ');
                                     let privateKey = mnemonicToSeed(originalSeed);
+                                    
                                     const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,privateKey.toString('hex'));
                                     chrome.storage.sync.set({userAccount: keyPair}, () => {
                                         this.loading = false;
@@ -201,7 +202,7 @@ export default {
     padding-left:1rem;
     color:#929ca6;
 }
-.phraseTitle { padding-left:1rem; font-size:1.5rem; font-weight:500; }
+.phraseTitle { padding-left:1rem; font-size:1.5rem; font-weight:500; word-break:break-word; }
 .seedProgress {
     background:#fff;
     width: 100%;
@@ -218,7 +219,21 @@ export default {
 .seedProgress::-webkit-progress-value {
   background:$primary-color;
 }
-.seedProgress::-moz-progress-bar {
-
+.nextStep {
+    position:fixed !important;
+    bottom:5%;
+    left:50%;
+    transform:translateX(-50%) !important;
+    -ms-transform:translatex(-50%) !important;
+    -webkit-transform:translate(-50%) !important;
+    width:80% !important;
+}
+.extensionVersion {
+    position: fixed;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    -ms-transform:translateX(-50%0);
+    -webkit-transform:translateX(-50%);
 }
 </style>
