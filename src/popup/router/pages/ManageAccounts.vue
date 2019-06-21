@@ -91,7 +91,7 @@ export default {
         },
         addbtn() {
             if (this.newSubAcc != '') {
-                publick_K = getAddressFromPriv(this.account.secretKey, this.subaccounts.length);
+                let public_K = getAddressFromPriv(this.account.secretKey, this.subaccounts.length);
                 this.$store.dispatch('setSubAccounts', {
                     name: this.newSubAcc,
                     publickKey: publick_K
