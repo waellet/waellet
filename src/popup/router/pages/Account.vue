@@ -41,9 +41,10 @@
 </template>
 
 <script>
+import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import { setInterval } from 'timers';
+import { setInterval, setTimeout, setImmediate } from 'timers';
 import { getTranscationByPublicAddress }  from '../../utils/transactions';
 
 export default {
@@ -67,6 +68,21 @@ export default {
       this.loading = false;
     });
     this.pollData();
+
+     // fetch api one time
+    let states = this.$store.state;
+    if (typeof states.aeAPI == 'undefined') {
+      let ae = Ae({
+        url: states.network[states.current.network].url,
+        internalUrl: states.network[states.current.network].internalUrl,
+        keypair: {
+          secretKey: states.account.secretKey,
+          publicKey: states.account.publicKey,
+        },
+        networkId: states.network[states.current.network].networkId,
+      });
+      this.$store.state.aeAPI = ae;
+    }
   },
   methods: {
     showAllTranactions() {
@@ -83,11 +99,10 @@ export default {
         console.log("created");
       });*/
     },
-    pollData() { 
-      // this.polling = setInterval(() => {
-        
+    pollData() {
+      this.polling = setInterval(() => {
         this.$store.dispatch('updateBalance');
-      // }, 200)
+      }, 500)
     },
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
