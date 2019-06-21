@@ -109,8 +109,7 @@ export default {
       // chrome.storage.sync.set({mnemonic: ''}, () => {});
       var newTab = false;
       chrome.storage.sync.get('showAeppPopup', data => {
-        console.log(data);
-        if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.type != "" ) {
+        if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.length > 0 && data.showAeppPopup.type != "" ) {
           chrome.storage.sync.set({showAeppPopup:{}}, () => {
             if(data.showAeppPopup.type == 'confirm') {
               this.$router.push({'name':'confirm-share', params: {
