@@ -22,5 +22,8 @@ export default {
   },
   [types.UPDATE_LATEST_TRANSACTIONS](state,payload) {
     state.transactions.latest = payload;
+  },
+  [types.SET_SUBACCOUNTS](state,payload) {
+    state.subaccounts.push(payload);
   }
 }; 

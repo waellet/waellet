@@ -1,5 +1,8 @@
 <template>
   <div class="popup">
+    <div class="actions">
+      <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+    </div>
     <p>{{language.pages.receive.heading}}</p>
     <ae-card fill="neutral" align="center">
       <div class="qr-wrapper">
@@ -14,9 +17,6 @@
       </ae-toolbar>
     </ae-card>
 
-    <div class="actions">
-      <ae-button face="round" fill="alternative" class="toAccount" extend @click="navigateAccount">{{language.buttons.backToAccount}}</ae-button>
-    </div>
   </div>
 </template>
 
@@ -54,6 +54,15 @@ export default {
 <style lang="scss" scoped>
 @import '../../../common/base';
 
+.actions {
+  width: 50%;
+  margin-top: 5px;
+}
+.backbutton {
+  color: #62D9CB; 
+  text-transform: uppercase; 
+  font-weight: 700;
+}
 .qr-wrapper {
   display: flex;
   justify-content: center;
@@ -63,8 +72,5 @@ export default {
   border-radius: 6px;
 }
 
-.actions {
-  margin-top: 5px;
-}
 
 </style>

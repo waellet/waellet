@@ -6,6 +6,9 @@ export default {
     commit(types.UPDATE_ACCOUNT, payload);
     commit(types.UPDATE_BALANCE);
   },
+  setSubAccounts({ commit }, payload) {
+    commit(types.SET_SUBACCOUNTS, payload);
+  },
   switchNetwork({ commit }, payload) {
     return new Promise((resolve, reject) => {
       commit(types.SWITCH_NETWORK, payload);
@@ -57,6 +60,13 @@ export default {
           case 'seedFastCopy':
               commit(types.SHOW_POPUP,{show:true,...popupMessages.SEED_FAST_COPY});
             break;
+            case 'requiredField':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_FIELD});
+              break;
+            case 'added_success':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_ADDED});
+              break;
+            SUCCESS_ADDED
           default:
             break;
         }

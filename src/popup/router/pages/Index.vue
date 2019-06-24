@@ -30,8 +30,8 @@
      -->
     <ae-modal 
       v-if="modalVisible"
-      @close="modalVisible = false"
-      title="Import waellet">
+      @close="modalVisible = false">
+      <h2 class="modaltitle">Import waellet</h2>
 
       <div class="tabs">
         <span @click="switchImportType('privateKey')" :class="{'tab-active':importType == 'privateKey'}">Private key</span>
@@ -109,7 +109,7 @@ export default {
       // chrome.storage.sync.set({mnemonic: ''}, () => {});
       var newTab = false;
       chrome.storage.sync.get('showAeppPopup', data => {
-        
+
         if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
           console.log(data);
           chrome.storage.sync.set({showAeppPopup:{}}, () => {
@@ -317,5 +317,10 @@ export default {
     font-weight: 500;
 }
 
-
+.modaltitle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
 </style>

@@ -13,19 +13,16 @@ export function printUnderscored (key, val) {
   print(`${key}${R.repeat('_', WIDTH - key.length).reduce((a, b) => a += b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
 }
 
-async function generateKeyPair (passphrase,privateKey) {
-  // const keyPair = nacl.sign.keyPair()
-  // const publicBuffer = Buffer.from(keyPair.publicKey)
-  // const secretBuffer = Buffer.from(keyPair.secretKey)
-  // const hexStr = await Crypto.hexStringToByte(secretBuffer.toString('hex').trim())
-  // const keys = await Crypto.generateKeyPairFromSecret(hexStr)
+
+async function generateKeyPair (passphrase, privateKey, seed) {
   const hexStr = await Crypto.hexStringToByte(privateKey.trim())
   const keys = await Crypto.generateKeyPairFromSecret(hexStr)
-  
-  const keystore = await dump('keystore', passphrase, keys.secretKey);
+
+  const keystore = await dump('keystore', passphrase, privateKey, seed);
+  console.log(keystore);
   return {
     publicKey: keystore.public_key,
-    secretKey: privateKey.trim(), // NOT SECURE secretBuffer.toString('hex').trim()
+    secretKey: privateKey.trim(), // NOT SECURE
     encryptedPrivateKey: JSON.stringify(keystore),
   };
 }

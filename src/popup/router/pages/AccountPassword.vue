@@ -77,17 +77,17 @@ export default {
                 }); 
             });
         },
-        importSeedPhrase:async function importSeedPhrase({accountPassword,data}) {
+        importSeedPhrase: async function importSeedPhrase({accountPassword,data}) {
             this.loading = true;
             let privateKey = mnemonicToSeed(data)
-            
-            const keyPair = await addressGenerator.generateKeyPair(accountPassword,privateKey.toString('hex'));
-            
+            const keyPair = await addressGenerator.generateKeyPair(accountPassword,privateKey.toString('hex'),privateKey);
             chrome.storage.sync.set({userAccount: keyPair}, () => {
-                this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                this.$store.commit('SWITCH_LOGGED_IN', true);
-                this.loading = false;
-                this.$router.push('/account');
+                chrome.storage.sync.set({isLogged: true}, () => {
+                    this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                    this.$store.commit('SWITCH_LOGGED_IN', true);
+                    this.loading = false;
+                    this.$router.push('/account');
+                });
             });
         },
         importKeystore:async function importKeystore({accountPassword,data}) {
@@ -114,16 +114,9 @@ export default {
         },
         generateAddress: async function generateAddress({ accountPassword }) {
             this.loading = true;
-
-            // const keyPair = await addressGenerator.generateKeyPair(accountPassword);
-            // chrome.storage.sync.set({userAccount: keyPair}, () => {
-            //     this.$store.commit('UPDATE_ACCOUNT', keyPair);
-            //     this.$router.push('/seed');
-            // });
             chrome.storage.sync.set({accountPassword: accountPassword}, () => {
                  this.$router.push('/seed');
             });
-            
         },
     }
 }

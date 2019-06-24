@@ -17,12 +17,13 @@
         </ae-button>
       </ae-toolbar>
     </ae-card>
-
+    <br>
     <div class="actions">
       <ae-button-group>
-        <ae-button face="flat" fill="primary" extend class="sendBtn" @click="navigateSend">{{language.buttons.send}}</ae-button>
-        <ae-button face="flat" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
+        <ae-button face="round" fill="primary" extend class="sendBtn" @click="navigateSend">{{language.buttons.send}}</ae-button>
+        <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
       </ae-button-group>
+      <br>
       <ae-button face="round" fill="alternative" disabled extend >{{language.buttons.tipWebsite}}</ae-button>
     </div>
     <h3>Latest transactions</h3>
@@ -30,7 +31,7 @@
       <ae-list class="transactionList">
         <TransactionItem v-for="transaction in transactions.latest" :transactionData="transaction"></TransactionItem>
       </ae-list>
-      <ae-button face="round" fill="primary" class="transactionHistory" @click="showAllTranactions">Whole transaction history</ae-button>
+      <ae-button face="round" fill="primary" class="transactionHistory" @click="showAllTranactions">{{language.buttons.wholeTransaction}}</ae-button>
     </div>
     <div v-if="transactions.latest.length == 0 && !loading">
         <p class="paragraph noTransactions">No transactions found!</p> 
@@ -56,7 +57,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current','transactions'])
+    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts'])
   },
   created () {
     let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
@@ -120,9 +121,6 @@ export default {
 <style lang="scss" scoped>
 @import '../../../common/base';
 
-.actions {
-  margin-top: 5px;
-}
 .paragraph {
   font-weight: normal;
 }

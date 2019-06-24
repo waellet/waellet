@@ -42,6 +42,7 @@ import locales from '../../locales/locales.json';
 import {shuffleArray} from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { addressGenerator } from '../../utils/address-generator';
+
 export default {
     data() {
         return {
@@ -96,6 +97,7 @@ export default {
             });
         },
         nextSeedStep:async function nextSeedStep (step) {
+
             step += 1;
             if(step <= 3) {
                 if(step == 2) {
@@ -134,8 +136,7 @@ export default {
                                 if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
                                     originalSeed = originalSeed.replace(/,/g, ' ');
                                     let privateKey = mnemonicToSeed(originalSeed);
-                                    
-                                    const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,privateKey.toString('hex'));
+                                    const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,privateKey.toString('hex'), privateKey);
                                     chrome.storage.sync.set({userAccount: keyPair}, () => {
                                         this.loading = false;
                                         chrome.storage.sync.set({accountPassword: ''}, () => {});
