@@ -233,6 +233,7 @@ export default {
       this.$store.dispatch('popupAlert', payload)
     },
     myAccount () {
+      this.dropdown.settings = false;
       this.$router.push('/account');
     },
     manageAccounts () {
