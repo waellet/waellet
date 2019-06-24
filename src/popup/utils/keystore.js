@@ -43,6 +43,7 @@ export async function decrypt(ciphertext,password,nonce, salt , options = {}) {
   key = key.hash;
   try {
     let res = CRYPTO_FUNCTIONS[DEFAULTS.crypto.symmetric_alg].decrypt({ ciphertext, nonce, key });
+    
     return true;
   }catch {
     return false;

@@ -1,6 +1,6 @@
 <template>
   <div class="popup">
-    <p>{{language.pages.account.heading}}</p>
+    <h3>{{language.pages.account.heading}}</h3>
     <ae-card fill="primary">
       <template slot="avatar">
         <ae-identicon :address="account.publicKey" />
@@ -20,20 +20,20 @@
 
     <div class="actions">
       <ae-button-group>
-        <ae-button face="flat" fill="primary" extend @click="navigateSend">{{language.buttons.send}}</ae-button>
-        <ae-button face="flat" fill="secondary" extend @click="navigateReceive">{{language.buttons.receive}}</ae-button>
+        <ae-button face="flat" fill="primary" extend class="sendBtn" @click="navigateSend">{{language.buttons.send}}</ae-button>
+        <ae-button face="flat" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
       </ae-button-group>
       <ae-button face="round" fill="alternative" disabled extend >{{language.buttons.tipWebsite}}</ae-button>
     </div>
     <h3>Latest transactions</h3>
-    <div v-if="transactions.length && !loading">
+    <div v-if="transactions.latest.length && !loading">
       <ae-list class="transactionList">
-        <TransactionItem v-for="transaction in transactions" :transactionData="transaction"></TransactionItem>
+        <TransactionItem v-for="transaction in transactions.latest" :transactionData="transaction"></TransactionItem>
       </ae-list>
-      <ae-button face="round" fill="primary" @click="showAllTranactions">Whole transaction history</ae-button>
+      <ae-button face="round" fill="primary" class="transactionHistory" @click="showAllTranactions">Whole transaction history</ae-button>
     </div>
-    <div v-if="transactions.length == 0 && !loading">
-        <p class="paragraph">No transactions found!</p>
+    <div v-if="transactions.latest.length == 0 && !loading">
+        <p class="paragraph noTransactions">No transactions found!</p> 
     </div>
     <Loader :loading="loading" v-bind="{'content':''}"></Loader>
     <!-- <button @click="showSign">Show sign transaction</button> -->
@@ -46,26 +46,23 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { setInterval, setTimeout, setImmediate } from 'timers';
 import { getTranscationByPublicAddress }  from '../../utils/transactions';
-
 export default {
   name: 'Account',
   data () {
     return {
       polling: null,
       language: locales['en'],
-      transactions: [],
       loading:true
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current'])
+    ...mapGetters(['account', 'balance', 'network', 'current','transactions'])
   },
   created () {
-    // getTranscationByPublicAddress(this.account.publicKey);
     let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
     transactions.then(res => {
-      this.transactions = res;
       this.loading = false;
+      this.$store.dispatch('updateLatestTransactions',res);
     });
     this.pollData();
 

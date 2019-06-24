@@ -36,6 +36,15 @@ export default {
           case 'success_transfer':
             commit(types.SHOW_POPUP,{show:true,secondBtn:true,secondBtnClick:'showTransaction',...popupMessages.SUCCESS_TRANSFER,msg:payload.msg,data:payload.data})
             break;
+          case 'incorrect_address':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_ADDRESS});
+            break;
+          case 'incorrect_amount':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_AMOUNT});
+            break;
+          case 'transaction_failed':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.TRANSACTION_FAILED});
+            break;
           default:
             break;
         }
@@ -69,7 +78,15 @@ export default {
     if(payload.param) {
       param = "/" + payload.param;
     }
-    return fetch(middlewareUrl + "/middleware/transactions/account/" + account + limit + page + param)
-    .then(res => res.json());
-  }
+    return fetch(middlewareUrl + "/middleware/transactions/account/" + account + limit + page + param, {
+      method:'GET',
+      mode:'cors'
+    })
+    .then(res => res.json() )
+    .catch(err => err);
+  },
+  updateLatestTransactions({ commit }, payload) {
+    commit(types.UPDATE_LATEST_TRANSACTIONS, payload);
+  },
+
 };

@@ -15,7 +15,7 @@
     </ae-card>
 
     <div class="actions">
-      <ae-button face="round" fill="alternative" extend @click="navigateAccount">{{language.buttons.backToAccount}}</ae-button>
+      <ae-button face="round" fill="alternative" class="toAccount" extend @click="navigateAccount">{{language.buttons.backToAccount}}</ae-button>
     </div>
   </div>
 </template>

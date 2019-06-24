@@ -180,12 +180,12 @@ export default {
     }
   },
   created: function () {
-      // chrome.storage.sync.set({language: 'en'}, () => {
-      //   this.language = locales['en'];
-      // });
-      chrome.storage.sync.get('language', langChoose => {
-        this.language = locales[langChoose.language];
+      chrome.storage.sync.set({language: 'en'}, () => {
+        this.language = locales['en'];
       });
+      // chrome.storage.sync.get('language', langChoose => {
+      //   this.language = locales[langChoose.language];
+      // });
   },
   mounted: function mounted () {
     this.hideLoader();
