@@ -1,5 +1,5 @@
-
-const onBeforeLoad = (win,mockAccount = false) => {
+import { mnemonic } from '../utils';
+const onBeforeLoad = (win,mock = '') => {
     win.chrome = win.chrome || {};
     try {
         win.chrome.runtime = {
@@ -26,8 +26,16 @@ const onBeforeLoad = (win,mockAccount = false) => {
                 }
             } 
         };
+        win.chrome.app = {
+            getDetails () {
+                return {
+                    version:"0.0.4"
+                }
+            }
+        }
+
         window.chrome = win.chrome;
-        if(mockAccount) {
+        if(mock == 'account') {
             const account = {
                 publicKey:"ak_NBrcw9KrjU8BjM56jovLHTiXDMhPaepX9miomP1gVFpLZfHew",
                 secretKey:"ef07a269ce62e81dbd507d2d677e06654765984aa4650bcf2ed68bbfc783f8e4301ba902bf2b2c176ac934eb41181866ae25f19dcbdd42c4aa448c0f82c913f9",
@@ -35,6 +43,8 @@ const onBeforeLoad = (win,mockAccount = false) => {
                 
             }
             win.chrome.storage.sync.set({userAccount: account},()=>{});
+        }else if(mock == 'seed') {
+            win.chrome.storage.sync.set({mnemonic: mnemonic},()=>{});
         }
     }catch(err) {
         console.log(err);

@@ -1,7 +1,7 @@
 <template>
   <div class="popup">
     <div class="actions">
-      <button class="backbutton" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+      <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
     </div>
     <p>{{language.pages.receive.heading}}</p>
     <ae-card fill="neutral" align="center">

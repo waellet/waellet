@@ -41,7 +41,10 @@ export default new Vuex.Store({
       secondBtnClick:'',
       data:''
     },
-    isLoggedIn:false
+    isLoggedIn:false,
+    transactions: {
+      latest:[]
+    }
   },
   getters,
   mutations,

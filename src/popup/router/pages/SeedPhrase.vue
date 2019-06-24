@@ -1,7 +1,7 @@
 <template>
     <div>
         <main>
-            <div class="wrapper">
+            <div class="popup" v-if="!loading">
                 <div v-if="step == 1" >
                     <h3 class="phraseTitle">Check the spelling of each word and never create a screenshot or photo of this phrase!</h3> 
                 </div>
@@ -24,20 +24,23 @@
                         <ae-badge class="seedBadge selected">third</ae-badge>
                         <ae-badge class="seedBadge selected">...</ae-badge>
                     </ae-phraser>
-                    <ae-phraser v-bind="seedError">
+                    <ae-phraser v-bind="seedError" class="mb-5">
                         <ae-badge class="seedBadge" v-for="(seed,index) in selectedSeed" @click.native="removeSeed(seed.parent,index)">{{seed.name}} <ae-icon name="close" class="seedClose" /></ae-badge>
                     </ae-phraser>
                 </div>
                 <ae-button extend face="round" :fill="buttonFill" class="mt-3 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
+                
             </div>
+            <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
         </main>
     </div>
 </template>
 
 <script>
 import locales from '../../locales/locales.json';
+
 import {shuffleArray} from '../../utils/helper';
-import { generateMnemonic, mnemonicToSeed } from '@aeternity/bip39';
+import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { addressGenerator } from '../../utils/address-generator';
 
 export default {
@@ -46,7 +49,7 @@ export default {
             step:1,
             buttonTitle:'SHOW SEED PHRASE',
             buttonFill:'primary',
-            seeds:[
+            seeds: [
                 {id:0,name:"volcano",selected:false},
                 {id:1,name:"entire",selected:false},
                 {id:2,name:"magnet",selected:false},
@@ -62,11 +65,14 @@ export default {
             ],
             selectedSeed:[],
             seedError:{},
-            progress:0
+            progress:0,
+            loading:false,
+            language: locales['en']
         };
     },
     mounted() {
-        this.generateSeeds()
+        this.generateSeeds();
+        chrome.storage.sync.set({confirmSeed: false}, () => {});
     },
     computed: {
         shiffledSeed() {
@@ -76,12 +82,22 @@ export default {
     locales,
     methods: { 
         generateSeeds() {
-            let mnemonic = generateMnemonic().split(" ");
-            this.seeds.forEach(function(item, index) {
-                item.name = mnemonic[index]
-            })
+            let mnemonic;
+            chrome.storage.sync.get('mnemonic', data => {
+                if(data.hasOwnProperty("mnemonic") && data.mnemonic != "" ) {
+                    mnemonic = data.mnemonic;
+                }else {
+                    mnemonic = generateMnemonic();
+                    chrome.storage.sync.set({mnemonic: mnemonic}, () => {});
+                }
+                mnemonic = mnemonic.split(" ");
+                this.seeds.forEach(function(item, index) {
+                    item.name = mnemonic[index]
+                });
+            });
         },
-        nextSeedStep(step) {
+        nextSeedStep:async function nextSeedStep (step) {
+
             step += 1;
             if(step <= 3) {
                 if(step == 2) {
@@ -114,6 +130,7 @@ export default {
                         this.seedError = {"error":"Oops! Not the correct order, try again"}
                     }else {
                         this.seedError = {};
+                        this.loading = true;
                         chrome.storage.sync.set({isLogged: true}, async () => {
                             chrome.storage.sync.get('accountPassword',async pass => {
                                 if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
@@ -137,9 +154,8 @@ export default {
             }
         },
         selectSeed(seed,index,id) {
-            if(!this.selectedSeed.find(s => {return s.name == seed })) {
+            if(!this.selectedSeed.find(s => {return s.parent == id })) {
                 this.selectedSeed.push({name:seed,parent:id});
-                // this.seeds[index].selected = true;
                 this.seeds.find(s => s.id == id).selected = true;
             }
             if(this.selectedSeed.length == 12) {
@@ -186,7 +202,7 @@ export default {
     padding-left:1rem;
     color:#929ca6;
 }
-.phraseTitle { padding-left:1rem; font-size:1.5rem; font-weight:500; }
+.phraseTitle { padding-left:1rem; font-size:1.5rem; font-weight:500; word-break:break-word; }
 .seedProgress {
     background:#fff;
     width: 100%;
@@ -203,7 +219,21 @@ export default {
 .seedProgress::-webkit-progress-value {
   background:$primary-color;
 }
-.seedProgress::-moz-progress-bar {
-
+.nextStep {
+    position:fixed !important;
+    bottom:5%;
+    left:50%;
+    transform:translateX(-50%) !important;
+    -ms-transform:translatex(-50%) !important;
+    -webkit-transform:translate(-50%) !important;
+    width:80% !important;
+}
+.extensionVersion {
+    position: fixed;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    -ms-transform:translateX(-50%0);
+    -webkit-transform:translateX(-50%);
 }
 </style>

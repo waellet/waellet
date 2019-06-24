@@ -2,7 +2,7 @@
   <div class="popup">
     <ae-main>
       <div class="actions">
-        <button class="backbutton" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+        <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
       </div>
       <p>{{language.pages.send.heading}}</p>
       <div class="sendContent">
@@ -11,21 +11,21 @@
           <ae-text class='addresslbl' slot="header">Address </ae-text>
         </div>
         <div class="amount" v-if="!tx.status">
-          <ae-input :label="language.strings.amount" aemount v-model="form.amount">
+          <ae-input :label="language.strings.amount" aemount v-model="form.amount" class="sendAmount">
             <ae-text slot="header" fill="black">AE</ae-text>
           </ae-input>
           <p>{{language.strings.maxSpendableValue}} {{maxValue}}</p>
           <p>{{language.strings.txFee}} {{txFee}}</p>
         </div>
         <div>
-          <ae-button face="round" fill="primary" extend @click="send">{{language.buttons.send}}</ae-button>
+          <ae-button face="round" fill="primary" class="sendBtn extend @click="send">{{language.buttons.send}}</ae-button>
         </div>
       </div>
 
       <div v-if="loading" class="loading">
         <ae-loader />
       </div>
-    
+      <input type="hidden" class="txHash" :value="tx.hash" />
       <div class="result" v-if="tx.status">
         <p>{{language.strings.success}}</p>
         <a :href="tx.url">{{language.strings.seeTransactionExplorer}}</a>
@@ -80,13 +80,23 @@ export default {
       this.loading = true;
       let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
       let receiver = this.form.address;
-
+      if(receiver == '') {
+        this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address'});
+        this.loading = false;
+        return;
+      }
+      if(this.form.amount <= 0) {
+        this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_amount'});
+        this.loading = false;
+        return;
+      }
       //is the amount correct
       if (this.maxValue - this.form.amount <= 0) {
-        this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'})
+        this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
+        this.loading = false;
         return;
       } 
-
+      try {
       Wallet({
         url: this.network[this.current.network].url,
         internalUrl: this.network[this.current.network].internalUrl,
@@ -122,8 +132,19 @@ export default {
           else {
             alert("error");
           }
+        })
+        .catch(err => {
+          this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'});
+          this.loading = false;
+          return;
         });
       })
+      .catch(err => {
+        console.log(err);
+      });
+      }catch(err) {
+        console.log(err);
+      }
     },
     clearForm () {
       setTimeout(() => {

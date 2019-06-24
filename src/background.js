@@ -27,14 +27,7 @@ function getAccount() {
             }
         })
     });
-  }
-// async function asyncCall() {
-//     console.log('calling');
-//     await 
-//     // expected output: 'resolved'
-// }
-  
-// asyncCall();
+}
 
 
 // getAccount()
@@ -42,35 +35,35 @@ function getAccount() {
 //         // Init accounts
 //         const accounts = [
 //             // You can add your own account implementation,
-//             Account.compose({
-//                 init() {
-//                 },
-//                 methods: {
-//                     /**
-//                      * Sign data blob
-//                      * @function sign
-//                      * @instance
-//                      * @abstract
-//                      * @category async
-//                      * @rtype (data: String) => data: Promise[String]
-//                      * @param {String} data - Data blob to sign
-//                      * @return {String} Signed data blob
-//                      */
-//                     async sign(data) {
-//                     },
-//                     /**
-//                      * Obtain account address
-//                      * @function address
-//                      * @instance
-//                      * @abstract
-//                      * @category async
-//                      * @rtype () => address: Promise[String]
-//                      * @return {String} Public account address
-//                      */
-//                     async address() {
-//                     }
-//                 }
-//             })(),
+//             // Account.compose({
+//             //     init() {
+//             //     },
+//             //     methods: {
+//             //         /**
+//             //          * Sign data blob
+//             //          * @function sign
+//             //          * @instance
+//             //          * @abstract
+//             //          * @category async
+//             //          * @rtype (data: String) => data: Promise[String]
+//             //          * @param {String} data - Data blob to sign
+//             //          * @return {String} Signed data blob
+//             //          */
+//             //         async sign(data) {
+//             //         },
+//             //         /**
+//             //          * Obtain account address
+//             //          * @function address
+//             //          * @instance
+//             //          * @abstract
+//             //          * @category async
+//             //          * @rtype () => address: Promise[String]
+//             //          * @return {String} Public account address
+//             //          */
+//             //         async address() {
+//             //         }
+//             //     }
+//             // })(),
 //             MemoryAccount(account)
 //         ]
 //         return accounts
@@ -85,12 +78,36 @@ function getAccount() {
 //             // Hook for sdk registration
 //             onSdkRegister: function (sdk) {
 //                 // sendDataToPopup(this.getSdks())
-//                 if (confirm('Do you want to share wallet with sdk ' + sdk.sdkId)) sdk.shareWallet() // SHARE WALLET WITH SDK
+//                 // if (confirm('Do you want to share wallet with sdk ' + sdk.sdkId)) sdk.shareWallet()
+//                 sdk.shareWallet();
+//                 chrome.storage.sync.set({showAeppPopup:{ data: sdk.sdkId.toString(), type:'confirm',callback:null } } , () => {
+//                     chrome.windows.create({
+//                         url: chrome.runtime.getURL('./popup/popup.html'),
+//                         type: "popup",
+//                         height: 600,
+//                         width:420
+//                       },() => {
+//                         console.log("created");
+                        
+//                     });
+//                 });
 //             },
 //             // Hook for signing transaction
 //             onSign: function ({sdkId, tx, txObject, sign}) {
 //                 // sendDataToPopup(this.getSdks())
-//                 if (confirm('Do you want to sign ' + JSON.stringify(txObject) + ' ?')) sign() // SIGN TX
+//                 // if (confirm('Do you want to sign ' + JSON.stringify(txObject) + ' ?')) sign() // SIGN TX
+//                 // sign();
+//                 console.log(sign);
+//                 chrome.storage.sync.set({showAeppPopup:{ data: txObject, type:'sign',callback:'asd'  } } , () => {
+//                     chrome.windows.create({
+//                         url: chrome.runtime.getURL('./popup/popup.html'),
+//                         type: "popup",
+//                         height: 600,
+//                         width:420
+//                       },() => {
+//                         console.log("created");
+//                     });
+//                 });
 //             }
 //         }).then(provider => {
 //             // Subscribe from postMessages from page
@@ -107,23 +124,9 @@ function getAccount() {
 //         })
 //     });
 
-
 const postToContent = (data) => {
-    chrome.tabs.query({}, function (tabs) { // TODO think about direct direct communication with tab
-        const message = { method: 'waelletMessage', data };
+    chrome.tabs.query({}, function (tabs) { // TODO think about direct communication with tab
+        const message = { method: 'pageMessage', data };
         tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, message)) // Send message to all tabs
     });
 }
-
-
-
-
-// // Subscribe from postMessages from page
-// chrome.runtime.onMessage.addListener((msg, sender) => {
-//     switch (msg.method) {
-//         case 'waelletMessage':
-//             console.log(msg);
-//             // processMessage(msg);
-//             break
-//     }
-// })

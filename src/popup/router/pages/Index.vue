@@ -73,6 +73,7 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
+import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 export default {
   name: 'Home',
   data() {
@@ -104,37 +105,64 @@ export default {
       // check if there is an account generated already
       // chrome.storage.sync.set({userAccount: ''}, () => {});
       // chrome.storage.sync.set({isLogged: ''}, () => {});
-     
-      chrome.storage.sync.get('isLogged', data => {
-        
-        chrome.storage.sync.get('userAccount', user => {
-            if(user.userAccount && user.hasOwnProperty('userAccount')) {
-              try {
-                user.userAccount.encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-              }catch(e) {
-                user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
-              }
-              this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
+      // chrome.storage.sync.set({confirmSeed: true}, () => {});
+      // chrome.storage.sync.set({mnemonic: ''}, () => {});
+      var newTab = false;
+      chrome.storage.sync.get('showAeppPopup', data => {
+
+        if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
+          console.log(data);
+          chrome.storage.sync.set({showAeppPopup:{}}, () => {
+            if(data.showAeppPopup.type == 'confirm') {
+              this.$router.push({'name':'confirm-share', params: {
+                data:data.showAeppPopup.data
+              }});
+            }else if(data.showAeppPopup.type == 'sign') {
+              this.$router.push({'name':'sign', params: {
+                data:data.showAeppPopup.data
+              }});
             }
-            chrome.storage.sync.get('confirmSeed', seed => {
-              if(seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
-                this.$router.push('/seed');
-                return;
-              }
-            });
-            if (data.isLogged && data.hasOwnProperty('isLogged')) {
-              
-              chrome.storage.sync.get('subaccounts', (result) => {
-                var context = this;
-                result.subaccounts.forEach(element => {
-                  context.$store.dispatch('setSubAccounts', element);
+            return;
+          });
+        }else {
+          chrome.storage.sync.get('pendingTransaction', data => {
+              console.log(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('data'));
+              if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('data')) {
+                console.log("here");
+                this.$router.push({'name':'sign', params: {
+                  data:data.pendingTransaction.data
+                }});
+              }else {
+                chrome.storage.sync.get('isLogged', data => {
+                  chrome.storage.sync.get('userAccount', user => {
+                      if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                        try {
+                          user.userAccount.encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                        }catch(e) {
+                          user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
+                        }
+                        this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
+                      } 
+                      chrome.storage.sync.get('confirmSeed', seed => {
+                        if(seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
+                          
+                          this.$router.push('/seed');
+                          return;
+                        }
+                      });
+                      if (data.isLogged && data.hasOwnProperty('isLogged')) {
+                        this.$store.commit('SWITCH_LOGGED_IN', true);
+                        this.$router.push('/account');
+                      }
+                  });
                 });
-              });
-              this.$store.commit('SWITCH_LOGGED_IN', true);
-              this.$router.push('/account');
-            }
-        });
+              }
+          });
+          
+        }
       });
+
+      
     },
     generateAddress: async function generateAddress({ dispatch }) {
         this.$router.push({name:'password',params:{
@@ -152,7 +180,7 @@ export default {
       this.inputError = {}; 
     },
     checkSeed(seed) {
-      return true;
+      return validateMnemonic(seed);
     },
     uploadWallet() {
       this.walletFile = this.$refs.walletFile.files[0];
@@ -243,7 +271,7 @@ export default {
                   }
                   let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                   let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
-                  
+                  user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
                   if(match) {
                       this.loginError = false;
                       this.inputError = {};

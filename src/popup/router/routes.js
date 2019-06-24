@@ -8,6 +8,7 @@ import TransactionsComponent from './pages/Transactions';
 import TransactionDetailsComponent from './pages/TransactionDetails';
 import SignTransactionComponent from './pages/SignTransaction';
 import ManageAccount from './pages/manageAccounts';
+import ConfirmPopupmessagesComponent from './pages/ConfirmPopupmessages';
 
 export default [
   {
@@ -49,11 +50,21 @@ export default [
     props:true
   },
   {
+    name:'sign',
     path:'/sign-transaction',
     component:SignTransactionComponent,
+    props:true
+
+  },
+  {
+    name:'confirm-share',
+    path:'/confirm-share',
+    component:ConfirmPopupmessagesComponent,
+    props:true
   },
   {
     path:'/manageAccounts',
     component:ManageAccount,
   },
+
 ];

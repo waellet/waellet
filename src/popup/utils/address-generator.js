@@ -13,6 +13,7 @@ export function printUnderscored (key, val) {
   print(`${key}${R.repeat('_', WIDTH - key.length).reduce((a, b) => a += b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
 }
 
+
 async function generateKeyPair (passphrase, privateKey, seed) {
   const hexStr = await Crypto.hexStringToByte(privateKey.trim())
   const keys = await Crypto.generateKeyPairFromSecret(hexStr)

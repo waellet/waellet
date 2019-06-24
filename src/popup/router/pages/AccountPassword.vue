@@ -1,9 +1,9 @@
 <template>
     <div >
         <main>
-            <div class="wrapper">
+            <div class="popup">
                 <div v-if="!loading">
-                    <p>{{title}}</p>
+                    <h3>{{title}}</h3>
                     <ae-input  placeholder="" class="my-2" label="Password" v-bind="inputError">
                         <input type="password" class="ae-input" min="4"  v-model="accountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest 4 symbols! </ae-toolbar>
@@ -26,7 +26,6 @@ import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import {  mnemonicToSeed } from '@aeternity/bip39';
-
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title'],
     data() {
@@ -95,6 +94,7 @@ export default {
             this.loading = true;
             const encryptedPrivateKey = JSON.parse(data);
             let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+            
             if(match) {
                 let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),secretKey:'',publicKey:encryptedPrivateKey.public_key};
                 chrome.storage.sync.set({userAccount: keyPair}, () => {

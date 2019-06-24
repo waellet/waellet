@@ -16,22 +16,14 @@ export default {
     });
   },
   updateBalance({ commit, state }) {
-    Ae({
-      url: state.network[state.current.network].url,
-      internalUrl: state.network[state.current.network].internalUrl,
-      keypair: {
-        secretKey: state.account.secretKey,
-        publicKey: state.account.publicKey,
-      },
-      networkId: state.network[state.current.network].networkId,
-    }).then(ae => {
+    // get balance based on new or already fetched api
+    state.aeAPI.then(ae => {
       ae.balance(state.account.publicKey)
         .then(balance => {
           const balanceInAE = balance / 10 ** 18;
           commit(types.UPDATE_BALANCE, balanceInAE);
         })
         .catch(e => {
-          console.log(e);
           const balanceInAE = 0;
           commit(types.UPDATE_BALANCE, balanceInAE);
         });
@@ -46,6 +38,15 @@ export default {
             break;
           case 'success_transfer':
             commit(types.SHOW_POPUP,{show:true,secondBtn:true,secondBtnClick:'showTransaction',...popupMessages.SUCCESS_TRANSFER,msg:payload.msg,data:payload.data})
+            break;
+          case 'incorrect_address':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_ADDRESS});
+            break;
+          case 'incorrect_amount':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_AMOUNT});
+            break;
+          case 'transaction_failed':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.TRANSACTION_FAILED});
             break;
           default:
             break;
@@ -87,7 +88,15 @@ export default {
     if(payload.param) {
       param = "/" + payload.param;
     }
-    return fetch(middlewareUrl + "/middleware/transactions/account/" + account + limit + page + param)
-    .then(res => res.json());
-  }
+    return fetch(middlewareUrl + "/middleware/transactions/account/" + account + limit + page + param, {
+      method:'GET',
+      mode:'cors'
+    })
+    .then(res => res.json() )
+    .catch(err => err);
+  },
+  updateLatestTransactions({ commit }, payload) {
+    commit(types.UPDATE_LATEST_TRANSACTIONS, payload);
+  },
+
 };
