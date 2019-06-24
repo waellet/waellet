@@ -153,9 +153,8 @@ export default {
             }
         },
         selectSeed(seed,index,id) {
-            if(!this.selectedSeed.find(s => {return s.name == seed })) {
+            if(!this.selectedSeed.find(s => {return s.parent == id })) {
                 this.selectedSeed.push({name:seed,parent:id});
-                // this.seeds[index].selected = true;
                 this.seeds.find(s => s.id == id).selected = true;
             }
             if(this.selectedSeed.length == 12) {
