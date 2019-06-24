@@ -46,7 +46,7 @@
                   <ae-button v-on:click="changeAccount">
                     <ae-identicon class="subAccountIcon" v-bind:address="this.account.publicKey" size="xs" />
                     <span class="subAccountName">MySubAccountName</span>
-                    <ae-check class="subAccountCheckbox" type="radio" value="2" v-model="singleChoice" />
+                    <ae-check class="subAccountCheckbox" type="radio" value="2" v-model="singleChoice" /> 
                   </ae-button>
                 </li>
                 <li>

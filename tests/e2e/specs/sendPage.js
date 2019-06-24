@@ -161,7 +161,7 @@ describe("Test cases for Send Page", () => {
         .should('not.be.visible')
     });
 
-    it("check have transaction item after send", () => {
+    it("send tokens and check have transaction item after send", () => {
         login();
         let txHash = '';
         cy
@@ -179,6 +179,7 @@ describe("Test cases for Send Page", () => {
         .should('be.visible')
         .get('.ae-modal-light h1')
         .should('contain','Transfer completed')
+        .wait(20000)
         .get('.ae-modal-light button').eq(0)
         .should('have.class','alternative')
         .click()
