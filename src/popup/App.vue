@@ -1,147 +1,148 @@
 <template>
   <ae-main @click.native="hideMenu">
-      <div>
-        <ae-header :class="account.publicKey && isLoggedIn ? 'logged' : ''">
+      <ae-header :class="account.publicKey && isLoggedIn ? 'logged' : ''">
 
-          <!-- login screen header -->
-          <div class="logo_top" slot="mobile-left" v-if="!isLoggedIn">
-            <img :src="logo_top" alt="">
-            <p>{{ language.system.name }}</p>
-          </div>
+        <!-- login screen header -->
+        <div class="logo_top" slot="mobile-left" v-if="!isLoggedIn">
+          <img :src="logo_top" alt="">
+          <p>{{ language.system.name }} <span class="extensionVersion extensionVersionTop">{{extensionVersion}}</span></p>
           
-          <!-- logged in header START -->
-            <!-- network dropdown -->
-            <div id="network" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-left" direction="left" ref="network">
-              <button v-on:click.prevent="toggleDropdown">
-                <ae-icon class="dropdown-button-icon status" name="globe" slot="button" />
-                <span class="dropdown-button-name" v-html="current.network" slot="button"></span>
-              </button>
-              <transition name="slide-fade">
-                <ul v-if="dropdown.network" class="dropdown-holder">
-                  <li v-for="(value, name) in network" v-bind:key="value.networkId">
-                    <ae-button v-on:click="switchNetwork(name)" class="status triggerhidedd" :class="current.network == name ? 'current' : ''">
+        </div>
+        
+        <!-- logged in header START -->
+          <!-- network dropdown -->
+          <div id="network" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-left" direction="left" ref="network">
+            <button v-on:click.prevent="toggleDropdown">
+              <ae-icon class="dropdown-button-icon status" name="globe" slot="button" />
+              <span class="dropdown-button-name" v-html="current.network" slot="button"></span>
+            </button>
+            <transition name="slide-fade">
+              <ul v-if="dropdown.network" class="dropdown-holder">
+                <li v-for="(value, name) in network" v-bind:key="value.networkId">
+                  <ae-button v-on:click="switchNetwork(name)" class="status triggerhidedd" :class="current.network == name ? 'current' : ''">
+                      {{ name }}
+                  </ae-button>
+                </li>
+              </ul>
+            </transition>
+          </div>
+
+          <!-- account dropdown -->
+          <div id="account" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="center" ref="account">
+            <button v-on:click.prevent="toggleDropdown">
+              <ae-identicon id="identIcon" class="dropdown-button-icon" v-bind:address="this.account.publicKey" size="base" slot="button" />
+              <span class="dropdown-button-name" slot="button">{{ language.strings.currentAccountName }}</span>
+            </button>
+            <transition name="slide-fade">
+              <ul v-if="dropdown.account" class="dropdown-holder">
+                <li>
+                  <ae-button v-on:click="changeAccount">
+                    <ae-identicon class="subAccountIcon" v-bind:address="this.account.publicKey" size="xs" />
+                    <span class="subAccountName">{{ language.strings.currentAccountName }}</span>
+                    <ae-check class="subAccountCheckbox" :checked="true" type="radio" value="1" v-model="singleChoice" />
+                  </ae-button>
+                </li>
+                <li>
+                  <ae-button v-on:click="changeAccount">
+                    <ae-identicon class="subAccountIcon" v-bind:address="this.account.publicKey" size="xs" />
+                    <span class="subAccountName">MySubAccountName</span>
+                    <ae-check class="subAccountCheckbox" type="radio" value="2" v-model="singleChoice" /> 
+                  </ae-button>
+                </li>
+                <li>
+                  <ae-button @click="manageAccounts" class="triggerhidedd">
+                    <ae-icon name="new-subaccount" />
+                    <span class="newSubaccount">{{ language.strings.manageAccounts }}</span>
+                  </ae-button>
+                </li>
+              </ul>
+            </transition>
+          </div>
+
+          <!-- settings dropdown -->
+          <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" ref="settings">
+            <button v-on:click="toggleDropdown">
+              <ae-icon class="dropdown-button-icon" name="settings" slot="button" />
+              <span class="dropdown-button-name" slot="button">{{ language.strings.settings }}</span>
+            </button>
+            <transition name="slide-fade">
+              <ul v-if="dropdown.settings" class="dropdown-holder">
+                <li>
+                  <ae-button @click="myAccount" class="toAccount">
+                    <ae-icon name="home" />
+                    {{ language.strings.myAccount }}
+                  </ae-button>
+                </li>
+                <li>
+                  <ae-button @click="exportKeypair('keypair')">
+                    <ae-icon name="save" />
+                    {{ language.strings.exportKeypair }}
+                  </ae-button>
+                </li>
+                <li>
+                  <ae-button @click="exportKeypair('keystore')" id="exportKeystore">
+                    <ae-icon name="save" />
+                    {{ language.strings.exportKeystore }}
+                  </ae-button>
+                </li>
+                <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
+                  <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
+                    <ae-icon name="globe" />
+                    {{ language.strings.switchLanguage }}
+                    <ae-icon name="left-more" />
+                  </ae-button>
+
+                  <!-- Language sub dropdown -->
+                  <ul class="sub-dropdown">
+                    <li v-for="(value, name) in locales" v-bind:key="name">
+                      <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd">
+                        <img :src="'../icons/flag_'+name+'.png'" />
                         {{ name }}
-                    </ae-button>
-                  </li>
-                </ul>
-              </transition>
-            </div>
+                      </ae-button>
+                    </li>
+                  </ul>
 
-            <!-- account dropdown -->
-            <div id="account" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="center" ref="account">
-              <button v-on:click.prevent="toggleDropdown">
-                <ae-identicon id="identIcon" class="dropdown-button-icon" v-bind:address="this.account.publicKey" size="base" slot="button" />
-                <span class="dropdown-button-name" slot="button">{{ language.strings.currentAccountName }}</span>
-              </button>
-              <transition name="slide-fade">
-                <ul v-if="dropdown.account" class="dropdown-holder">
-                  <li>
-                    <ae-button v-on:click="changeAccount">
-                      <ae-identicon class="subAccountIcon" v-bind:address="this.account.publicKey" size="xs" />
-                      <span class="subAccountName">{{ language.strings.currentAccountName }}</span>
-                      <ae-check class="subAccountCheckbox" :checked="true" type="radio" value="1" v-model="singleChoice" />
-                    </ae-button>
-                  </li>
-                  <li>
-                    <ae-button v-on:click="changeAccount">
-                      <ae-identicon class="subAccountIcon" v-bind:address="this.account.publicKey" size="xs" />
-                      <span class="subAccountName">MySubAccountName</span>
-                      <ae-check class="subAccountCheckbox" type="radio" value="2" v-model="singleChoice" />
-                    </ae-button>
-                  </li>
-                  <li>
-                    <ae-button @click="manageAccounts" class="triggerhidedd">
-                      <ae-icon name="new-subaccount" />
-                      <span class="newSubaccount">{{ language.strings.manageAccounts }}</span>
-                    </ae-button>
-                  </li>
-                </ul>
-              </transition>
-            </div>
-
-            <!-- settings dropdown -->
-            <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" ref="settings">
-              <button v-on:click="toggleDropdown">
-                <ae-icon class="dropdown-button-icon" name="settings" slot="button" />
-                <span class="dropdown-button-name" slot="button">{{ language.strings.settings }}</span>
-              </button>
-              <transition name="slide-fade">
-                <ul v-if="dropdown.settings" class="dropdown-holder">
-                  <li>
-                    <ae-button @click="myAccount">
-                      <ae-icon name="home" />
-                      {{ language.strings.myAccount }}
-                    </ae-button>
-                  </li>
-                  <li>
-                    <ae-button @click="exportKeypair('keypair')">
-                      <ae-icon name="save" />
-                      {{ language.strings.exportKeypair }}
-                    </ae-button>
-                  </li>
-                  <li>
-                    <ae-button @click="exportKeypair('keystore')">
-                      <ae-icon name="save" />
-                      {{ language.strings.exportKeystore }}
-                    </ae-button>
-                  </li>
-                  <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
-                    <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
-                      <ae-icon name="globe" />
-                      {{ language.strings.switchLanguage }}
-                      <ae-icon name="left-more" />
-                    </ae-button>
-
-                    <!-- Language sub dropdown -->
-                    <ul class="sub-dropdown">
-                      <li v-for="(value, name) in locales" v-bind:key="name">
-                        <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd">
-                          <img :src="'../icons/flag_'+name+'.png'" />
-                          {{ name }}
-                        </ae-button>
-                      </li>
-                    </ul>
-
-                  </li>
-                  <li>
-                    <ae-button @click="logout">
-                      <ae-icon name="sign-out" />
-                      {{ language.strings.logout }}
-                    </ae-button>
-                  </li>
-                </ul>
-              </transition>
-            </div>
-          <!-- logged in header END -->
-        </ae-header>
-        <ae-modal-light
-          v-if="popup.show"
-          @close="closePopup"
-          :title="popup.title"
-        >
-          <div v-html="popup.msg"></div>
-          <ae-button
-            size="small"
-            type="exciting"
-            class="popup-button"
-            face="round"
-            :fill="popupButtonFill"
-            uppercase
-            @click.native="closePopup"
-            slot="buttons"
-          >OK</ae-button>
-          <ae-button
-            v-if="popup.secondBtn"
-            class="popup-button"
-            face="round"
-            fill="secondary"
-            uppercase
-            @click.native="popupSecondBtnClick"
-            slot="buttons"
-          >See in explorer</ae-button>
-        </ae-modal-light>
-      <router-view></router-view>
-    </div>
+                </li>
+                <li>
+                  <ae-button @click="logout" class="toLogout">
+                    <ae-icon name="sign-out" />
+                    {{ language.strings.logout }}
+                  </ae-button>
+                </li>
+              </ul>
+            </transition>
+          </div>
+        <!-- logged in header END -->
+      </ae-header>
+      <ae-modal-light
+        v-if="popup.show"
+        @close="closePopup"
+        :title="popup.title"
+        :class="popup.secondBtn ? 'modal-two-buttons' : '' "
+      >
+        <div v-html="popup.msg"></div>
+        <ae-button
+          size="small"
+          type="exciting"
+          class="popup-button"
+          face="round"
+          :fill="popupButtonFill"
+          uppercase
+          @click.native="closePopup"
+          slot="buttons"
+        >OK</ae-button>
+        <ae-button
+          v-if="popup.secondBtn"
+          class="popup-button"
+          face="round"
+          fill="secondary"
+          uppercase
+          @click.native="popupSecondBtnClick"
+          slot="buttons"
+        >See in explorer</ae-button>
+      </ae-modal-light>
+    <router-view></router-view>
+    <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
     <transition name="fadeOut">
       <span v-if="mainLoading" class="mainLoader"><ae-loader v-bind="{'content':''}" /></span>
     </transition>
@@ -177,6 +178,9 @@ export default {
     ...mapGetters (['account', 'current', 'network','popup','isLoggedIn', 'AeAPI']),
     popupButtonFill(){
       return this.popup.type == 'error' ? 'primary' : 'alternative';
+    },
+    extensionVersion() {
+      return 'v.' + chrome.app.getDetails().version + 'beta'
     }
   },
   created: function () {
@@ -232,7 +236,13 @@ export default {
       });
     },
     switchNetwork (network) {
-      this.$store.dispatch('switchNetwork', network).then(() => this.$store.dispatch('updateBalance'));
+      this.$store.dispatch('switchNetwork', network).then(() => {
+        this.$store.dispatch('updateBalance');
+        let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
+        transactions.then(res => {
+          this.$store.dispatch('updateLatestTransactions',res);
+        });
+      }); 
     },
     logout () {
       chrome.storage.sync.set({isLogged: false}, () => {
@@ -248,6 +258,7 @@ export default {
       this.$store.dispatch('popupAlert', payload)
     },
     myAccount () {
+      this.dropdown.settings = false;
       this.$router.push('/account');
     },
     manageAccounts () {
@@ -259,12 +270,24 @@ export default {
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keypair.json");
       }else if(type == 'keystore') {
-        let blobData = this.account.encryptedPrivateKey;
+        let blobData = "";
+        try {
+          blobData = JSON.parse(this.account.encryptedPrivateKey);
+          // blobData = JSON.stringify(this.account.encryptedPrivateKey);
+        }catch(err) {
+          blobData = JSON.stringify(this.account.encryptedPrivateKey);
+        }
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keystore.json");
       }
       
-    }
+    },
+    popupSecondBtnClick(){
+      this[this.popup.secondBtnClick]();
+    },
+    showTransaction(){
+      chrome.tabs.create({url: this.popup.data, active: false});
+    },
   }
 };
 </script>
@@ -330,4 +353,6 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .slide-fade-leave-active { transition: all .2s ease; }
 .slide-fade-enter { transform: translateY(-50px); }
 .slide-fade-leave-to { transform: translateY(-50px); opacity: 0; }
+.extensionVersion { color: #909090; display:block;text-align:center; padding:1.5rem 1rem; }
+.extensionVersionTop { padding: 0; display: inline-block; font-size: 1rem; line-height: 12px; font-weight: normal; }
 </style>
