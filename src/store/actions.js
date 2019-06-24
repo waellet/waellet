@@ -13,22 +13,14 @@ export default {
     });
   },
   updateBalance({ commit, state }) {
-    Ae({
-      url: state.network[state.current.network].url,
-      internalUrl: state.network[state.current.network].internalUrl,
-      keypair: {
-        secretKey: state.account.secretKey,
-        publicKey: state.account.publicKey,
-      },
-      networkId: state.network[state.current.network].networkId,
-    }).then(ae => {
+    // get balance based on new or already fetched api
+    state.aeAPI.then(ae => {
       ae.balance(state.account.publicKey)
         .then(balance => {
           const balanceInAE = balance / 10 ** 18;
           commit(types.UPDATE_BALANCE, balanceInAE);
         })
         .catch(e => {
-          console.log(e);
           const balanceInAE = 0;
           commit(types.UPDATE_BALANCE, balanceInAE);
         });
