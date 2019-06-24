@@ -3,7 +3,7 @@ import {login} from '../login';
 import {prepareEncryptedPrivateKey, ACCOUNT_PASSWORD, PRIVATE_KEY, mnemonic} from '../utils.js';
 
 //This tests are in separate file because testing framework crashes when all import tests are in one file
-describe('Test cases for Import 2', () => {
+describe('Test cases for Import keystore.json ', () => {
 
     it("import from keystore.json file", () => {
         cy.visit('popup/popup.html',{onBeforeLoad});
@@ -13,7 +13,7 @@ describe('Test cases for Import 2', () => {
         cy.get('.tabs span').eq(1).click();
         cy.uploadFile('input[type="file"]','../../keystore.json','application/json');
         cy.get('button').contains('Continue').click();
-        cy.get('p').should('contain','Import From Keystore.json');
+        cy.get('h3').should('contain','Import From Keystore.json');
         cy.get('button').should('contain','Import');
         cy.get('input[type="password"]').should('be.visible');
         cy.get('input[type="password"]').type('123');

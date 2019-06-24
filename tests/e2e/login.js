@@ -2,7 +2,7 @@ import {onBeforeLoad} from './support/mock_chrome.js';
 import { prepare,prepareEncryptedPrivateKey,ACCOUNT_PASSWORD } from './utils';
 
 export const login = (customState) => {
-
+    prepare();
     const state = prepareEncryptedPrivateKey(customState);
     cy
       .visit('/popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'account') }})

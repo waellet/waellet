@@ -2,7 +2,7 @@ import {onBeforeLoad} from '../support/mock_chrome.js';
 import {login} from '../login';
 import {prepareEncryptedPrivateKey, ACCOUNT_PASSWORD, PRIVATE_KEY, mnemonic} from '../utils.js';
 
-describe('Test cases for Import 1', () => {
+describe('Test cases for Import private key and seed phrase', () => {
 
     it('show import modal', () => {
         cy.visit('popup/popup.html',{onBeforeLoad});
@@ -27,7 +27,7 @@ describe('Test cases for Import 1', () => {
         cy.get('.ae-modal input').clear();
         cy.get('.ae-modal input').type(PRIVATE_KEY);
         cy.get('.ae-modal button').contains('Continue').click();
-        cy.get('p').should('contain','Import From Private Key');
+        cy.get('h3').should('contain','Import From Private Key');
         cy.get('input[type="password"]').should('be.visible');
         cy.get('button').contains('Import').should('be.visible');
         cy.get('input[type="password"]').eq(0).type('1234');
@@ -67,7 +67,7 @@ describe('Test cases for Import 1', () => {
         cy.get('.ae-toolbar').should('contain','Incorrect seed phrase!');
         cy.get('textarea').clear().type('plug leave parade earn mosquito laptop this alpha donate recipe cancel access');
         cy.get('button').contains('Continue').click();
-        cy.get('p').should('contain','Import From Seed Phrase');
+        cy.get('h3').should('contain','Import From Seed Phrase');
         cy.get('input[type="password"]').should('be.visible');
         cy.get('button').should('be.visible').should('contain','Restore');
         cy.get('input[type="password"]').eq(0).type('1234');

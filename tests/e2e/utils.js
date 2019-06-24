@@ -1,9 +1,6 @@
 export const prepare = async () => {
     delete localStorage.vuex;
 
-    if (!navigator.serviceWorker) return;
-    (await navigator.serviceWorker.getRegistrations())
-        .map(registration => registration.unregister());
 };
 export const account = {
   publicKey:"ak_NBrcw9KrjU8BjM56jovLHTiXDMhPaepX9miomP1gVFpLZfHew",

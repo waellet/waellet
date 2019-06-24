@@ -26,6 +26,14 @@ const onBeforeLoad = (win,mock = '') => {
                 }
             } 
         };
+        win.chrome.app = {
+            getDetails () {
+                return {
+                    version:"0.0.4"
+                }
+            }
+        }
+
         window.chrome = win.chrome;
         if(mock == 'account') {
             const account = {
