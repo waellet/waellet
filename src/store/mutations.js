@@ -19,5 +19,8 @@ export default {
   },
   [types.SWITCH_LOGGED_IN](state,payload) {
     state.isLoggedIn = payload;
+  },
+  [types.UPDATE_LATEST_TRANSACTIONS](state,payload) {
+    state.transactions.latest = payload;
   }
 }; 

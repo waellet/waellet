@@ -9,5 +9,6 @@
     "taskTimeout": 60000,
     "defaultCommandTimeout": 20000,
     "pageLoadTimeout": 200000,
-    "responseTimeout": 10000
+    "responseTimeout": 10000,
+    "numTestsKeptInMemory": 1
   }

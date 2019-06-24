@@ -72,15 +72,51 @@ main {
     color:$input-toolbar-color;
   }
 }
-
+.modal-two-buttons .ae-modal-light {
+  position:relative;
+}
+.modal-two-buttons .buttons {
+  position:absolute;
+  left:0;
+  right:0;
+  height:56px;
+}
+.modal-two-buttons .buttons button {
+  height:56px; 
+  border-radius: 0 !important;
+}
+.modal-two-buttons .buttons button:first-child {
+  border-bottom-left-radius:10px !important;
+}
+.modal-two-buttons .buttons button:last-child {
+  border-bottom-right-radius:10px !important;
+}
 .ae-overlay .ae-modal-light .buttons { 
   margin-top:5px !important;  
 }
 .ae-overlay .ae-modal-light main { 
   padding-bottom:1rem; 
 }
-.ae-button {
- 
+.ae-main {
+  padding-bottom:0 !important;
+}
+.btnFixed {
+  position: fixed !important;
+  bottom: 25px;
+  left:50%;
+  transform:translateX(-50%);
+  -webkit-transform:translateX(-50%);
+  -ms-transform:translateX(-50%);
+  width:90%;
+  button {
+      margin-bottom:0 !important;
+  }
+  .ae-button.round {
+      padding: 0 0.5rem !important;
+  }
+  button .ae-icon { 
+      font-size:1.5rem !important;
+  }
 }
 .customFileUpload {
   display: block;
@@ -135,11 +171,11 @@ main {
   z-index:5;
 }
 .transactionList {
-  padding:1rem !important;
+  padding:0 !important;
 }
 .transactionsPadding {
   padding:1rem !important;
-  margin:0;
+  margin-top:0;
 }
 .tabs, .date {
   margin-left: rem(-48px);
@@ -195,6 +231,9 @@ main {
 }
 .mb-1 {
   margin-bottom:1rem;
+}
+.mb-5 {
+  margin-bottom:5rem !important;
 }
 .input {
   outline:none;
@@ -267,3 +306,4 @@ main {
 .balanceTotalSpend {
   color:$primary-color;
 }
+.popup-button { width:60%; }

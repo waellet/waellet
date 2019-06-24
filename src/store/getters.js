@@ -18,5 +18,8 @@ export const getters = {
   },
   isLoggedIn(state) {
     return state.isLoggedIn;
+  },
+  transactions(state) {
+    return state.transactions;
   }
 };

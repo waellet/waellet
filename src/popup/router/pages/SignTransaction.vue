@@ -3,36 +3,34 @@
         <ae-list class="spendTxDetailsList">
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div class="flex flex-align-center">
-                    <ae-identicon :address="account.publicKey" />
-                    <ae-address :value="account.publicKey" length="short" class="spendAccountAddr" />
+                    <ae-identicon :address="data.senderId" />
+                    <ae-address :value="data.senderId" length="short" class="spendAccountAddr" />
                 </div>
                 <ae-filter-separator />
                 <div class="arrowSeprator">
                     <ae-icon name="left-more" />
                 </div>
                 <div class="flex flex-align-center">
-                    <ae-identicon :address="account.publicKey" />
-                    <ae-address :value="account.publicKey" length="short" class="spendAccountAddr" />
+                    <ae-identicon :address="data.recipientId" />
+                    <ae-address :value="data.recipientId" length="short" class="spendAccountAddr" />
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between">
-                <div class="balance balanceSpend">0.004712</div>
+                <div class="balance balanceSpend">{{amount}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div>Transaction fee</div>
-                <div class="balance balanceBig">0.000318</div>
+                <div class="balance balanceBig">{{fee}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div>Total</div>
-                <div class="balance balanceBig balanceTotalSpend">0.00503</div>
-            </ae-list-item>
-            <ae-list-item fill="neutral">
-                <ae-button-group class="fullWidth">
-                    <ae-button face="round" fill="primary">Cancel</ae-button>
-                    <ae-button face="round" fill="alternative">Confirm</ae-button>
-                </ae-button-group>
+                <div class="balance balanceBig balanceTotalSpend">{{amount + fee}}</div>
             </ae-list-item>
          </ae-list>
+        <ae-button-group class="btnFixed">
+            <ae-button face="round" fill="primary" @click="cancelTransaction">Cancel</ae-button>
+            <ae-button face="round" fill="alternative" @click="signTransaction">Sign</ae-button>
+        </ae-button-group>
     </div>
 </template>
 
@@ -44,12 +42,37 @@ export default {
     data(){
         return {};
     },
+    props:['data'],
     locales,
     methods: {
 
     },
+    mounted() {
+        chrome.storage.sync.set({pendingTransaction:{data:this.data}}, () => { });
+    },
     computed: {
-        ...mapGetters(['account'])
+        ...mapGetters(['account']),
+        amount() {
+            return this.data.amount / 10 ** 18;
+        },
+        fee() {
+            return this.data.fee / 10 ** 18;
+        }
+    },
+    methods: {
+        cancelTransaction() {
+            chrome.storage.sync.set({pendingTransaction:''}, () => { });
+            chrome.storage.sync.get('showAeppPopup', data => {
+                if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
+                   
+                }else {
+                    this.$router.push('/');
+                }
+            });
+        },
+        signTransaction() {
+            chrome.storage.sync.set({pendingTransaction:''}, () => { });
+        }
     }
 }
 </script>
@@ -68,9 +91,6 @@ export default {
 }
 .spendTxDetailsList .ae-button {
     margin-bottom:0 !important;
-}
-.fullWidth {
-    width:100%;
 }
 .arrowSeprator {
     position:absolute;

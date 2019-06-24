@@ -5,7 +5,8 @@
         <!-- login screen header -->
         <div class="logo_top" slot="mobile-left" v-if="!isLoggedIn">
           <img :src="logo_top" alt="">
-          <p>{{ language.system.name }}</p>
+          <p>{{ language.system.name }} <span class="extensionVersion extensionVersionTop">{{extensionVersion}}</span></p>
+          
         </div>
         
         <!-- logged in header START -->
@@ -45,7 +46,7 @@
                   <ae-button v-on:click="changeAccount">
                     <ae-identicon class="subAccountIcon" v-bind:address="this.account.publicKey" size="xs" />
                     <span class="subAccountName">MySubAccountName</span>
-                    <ae-check class="subAccountCheckbox" type="radio" value="2" v-model="singleChoice" />
+                    <ae-check class="subAccountCheckbox" type="radio" value="2" v-model="singleChoice" /> 
                   </ae-button>
                 </li>
                 <li>
@@ -67,7 +68,7 @@
             <transition name="slide-fade">
               <ul v-if="dropdown.settings" class="dropdown-holder">
                 <li>
-                  <ae-button @click="myAccount">
+                  <ae-button @click="myAccount" class="toAccount">
                     <ae-icon name="home" />
                     {{ language.strings.myAccount }}
                   </ae-button>
@@ -79,7 +80,7 @@
                   </ae-button>
                 </li>
                 <li>
-                  <ae-button @click="exportKeypair('keystore')">
+                  <ae-button @click="exportKeypair('keystore')" id="exportKeystore">
                     <ae-icon name="save" />
                     {{ language.strings.exportKeystore }}
                   </ae-button>
@@ -103,7 +104,7 @@
 
                 </li>
                 <li>
-                  <ae-button @click="logout">
+                  <ae-button @click="logout" class="toLogout">
                     <ae-icon name="sign-out" />
                     {{ language.strings.logout }}
                   </ae-button>
@@ -117,6 +118,7 @@
         v-if="popup.show"
         @close="closePopup"
         :title="popup.title"
+        :class="popup.secondBtn ? 'modal-two-buttons' : '' "
       >
         <div v-html="popup.msg"></div>
         <ae-button
@@ -140,6 +142,7 @@
         >See in explorer</ae-button>
       </ae-modal-light>
     <router-view></router-view>
+    <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
   </ae-main>
 </template>
 
@@ -169,6 +172,9 @@ export default {
     ...mapGetters (['account', 'current', 'network','popup','isLoggedIn']),
     popupButtonFill(){
       return this.popup.type == 'error' ? 'primary' : 'alternative';
+    },
+    extensionVersion() {
+      return 'v.' + chrome.app.getDetails().version + 'beta'
     }
   },
   methods: {
@@ -205,7 +211,13 @@ export default {
       console.log('switch language to', language);
     },
     switchNetwork (network) {
-      this.$store.dispatch('switchNetwork', network).then(() => this.$store.dispatch('updateBalance'));
+      this.$store.dispatch('switchNetwork', network).then(() => {
+        this.$store.dispatch('updateBalance');
+        let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
+        transactions.then(res => {
+          this.$store.dispatch('updateLatestTransactions',res);
+        });
+      }); 
     },
     logout () {
       chrome.storage.sync.set({isLogged: false}, () => {
@@ -221,6 +233,7 @@ export default {
       this.$store.dispatch('popupAlert', payload)
     },
     myAccount () {
+      this.dropdown.settings = false;
       this.$router.push('/account');
     },
     manageAccounts () {
@@ -232,12 +245,24 @@ export default {
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keypair.json");
       }else if(type == 'keystore') {
-        let blobData = this.account.encryptedPrivateKey;
+        let blobData = "";
+        try {
+          blobData = JSON.parse(this.account.encryptedPrivateKey);
+          // blobData = JSON.stringify(this.account.encryptedPrivateKey);
+        }catch(err) {
+          blobData = JSON.stringify(this.account.encryptedPrivateKey);
+        }
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keystore.json");
       }
       
-    }
+    },
+    popupSecondBtnClick(){
+      this[this.popup.secondBtnClick]();
+    },
+    showTransaction(){
+      chrome.tabs.create({url: this.popup.data, active: false});
+    },
   }
 };
 </script>
@@ -299,4 +324,6 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .slide-fade-leave-active { transition: all .2s ease; }
 .slide-fade-enter { transform: translateY(-50px); }
 .slide-fade-leave-to { transform: translateY(-50px); opacity: 0; }
+.extensionVersion { color: #909090; display:block;text-align:center; padding:1.5rem 1rem; }
+.extensionVersionTop { padding: 0; display: inline-block; font-size: 1rem; line-height: 12px; font-weight: normal; }
 </style>
