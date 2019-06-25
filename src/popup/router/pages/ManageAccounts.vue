@@ -1,53 +1,51 @@
 <template>
-    <ae-main>
-        <div id="manageAccounts" class="popup">
-            <h2 class="pageTitle">{{ language.strings.manageAccounts }}</h2>
-            <ae-list face="primary">
-                <ae-list-item class="editaccount" fill="secondary">
-                    <!-- IF not edit -->
-                    <div v-if="!editAccountName">
-                        <span class="name">{{ new_accnameValue }}</span>
-                        <button v-on:click="editAccountName = !editAccountName"><ae-icon name="edit" /></button>
-                    </div>
-                    <!-- IF edit -->
-                    <div v-if="editAccountName">
-                        <ae-input-plain placeholder="Type here.." v-model="new_accname" :value="language.strings.currentAccountName" />
-                        <button v-on:click="cancelEdit"><ae-icon name="close" /></button>
-                        <button @click="nameSave"><ae-icon name="check" /></button>
-                    </div>
-                </ae-list-item>
-                <ae-list-item class="addaccount" fill="secondary">
-                    <div v-if="!аddNewSubbAcc">
-                        <span>{{ language.strings.addNewSubAccount }}</span>
-                        <button v-on:click="AddNewSubbAccount"><ae-icon name="plus" /></button>
-                    </div>
-                    <div v-if="аddNewSubbAcc">
-                        <span>{{ language.strings.addNewSubAccount }}</span>
-                        <button v-on:click="closeNewSubbAccountForm"><ae-icon name="close" /></button>
-                    </div>
-                </ae-list-item>
-            </ae-list>
-            <transition name="slide">
-                <ul class="slideform" v-if="dropdown">
-                    <div class="add-form">
-                        <h4 class="pageTitle">{{ language.strings.addNewSubAccount }}</h4>
-                        <label style="float:left;"> {{ language.strings.account }}<span class="required_fields">*</span></label>
-                        <ae-input v-model="newSubAcc" placeholder="Add name"></ae-input>
-                        <hr>
-                        <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small>
-                        <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
-                    </div>
-                </ul>
-            </transition>
-        </div>
-    </ae-main>
+    <div id="manageAccounts" class="popup">
+        <h3>{{ language.strings.manageAccounts }}</h3>
+        <ae-list face="primary">
+            <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts">
+                <!-- IF not edit -->
+                <div v-if="!subaccount.edit">
+                    <span class="name">{{ subaccount.name }}</span>
+                    <button @click="subaccount.edit = !subaccount.edit"><ae-icon name="edit" class="primary" /></button>
+                </div>
+                <!-- IF edit -->
+                <div v-if="subaccount.edit">
+                    <ae-input-plain placeholder="Enter name here.." v-model="subaccount.name" />
+                    <button @click="subaccount.edit = !subaccount.edit"><ae-icon name="close" /></button>
+                    <button @click="nameSave(index)"><ae-icon name="check" /></button>
+                </div>
+            </ae-list-item>
+            <ae-list-item class="addaccount" fill="secondary">
+                <div v-if="!аddNewSubbAcc">
+                    <span>{{ language.strings.addNewSubAccount }}</span>
+                    <button @click="AddNewSubbAccount"><ae-icon name="plus" /></button>
+                </div>
+                <div v-if="аddNewSubbAcc">
+                    <span>{{ language.strings.addNewSubAccount }}</span>
+                    <button @click="closeNewSubbAccountForm"><ae-icon name="close" /></button>
+                </div>
+            </ae-list-item>
+        </ae-list>
+        <transition name="slide">
+            <ul class="slideform" v-if="dropdown">
+                <div class="add-form">
+                    <h4 class="pageTitle">{{ language.strings.addNewSubAccount }}</h4>
+                    <label style="float:left;"> {{ language.strings.account }}<span class="required_fields">*</span></label>
+                    <ae-input v-model="newSubAcc" placeholder="Add name"></ae-input>
+                    <hr>
+                    <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small>
+                    <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
+                </div>
+            </ul>
+        </transition>
+    </div>
 </template>
 
 <script>
 import store from '../../../store';
 import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
-
+import { getHdWalletAccount } from '../../utils/hdWallet';
 export default {
     data () {
         return {
@@ -59,20 +57,40 @@ export default {
             editAccountName: false,
             аddNewSubbAcc: false,
             dropdown: false,
-            newSubAcc: ''
+            newSubAcc: '',
+            accounts:[]
         }
     },
     computed: {
-        ...mapGetters (['account', 'current', 'network','subaccounts'])
+        ...mapGetters (['account', 'current', 'network','subaccounts','wallet'])
+    },
+    created(){
+        this.setAccounts();
     },
     methods: {
         myAccount () {
             this.$router.push('/account');
         },
-        nameSave () {
-            if (this.new_accname != "") {
-                this.new_accnameValue = this.new_accname;
-                this.editAccountName = false;
+        setAccounts() {
+            this.accounts = this.subaccounts.map(s => {
+                return {
+                    ...s,
+                    edit:false
+                }
+            });
+        },
+        nameSave (index) {
+            let account = this.accounts[index];
+            
+            if (account.name != "") {
+                let editedAccounts = this.accounts.map(a => {
+                    let { edit, ...acc } = a;
+                    return acc;
+                });
+                this.$store.dispatch('setSubAccounts', editedAccounts).then(() => {
+                    chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => { });
+                });
+                account.edit = false;
             }
             else {
                 this.$store.dispatch('popupAlert', {
@@ -91,19 +109,25 @@ export default {
         },
         addbtn() {
             if (this.newSubAcc != '') {
-                let public_K = getAddressFromPriv(this.account.secretKey, this.subaccounts.length);
-                this.$store.dispatch('setSubAccounts', {
+                let public_K = getHdWalletAccount(this.wallet, this.subaccounts.length).address;
+                this.$store.dispatch('setSubAccount', {
                     name: this.newSubAcc,
-                    publickKey: publick_K
+                    publicKey: public_K,
+                    root:false,
+                    balance:0
                 }).then(() => {
-                    chrome.storage.sync.set({ 
-                        subaccounts: this.subaccounts
+                    chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => {
+                        this.$store.dispatch('popupAlert', {
+                            name: 'account',
+                            type: 'added_success'
+                        }).then(() => {
+                            let index =  this.subaccounts.length - 1;
+                            chrome.storage.sync.set({activeAccount: index }, () => {
+                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:public_K,index:index});
+                            });
+                            this.setAccounts();
+                        });
                     });
-                });
-
-                this.$store.dispatch('popupAlert', {
-                    name: 'account',
-                    type: 'added_success'
                 });
             }
             else {
@@ -113,10 +137,7 @@ export default {
                 });
             }
             this.newSubAcc = "";
-        },
-        cancelEdit() {
-            this.editAccountName = false;
-        },
+        }
     }
 }
 </script>
@@ -128,7 +149,7 @@ export default {
 #manageAccounts .btnBack .ae-icon { transform: rotate(180deg); vertical-align: bottom; }
 .ae-list-item { cursor: default !important; }
 .ae-list-item .ae-icon { float: right; font-size: 1.2rem; }
-.ae-icon-edit, .ae-icon-plus { color: #00b6ff !important; }
+// .ae-icon-edit, .ae-icon-plus { color: #00b6ff !important; }
 .ae-icon-check { color: #13b100 !important; }
 .ae-icon-close { color: #b10000 !important; }
 .editaccount div, .addaccount div { width: 100%; }

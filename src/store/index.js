@@ -11,6 +11,8 @@ export default new Vuex.Store({
   state: {
     subaccounts: [],
     account: {},
+    activeAccount:0,
+    wallet:[],
     balance: 0,
     current: {
       network: 'Testnet',

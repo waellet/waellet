@@ -6,11 +6,6 @@ import uuid from 'uuid';
 // const bs58check = require('bs58check')
 import { encodeBase58Check } from '@aeternity/aepp-sdk/es/utils/crypto';
 
-import { generateHDWallet } from '@aeternity/hd-wallet/src';
-import { Crypto } from '@aeternity/aepp-sdk/es';
-import { derivePathFromKey, getKeyPair,derivePathFromSeed } from '@aeternity/hd-wallet/src/hd-key';
-import { generateMnemonic, mnemonicToSeed } from '@aeternity/bip39';
-
 const DERIVED_KEY_FUNCTIONS = {
   argon2id: deriveKeyUsingArgon2id,
 };
@@ -49,15 +44,15 @@ export async function decrypt(ciphertext,password,nonce, salt , options = {}) {
   try {
     let res = CRYPTO_FUNCTIONS[DEFAULTS.crypto.symmetric_alg].decrypt({ ciphertext, nonce, key });
     
-    return true;
+    return Buffer.from(res).toString('hex');
   }catch {
     return false;
   }
 }
-function marshal(name, derivedKey, privateKey, seed, nonce, salt, options = {}) {
+function marshal(name, derivedKey, privateKey, nonce, salt, options = {}) {
   const opt = Object.assign({}, DEFAULTS.crypto, options);
   const test = Object.assign(
-    { name, version: 1, public_key: getAddressFromPriv(seed), id: uuid.v4() },
+    { name, version: 1, public_key: getAddressFromPriv(privateKey), id: uuid.v4() },
     {
       crypto: Object.assign(
         {
@@ -97,17 +92,15 @@ function str2buf(str, enc) {
   return Buffer.from(str, enc);
 }
 
-export function getAddressFromPriv(secret, index) {
-  let wallet = generateHDWallet(secret);
-  const keyPair = getKeyPair(derivePathFromKey(""+index+"h/0h/0h", wallet).privateKey);
-  var publickKey = Crypto.aeEncodeKey(keyPair.publicKey);
-  chrome.storage.sync.set({accountIndex:index},{acc: acc});
-  return publickKey;
+export function getAddressFromPriv(secret) {
+  const keys = nacl.sign.keyPair.fromSecretKey(str2buf(secret));
+  const publicBuffer = Buffer.from(keys.publicKey);
+  return `ak_${encodeBase58Check(publicBuffer)}`;
 }
 
-export async function dump(name, password, privateKey, seed, nonce = nacl.randomBytes(24), salt = nacl.randomBytes(16), options = {}) {
+export async function dump(name, password, privateKey, nonce = nacl.randomBytes(24), salt = nacl.randomBytes(16), options = {}) {
   const opt = Object.assign({}, DEFAULTS.crypto, options);
-  return marshal(name, await deriveKey(password, salt, opt), privateKey, seed, nonce, salt, opt);
+  return marshal(name, await deriveKey(password, salt, opt), privateKey, nonce, salt, opt);
 }
 
 

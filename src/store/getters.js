@@ -24,5 +24,14 @@ export const getters = {
   },
   transactions(state) {
     return state.transactions;
+  },
+  wallet(state) {
+    return state.wallet;
+  },
+  activeAccount(state) {
+    return state.activeAccount;
+  },
+  activeAccountName(state) {
+    return state.subaccounts.find(s => s.publicKey == state.account.publicKey).name;
   }
 };

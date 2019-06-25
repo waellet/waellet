@@ -75,7 +75,7 @@
         "importPrivateKey": "Import secret key",
         "import": "Import",
         "backToAccount": "Back to account",
-        "wholeTransaction": "Whole transaction history"
+        "wholeTransaction": "Whole transaction history",
         "loadMore":"Load More"
       },
       "placeholders": {

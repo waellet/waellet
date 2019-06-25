@@ -25,7 +25,9 @@
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
-import {  mnemonicToSeed } from '@aeternity/bip39';
+import { mnemonicToSeed } from '@aeternity/bip39';
+import { generateHdWallet } from '../../utils/hdWallet'
+
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title'],
     data() {
@@ -68,42 +70,31 @@ export default {
         },
         importPrivateKey: async function importPrivateKey({accountPassword,data}) {
             this.loading = true;
-            const keyPair = await addressGenerator.importPrivateKey(accountPassword, data);
-            chrome.storage.sync.set({userAccount: keyPair}, () => {
-                chrome.storage.sync.set({isLogged: true}, () => {
-                    this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                    this.$store.commit('SWITCH_LOGGED_IN', true);
-                    this.$router.push('/account');
-                }); 
-            });
+            let wallet = generateHdWallet(data);
+            const keyPair = await addressGenerator.importPrivateKey(accountPassword, data, wallet);
+            if(keyPair) {
+                this.setLogin(keyPair,wallet);
+            }
+            
         },
         importSeedPhrase: async function importSeedPhrase({accountPassword,data}) {
             this.loading = true;
             let privateKey = mnemonicToSeed(data)
-            const keyPair = await addressGenerator.generateKeyPair(accountPassword,privateKey.toString('hex'),privateKey);
-            chrome.storage.sync.set({userAccount: keyPair}, () => {
-                chrome.storage.sync.set({isLogged: true}, () => {
-                    this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                    this.$store.commit('SWITCH_LOGGED_IN', true);
-                    this.loading = false;
-                    this.$router.push('/account');
-                });
-            });
+            let wallet = generateHdWallet(privateKey);
+            const keyPair = await addressGenerator.generateKeyPair(accountPassword,privateKey.toString('hex'),wallet);
+            if(keyPair) {
+                this.setLogin(keyPair,wallet);
+            }
         },
         importKeystore:async function importKeystore({accountPassword,data}) {
             this.loading = true;
             const encryptedPrivateKey = JSON.parse(data);
             let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
             
-            if(match) {
+            if(match !== false) {
+                let wallet = generateHdWallet(match);
                 let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),secretKey:'',publicKey:encryptedPrivateKey.public_key};
-                chrome.storage.sync.set({userAccount: keyPair}, () => {
-                    chrome.storage.sync.set({isLogged: true}, () => {
-                        this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                        this.$store.commit('SWITCH_LOGGED_IN', true);
-                        this.$router.push('/account');
-                    });
-                });
+                this.setLogin(keyPair,wallet);
             }else {
                 this.loginError = true;
                 this.errorMsg = "";
@@ -111,6 +102,27 @@ export default {
                 this.loading = false;
                 
             }
+        },
+        setLogin(keyPair,wallet) {
+            chrome.storage.sync.set({userAccount: keyPair}, () => {
+                chrome.storage.sync.set({isLogged: true}, () => {
+                    chrome.storage.sync.set({wallet: JSON.stringify(wallet)}, () => { 
+                        chrome.storage.sync.set({subaccounts: ''}, () => {
+                            this.$store.dispatch('setSubAccount', {
+                                name:'Main account',
+                                publicKey:keyPair.publicKey
+                            });
+                            chrome.storage.sync.set({activeAccount: 0}, () => {
+                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
+                            });
+                        });
+                        this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                        this.$store.commit('SWITCH_LOGGED_IN', true);
+                        this.$store.commit('SET_WALLET', wallet);
+                        this.$router.push('/account');
+                    });
+                });
+            });
         },
         generateAddress: async function generateAddress({ accountPassword }) {
             this.loading = true;

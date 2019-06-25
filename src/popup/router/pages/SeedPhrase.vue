@@ -42,6 +42,7 @@ import locales from '../../locales/locales.json';
 import {shuffleArray} from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { addressGenerator } from '../../utils/address-generator';
+import { generateHdWallet } from '../../utils/hdWallet'
 
 export default {
     data() {
@@ -131,23 +132,37 @@ export default {
                     }else {
                         this.seedError = {};
                         this.loading = true;
-                        chrome.storage.sync.set({isLogged: true}, async () => {
-                            chrome.storage.sync.get('accountPassword',async pass => {
-                                if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
-                                    originalSeed = originalSeed.replace(/,/g, ' ');
-                                    let privateKey = mnemonicToSeed(originalSeed);
-                                    const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,privateKey.toString('hex'), privateKey);
-                                    chrome.storage.sync.set({userAccount: keyPair}, () => {
-                                        this.loading = false;
-                                        chrome.storage.sync.set({accountPassword: ''}, () => {});
-                                        chrome.storage.sync.set({mnemonic: ''}, () => {});
-                                        chrome.storage.sync.set({confirmSeed: true}, () => {});
-                                        this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                                        this.$store.commit('SWITCH_LOGGED_IN', true);
-                                        this.$router.push('/account');
+                        chrome.storage.sync.get('accountPassword',async pass => {
+                            if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
+                                originalSeed = originalSeed.replace(/,/g, ' ');
+                                let privateKey = mnemonicToSeed(originalSeed);
+                                let wallet = generateHdWallet(privateKey);
+                                const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,privateKey.toString('hex'), wallet);
+                                if(keyPair) {
+                                    chrome.storage.sync.set({isLogged: true}, async () => {
+                                        chrome.storage.sync.set({userAccount: keyPair}, () => {
+                                            this.loading = false;
+                                            chrome.storage.sync.set({accountPassword: ''}, () => {});
+                                            chrome.storage.sync.set({mnemonic: ''}, () => {});
+                                            chrome.storage.sync.set({confirmSeed: true}, () => {});
+                                            chrome.storage.sync.set({wallet: wallet}, () => {});
+                                            chrome.storage.sync.set({subaccounts: ''}, () => {
+                                                this.$store.dispatch('setSubAccount', {
+                                                    name:'Main account',
+                                                    publicKey:keyPair.publicKey
+                                                });
+                                            });
+                                            chrome.storage.sync.set({activeAccount: 0}, () => {
+                                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
+                                            });
+                                            this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                                            this.$store.commit('SWITCH_LOGGED_IN', true);
+                                            this.$store.commit('SET_WALLET', wallet);
+                                            this.$router.push('/account');
+                                        });
                                     });
                                 }
-                            });
+                            }
                         });
                     }
                 }

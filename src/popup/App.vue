@@ -31,31 +31,27 @@
           <div id="account" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="center" ref="account">
             <button v-on:click.prevent="toggleDropdown">
               <ae-identicon id="identIcon" class="dropdown-button-icon" v-bind:address="this.account.publicKey" size="base" slot="button" />
-              <span class="dropdown-button-name" slot="button">{{ language.strings.currentAccountName }}</span>
+              <span class="dropdown-button-name" slot="button">{{ activeAccountName }}</span>
             </button>
             <transition name="slide-fade">
-              <ul v-if="dropdown.account" class="dropdown-holder">
-                <li>
-                  <ae-button v-on:click="changeAccount">
-                    <ae-identicon class="subAccountIcon" v-bind:address="this.account.publicKey" size="xs" />
-                    <span class="subAccountName">{{ language.strings.currentAccountName }}</span>
-                    <ae-check class="subAccountCheckbox" :checked="true" type="radio" value="1" v-model="singleChoice" />
-                  </ae-button>
-                </li>
-                <li>
-                  <ae-button v-on:click="changeAccount">
-                    <ae-identicon class="subAccountIcon" v-bind:address="this.account.publicKey" size="xs" />
-                    <span class="subAccountName">MySubAccountName</span>
-                    <ae-check class="subAccountCheckbox" type="radio" value="2" v-model="singleChoice" /> 
-                  </ae-button>
-                </li>
-                <li>
+              <ae-list v-if="dropdown.account" class="dropdown-holder">
+                <ae-list-item fill="neutral"  @click="changeAccount(index,subaccount)" :class="activeAccount == index ? 'activeAccount' : '' " v-for="(subaccount,index) in subaccounts">
+                    <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
+                    <div class="subAccountInfo">
+                      <div class="subAccountName">{{subaccount.name}}</div>
+                      <div class="subAccountBalance">{{subaccount.balance}} AE</div>
+                    </div>
+                    <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="activeAccount" /> 
+                </ae-list-item>
+                <ae-list-item fill="neutral" class="manageAccounts">
                   <ae-button @click="manageAccounts" class="triggerhidedd">
-                    <ae-icon name="new-subaccount" />
+                    <ae-button face="icon" fill="primary" class="iconBtn">
+                      <ae-icon name="plus" />
+                    </ae-button>
                     <span class="newSubaccount">{{ language.strings.manageAccounts }}</span>
                   </ae-button>
-                </li>
-              </ul>
+                </ae-list-item>
+              </ae-list>
             </transition>
           </div>
 
@@ -170,12 +166,11 @@ export default {
         account: false,
         languages: false
       },
-      singleChoice: undefined,
       mainLoading: true
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network','popup','isLoggedIn', 'AeAPI']),
+    ...mapGetters (['account', 'current', 'network','popup','isLoggedIn', 'AeAPI','subaccounts','activeAccount', 'balance','activeAccountName']),
     popupButtonFill(){
       return this.popup.type == 'error' ? 'primary' : 'alternative';
     },
@@ -190,9 +185,15 @@ export default {
       // chrome.storage.sync.get('language', langChoose => {
       //   this.language = locales[langChoose.language];
       // });
+       // fetch api one time
+      let states = this.$store.state;
+      if (typeof states.aeAPI == 'undefined') {
+        this.$store.state.aeAPI = this.fetchApi();
+      }
   },
   mounted: function mounted () {
     this.hideLoader();
+    this.dropdown.settings = false;
   },
   methods: {
     hideLoader() {
@@ -201,8 +202,10 @@ export default {
         self.mainLoading = false;
       }, 1000);
     },
-    changeAccount (event) {
-      console.log('Change account');
+    changeAccount (index,subaccount) {
+      chrome.storage.sync.set({activeAccount: index}, () => {
+        this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
+      });
     },
     hideMenu (event) {
       let target = event.target
@@ -237,6 +240,7 @@ export default {
     },
     switchNetwork (network) {
       this.$store.dispatch('switchNetwork', network).then(() => {
+        this.$store.state.aeAPI = this.fetchApi();
         this.$store.dispatch('updateBalance');
         let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
         transactions.then(res => {
@@ -246,9 +250,17 @@ export default {
     },
     logout () {
       chrome.storage.sync.set({isLogged: false}, () => {
-        this.$store.commit('UPDATE_ACCOUNT', '');
-        this.$store.commit('SWITCH_LOGGED_IN', false);
-        this.$router.push('/');
+        chrome.storage.sync.set({wallet: ''}, () => {
+          chrome.storage.sync.set({activeAccount: 0}, () => {
+            this.dropdown.settings = false;
+            this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
+            this.$store.commit('UNSET_SUBACCOUNTS');
+            this.$store.commit('UPDATE_ACCOUNT', '');
+            this.$store.commit('SWITCH_LOGGED_IN', false);
+            this.$store.commit('SET_WALLET', []);
+            this.$router.push('/');
+          });
+        });
       });
     }, 
     closePopup() {
@@ -273,14 +285,12 @@ export default {
         let blobData = "";
         try {
           blobData = JSON.parse(this.account.encryptedPrivateKey);
-          // blobData = JSON.stringify(this.account.encryptedPrivateKey);
         }catch(err) {
           blobData = JSON.stringify(this.account.encryptedPrivateKey);
         }
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keystore.json");
       }
-      
     },
     popupSecondBtnClick(){
       this[this.popup.secondBtnClick]();
@@ -288,6 +298,19 @@ export default {
     showTransaction(){
       chrome.tabs.create({url: this.popup.data, active: false});
     },
+    fetchApi() {
+      let states = this.$store.state;
+      let ae = Ae({
+          url: states.network[states.current.network].url,
+          internalUrl: states.network[states.current.network].internalUrl,
+          keypair: {
+            secretKey: states.account.secretKey,
+            publicKey: states.account.publicKey,
+          },
+          networkId: states.network[states.current.network].networkId,
+      });
+      return ae;
+    }
   }
 };
 </script>
@@ -319,9 +342,18 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account  > button { width: 120px; }
 #account .dropdown-button-icon.ae-identicon.base { height: 1.8rem; margin-bottom: 3px; vertical-align: top; }
 #account .ae-dropdown-button .dropdown-button-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#account .subAccountIcon { margin-right: 5px; }
-#account .subAccountName { width: 110px; line-height: 28px; color: #000; text-overflow: ellipsis; overflow: hidden; }
+#account .subAccountIcon { margin-right: 10px; }
+#account .subAccountName { /*width: 110px; line-height: 28px;*/ color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold;}
+#account .subAccountBalance { font-family: monospace; }
+#account .subAccountInfo { margin-right:auto;  }
 #account .subAccountCheckbox { float: right; }
+#account li { padding:0.75rem; cursor:pointer !important; }
+#account ul { width:250px; margin:0; transform:translateX(-50%); -webkit-transform:translateX(-50%); -ms-transform:translateX(-50%); }
+#account .activeAccount { background: #f6f6f6; }
+#account .manageAccounts { padding:0; }
+#account .manageAccounts button { padding:1.2rem 1rem; height: auto; }
+#account .iconBtn { padding: 0 !important; height: 30px !important; width: 30px; color: #fff; text-align: center; margin-right: 8px;}
+#account .iconBtn i { color: #fff !important; font-size: 1.2rem !important; margin: 0;float: none; text-align: center;}
 .ae-check .ae-check-button { float: right; min-width: 0 !important; min-height: 0 !important; padding-left: 0 !important; }
 .ae-check-button:before { position: static !important; }
 .ae-check-button:after { left: 0 !important; top: 0 !important; width: 28px !important; height: 28px !important; }

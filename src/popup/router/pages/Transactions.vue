@@ -39,12 +39,20 @@ export default {
         ...mapGetters(['account']),
         showMore() {
             return this.currentCount + 1 <= this.totalTransactions;
-        }
+        },
+        publicKey() { return this.account.publicKey; }
     },
     created(){
         this.getTotalTransactions();
         this.getTransactions();
-        
+    },
+    watch:{
+        publicKey() {
+            this.allTransactions = [];
+            this.groupedTransactions = {};
+            this.getTotalTransactions();
+            this.getTransactions();
+        }
     },
     methods: {
         changeTransactionType(type) {
@@ -99,5 +107,9 @@ export default {
     text-transform: uppercase;
     font-size: 0.9rem;
     font-family: monospace;
+}
+.actions {
+  width: 50%;
+  margin-top: 5px;
 }
 </style>

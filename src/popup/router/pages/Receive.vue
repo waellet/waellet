@@ -58,11 +58,6 @@ export default {
   width: 50%;
   margin-top: 5px;
 }
-.backbutton {
-  color: #62D9CB; 
-  text-transform: uppercase; 
-  font-weight: 700;
-}
 .qr-wrapper {
   display: flex;
   justify-content: center;

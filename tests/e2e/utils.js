@@ -35,6 +35,10 @@ export const mnemonic = 'shop sound chef return calm outdoor easily picnic circl
 export const prepareEncryptedPrivateKey = (customState = {}) => {
     
     const state = Cypress._.merge({
+        subaccounts: [],
+        account: {},
+        activeAccount:0,
+        wallet:[],
         account: account,
         balance: 0,
         current: current,

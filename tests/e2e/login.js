@@ -40,7 +40,7 @@ export const loginAndLogout = () => {
     .should('be.visible')
     .get('.ae-toolbar')
     .should('be.visible')
-    .get('input[type="passwrod"]')
+    .get('input[type="password"]')
     .clear()
     .type(ACCOUNT_PASSWORD);
 }

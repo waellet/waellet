@@ -4,7 +4,7 @@
     <ae-card fill="primary">
       <template slot="avatar">
         <ae-identicon :address="account.publicKey" />
-        <ae-input-plain fill="white" :placeholder="language.strings.accountName" :value="language.strings.myAccount" />
+        <ae-input-plain fill="white" :placeholder="language.strings.accountName" @keyup.native="setAccountName" :value="activeAccountName"  />
       </template>
       <template slot="header">
         <ae-text fill="white" face="mono-base">{{balance}} AE</ae-text>
@@ -53,53 +53,30 @@ export default {
     return {
       polling: null,
       language: locales['en'],
-      loading:true
+      loading:true,
+      accountName:''
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts'])
-  },
-  created () {
-    let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
-    transactions.then(res => {
-      this.loading = false;
-      this.$store.dispatch('updateLatestTransactions',res);
-    });
-    this.pollData();
-
-     // fetch api one time
-    let states = this.$store.state;
-    if (typeof states.aeAPI == 'undefined') {
-      let ae = Ae({
-        url: states.network[states.current.network].url,
-        internalUrl: states.network[states.current.network].internalUrl,
-        keypair: {
-          secretKey: states.account.secretKey,
-          publicKey: states.account.publicKey,
-        },
-        networkId: states.network[states.current.network].networkId,
-      });
-      this.$store.state.aeAPI = ae;
+    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount']),
+    publicKey() { 
+      return this.account.publicKey; 
     }
   },
+  created () {
+    this.pollData();
+  },
+  mounted(){
+    this.updateTransactions();
+  },  
   methods: {
     showAllTranactions() {
         this.$router.push('/transactions');
     },
-    showSign() {
-      this.$router.push('/sign-transaction');
-      /*chrome.windows.create({
-        url: chrome.runtime.getURL('./popup/popup.html'),
-        type: "popup",
-        height: 600,
-        width:420
-      },() => {
-        console.log("created");
-      });*/
-    },
     pollData() {
       this.polling = setInterval(() => {
         this.$store.dispatch('updateBalance');
+        this.updateTransactions();
       }, 500)
     },
     popupAlert(payload) {
@@ -111,6 +88,19 @@ export default {
     navigateReceive () {
       this.$router.push('/receive');
     },
+    updateTransactions() {
+      this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3})
+      .then(res => {
+        this.loading = false;
+        this.$store.dispatch('updateLatestTransactions',res);
+      });
+    },
+    setAccountName(e) {
+      this.$store.dispatch('setAccountName', e.target.value)
+      .then(() => {
+         chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => {});
+      });
+    }
   },
   beforeDestroy () {
 	  clearInterval(this.polling)

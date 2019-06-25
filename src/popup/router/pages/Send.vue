@@ -18,7 +18,7 @@
           <p>{{language.strings.txFee}} {{txFee}}</p>
         </div>
         <div>
-          <ae-button face="round" fill="primary" class="sendBtn extend @click="send">{{language.buttons.send}}</ae-button>
+          <ae-button face="round" fill="primary" class="sendBtn extend" @click="send">{{language.buttons.send}}</ae-button>
         </div>
       </div>
 
@@ -97,6 +97,10 @@ export default {
         return;
       } 
       try {
+        console.log(receiver);
+        console.log(this.account.secretKey);
+        console.log(this.account.publicKey);
+        console.log(amount);
       Wallet({
         url: this.network[this.current.network].url,
         internalUrl: this.network[this.current.network].internalUrl,
@@ -134,6 +138,7 @@ export default {
           }
         })
         .catch(err => {
+          console.log(err);
           this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'});
           this.loading = false;
           return;
@@ -170,11 +175,6 @@ export default {
 .actions {
   width: 50%;
   margin-top: 5px;
-}
-.backbutton {
-  color: #62D9CB; 
-  text-transform: uppercase; 
-  font-weight: 700;
 }
 .sendContent div { 
   margin-bottom: 10px;
