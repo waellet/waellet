@@ -1,11 +1,17 @@
+import {onBeforeLoad} from './support/mock_chrome.js';
+import { derivePathFromKey, getKeyPair } from '@aeternity/hd-wallet/src/hd-key';
+import { Crypto } from '@aeternity/aepp-sdk/es';
+import { generateHDWallet } from '@aeternity/hd-wallet/src';
+import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
+
 export const prepare = async () => {
     delete localStorage.vuex;
 
 };
 export const account = {
-  publicKey:"ak_NBrcw9KrjU8BjM56jovLHTiXDMhPaepX9miomP1gVFpLZfHew",
+  publicKey:"ak_d45oN2qzS1vqdiWVYCfDeWLVb3EepWxAJrsDbCSmnYiZguerw",
   secretKey:"ef07a269ce62e81dbd507d2d677e06654765984aa4650bcf2ed68bbfc783f8e4301ba902bf2b2c176ac934eb41181866ae25f19dcbdd42c4aa448c0f82c913f9",
-  encryptedPrivateKey:{"name":"keystore","version":1,"public_key":"ak_NBrcw9KrjU8BjM56jovLHTiXDMhPaepX9miomP1gVFpLZfHew","id":"5699690b-0af4-465f-a3d8-f7fa35ecd8ad","crypto":{"secret_type":"ed25519","symmetric_alg":"xsalsa20-poly1305","ciphertext":"800659efba3c86107ed7edcca0dcd6848bd6702f99c3c401f15431882c80fb0ab21d94e55596082be457cd1381142dfa3f90ecf8ea4b3045ae8378eefea23608832b508a825dc263cd225af5ec1615df","cipher_params":{"nonce":"a1c0a567392213114c4b2075a6ce17524bdd71d546440876"},"kdf":"argon2id","kdf_params":{"memlimit_kib":65536,"opslimit":3,"parallelism":1,"salt":"0817a90b57f7bb5c898c3ef8304d3852"}}}
+  encryptedPrivateKey:{"name":"keystore","version":1,"public_key":"ak_d45oN2qzS1vqdiWVYCfDeWLVb3EepWxAJrsDbCSmnYiZguerw","id":"298c2d6e-79fd-4df6-aea9-4258fde7a1d3","crypto":{"secret_type":"ed25519","symmetric_alg":"xsalsa20-poly1305","ciphertext":"74d4706bba362e7cda0effd66ff1da27e5766d6d7d4e630be9763179270d708154d24d1c0fd5f2075d154e1bd2c49699ccfb09b6af2bbf1c51c782a9b555584a447c9dd3082fe6abaffcd31ed4c4f2d7","cipher_params":{"nonce":"de66538f7981040a79876ed85e73e9ae16946887a9baab07"},"kdf":"argon2id","kdf_params":{"memlimit_kib":65536,"opslimit":3,"parallelism":1,"salt":"67eae2f3ff0becc34ca3b2bf9cec414c"}}}
 }
 export const network = {
   Testnet: {
@@ -29,12 +35,17 @@ export const current = {
 };
 export const ACCOUNT_PASSWORD = "qwerty";
 export const PRIVATE_KEY = "ef07a269ce62e81dbd507d2d677e06654765984aa4650bcf2ed68bbfc783f8e4301ba902bf2b2c176ac934eb41181866ae25f19dcbdd42c4aa448c0f82c913f9";
+export const PRIVATE_KEY_IMPORT = "82e8a6103b5fd09b82d71e0ef18686b66f798428312ef84adfb51f1c7ca794a0e4197f13b860b0f18b960d83e230e50752dc9f77ec2ea568300dcf728c1a8acd";
 export const PUBLIC_KEY_SEND = "ak_2uhfvqH1NhiTcZ6F8QmDRvZQdoYGN3agdZi9AZyY4pP3A9zdFZ";
 export const mnemonic = 'shop sound chef return calm outdoor easily picnic circle wine walnut belt';
 
 export const prepareEncryptedPrivateKey = (customState = {}) => {
     
     const state = Cypress._.merge({
+        subaccounts: [],
+        account: {},
+        activeAccount:0,
+        wallet:[],
         account: account,
         balance: 0,
         current: current,
@@ -64,3 +75,112 @@ export const getLatestThreeTransactions = (publicKey) => {
   .then(res => res.json() )
 };
 
+export const generateWallet = () => {
+  let seeds = mnemonic.split(" ");
+  cy
+  .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'seed') }})
+  .wait(2000)
+  .get('footer button.primary').click()
+  .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD)
+  .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD)
+  .get('button').contains('Continue').click()
+  .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'seed') }})
+  .get('button.nextStep').click()
+  .get('.ae-phraser-container').should('be.visible')
+  .wait(10000)
+  .get('button.nextStep').click()
+  .wrap(seeds).each((num,i) => {
+      cy.get('.ae-phraser-container').eq(0).within(() => {
+          cy.get('.ae-badge.seedBadge').contains(num).not('.selected').click();
+      });
+  })
+  .get('button.nextStep').click()
+  .get('.ae-loader')
+  .should('be.visible')
+  .get('.ae-card')
+  .should('be.visible');
+};
+
+
+export const importPrivate = () => {
+  cy.
+  visit('popup/popup.html',{onBeforeLoad})
+  .get('button.importBtn').click()
+  .get('.ae-modal input').type(PRIVATE_KEY_IMPORT)
+  .get('.ae-modal button').contains('Continue').click()
+  .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD)
+  .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD)
+  .get('button').contains('Import').click()
+  .get('.ae-loader')
+  .should('be.visible')
+  .get('.ae-card.primary ul')
+  .invoke('attr', 'title')
+  .should('eq',hdWallet(PRIVATE_KEY_IMPORT));
+};
+
+export const importSeed  = () => {
+  cy
+  .visit('popup/popup.html',{onBeforeLoad})
+  .get('button.importBtn').click()
+  .get('.tabs span').eq(2).click()
+  .get('textarea').clear().type(mnemonic)
+  .get('button').contains('Continue').click()
+  .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD)
+  .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD)
+  .get('button').contains('Restore').click()
+  .get('.ae-loader')
+  .should('be.visible')
+  .get('.ae-card.primary ul')
+  .invoke('attr', 'title')
+  .should('eq',hdWallet(mnemonicToSeed(mnemonic)));
+}
+
+export const importKeystore = () => {
+  cy
+  .visit('popup/popup.html',{onBeforeLoad})
+  .get('button.importBtn').click()
+  .get('.tabs span').eq(1).click()
+  .uploadFile('input[type="file"]','../../keystore4.json','application/json')
+  .get('button').contains('Continue').click()
+  .get('input[type="password"]').clear().type("1234")
+  .get('button').contains('Import').click()
+  .get('.ae-loader')
+  .should('be.visible')
+  .get('.ae-card.primary ul')
+  .invoke('attr', 'title')
+  .should('eq',hdWallet(PRIVATE_KEY_IMPORT));
+}
+
+export const generateHdWallet = (seed) => {
+    
+    if(typeof seed == 'string' ) {
+        seed = Buffer.from(seed,'hex');
+    }
+
+    return generateHDWallet(seed);
+}
+
+export const getHdWalletAccount = (wallet, accountIdx = 0) => {
+    
+    if(wallet.chainCode.constructor !== Uint8Array) {
+        wallet = JSON.parse(JSON.stringify(wallet));
+        wallet = {
+            chainCode:new Uint8Array(new Uint8Array(Object.values(wallet.chainCode))),
+            privateKey:new Uint8Array(new Uint8Array(Object.values(wallet.privateKey)))
+        }
+    }
+    
+    const keyPair = getKeyPair(derivePathFromKey(`${accountIdx}h/0h/0h`, wallet).privateKey);
+    
+    return {
+        ...keyPair,
+        idx:accountIdx,
+        address: Crypto.aeEncodeKey(keyPair.publicKey)
+    };
+}
+
+export const hdWallet = (seed) => {
+  let wallet = generateHdWallet(seed);
+  let publicKey = getHdWalletAccount(wallet,0).address;
+  return publicKey;
+};

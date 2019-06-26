@@ -1,10 +1,17 @@
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
+import {convertToAE} from '../popup/utils/helper';
 export default {
   setAccount({ commit }, payload) {
     commit(types.UPDATE_ACCOUNT, payload);
     commit(types.UPDATE_BALANCE);
+  },
+  setSubAccount({ commit }, payload) {
+    commit(types.SET_SUBACCOUNT, payload);
+  },
+  setSubAccounts({ commit }, payload) {
+    commit(types.SET_SUBACCOUNTS, payload);
   },
   switchNetwork({ commit }, payload) {
     return new Promise((resolve, reject) => {
@@ -17,12 +24,19 @@ export default {
     state.aeAPI.then(ae => {
       ae.balance(state.account.publicKey)
         .then(balance => {
-          const balanceInAE = balance / 10 ** 18;
-          commit(types.UPDATE_BALANCE, balanceInAE);
+          commit(types.UPDATE_BALANCE, convertToAE(balance) );
         })
         .catch(e => {
-          const balanceInAE = 0;
-          commit(types.UPDATE_BALANCE, balanceInAE);
+          commit(types.UPDATE_BALANCE, convertToAE(0) );
+        });
+        state.subaccounts.forEach((sub,index) => {
+          ae.balance(sub.publicKey)
+          .then(balance => {
+            commit(types.UPDATE_SUBACCOUNTS_BALANCE, { account:index, balance: convertToAE(balance) } );
+          })
+          .catch(e => {
+            commit(types.UPDATE_SUBACCOUNTS_BALANCE, { account:index, balance:  convertToAE(0) } );
+          });
         });
     });
   },
@@ -57,6 +71,13 @@ export default {
           case 'seedFastCopy':
               commit(types.SHOW_POPUP,{show:true,...popupMessages.SEED_FAST_COPY});
             break;
+            case 'requiredField':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_FIELD});
+              break;
+            case 'added_success':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_ADDED});
+              break;
+            SUCCESS_ADDED
           default:
             break;
         }
@@ -88,5 +109,7 @@ export default {
   updateLatestTransactions({ commit }, payload) {
     commit(types.UPDATE_LATEST_TRANSACTIONS, payload);
   },
-
+  setAccountName({ commit , state}, payload) {
+    commit(types.SET_ACCOUNT_NAME, payload);
+  }
 };

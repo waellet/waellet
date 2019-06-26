@@ -15,6 +15,10 @@ const shuffleArray = (array) => {
     }
 
     return array;
-}
+};
 
-export {shuffleArray};
+const convertToAE = (balance) => {
+    return +(balance / 10 ** 18).toFixed(7);
+};
+
+export {shuffleArray, convertToAE};

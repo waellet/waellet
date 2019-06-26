@@ -4,7 +4,7 @@
     <ae-card fill="primary">
       <template slot="avatar">
         <ae-identicon :address="account.publicKey" />
-        <ae-input-plain fill="white" :placeholder="language.strings.accountName" :value="language.strings.myAccount" />
+        <ae-input-plain fill="white" :placeholder="language.strings.accountName" @keyup.native="setAccountName" :value="activeAccountName"  />
       </template>
       <template slot="header">
         <ae-text fill="white" face="mono-base">{{balance}} AE</ae-text>
@@ -17,12 +17,13 @@
         </ae-button>
       </ae-toolbar>
     </ae-card>
-
+    <br>
     <div class="actions">
       <ae-button-group>
-        <ae-button face="flat" fill="primary" extend class="sendBtn" @click="navigateSend">{{language.buttons.send}}</ae-button>
-        <ae-button face="flat" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
+        <ae-button face="round" fill="primary" extend class="sendBtn" @click="navigateSend">{{language.buttons.send}}</ae-button>
+        <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
       </ae-button-group>
+      <br>
       <ae-button face="round" fill="alternative" disabled extend >{{language.buttons.tipWebsite}}</ae-button>
     </div>
     <h3>Latest transactions</h3>
@@ -30,7 +31,7 @@
       <ae-list class="transactionList">
         <TransactionItem v-for="transaction in transactions.latest" :transactionData="transaction"></TransactionItem>
       </ae-list>
-      <ae-button face="round" fill="primary" class="transactionHistory" @click="showAllTranactions">Whole transaction history</ae-button>
+      <ae-button face="round" fill="primary" class="transactionHistory" @click="showAllTranactions">{{language.buttons.wholeTransaction}}</ae-button>
     </div>
     <div v-if="transactions.latest.length == 0 && !loading">
         <p class="paragraph noTransactions">No transactions found!</p> 
@@ -52,53 +53,41 @@ export default {
     return {
       polling: null,
       language: locales['en'],
-      loading:true
+      loading:true,
+      accountName:''
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current','transactions'])
-  },
-  created () {
-    let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
-    transactions.then(res => {
-      this.loading = false;
-      this.$store.dispatch('updateLatestTransactions',res);
-    });
-    this.pollData();
-
-     // fetch api one time
-    let states = this.$store.state;
-    if (typeof states.aeAPI == 'undefined') {
-      let ae = Ae({
-        url: states.network[states.current.network].url,
-        internalUrl: states.network[states.current.network].internalUrl,
-        keypair: {
-          secretKey: states.account.secretKey,
-          publicKey: states.account.publicKey,
-        },
-        networkId: states.network[states.current.network].networkId,
-      });
-      this.$store.state.aeAPI = ae;
+    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount']),
+    publicKey() { 
+      return this.account.publicKey; 
+    },
+    watchBalance() {
+      return this.balance;
     }
   },
+  watch:{
+      publicKey() {
+        this.updateTransactions();
+      },
+      watchBalance() {
+        this.updateTransactions();
+      }
+  },
+  created () {
+    this.pollData();
+  },
+  mounted(){
+    this.updateTransactions();
+  },  
   methods: {
     showAllTranactions() {
         this.$router.push('/transactions');
     },
-    showSign() {
-      this.$router.push('/sign-transaction');
-      /*chrome.windows.create({
-        url: chrome.runtime.getURL('./popup/popup.html'),
-        type: "popup",
-        height: 600,
-        width:420
-      },() => {
-        console.log("created");
-      });*/
-    },
     pollData() {
       this.polling = setInterval(() => {
         this.$store.dispatch('updateBalance');
+        // 
       }, 500)
     },
     popupAlert(payload) {
@@ -110,6 +99,19 @@ export default {
     navigateReceive () {
       this.$router.push('/receive');
     },
+    updateTransactions() {
+      this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3})
+      .then(res => {
+        this.loading = false;
+        this.$store.dispatch('updateLatestTransactions',res);
+      });
+    },
+    setAccountName(e) {
+      this.$store.dispatch('setAccountName', e.target.value)
+      .then(() => {
+         chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => {});
+      });
+    }
   },
   beforeDestroy () {
 	  clearInterval(this.polling)
@@ -120,9 +122,6 @@ export default {
 <style lang="scss" scoped>
 @import '../../../common/base';
 
-.actions {
-  margin-top: 5px;
-}
 .paragraph {
   font-weight: normal;
 }

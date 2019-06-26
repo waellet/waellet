@@ -26,12 +26,10 @@
       </div>
     </footer>
 
-    <!-- <accountPassword @clickAction="importPrivateKey" :accountPasswordVisible="accountPasswordVisible" :data="accountPasswordData" :confirmPassword="confirmPassword" buttonTitle="Import" />
-     -->
     <ae-modal 
       v-if="modalVisible"
-      @close="modalVisible = false"
-      title="Import waellet">
+      @close="modalVisible = false">
+      <h2 class="modaltitle">Import waellet</h2>
 
       <div class="tabs">
         <span @click="switchImportType('privateKey')" :class="{'tab-active':importType == 'privateKey'}">Private key</span>
@@ -74,6 +72,8 @@ import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
+import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet'
+
 export default {
   name: 'Home',
   data() {
@@ -94,7 +94,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['account','isLoggedIn'])
+    ...mapGetters(['account','isLoggedIn','wallet'])
   },
   mounted() {},
   created () {
@@ -107,11 +107,12 @@ export default {
       // chrome.storage.sync.set({isLogged: ''}, () => {});
       // chrome.storage.sync.set({confirmSeed: true}, () => {});
       // chrome.storage.sync.set({mnemonic: ''}, () => {});
+      // chrome.storage.sync.remove('subaccounts', () => {});
       var newTab = false;
       chrome.storage.sync.get('showAeppPopup', data => {
         
         if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
-          console.log(data);
+          
           chrome.storage.sync.set({showAeppPopup:{}}, () => {
             if(data.showAeppPopup.type == 'confirm') {
               this.$router.push({'name':'confirm-share', params: {
@@ -126,9 +127,8 @@ export default {
           });
         }else {
           chrome.storage.sync.get('pendingTransaction', data => {
-              console.log(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('data'));
+              
               if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('data')) {
-                console.log("here");
                 this.$router.push({'name':'sign', params: {
                   data:data.pendingTransaction.data
                 }});
@@ -142,6 +142,30 @@ export default {
                           user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
                         }
                         this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
+                        if (data.isLogged && data.hasOwnProperty('isLogged')) {
+                          chrome.storage.sync.get('subaccounts', subaccounts => {
+                            let sub = [];
+                            if(!subaccounts.hasOwnProperty('subaccounts') || subaccounts.subaccounts == "" || ( typeof subaccounts.subaccounts == 'object' && !subaccounts.subaccounts.find(f => f.publicKey == user.userAccount.publicKey))) {
+                              sub.push({
+                                name: typeof subaccounts.subaccounts != 'undefined' ? subaccounts.subaccounts.name : "Main account",
+                                publicKey:  user.userAccount.publicKey, 
+                                root:true, 
+                                balance:0
+                              });
+                            }
+                            if(subaccounts.hasOwnProperty('subaccounts') && subaccounts.subaccounts.length > 0 && subaccounts.subaccounts != "") {
+                              subaccounts.subaccounts.forEach(su => {
+                                sub.push({...su});
+                              });
+                            }
+                            this.$store.dispatch('setSubAccounts', sub);
+                            chrome.storage.sync.get('activeAccount', active => {
+                              if(active.hasOwnProperty('activeAccount')) {
+                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:sub[active.activeAccount].publicKey,index:active.activeAccount});
+                              }
+                            });
+                          });
+                        }
                       } 
                       chrome.storage.sync.get('confirmSeed', seed => {
                         if(seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
@@ -151,8 +175,14 @@ export default {
                         }
                       });
                       if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                        this.$store.commit('SWITCH_LOGGED_IN', true);
-                        this.$router.push('/account');
+                        chrome.storage.sync.get('wallet',wallet => {
+                          if(wallet.hasOwnProperty('wallet') && wallet.wallet != "") {
+                            this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
+                            this.$store.commit('SWITCH_LOGGED_IN', true);
+                            
+                            this.$router.push('/account');
+                          }
+                        });
                       }
                   });
                 });
@@ -161,7 +191,6 @@ export default {
           
         }
       });
-
       
     },
     generateAddress: async function generateAddress({ dispatch }) {
@@ -223,7 +252,6 @@ export default {
             let context = this;
             reader.onload = function(e){
               try {
-                console.log(e.target.result);
                 let keystore = JSON.parse(e.target.result);
                 context.inputError = {};
                 if(keystore.crypto.ciphertext.length && keystore.crypto.cipher_params.nonce && keystore.crypto.kdf_params.salt.length){
@@ -264,20 +292,65 @@ export default {
           chrome.storage.sync.get('userAccount', async user => {
               this.errorMsg = "";
               if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                  let encPrivateKey = user.userAccount.encryptedPrivateKey;
                   try {
                     JSON.parse(user.userAccount.encryptedPrivateKey);
                   }catch(e) {
                     user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
+                    encPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
                   }
                   let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                   let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
                   user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
-                  if(match) {
+                  if(match !== false) {
                       this.loginError = false;
                       this.inputError = {};
+                      let wallet = generateHdWallet(match);
+                      let address = getHdWalletAccount(wallet).address;
+                      let sub = [];
+                      let account = {
+                          name:'Main account',
+                          publicKey:address,
+                          balance:0,
+                          root:true
+                      };
                       chrome.storage.sync.set({isLogged: true}, () => {
-                          this.$store.commit('SWITCH_LOGGED_IN', true);
-                          this.$router.push('/account');
+                        chrome.storage.sync.set({wallet:JSON.stringify(wallet)},() => {
+                          if(address !== user.userAccount.publicKey) {
+                              user.userAccount.publicKey = address;
+                              user.userAccount.encryptedPrivateKey = encPrivateKey;
+                              chrome.storage.sync.set({userAccount:  user.userAccount}, () => {
+                                sub.push(account);
+                                chrome.storage.sync.set({subaccounts:sub }, () => {
+                                  chrome.storage.sync.set({activeAccount: 0}, () => {
+                                    this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:account.publicKey,index:0});
+                                    this.$store.dispatch('setSubAccounts',sub);
+                                    this.$store.commit('SET_WALLET', wallet);
+                                    this.$store.commit('SWITCH_LOGGED_IN', true);
+                                    this.$router.push('/account');
+                                  });
+                                });
+                              });
+                              return;
+                          }
+                          chrome.storage.sync.get('subaccounts',subaccounts => {
+                            if((subaccounts.hasOwnProperty('subaccounts') && subaccounts.subaccounts == "") ||  !subaccounts.hasOwnProperty('subaccounts')){
+                              sub.push(account);
+                              chrome.storage.sync.set({subaccounts:sub }, () => {
+                                  chrome.storage.sync.set({activeAccount: 0}, () => {
+                                    this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:account.publicKey,index:0});
+                                  });
+                              });
+                            }else {
+                              sub = subaccounts.subaccounts;
+                            }
+                            this.$store.dispatch('setSubAccounts',sub).then(() => {
+                              this.$store.commit('SET_WALLET', wallet);
+                              this.$store.commit('SWITCH_LOGGED_IN', true);
+                              this.$router.push('/account');
+                            });
+                          });
+                        });
                       });
                   }else {
                       this.loginError = true;
@@ -317,5 +390,10 @@ export default {
     font-weight: 500;
 }
 
-
+.modaltitle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
 </style>

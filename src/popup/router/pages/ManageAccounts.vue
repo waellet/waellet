@@ -1,0 +1,171 @@
+<template>
+    <div id="manageAccounts" class="popup">
+        <h3>{{ language.strings.manageAccounts }}</h3>
+        <ae-list face="primary">
+            <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts">
+                <!-- IF not edit -->
+                <div v-if="!subaccount.edit">
+                    <span class="name">{{ subaccount.name }}</span>
+                    <button @click="subaccount.edit = !subaccount.edit"><ae-icon name="edit" class="primary" /></button>
+                </div>
+                <!-- IF edit -->
+                <div v-if="subaccount.edit">
+                    <ae-input-plain placeholder="Enter name here.." v-model="subaccount.name" />
+                    <button @click="cancelEdit(index)"><ae-icon name="close" /></button>
+                    <button @click="nameSave(index)"><ae-icon name="check" /></button>
+                </div>
+            </ae-list-item>
+            <ae-list-item class="addaccount" fill="secondary">
+                <div v-if="!аddNewSubbAcc">
+                    <span>{{ language.strings.addNewSubAccount }}</span>
+                    <button @click="AddNewSubbAccount"><ae-icon name="plus" /></button>
+                </div>
+                <div v-if="аddNewSubbAcc">
+                    <span>{{ language.strings.addNewSubAccount }}</span>
+                    <button @click="closeNewSubbAccountForm"><ae-icon name="close" /></button>
+                </div>
+            </ae-list-item>
+        </ae-list>
+        <transition name="slide">
+            <ul class="slideform" v-if="dropdown">
+                <div class="add-form">
+                    <h4 class="pageTitle">{{ language.strings.addNewSubAccount }}</h4>
+                    <label style="float:left;"> {{ language.strings.account }}<span class="required_fields">*</span></label>
+                    <ae-input v-model="newSubAcc" placeholder="Add name"></ae-input>
+                    <hr>
+                    <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small>
+                    <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
+                </div>
+            </ul>
+        </transition>
+    </div>
+</template>
+
+<script>
+import store from '../../../store';
+import locales from '../../locales/locales.json'
+import { mapGetters } from 'vuex';
+import { getHdWalletAccount } from '../../utils/hdWallet';
+export default {
+    data () {
+        return {
+            logo_top: chrome.runtime.getURL('../../../icons/icon_48.png'),
+            language: locales['en'],
+            locales: locales,
+            new_accname: '',
+            new_accnameValue: 'MyAccount',
+            editAccountName: false,
+            аddNewSubbAcc: false,
+            dropdown: false,
+            newSubAcc: '',
+            accounts:[]
+        }
+    },
+    computed: {
+        ...mapGetters (['account', 'current', 'network','subaccounts','wallet'])
+    },
+    created(){
+        this.setAccounts();
+    },
+    methods: {
+        myAccount () {
+            this.$router.push('/account');
+        },
+        setAccounts() {
+            this.accounts = this.subaccounts.map(s => {
+                return {
+                    ...s,
+                    edit:false
+                }
+            });
+        },
+        cancelEdit(index){
+            let account = this.accounts[index];
+            account.edit = false;
+            account.name = this.subaccounts[index].name;
+        },
+        nameSave (index) {
+            let account = this.accounts[index];
+            if (account.name != "") {
+                let editedAccounts = this.accounts.map(a => {
+                    let { edit, ...acc } = a;
+                    return acc;
+                });
+                this.$store.dispatch('setSubAccounts', editedAccounts).then(() => {
+                    chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => { });
+                });
+                account.edit = false;
+            }
+            else {
+                this.$store.dispatch('popupAlert', {
+                    name: 'account',
+                    type: 'requiredField'
+                });
+            }
+        },
+        AddNewSubbAccount() {
+            this.аddNewSubbAcc = true;
+            this.dropdown = true;
+        },
+        closeNewSubbAccountForm() {
+            this.dropdown = false;
+            this.аddNewSubbAcc = false;
+        },
+        addbtn() {
+            if (this.newSubAcc != '') {
+                let public_K = getHdWalletAccount(this.wallet, this.subaccounts.length).address;
+                this.$store.dispatch('setSubAccount', {
+                    name: this.newSubAcc,
+                    publicKey: public_K,
+                    root:false,
+                    balance:0
+                }).then(() => {
+                    chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => {
+                        this.$store.dispatch('popupAlert', {
+                            name: 'account',
+                            type: 'added_success'
+                        }).then(() => {
+                            let index =  this.subaccounts.length - 1;
+                            chrome.storage.sync.set({activeAccount: index }, () => {
+                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:public_K,index:index});
+                            });
+                            this.setAccounts();
+                        });
+                    });
+                });
+            }
+            else {
+                this.$store.dispatch('popupAlert', {
+                    name: 'account',
+                    type: 'requiredField'
+                });
+            }
+            this.newSubAcc = "";
+        }
+    }
+}
+</script>
+
+<style lang="scss">
+@import '../../../common/base';
+
+#manageAccounts .btnBack { display: block; margin-bottom: 15px; }
+#manageAccounts .btnBack .ae-icon { transform: rotate(180deg); vertical-align: bottom; }
+.ae-list-item { cursor: default !important; }
+.ae-list-item .ae-icon { float: right; font-size: 1.2rem; }
+// .ae-icon-edit, .ae-icon-plus { color: #00b6ff !important; }
+.ae-icon-check { color: #13b100 !important; }
+.ae-icon-close { color: #b10000 !important; }
+.editaccount div, .addaccount div { width: 100%; }
+.editaccount div span, .editaccount div input, .addaccount div span { float: left; }
+.editaccount div button, .addaccount div button { float: right; }
+.editaccount div input { width: 70% !important; }
+
+.slideform { position: relative; width: 100%; overflow: hidden; padding: 0; top: 10px; list-style-type: none;
+    box-shadow: 0 0 8px rgba(0, 33, 87, 0.15); transform-origin: top; transition: transform .4s ease-in-out; }
+.slide-enter, .slide-leave-to{ transform: scaleY(0); }
+.add-form { text-align: center; padding: 15px; margin: 10px; }
+.required_fields { color: red; margin: 5px; }
+.ae-list-item .ae-icon { font-size: 1.7rem !important; }
+
+</style>

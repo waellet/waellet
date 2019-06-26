@@ -7,8 +7,8 @@
         "account": "Account",
         "myAccount": "My Account",
         "currentAccountName" : "My Account 1",
-        "newSubaccount": "New subaccount",
         "manageAccounts": "Manage accounts",
+        "addNewSubAccount": "Add new subaccount",
         "exportKeypair": "Export keypair",
         "exportKeystore": "Export keystore",
         "logout": "Logout",
@@ -59,11 +59,14 @@
           "explorer":"View in explorer"
         }
       },
-      "messages": {},
+      "messages": {
+        "requiredFields" : "Required fields"
+      },
       "buttons": {
         "ok": "Ok",
         "cancel": "Cancel",
         "edit": "Edit",
+        "add": "Add",
         "copy": "Copy",
         "send": "Send",
         "receive": "Receive",
@@ -72,6 +75,7 @@
         "importPrivateKey": "Import secret key",
         "import": "Import",
         "backToAccount": "Back to account",
+        "wholeTransaction": "Whole transaction history",
         "loadMore":"Load More"
       },
       "placeholders": {

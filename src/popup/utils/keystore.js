@@ -2,9 +2,9 @@
 const nacl = require('tweetnacl')
 const argon = require('./argon2.js');
 // import * as argon2 from './argon2.js'
-import uuid from 'uuid'
+import uuid from 'uuid';
 // const bs58check = require('bs58check')
-import { encodeBase58Check } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { encodeBase58Check } from '@aeternity/aepp-sdk/es/utils/crypto';
 
 const DERIVED_KEY_FUNCTIONS = {
   argon2id: deriveKeyUsingArgon2id,
@@ -44,7 +44,7 @@ export async function decrypt(ciphertext,password,nonce, salt , options = {}) {
   try {
     let res = CRYPTO_FUNCTIONS[DEFAULTS.crypto.symmetric_alg].decrypt({ ciphertext, nonce, key });
     
-    return true;
+    return Buffer.from(res).toString('hex');
   }catch {
     return false;
   }
