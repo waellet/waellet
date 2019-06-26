@@ -104,6 +104,9 @@ export default {
         console.log(this.account.secretKey);
         console.log(this.account.publicKey);
         console.log(amount);
+        console.log(this.network[this.current.network].url);
+        console.log(this.network[this.current.network].internalUrl);
+        console.log(this.network[this.current.network].networkId);
       Wallet({
         url: this.network[this.current.network].url,
         internalUrl: this.network[this.current.network].internalUrl,

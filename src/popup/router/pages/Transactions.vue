@@ -31,7 +31,8 @@ export default {
             totalTransactions:0,
             currentCount:0,
             groupedTransactions:{},
-            language: locales['en']
+            language: locales['en'],
+            polling:null
         }
     },
     locales,
@@ -40,11 +41,12 @@ export default {
         showMore() {
             return this.currentCount + 1 <= this.totalTransactions;
         },
-        publicKey() { return this.account.publicKey; }
+        publicKey() { this.loading = true; return this.account.publicKey; }
     },
     created(){
         this.getTotalTransactions();
         this.getTransactions();
+        this.pollData();
     },
     watch:{
         publicKey() {
@@ -55,12 +57,20 @@ export default {
         }
     },
     methods: {
+        pollData() {
+            // this.polling = setInterval(() => {
+            //     this.allTransactions = [];
+            //     this.groupedTransactions = {};
+            //     this.getTotalTransactions();
+            //     this.getTransactions(1);
+            // }, 5000);
+        },
         changeTransactionType(type) {
             this.transactionsType = type;
         },
-        getTransactions(){
+        getTransactions(limit = this.limit){
             this.loading = true;
-            let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,page:this.page,limit:this.limit});
+            let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,page:this.page,limit:limit});
             transactions.then(res => {
                 let grouped = this.groupedTransactions;
                 let count = this.currentCount;
@@ -94,6 +104,9 @@ export default {
         navigateAccount() {
             this.$router.push('/account')
         }
+    },
+    beforeDestroy () {
+	  clearInterval(this.polling)
     }
 }
 </script>

@@ -69,7 +69,9 @@ main {
 .text-right {
   text-align: right;
 }
-
+.text-left {
+  text-align: left;
+}
 .ae-input-container {
   .ae-input-box { 
     background: $input-background !important;
@@ -275,6 +277,9 @@ main {
 .flex-justify-content-arround {
   justify-content: space-around;
 }
+.flex-justify-content-center{
+  justify-content: center;
+}
 .flex-justify-items-left {
   justify-items: left !important;
 }
@@ -319,4 +324,8 @@ main {
   color: #62D9CB; 
   text-transform: uppercase; 
   font-weight: 700;
+}
+.backbutton  .ae-icon {
+  vertical-align: top;
+  line-height: 15px;
 }

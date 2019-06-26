@@ -24,7 +24,7 @@
         <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
       </ae-button-group>
       <br>
-      <ae-button face="round" fill="alternative" disabled extend >{{language.buttons.tipWebsite}}</ae-button>
+      <ae-button face="round" fill="alternative" extend @click="openTipPage">{{language.buttons.tipWebsite}}</ae-button>
     </div>
     <h3>Latest transactions</h3>
     <div v-if="transactions.latest.length && !loading">
@@ -68,10 +68,11 @@ export default {
   },
   watch:{
       publicKey() {
-        this.updateTransactions();
+        // this.updateTransactions();
+        this.loading = true;
       },
       watchBalance() {
-        this.updateTransactions();
+        // this.updateTransactions();
       }
   },
   created () {
@@ -87,8 +88,8 @@ export default {
     pollData() {
       this.polling = setInterval(() => {
         this.$store.dispatch('updateBalance');
-        // 
-      }, 500)
+        this.updateTransactions();
+      }, 1000)
     },
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -111,6 +112,9 @@ export default {
       .then(() => {
          chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => {});
       });
+    },
+    openTipPage() {
+      this.$router.push('/tip');
     }
   },
   beforeDestroy () {
