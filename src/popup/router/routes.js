@@ -7,7 +7,7 @@ import SeedPhraseComponent from './pages/SeedPhrase';
 import TransactionsComponent from './pages/Transactions';
 import TransactionDetailsComponent from './pages/TransactionDetails';
 import SignTransactionComponent from './pages/SignTransaction';
-import ManageAccount from './pages/manageAccounts';
+import ManageAccount from './pages/ManageAccounts';
 import ConfirmPopupmessagesComponent from './pages/ConfirmPopupmessages';
 
 export default [
@@ -65,6 +65,5 @@ export default [
   {
     path:'/manageAccounts',
     component:ManageAccount,
-  },
-
+  }
 ];
