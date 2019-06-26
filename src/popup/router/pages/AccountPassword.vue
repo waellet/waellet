@@ -26,7 +26,7 @@ import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import { mnemonicToSeed } from '@aeternity/bip39';
-import { generateHdWallet } from '../../utils/hdWallet'
+import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet'
 
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title'],
@@ -93,8 +93,8 @@ export default {
             
             if(match !== false) {
                 let wallet = generateHdWallet(match);
-                let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),secretKey:'',publicKey:encryptedPrivateKey.public_key};
-                this.setLogin(keyPair,wallet);
+                let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),secretKey:match,publicKey:encryptedPrivateKey.public_key};
+                this.setLogin(keyPair,wallet,true);
             }else {
                 this.loginError = true;
                 this.errorMsg = "";
@@ -103,23 +103,38 @@ export default {
                 
             }
         },
-        setLogin(keyPair,wallet) {
+        setLogin(keyPair,wallet, fixAccount = false) {
+            if(fixAccount) {
+                let address = getHdWalletAccount(wallet).address;
+                if(address !== keyPair.publicKey) {
+                    keyPair.publicKey = address;
+                    let encPrivateKey = JSON.parse(keyPair.encryptedPrivateKey);
+                    encPrivateKey.publicKey = address;
+                    keyPair.encryptedPrivateKey = JSON.stringify(encPrivateKey);
+                }
+            }
             chrome.storage.sync.set({userAccount: keyPair}, () => {
                 chrome.storage.sync.set({isLogged: true}, () => {
                     chrome.storage.sync.set({wallet: JSON.stringify(wallet)}, () => { 
-                        chrome.storage.sync.set({subaccounts: ''}, () => {
-                            this.$store.dispatch('setSubAccount', {
-                                name:'Main account',
-                                publicKey:keyPair.publicKey
-                            });
+                        let sub = [];
+                        sub.push({
+                            name:'Main account',
+                            publicKey:keyPair.publicKey,
+                            balance:0,
+                            root:true
+                        });
+                        chrome.storage.sync.set({subaccounts: sub}, () => {
                             chrome.storage.sync.set({activeAccount: 0}, () => {
                                 this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
                             });
+                            this.$store.dispatch('setSubAccounts', sub).then(() => {
+                                this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                                this.$store.commit('SWITCH_LOGGED_IN', true);
+                                this.$store.commit('SET_WALLET', wallet);
+                                this.$router.push('/account');
+                            });
                         });
-                        this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                        this.$store.commit('SWITCH_LOGGED_IN', true);
-                        this.$store.commit('SET_WALLET', wallet);
-                        this.$router.push('/account');
+                        
                     });
                 });
             });

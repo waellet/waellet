@@ -11,7 +11,7 @@
                 <!-- IF edit -->
                 <div v-if="subaccount.edit">
                     <ae-input-plain placeholder="Enter name here.." v-model="subaccount.name" />
-                    <button @click="subaccount.edit = !subaccount.edit"><ae-icon name="close" /></button>
+                    <button @click="cancelEdit(index)"><ae-icon name="close" /></button>
                     <button @click="nameSave(index)"><ae-icon name="check" /></button>
                 </div>
             </ae-list-item>
@@ -79,9 +79,13 @@ export default {
                 }
             });
         },
+        cancelEdit(index){
+            let account = this.accounts[index];
+            account.edit = false;
+            account.name = this.subaccounts[index].name;
+        },
         nameSave (index) {
             let account = this.accounts[index];
-            
             if (account.name != "") {
                 let editedAccounts = this.accounts.map(a => {
                     let { edit, ...acc } = a;

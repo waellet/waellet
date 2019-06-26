@@ -24,7 +24,6 @@ export default {
     state.transactions.latest = payload;
   },
   [types.SET_SUBACCOUNT](state, payload) {
-    console.log(payload);
     state.subaccounts.push(payload);
   },
   [types.SET_SUBACCOUNTS](state, payload) {

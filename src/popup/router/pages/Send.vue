@@ -60,13 +60,16 @@ export default {
         block: '',
         url: ''
       },
-      maxValue: (this.balance - MIN_SPEND_TX_FEE).toString(),
       txFee: MIN_SPEND_TX_FEE
     }
   },
   locales,
   computed: {
     ...mapGetters(['account', 'balance', 'network', 'current']),
+    maxValue() {
+      let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
+      return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
+    }
   },
   mounted() {
     this.init()
@@ -74,7 +77,7 @@ export default {
   methods: {
     init() {
       let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
-      this.maxValue = calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0
+      // this.maxValue = calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0
     },
     send () {
       this.loading = true;

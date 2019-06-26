@@ -2,6 +2,8 @@ import {onBeforeLoad} from '../support/mock_chrome.js';
 import {login} from '../login';
 import {prepareEncryptedPrivateKey, ACCOUNT_PASSWORD, PRIVATE_KEY, mnemonic} from '../utils.js';
 
+
+
 describe('Test cases for Generate wallet', () => {
 
     it("generate waellet enter correct password", () => {
@@ -107,4 +109,5 @@ describe('Test cases for Generate wallet', () => {
         .get('.ae-card')
         .should('not.be.visible');
     });
+
 });

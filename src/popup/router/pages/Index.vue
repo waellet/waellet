@@ -72,7 +72,8 @@ import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
-import { generateHdWallet } from '../../utils/hdWallet'
+import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet'
+
 export default {
   name: 'Home',
   data() {
@@ -111,7 +112,7 @@ export default {
       chrome.storage.sync.get('showAeppPopup', data => {
         
         if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
-          console.log(data);
+          
           chrome.storage.sync.set({showAeppPopup:{}}, () => {
             if(data.showAeppPopup.type == 'confirm') {
               this.$router.push({'name':'confirm-share', params: {
@@ -144,7 +145,6 @@ export default {
                         if (data.isLogged && data.hasOwnProperty('isLogged')) {
                           chrome.storage.sync.get('subaccounts', subaccounts => {
                             let sub = [];
-                            console.log(subaccounts);
                             if(!subaccounts.hasOwnProperty('subaccounts') || subaccounts.subaccounts == "" || ( typeof subaccounts.subaccounts == 'object' && !subaccounts.subaccounts.find(f => f.publicKey == user.userAccount.publicKey))) {
                               sub.push({
                                 name: typeof subaccounts.subaccounts != 'undefined' ? subaccounts.subaccounts.name : "Main account",
@@ -158,7 +158,6 @@ export default {
                                 sub.push({...su});
                               });
                             }
-                            console.log(sub);
                             this.$store.dispatch('setSubAccounts', sub);
                             chrome.storage.sync.get('activeAccount', active => {
                               if(active.hasOwnProperty('activeAccount')) {
@@ -253,7 +252,6 @@ export default {
             let context = this;
             reader.onload = function(e){
               try {
-                console.log(e.target.result);
                 let keystore = JSON.parse(e.target.result);
                 context.inputError = {};
                 if(keystore.crypto.ciphertext.length && keystore.crypto.cipher_params.nonce && keystore.crypto.kdf_params.salt.length){
@@ -294,10 +292,12 @@ export default {
           chrome.storage.sync.get('userAccount', async user => {
               this.errorMsg = "";
               if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                  let encPrivateKey = user.userAccount.encryptedPrivateKey;
                   try {
                     JSON.parse(user.userAccount.encryptedPrivateKey);
                   }catch(e) {
                     user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
+                    encPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
                   }
                   let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                   let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
@@ -306,27 +306,42 @@ export default {
                       this.loginError = false;
                       this.inputError = {};
                       let wallet = generateHdWallet(match);
+                      let address = getHdWalletAccount(wallet).address;
+                      let sub = [];
+                      let account = {
+                          name:'Main account',
+                          publicKey:address,
+                          balance:0,
+                          root:true
+                      };
                       chrome.storage.sync.set({isLogged: true}, () => {
                         chrome.storage.sync.set({wallet:JSON.stringify(wallet)},() => {
+                          if(address !== user.userAccount.publicKey) {
+                              user.userAccount.publicKey = address;
+                              user.userAccount.encryptedPrivateKey = encPrivateKey;
+                              chrome.storage.sync.set({userAccount:  user.userAccount}, () => {
+                                sub.push(account);
+                                chrome.storage.sync.set({subaccounts:sub }, () => {
+                                  chrome.storage.sync.set({activeAccount: 0}, () => {
+                                    this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:account.publicKey,index:0});
+                                    this.$store.dispatch('setSubAccounts',sub);
+                                    this.$store.commit('SET_WALLET', wallet);
+                                    this.$store.commit('SWITCH_LOGGED_IN', true);
+                                    this.$router.push('/account');
+                                  });
+                                });
+                              });
+                              return;
+                          }
                           chrome.storage.sync.get('subaccounts',subaccounts => {
-                            let sub = [];
                             if((subaccounts.hasOwnProperty('subaccounts') && subaccounts.subaccounts == "") ||  !subaccounts.hasOwnProperty('subaccounts')){
-                              let account = {
-                                  name:'Main account',
-                                  publicKey:user.userAccount.publicKey,
-                                  balance:0,
-                                  root:true
-                              };
                               sub.push(account);
                               chrome.storage.sync.set({subaccounts:sub }, () => {
-                                  console.log("set account");
-                                  console.log(sub);
                                   chrome.storage.sync.set({activeAccount: 0}, () => {
                                     this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:account.publicKey,index:0});
                                   });
                               });
                             }else {
-                              console.log(subaccounts.subaccounts);
                               sub = subaccounts.subaccounts;
                             }
                             this.$store.dispatch('setSubAccounts',sub).then(() => {

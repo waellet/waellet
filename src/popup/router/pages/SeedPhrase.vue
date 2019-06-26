@@ -142,23 +142,27 @@ export default {
                                     chrome.storage.sync.set({isLogged: true}, async () => {
                                         chrome.storage.sync.set({userAccount: keyPair}, () => {
                                             this.loading = false;
+                                            let sub = [];
+                                            sub.push({
+                                                name:'Main account',
+                                                publicKey:keyPair.publicKey,
+                                                balance:0,
+                                                root:true
+                                            });
                                             chrome.storage.sync.set({accountPassword: ''}, () => {});
                                             chrome.storage.sync.set({mnemonic: ''}, () => {});
                                             chrome.storage.sync.set({confirmSeed: true}, () => {});
                                             chrome.storage.sync.set({wallet: wallet}, () => {});
-                                            chrome.storage.sync.set({subaccounts: ''}, () => {
-                                                this.$store.dispatch('setSubAccount', {
-                                                    name:'Main account',
-                                                    publicKey:keyPair.publicKey
+                                            chrome.storage.sync.set({subaccounts: sub}, () => {
+                                                this.$store.dispatch('setSubAccounts', sub);
+                                                chrome.storage.sync.set({activeAccount: 0}, () => {
+                                                    this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
+                                                    this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                                                    this.$store.commit('SWITCH_LOGGED_IN', true);
+                                                    this.$store.commit('SET_WALLET', wallet);
+                                                    this.$router.push('/account');
                                                 });
                                             });
-                                            chrome.storage.sync.set({activeAccount: 0}, () => {
-                                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
-                                            });
-                                            this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                                            this.$store.commit('SWITCH_LOGGED_IN', true);
-                                            this.$store.commit('SET_WALLET', wallet);
-                                            this.$router.push('/account');
                                         });
                                     });
                                 }

@@ -61,7 +61,18 @@ export default {
     ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount']),
     publicKey() { 
       return this.account.publicKey; 
+    },
+    watchBalance() {
+      return this.balance;
     }
+  },
+  watch:{
+      publicKey() {
+        this.updateTransactions();
+      },
+      watchBalance() {
+        this.updateTransactions();
+      }
   },
   created () {
     this.pollData();
@@ -76,7 +87,7 @@ export default {
     pollData() {
       this.polling = setInterval(() => {
         this.$store.dispatch('updateBalance');
-        this.updateTransactions();
+        // 
       }, 500)
     },
     popupAlert(payload) {

@@ -253,6 +253,7 @@ export default {
         chrome.storage.sync.set({wallet: ''}, () => {
           chrome.storage.sync.set({activeAccount: 0}, () => {
             this.dropdown.settings = false;
+            this.dropdown.account = false;
             this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
             this.$store.commit('UNSET_SUBACCOUNTS');
             this.$store.commit('UPDATE_ACCOUNT', '');
