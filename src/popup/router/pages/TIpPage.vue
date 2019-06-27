@@ -43,9 +43,25 @@
                 <input class="range-slider__range" type="range"  min="1" max="100" step="1"  v-model="finalAmount" @input="setTip" ref="tipSlider">
             </div>
             <h4>Amount to tip</h4>
-            <ae-input label="Tip amount" placeholder="0.0" aemount disabled v-model="finalAmount">
+            <ae-input label="Tip amount" placeholder="0.0" aemount v-model="finalAmount" disabled="true" class="finalAmount">
                 <ae-text slot="header" fill="black">AE</ae-text>
+                <ae-toolbar slot="footer" class="flex-justify-between">
+                   <div>
+                       Transaction fee
+                    </div>
+                    <div>
+                        {{txFee}} AE
+                    </div>
+                </ae-toolbar>
             </ae-input>
+            <div class="flex flex-justify-between balanceInfo">
+                <div>
+                    Balance
+                </div>
+                <div class="balance">
+                    {{balance}}
+                </div>
+            </div>
             <ae-button face="round" fill="alternative" extend class="sendTip" @click="sendTip">Send tip</ae-button>
         </div>
     </div>
@@ -56,6 +72,7 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { extractHostName } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
+import BigNumber from 'bignumber.js';
 
 export default {
     data() {
@@ -69,7 +86,8 @@ export default {
             selectedTip:0,
             tipAmount:0,
             finalAmount:1,
-            showSlider:false
+            showSlider:false,
+            txFee:MIN_SPEND_TX_FEE
         }
     },
     locales,
@@ -125,10 +143,13 @@ export default {
         },
         sendTip() {
             let amount = this.finalAmount;
-            if (this.maxValue - amount <= 0) {
+            
+            if (this.maxValue - amount <= 0 || isNaN (amount) || amount <= 0) {
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
                 return;
             } 
+            amount = BigNumber(amount).shiftedBy(MAGNITUDE);
+            
         },
         setTip(e) {
             this.finalAmount = e.target.value;
@@ -180,12 +201,13 @@ export default {
     }
     .ae-icon {
         color: #fff !important;
-        width: 16px !important;
-        height: 16px !important;
+        width: 14px !important;
+        height: 14px !important;
         font-size: 0.8rem;
     }
     .verifyRow {
         display:inline-block;
+        font-size:1rem;
     }
     .verified {
         color:$color-alternative;
@@ -377,6 +399,11 @@ input::-moz-focus-inner,
 input::-moz-focus-outer { 
   border: 0; 
 }
-
+.balanceInfo {
+    margin-top:15px;
+    .balance {
+        font-weight:bold;
+    }
+}
 
 </style>

@@ -27,9 +27,14 @@ export default {
           commit(types.UPDATE_BALANCE, convertToAE(balance) );
         })
         .catch(e => {
+          console.log(e);
           commit(types.UPDATE_BALANCE, convertToAE(0) );
         });
-        state.subaccounts.forEach((sub,index) => {
+    });
+  },
+  updateBalanceSubaccounts({ commit, state }) {
+    state.aeAPI.then(ae => {
+      state.subaccounts.forEach((sub,index) => {
           ae.balance(sub.publicKey)
           .then(balance => {
             commit(types.UPDATE_SUBACCOUNTS_BALANCE, { account:index, balance: convertToAE(balance) } );
@@ -37,7 +42,7 @@ export default {
           .catch(e => {
             commit(types.UPDATE_SUBACCOUNTS_BALANCE, { account:index, balance:  convertToAE(0) } );
           });
-        });
+      });
     });
   },
   popupAlert({ commit }, payload) {

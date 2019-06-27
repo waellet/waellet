@@ -24,7 +24,7 @@
         <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
       </ae-button-group>
       <br>
-      <ae-button face="round" fill="alternative" extend @click="openTipPage">{{language.buttons.tipWebsite}}</ae-button>
+      <ae-button face="round" fill="alternative" class="toTipping" extend @click="openTipPage">{{language.buttons.tipWebsite}}</ae-button>
     </div>
     <h3>Latest transactions</h3>
     <div v-if="transactions.latest.length && !loading">
@@ -47,6 +47,7 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { setInterval, setTimeout, setImmediate } from 'timers';
 import { getTranscationByPublicAddress }  from '../../utils/transactions';
+import { getHdWalletAccount } from '../../utils/hdWallet';
 export default {
   name: 'Account',
   data () {
@@ -54,7 +55,8 @@ export default {
       polling: null,
       language: locales['en'],
       loading:true,
-      accountName:''
+      accountName:'',
+      pollingTransaction:null
     }
   },
   computed: {
@@ -68,8 +70,8 @@ export default {
   },
   watch:{
       publicKey() {
-        // this.updateTransactions();
         this.loading = true;
+        this.updateTransactions();
       },
       watchBalance() {
         // this.updateTransactions();
@@ -88,8 +90,12 @@ export default {
     pollData() {
       this.polling = setInterval(() => {
         this.$store.dispatch('updateBalance');
-        this.updateTransactions();
-      }, 1000)
+        // this.$store.dispatch('updateBalanceSubaccounts');
+      }, 1000);
+      this.pollingTransaction = setInterval(() => {
+        this.$store.dispatch('updateBalanceSubaccounts');
+        // this.updateTransactions();
+      }, 5000);
     },
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -118,7 +124,8 @@ export default {
     }
   },
   beforeDestroy () {
-	  clearInterval(this.polling)
+    clearInterval(this.polling)
+    clearInterval(this.pollingTransaction)
   },
 }
 </script>

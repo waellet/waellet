@@ -43,7 +43,7 @@ import { MemoryAccount } from '@aeternity/aepp-sdk';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
-
+import { getHdWalletAccount } from '../../utils/hdWallet';
 export default {
   name: 'Send',
   data() {
@@ -65,7 +65,7 @@ export default {
   },
   locales,
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current']),
+    ...mapGetters(['account', 'balance', 'network', 'current', 'wallet','activeAccount']),
     maxValue() {
       let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
       return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -100,59 +100,52 @@ export default {
         return;
       } 
       try {
-        console.log(receiver);
-        console.log(this.account.secretKey);
-        console.log(this.account.publicKey);
-        console.log(amount);
-        console.log(this.network[this.current.network].url);
-        console.log(this.network[this.current.network].internalUrl);
-        console.log(this.network[this.current.network].networkId);
-      Wallet({
-        url: this.network[this.current.network].url,
-        internalUrl: this.network[this.current.network].internalUrl,
-        accounts: [
-          MemoryAccount({
-            keypair: {
-              secretKey: this.account.secretKey,
-              publicKey: this.account.publicKey
-            },
-            networkId: this.network[this.current.network].networkId
+        Wallet({
+          url: this.network[this.current.network].url,
+          internalUrl: this.network[this.current.network].internalUrl,
+          accounts: [
+            MemoryAccount({
+              keypair: {
+                secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey,
+                publicKey: this.account.publicKey
+              },
+              networkId: this.network[this.current.network].networkId
+            })
+          ],
+          address: this.account.publicKey,
+          onTx: confirm, // guard returning boolean
+          onChain: confirm, // guard returning boolean
+          onAccount: confirm, // guard returning boolean
+          onContract: confirm, // guard returning boolean
+          networkId: this.network[this.current.network].networkId
+        })
+        .then(ae => {
+          ae.spend(parseInt(amount), receiver).then(result => {
+            if(typeof result == "object") {
+              let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash;
+              // this.tx.status = true;
+              this.tx.hash = result.hash;
+              this.tx.block = result.blockNumber;
+              this.tx.url = txUrl;
+            
+              let msg = 'You send ' + this.form.amount + ' AE';
+              this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl});
+              this.clearForm();
+            }
+            else {
+              alert("error");
+            }
           })
-        ],
-        address: this.account.publicKey,
-        onTx: confirm, // guard returning boolean
-        onChain: confirm, // guard returning boolean
-        onAccount: confirm, // guard returning boolean
-        onContract: confirm, // guard returning boolean
-        networkId: this.network[this.current.network].networkId
-      })
-      .then(ae => {
-        ae.spend(parseInt(amount), receiver).then(result => {
-          if(typeof result == "object") {
-            let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash;
-            // this.tx.status = true;
-            this.tx.hash = result.hash;
-            this.tx.block = result.blockNumber;
-            this.tx.url = txUrl;
-           
-            let msg = 'You send ' + this.form.amount + ' AE';
-            this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl});
-            this.clearForm();
-          }
-          else {
-            alert("error");
-          }
+          .catch(err => {
+            console.log(err);
+            this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'});
+            this.loading = false;
+            return;
+          });
         })
         .catch(err => {
           console.log(err);
-          this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'});
-          this.loading = false;
-          return;
         });
-      })
-      .catch(err => {
-        console.log(err);
-      });
       }catch(err) {
         console.log(err);
       }
