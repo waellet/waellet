@@ -238,6 +238,9 @@ main {
   margin-top:2em;
   margin-bottom:2em;
 }
+.mb-0 {
+  margin-bottom:0 !important;
+}
 .mb-1 {
   margin-bottom:1rem;
 }
@@ -286,7 +289,9 @@ main {
 .flex-align-center { 
   align-items: center;
 }
-
+.flex-align-start { 
+  align-items: flex-start !important;
+}
 .transactionOutgoing {
   background:$color-secondary !important;
   color:#fff !important;
@@ -328,4 +333,7 @@ main {
 .backbutton  .ae-icon {
   vertical-align: top;
   line-height: 15px;
+}
+.filterModal .ae-modal-light {
+  width:100% !important;
 }

@@ -45,7 +45,9 @@ export default new Vuex.Store({
     },
     isLoggedIn:false,
     transactions: {
-      latest:[]
+      latest:[],
+      all:[],
+      new:[]
     }
   },
   getters,

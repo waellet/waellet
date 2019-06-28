@@ -114,6 +114,9 @@ export default {
   updateLatestTransactions({ commit }, payload) {
     commit(types.UPDATE_LATEST_TRANSACTIONS, payload);
   },
+  updateAllTransactions({commit, state}, payload) {
+    commit(types.UPDATE_ALL_TRANSACTIONS,payload);
+  },
   setAccountName({ commit , state}, payload) {
     commit(types.SET_ACCOUNT_NAME, payload);
   }

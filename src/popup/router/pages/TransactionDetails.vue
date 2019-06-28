@@ -101,4 +101,7 @@ export default {
 .text-left {
     text-align: left;
 }
+.transactionList {
+    margin-bottom:45px !important;
+}
 </style>

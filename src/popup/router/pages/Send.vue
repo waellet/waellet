@@ -8,20 +8,46 @@
       <div class="sendContent">
         <div class="address">
           <ae-address-input v-model="form.address" />
-          <ae-text class='addresslbl' slot="header">Address </ae-text>
+          <ae-text class='addresslbl' slot="header">Recipient </ae-text>
+        </div>
+        <div>
+          <p>or send to subaccount</p>
+          <ae-list class="sendSubaccount">
+            <ae-list-item v-for="(account,index) in sendSubaccounts" @click="selectSendSubaccount(account)" fill="neutral" :key="index" class=" flex-align-center">
+              <ae-identicon class="subAccountIcon" v-bind:address="account.publicKey" size="base" />
+              <div class="subAccountInfo flex flex-align-start flex-direction-column ">
+                <div class="subAccountName">{{account.name}}</div>
+                <div class="subAccountBalance">{{account.balance}} AE</div>
+              </div>
+            </ae-list-item>
+          </ae-list>
         </div>
         <div class="amount" v-if="!tx.status">
-          <ae-input :label="language.strings.amount" aemount v-model="form.amount" class="sendAmount">
+          <ae-input :label="language.strings.amount" placeholder="0.0" aemount v-model="form.amount" class="sendAmount">
             <ae-text slot="header" fill="black">AE</ae-text>
+            <ae-toolbar slot="footer" class="flex-justify-between">
+              <span>
+                  {{language.strings.txFee}}
+              </span>
+              <span>
+                  {{txFee}} AE
+              </span>
+          </ae-toolbar>
           </ae-input>
-          <p>{{language.strings.maxSpendableValue}} {{maxValue}}</p>
-          <p>{{language.strings.txFee}} {{txFee}}</p>
+          <div class="flex flex-justify-between balanceInfo">
+              <div>
+                  {{language.strings.maxSpendableValue}}
+              </div>
+              <div class="balance">
+                  {{balance}}
+              </div>
+          </div>
         </div>
         <div>
           <ae-button face="round" fill="primary" class="sendBtn extend" @click="send">{{language.buttons.send}}</ae-button>
         </div>
       </div>
-
+     
       <div v-if="loading" class="loading">
         <ae-loader />
       </div>
@@ -65,10 +91,14 @@ export default {
   },
   locales,
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current', 'wallet','activeAccount']),
+    ...mapGetters(['account', 'balance', 'network', 'current', 'wallet','activeAccount','subaccounts']),
     maxValue() {
       let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
       return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
+    },
+    sendSubaccounts() {
+      let subs = this.subaccounts.filter(sub => sub.publicKey != this.account.publicKey);
+      return subs.length == 0 ? false : subs;
     }
   },
   mounted() {
@@ -163,6 +193,9 @@ export default {
     },
     openExplorer(url) {
       chrome.tabs.create({url,active:false});
+    },
+    selectSendSubaccount(account) {
+      this.form.address = account.publicKey;
     }
   }
 }
@@ -200,12 +233,18 @@ export default {
   outline: none;
 }
 .address p {
-  position: absolute;
-  top: 5px;
-  left: 15px;
-  font-size: 11px;
-  color: #76818c;
-  font-weight: 100;
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 11px;
+    color: #76818c;
+    font-weight: 100;
+    width: 100%;
+    text-align: left;
+    padding-left: 15px;
+    background: #ececec;
 }
-
+.sendSubaccount .ae-list-item {
+  cursor:pointer !important;
+}
 </style>

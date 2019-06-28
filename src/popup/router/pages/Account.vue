@@ -9,7 +9,7 @@
       <template slot="header">
         <ae-text fill="white" face="mono-base">{{balance}} AE</ae-text>
       </template>
-      <ae-address :value="account.publicKey" length="medium" gap=0 />
+      <ae-address :value="account.publicKey" copyOnClick enableCopyToClipboard length="medium" gap=0 />
       <ae-toolbar fill="primary" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert({ name: 'account', type: 'publicKeyCopied' })">
           <ae-icon name="copy" />
@@ -94,7 +94,7 @@ export default {
       }, 1000);
       this.pollingTransaction = setInterval(() => {
         this.$store.dispatch('updateBalanceSubaccounts');
-        // this.updateTransactions();
+        this.updateTransactions();
       }, 5000);
     },
     popupAlert(payload) {
@@ -135,5 +135,8 @@ export default {
 
 .paragraph {
   font-weight: normal;
+}
+.transactionHistory {
+  margin-top:1rem;
 }
 </style>
