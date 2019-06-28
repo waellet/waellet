@@ -109,7 +109,7 @@ export default {
     setAccountName(e) {
       this.$store.dispatch('setAccountName', e.target.value)
       .then(() => {
-         chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => {});
+         browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {});
       });
     }
   },

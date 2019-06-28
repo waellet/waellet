@@ -4,13 +4,15 @@
             <div class="popup">
                 <div v-if="!loading">
                     <h3>{{title}}</h3>
+                    <password v-if="confirmPassword" v-model="accountPassword" strength-meter-class="passwordStrengthMeter" :strength-meter-only="true" @score="getScore"/>
                     <ae-input  placeholder="" class="my-2" label="Password" v-bind="inputError">
-                        <input type="password" class="ae-input" min="4"  v-model="accountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                        <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest 4 symbols! </ae-toolbar>
+                        <input type="password" class="ae-input" :min="minPasswordLength"  v-model="accountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                        <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest {{ minPasswordLength }} symbols! </ae-toolbar>
+                        <ae-toolbar v-if="errorMsg == 'weak'" slot="footer">Too weak password!</ae-toolbar>
                         <ae-toolbar v-if="loginError" slot="footer">Incorrect password !</ae-toolbar>
                     </ae-input>
-                    <ae-input  v-if="confirmPassword"   placeholder="" class="my-2" label="Repeat Password" v-bind="inputError">
-                        <input type="password" class="ae-input" min="4" v-model="confirmAccountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                    <ae-input  v-if="confirmPassword" placeholder="" class="my-2" label="Repeat Password" v-bind="inputError">
+                        <input type="password" class="ae-input" :min="minPasswordLength" v-model="confirmAccountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar v-if="errorMsg == 'match'" slot="footer">Passwords doesn't match! </ae-toolbar>
                     </ae-input>
                     <ae-button face="round" extend fill="primary" @click="clickAction({accountPassword,data,confirmAccountPassword})">{{buttonTitle}}</ae-button>
@@ -20,16 +22,18 @@
         </main>
     </div>
 </template>
-
 <script>
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import { mnemonicToSeed } from '@aeternity/bip39';
-import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet'
+import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet';
+import { MINPASSWORDLENGTH } from '../../utils/constants';
+import Password from 'vue-password-strength-meter';
 
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title'],
+    components: { Password },
     data() {
         return {
             language: locales['en'],
@@ -38,19 +42,27 @@ export default {
             inputError:{},
             loading:false,
             errorMsg:'',
-            loginError:false
+            loginError:false,
+            minPasswordLength: MINPASSWORDLENGTH,
+            passwordScore: 0
         }
     },
     locales,
     methods: {
+        getScore(score) {
+            this.passwordScore = score;
+        },
         clickAction({accountPassword,data,confirmAccountPassword}) {
-            if((this.confirmPassword && accountPassword !== confirmAccountPassword) || accountPassword.length < 4 || (this.confirmPassword && confirmAccountPassword < 4))  {
+            if((this.confirmPassword && accountPassword !== confirmAccountPassword) || accountPassword.length < this.minPasswordLength || (this.confirmPassword && confirmAccountPassword < this.minPasswordLength))  {
                 this.inputError = {error:""};
-                if(accountPassword.length < 4 || (this.confirmPassword && confirmAccountPassword < 4)){
+                if(accountPassword.length < this.minPasswordLength || (this.confirmPassword && confirmAccountPassword < this.minPasswordLength)){
                     this.errorMsg = "length";
                 }
                 if(this.confirmPassword && accountPassword !== confirmAccountPassword) {
                     this.errorMsg = "match";
+                }
+                if(this.passwordScore < 3) {
+                    this.errorMsg = "weak";
                 }
                 return;
             }
@@ -113,9 +125,9 @@ export default {
                     keyPair.encryptedPrivateKey = JSON.stringify(encPrivateKey);
                 }
             }
-            chrome.storage.sync.set({userAccount: keyPair}, () => {
-                chrome.storage.sync.set({isLogged: true}, () => {
-                    chrome.storage.sync.set({wallet: JSON.stringify(wallet)}, () => { 
+            browser.storage.sync.set({userAccount: keyPair}).then(() => {
+                browser.storage.sync.set({isLogged: true}).then(() => {
+                    browser.storage.sync.set({wallet: JSON.stringify(wallet)}).then(() => { 
                         let sub = [];
                         sub.push({
                             name:'Main account',
@@ -123,8 +135,8 @@ export default {
                             balance:0,
                             root:true
                         });
-                        chrome.storage.sync.set({subaccounts: sub}, () => {
-                            chrome.storage.sync.set({activeAccount: 0}, () => {
+                        browser.storage.sync.set({subaccounts: sub}).then(() => {
+                            browser.storage.sync.set({activeAccount: 0}).then(() => {
                                 this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
                             });
                             this.$store.dispatch('setSubAccounts', sub).then(() => {
@@ -141,7 +153,7 @@ export default {
         },
         generateAddress: async function generateAddress({ accountPassword }) {
             this.loading = true;
-            chrome.storage.sync.set({accountPassword: accountPassword}, () => {
+            browser.storage.sync.set({accountPassword: accountPassword}).then(() => {
                  this.$router.push('/seed');
             });
         },
@@ -151,5 +163,4 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import '../../../common/base';
-
 </style>

@@ -166,7 +166,7 @@ export default {
       this.$router.push('/account')
     },
     openExplorer(url) {
-      chrome.tabs.create({url,active:false});
+      browser.tabs.create({url,active:false});
     }
   }
 }

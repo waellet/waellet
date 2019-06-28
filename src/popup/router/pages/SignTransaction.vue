@@ -48,7 +48,7 @@ export default {
 
     },
     mounted() {
-        chrome.storage.sync.set({pendingTransaction:{data:this.data}}, () => { });
+        browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { });
     },
     computed: {
         ...mapGetters(['account']),
@@ -61,8 +61,8 @@ export default {
     },
     methods: {
         cancelTransaction() {
-            chrome.storage.sync.set({pendingTransaction:''}, () => { });
-            chrome.storage.sync.get('showAeppPopup', data => {
+            browser.storage.sync.set({pendingTransaction:''}).then(() => { });
+            browser.storage.sync.get('showAeppPopup', data => {
                 if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
                    
                 }else {
@@ -71,7 +71,7 @@ export default {
             });
         },
         signTransaction() {
-            chrome.storage.sync.set({pendingTransaction:''}, () => { });
+            browser.storage.sync.set({pendingTransaction:''}).then(() => { });
         }
     }
 }
