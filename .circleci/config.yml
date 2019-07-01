@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:10.16-browsers
+      - image: circleci/node:latest
     working_directory: /home/circleci/project
     steps:
       - checkout
@@ -52,6 +52,12 @@ jobs:
       - run:
           name: Link Cypress Binary
           command: ln -s /home/circleci/.cache ~/.cache
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - run:
+          name: Build Application
+          command: npm run build
       - run:
           name: Run Acceptance Tests
           command: npm run test
