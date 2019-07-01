@@ -23,7 +23,7 @@ export const getHdWalletAccount = (wallet, accountIdx = 0) => {
     }
     
     const keyPair = getKeyPair(derivePathFromKey(`${accountIdx}h/0h/0h`, wallet).privateKey);
-    
+
     return {
         ...keyPair,
         idx:accountIdx,

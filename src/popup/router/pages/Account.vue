@@ -9,7 +9,7 @@
       <template slot="header">
         <ae-text fill="white" face="mono-base">{{balance}} AE</ae-text>
       </template>
-      <ae-address :value="account.publicKey" length="medium" gap=0 />
+      <ae-address :value="account.publicKey" copyOnClick enableCopyToClipboard length="medium" gap=0 />
       <ae-toolbar fill="primary" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert({ name: 'account', type: 'publicKeyCopied' })">
           <ae-icon name="copy" />
@@ -24,7 +24,7 @@
         <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
       </ae-button-group>
       <br>
-      <ae-button face="round" fill="alternative" disabled extend >{{language.buttons.tipWebsite}}</ae-button>
+      <ae-button face="round" fill="alternative" class="toTipping" extend @click="openTipPage">{{language.buttons.tipWebsite}}</ae-button>
     </div>
     <h3>Latest transactions</h3>
     <div v-if="transactions.latest.length && !loading">
@@ -47,6 +47,7 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { setInterval, setTimeout, setImmediate } from 'timers';
 import { getTranscationByPublicAddress }  from '../../utils/transactions';
+import { getHdWalletAccount } from '../../utils/hdWallet';
 export default {
   name: 'Account',
   data () {
@@ -54,7 +55,8 @@ export default {
       polling: null,
       language: locales['en'],
       loading:true,
-      accountName:''
+      accountName:'',
+      pollingTransaction:null
     }
   },
   computed: {
@@ -68,10 +70,11 @@ export default {
   },
   watch:{
       publicKey() {
+        this.loading = true;
         this.updateTransactions();
       },
       watchBalance() {
-        this.updateTransactions();
+        // this.updateTransactions();
       }
   },
   created () {
@@ -87,8 +90,12 @@ export default {
     pollData() {
       this.polling = setInterval(() => {
         this.$store.dispatch('updateBalance');
-        // 
-      }, 500)
+        // this.$store.dispatch('updateBalanceSubaccounts');
+      }, 1000);
+      this.pollingTransaction = setInterval(() => {
+        this.$store.dispatch('updateBalanceSubaccounts');
+        this.updateTransactions();
+      }, 5000);
     },
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -109,12 +116,16 @@ export default {
     setAccountName(e) {
       this.$store.dispatch('setAccountName', e.target.value)
       .then(() => {
-         chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => {});
+         browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {});
       });
+    },
+    openTipPage() {
+      this.$router.push('/tip');
     }
   },
   beforeDestroy () {
-	  clearInterval(this.polling)
+    clearInterval(this.polling)
+    clearInterval(this.pollingTransaction)
   },
 }
 </script>
@@ -124,5 +135,8 @@ export default {
 
 .paragraph {
   font-weight: normal;
+}
+.transactionHistory {
+  margin-top:1rem;
 }
 </style>

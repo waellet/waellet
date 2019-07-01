@@ -2,7 +2,7 @@
     <div>
         <ae-list class="spendTxDetailsList">
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
-                <div class="flex flex-align-center">
+                <div class="flex flex-align-center accountFrom">
                     <ae-identicon :address="data.senderId" />
                     <ae-address :value="data.senderId" length="short" class="spendAccountAddr" />
                 </div>
@@ -10,7 +10,7 @@
                 <div class="arrowSeprator">
                     <ae-icon name="left-more" />
                 </div>
-                <div class="flex flex-align-center">
+                <div class="flex flex-align-center accountTo">
                     <ae-identicon :address="data.recipientId" />
                     <ae-address :value="data.recipientId" length="short" class="spendAccountAddr" />
                 </div>
@@ -20,7 +20,7 @@
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div>Transaction fee</div>
-                <div class="balance balanceBig">{{fee}}</div>
+                <div class="balance balanceBig txFee">{{fee}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div>Total</div>
@@ -36,7 +36,8 @@
 
 <script>
 import locales from '../../locales/locales.json'
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
+import { convertToAE } from '../../utils/helper';
 
 export default {
     data(){
@@ -48,21 +49,21 @@ export default {
 
     },
     mounted() {
-        chrome.storage.sync.set({pendingTransaction:{data:this.data}}, () => { });
+        browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { });
     },
     computed: {
         ...mapGetters(['account']),
         amount() {
-            return this.data.amount / 10 ** 18;
+            return convertToAE(this.data.amount)
         },
         fee() {
-            return this.data.fee / 10 ** 18;
+            return convertToAE(this.data.fee)
         }
     },
     methods: {
         cancelTransaction() {
-            chrome.storage.sync.set({pendingTransaction:''}, () => { });
-            chrome.storage.sync.get('showAeppPopup', data => {
+            browser.storage.sync.set({pendingTransaction:''}).then(() => { });
+            browser.storage.sync.get('showAeppPopup', data => {
                 if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
                    
                 }else {
@@ -71,7 +72,7 @@ export default {
             });
         },
         signTransaction() {
-            chrome.storage.sync.set({pendingTransaction:''}, () => { });
+            browser.storage.sync.set({pendingTransaction:''}).then(() => { });
         }
     }
 }
@@ -105,8 +106,13 @@ export default {
     height: 20px;
     text-align: center;
     vertical-align: middle;
-    padding-left: 2px;
+    padding-left: 1px;
+    padding-top:2px;
     border: 1px solid #d8d8d8;
+}
+.arrowSeprator .ae-icon {
+    font-size:1.2rem !important;
+    float:none !important;
 }
 .whiteBg {
     background:#fff;

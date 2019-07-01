@@ -49,7 +49,7 @@ import { getHdWalletAccount } from '../../utils/hdWallet';
 export default {
     data () {
         return {
-            logo_top: chrome.runtime.getURL('../../../icons/icon_48.png'),
+            logo_top: browser.runtime.getURL('../../../icons/icon_48.png'),
             language: locales['en'],
             locales: locales,
             new_accname: '',
@@ -92,7 +92,7 @@ export default {
                     return acc;
                 });
                 this.$store.dispatch('setSubAccounts', editedAccounts).then(() => {
-                    chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => { });
+                    browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => { });
                 });
                 account.edit = false;
             }
@@ -120,13 +120,13 @@ export default {
                     root:false,
                     balance:0
                 }).then(() => {
-                    chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => {
+                    browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {
                         this.$store.dispatch('popupAlert', {
                             name: 'account',
                             type: 'added_success'
                         }).then(() => {
                             let index =  this.subaccounts.length - 1;
-                            chrome.storage.sync.set({activeAccount: index }, () => {
+                            browser.storage.sync.set({activeAccount: index }).then(() => {
                                 this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:public_K,index:index});
                             });
                             this.setAccounts();
@@ -154,8 +154,8 @@ export default {
 .ae-list-item { cursor: default !important; }
 .ae-list-item .ae-icon { float: right; font-size: 1.2rem; }
 // .ae-icon-edit, .ae-icon-plus { color: #00b6ff !important; }
-.ae-icon-check { color: #13b100 !important; }
-.ae-icon-close { color: #b10000 !important; }
+#manageAccounts .ae-icon-check { color: #13b100 !important; }
+#manageAccounts .ae-icon-close { color: #b10000 !important; }
 .editaccount div, .addaccount div { width: 100%; }
 .editaccount div span, .editaccount div input, .addaccount div span { float: left; }
 .editaccount div button, .addaccount div button { float: right; }

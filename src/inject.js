@@ -8,11 +8,11 @@ const readyStateCheckInterval = setInterval(function () {
         window.addEventListener("message", ({data}) => {
             console.log("tuk");
             // Handle message from page and redirect to background script
-            chrome.runtime.sendMessage({ method: 'pageMessage', data })
+            browser.runtime.sendMessage({ method: 'pageMessage', data })
         }, false)
 
         // Handle message from background and redirect to page
-        chrome.runtime.onMessage.addListener(({ data }, sender) => {
+        browser.runtime.onMessage.addListener(({ data }, sender) => {
             window.postMessage(data, '*')
         })
     }
@@ -20,7 +20,7 @@ const readyStateCheckInterval = setInterval(function () {
 
 
 function sendToBackground(method, params) {
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
         jsonrpc: "2.0",
         id: null,
         method,

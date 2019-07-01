@@ -35,7 +35,7 @@
             </button>
             <transition name="slide-fade">
               <ae-list v-if="dropdown.account" class="dropdown-holder">
-                <ae-list-item fill="neutral"  @click="changeAccount(index,subaccount)" :class="activeAccount == index ? 'activeAccount' : '' " v-for="(subaccount,index) in subaccounts">
+                <ae-list-item fill="neutral"  @click="changeAccount(index,subaccount)" :class="activeAccount == index ? 'activeAccount' : '' " v-for="(subaccount,index) in subaccounts" v-bind:key="index">
                     <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
                     <div class="subAccountInfo">
                       <div class="subAccountName">{{subaccount.name}}</div>
@@ -91,7 +91,7 @@
                   <!-- Language sub dropdown -->
                   <ul class="sub-dropdown">
                     <li v-for="(value, name) in locales" v-bind:key="name">
-                      <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd">
+                      <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd" :class="current.language == name ? 'current' : ''">
                         <img :src="'../icons/flag_'+name+'.png'" />
                         {{ name }}
                       </ae-button>
@@ -157,7 +157,7 @@ export default {
   
   data () {
     return {
-      logo_top: chrome.runtime.getURL('../../../icons/icon_48.png'),
+      logo_top: browser.runtime.getURL('../../../icons/icon_48.png'),
       language: locales['en'],
       locales: locales,
       dropdown: {
@@ -175,14 +175,14 @@ export default {
       return this.popup.type == 'error' ? 'primary' : 'alternative';
     },
     extensionVersion() {
-      return 'v.' + chrome.app.getDetails().version + 'beta'
+      return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
   },
   created: function () {
-      chrome.storage.sync.set({language: 'en'}, () => {
+      browser.storage.sync.set({language: 'en'}).then(() => {
         this.language = locales['en'];
       });
-      // chrome.storage.sync.get('language', langChoose => {
+      // browser.storage.sync.get('language', langChoose => {
       //   this.language = locales[langChoose.language];
       // });
        // fetch api one time
@@ -203,7 +203,7 @@ export default {
       }, 1000);
     },
     changeAccount (index,subaccount) {
-      chrome.storage.sync.set({activeAccount: index}, () => {
+      browser.storage.sync.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
       });
     },
@@ -234,8 +234,9 @@ export default {
       this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
     },
     switchLanguage(languageChoose) {
-      chrome.storage.sync.set({language: languageChoose}, () => {
+      browser.storage.sync.set({language: languageChoose}).then(() => {
         this.language = locales[languageChoose];
+        this.current.language = languageChoose;
       });
     },
     switchNetwork (network) {
@@ -249,9 +250,9 @@ export default {
       }); 
     },
     logout () {
-      chrome.storage.sync.set({isLogged: false}, () => {
-        chrome.storage.sync.set({wallet: ''}, () => {
-          chrome.storage.sync.set({activeAccount: 0}, () => {
+      browser.storage.sync.set({isLogged: false}).then(() => {
+        browser.storage.sync.set({wallet: ''}).then(() => {
+          browser.storage.sync.set({activeAccount: 0}).then(() => {
             this.dropdown.settings = false;
             this.dropdown.account = false;
             this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
@@ -297,7 +298,7 @@ export default {
       this[this.popup.secondBtnClick]();
     },
     showTransaction(){
-      chrome.tabs.create({url: this.popup.data, active: false});
+      browser.tabs.create({url: this.popup.data, active: false});
     },
     fetchApi() {
       let states = this.$store.state;
@@ -318,7 +319,14 @@ export default {
 
 <style lang="scss">
 @import '../common/base';
-.fadeOut-enter-active, .fadeOut-leave-active { transition: all 1s ease-in-out; }
+@-moz-document url-prefix() {
+  html { scrollbar-width: none; }
+}
+// ::-webkit-scrollbar { 
+//     display: none; 
+// }
+.ae-main { width: 380px; }
+.fadeOut-enter-active, .fadeOut-leave-active { transition: all .5s ease-in-out; }
 .fadeOut-leave-to { opacity: 0; }
 .mainLoader { position: fixed; width: 100%; height: 100%; background-color: #FFF; top: 0; }
 .mainLoader .ae-loader { position: absolute; top: 50%; left: 50%; margin: -1.5em; width: 3em !important; height: 3em !important; border-radius: 3em !important; }
@@ -343,10 +351,10 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account  > button { width: 120px; }
 #account .dropdown-button-icon.ae-identicon.base { height: 1.8rem; margin-bottom: 3px; vertical-align: top; }
 #account .ae-dropdown-button .dropdown-button-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#account .subAccountIcon { margin-right: 10px; }
-#account .subAccountName { /*width: 110px; line-height: 28px;*/ color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold;}
-#account .subAccountBalance { font-family: monospace; }
-#account .subAccountInfo { margin-right:auto;  }
+.subAccountIcon { margin-right: 10px; }
+.subAccountName { /*width: 110px; line-height: 28px;*/ color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important;}
+.subAccountBalance { font-family: monospace; margin-bottom:0 !important;}
+.subAccountInfo { margin-right:auto; margin-bottom:0 !important; }
 #account .subAccountCheckbox { float: right; }
 #account li { padding:0.75rem; cursor:pointer !important; }
 #account ul { width:250px; margin:0; transform:translateX(-50%); -webkit-transform:translateX(-50%); -ms-transform:translateX(-50%); }
@@ -361,6 +369,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .ae-check > input[type="radio"]:checked + .ae-check-button:before, .ae-check > input[type="checkbox"]:checked + .ae-check-button:before { border-color: #dae1ea !important; }
 #settings li .ae-icon { font-size: 1.2rem; margin-right: 10px; }
 #languages .ae-button img { margin-right: 5px; }
+#languages .ae-button.current { text-decoration: underline; }
 .dropdown { display: inline-block; position: relative; vertical-align: top; }
 .dropdown[direction="left"] ul { left: 0; }
 .dropdown[direction="right"] ul { right: 0; }
@@ -388,4 +397,11 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .slide-fade-leave-to { transform: translateY(-50px); opacity: 0; }
 .extensionVersion { color: #909090; display:block;text-align:center; padding:1.5rem 1rem; }
 .extensionVersionTop { padding: 0; display: inline-block; font-size: 1rem; line-height: 12px; font-weight: normal; }
+.Password .passwordStrengthMeter { position: relative; height: 5px; }
+.Password + .ae-input-container { margin-top: 0 !important; }
+.Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="0"] { background: $primary-color }
+.Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="1"] { background: #d728b3 }
+.Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="2"] { background: #9d3fc0 }
+.Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="3"] { background: #1d7fe2 }
+.Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="4"] { background: $color-alternative }
 </style>
