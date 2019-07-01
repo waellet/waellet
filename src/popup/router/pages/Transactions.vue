@@ -72,6 +72,7 @@
 import locales from '../../locales/locales.json';
 import {mapGetters} from 'vuex';
 import { groupBy,orderBy } from 'lodash-es'; 
+import { clearInterval } from 'timers';
 export default {
     data() {
         return {
@@ -79,7 +80,7 @@ export default {
             allTransactions:[],
             loading:true,
             page:1,
-            limit:100,
+            limit:5,
             showMoreBtn:true,
             totalTransactions:0,
             currentCount:0,
@@ -92,7 +93,8 @@ export default {
             filter:{
                 spendType:'spendTx',
                 direction:''
-            }
+            },
+            upadateInterval:null
         }
     },
     locales,
@@ -131,6 +133,21 @@ export default {
             this.$store.commit('RESET_TRANSACTIONS',[]);
             this.getTransactions('load');
             this.showMoreBtn = true;
+        },
+        'filter.direction': function (newValue,oldValue) {
+            if(this.filter.direction == 'inocming' || this.filter.direction == 'outgoing') {
+                this.updateInterval = setInterval(() => {
+                    let txs = this.filter.direction == 'incoming' ? this.transactions.all.filter(tx => tx.tx.recipient_id == this.account.publicKey) :  this.transactions.all.filter(tx => tx.tx.sender_id == this.account.publicKey);
+                    if(this.showMoreBtn == false ){
+                        window.clearInterval(this.updateInterval);
+                        return;
+                    }
+                    if(this.showMoreBtn && (txs.length % this.limit != 0 || txs.length == 0) ) {
+                        this.loading = true;
+                        this.loadMore();
+                    }
+                },1000);
+            }
         }
     },
     methods: {
@@ -227,7 +244,8 @@ export default {
         }
     },
     beforeDestroy () {
-	  clearInterval(this.polling)
+      clearInterval(this.polling)
+      clearInterval(this.updateInterval)
     }
 }
 </script>
