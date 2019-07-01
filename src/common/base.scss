@@ -69,7 +69,9 @@ main {
 .text-right {
   text-align: right;
 }
-
+.text-left {
+  text-align: left;
+}
 .ae-input-container {
   .ae-input-box { 
     background: $input-background !important;
@@ -236,6 +238,9 @@ main {
   margin-top:2em;
   margin-bottom:2em;
 }
+.mb-0 {
+  margin-bottom:0 !important;
+}
 .mb-1 {
   margin-bottom:1rem;
 }
@@ -275,13 +280,18 @@ main {
 .flex-justify-content-arround {
   justify-content: space-around;
 }
+.flex-justify-content-center{
+  justify-content: center;
+}
 .flex-justify-items-left {
   justify-items: left !important;
 }
 .flex-align-center { 
   align-items: center;
 }
-
+.flex-align-start { 
+  align-items: flex-start !important;
+}
 .transactionOutgoing {
   background:$color-secondary !important;
   color:#fff !important;
@@ -319,4 +329,11 @@ main {
   color: #62D9CB; 
   text-transform: uppercase; 
   font-weight: 700;
+}
+.backbutton  .ae-icon {
+  vertical-align: top;
+  line-height: 15px;
+}
+.filterModal .ae-modal-light {
+  width:100% !important;
 }

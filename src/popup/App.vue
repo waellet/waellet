@@ -351,10 +351,10 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account  > button { width: 120px; }
 #account .dropdown-button-icon.ae-identicon.base { height: 1.8rem; margin-bottom: 3px; vertical-align: top; }
 #account .ae-dropdown-button .dropdown-button-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#account .subAccountIcon { margin-right: 10px; }
-#account .subAccountName { /*width: 110px; line-height: 28px;*/ color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold;}
-#account .subAccountBalance { font-family: monospace; }
-#account .subAccountInfo { margin-right:auto;  }
+.subAccountIcon { margin-right: 10px; }
+.subAccountName { /*width: 110px; line-height: 28px;*/ color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important;}
+.subAccountBalance { font-family: monospace; margin-bottom:0 !important;}
+.subAccountInfo { margin-right:auto; margin-bottom:0 !important; }
 #account .subAccountCheckbox { float: right; }
 #account li { padding:0.75rem; cursor:pointer !important; }
 #account ul { width:250px; margin:0; transform:translateX(-50%); -webkit-transform:translateX(-50%); -ms-transform:translateX(-50%); }

@@ -356,7 +356,7 @@ export default {
                       this.loginError = true;
                       this.inputError = {error:''};
                   }
-                  context.loading = false;
+                  this.loading = false;
               }
           });
         }else {

@@ -1,24 +1,77 @@
 <template>
     <div class="popup">
-        <div class="actions" >
-            <button class="backbutton" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+        <div class="flex flex-justify-between flex-align-center popupPadding">
+            <div class="actions" >
+                <button class="backbutton" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+            </div>
+            <div class="actions filtersOpen">
+                <ae-button extend class="filtersBtn" fill="primary" face="round" @click="openFilter = true">
+                    <ae-icon name="filter" />
+                    Filters
+                </ae-button>
+            </div>
         </div>
-        <h3 class="transactionsPadding"> {{language.pages.transactions.heading}} </h3>
-
+        
+        <h3 class="transactionsPadding mb-0"> {{language.pages.transactions.heading}} </h3>
+        
+        
         <ae-list class="allTransactions">
-            <div v-for="(trans,index) in groupedTransactions">
-                <div class="date">{{index == new Date().toDateString() ? 'Today' : index}}</div>
+            <div v-for="(trans,index) in groupedTransactionsByDate">
+                <div class="date">{{index}}</div>
                 <TransactionItem v-for="transaction in trans" :transactionData="transaction"></TransactionItem>
             </div>
-            <ae-button v-if="currentCount > 0 && showMore" face="flat" @click="loadMore" fill="neutral">{{language.buttons.loadMore}}</ae-button>
+            <ae-button face="flat" v-if="showMoreBtn" @click="loadMore" fill="neutral"> <ae-icon name="reload" /> {{language.buttons.loadMore}}</ae-button>
+            <p v-if="showMoreBtn == false">All transactions loaded! </p>
         </ae-list>
+        <div class="newTx" @click="mergeNewTransactions" v-if="newTransactions != 0"><span class="newTxCount">{{newTransactions}}</span> new transactions</div>
         <Loader :loading="loading" v-bind="{'content':''}"></Loader>
+
+
+        <ae-modal
+            v-if="openFilter"
+            @close="openFilter = false"
+            title="Filters"
+            class="filterModal">   
+            <ae-list class="filters">
+                <ae-list-item fill="neutral" class="flex-direction-column">
+                    <h4>Type</h4>
+                    <div>
+                        <ae-badge :class="filter.direction == '' ? 'selected' : '' " @click.native="setFilter('direction','')">All</ae-badge>
+                        <ae-badge :class="filter.direction == 'incoming' ? 'selected' : '' "  @click.native="setFilter('direction','incoming')">Incoming</ae-badge>
+                        <ae-badge :class="filter.direction == 'outgoing' ? 'selected' : '' "  @click.native="setFilter('direction','outgoing')">Outgoing</ae-badge>
+                    </div>
+                </ae-list-item>
+                <ae-list-item fill="neutral" class="flex-direction-column">
+                    <h4>Spend Type</h4>
+                    <div>
+                        <ae-badge :class="filter.spendType == 'spendTx' ? 'selected' : ''" @click.native="setFilter('spendType','spendTx')">spendtx</ae-badge>
+                        <ae-badge :class="filter.spendType == 'other' ? 'selected' : ''" @click.native="setFilter('spendType','other')">other</ae-badge>
+                    </div>
+                </ae-list-item>
+                <!--<ae-list-item fill="neutral" class="flex-direction-column">
+                    <h4>Address</h4>
+                    <div class="w-100">
+                        <ae-input label="Search address" aeddress></ae-input>
+                    </div>
+                </ae-list-item>-->
+            </ae-list>
+            <div class="filterButtons btnFixed">
+                <ae-button
+                face="round"
+                @click="clearFilter"><ae-icon name="close" /> Clear filter</ae-button>
+                <ae-button
+                face="round"
+                fill="primary"
+                @click="applyFilter"><ae-icon name="check" /> Apply filter</ae-button>
+            </div>
+        </ae-modal>
     </div>
 </template>
 
 <script>
 import locales from '../../locales/locales.json';
 import {mapGetters} from 'vuex';
+import { groupBy,orderBy } from 'lodash-es'; 
 export default {
     data() {
         return {
@@ -26,74 +79,155 @@ export default {
             allTransactions:[],
             loading:true,
             page:1,
-            limit:15,
+            limit:100,
             showMoreBtn:true,
             totalTransactions:0,
             currentCount:0,
             groupedTransactions:{},
-            language: locales['en']
+            language: locales['en'],
+            polling:null,
+            newTransactions:0,
+            newTr:[],
+            openFilter:false,
+            filter:{
+                spendType:'spendTx',
+                direction:''
+            }
         }
     },
     locales,
     computed: {
-        ...mapGetters(['account']),
+        ...mapGetters(['account','transactions']),
         showMore() {
             return this.currentCount + 1 <= this.totalTransactions;
         },
-        publicKey() { return this.account.publicKey; }
+        publicKey() { this.loading = true; return this.account.publicKey; },
+        groupedTransactionsByDate() {
+            let txs = (this.filter.direction === '') ? this.transactions.all : 
+                (this.filter.direction == 'incoming' ? 
+                    this.transactions.all.filter(tx => tx.tx.recipient_id == this.account.publicKey) : 
+                    this.transactions.all.filter(tx => tx.tx.sender_id == this.account.publicKey) );
+            txs = (this.filter.spendType == 'spendTx' ? txs.filter(tx => tx.tx.type == 'SpendTx') : txs.filter(tx => tx.tx.type != 'SpendTx') )
+            return groupBy(
+                orderBy(txs,['time'],['desc']),
+                (tx) => {
+                    const dateString = new Date(tx.time).toDateString();
+                    return dateString === new Date().toDateString() ? 'Today' : dateString;
+                },
+            );
+        }
     },
     created(){
         this.getTotalTransactions();
-        this.getTransactions();
+        this.getTransactions('load');
+        this.pollData();
+        this.page = this.getPage();
     },
     watch:{
         publicKey() {
-            this.allTransactions = [];
-            this.groupedTransactions = {};
+            this.loading = true;
+            this.page = 1;
             this.getTotalTransactions();
-            this.getTransactions();
+            this.$store.commit('RESET_TRANSACTIONS',[]);
+            this.getTransactions('load');
+            this.showMoreBtn = true;
         }
     },
     methods: {
+        getPage() {
+            return this.transactions.all.length == 0 ? 1 : Math.ceil(this.transactions.all.length / this.limit); 
+        },
+        pollData() {
+            this.polling = setInterval(() => {
+                this.getTransactions('new');
+            }, 5000);
+        },
         changeTransactionType(type) {
             this.transactionsType = type;
         },
-        getTransactions(){
-            this.loading = true;
-            let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,page:this.page,limit:this.limit});
-            transactions.then(res => {
-                let grouped = this.groupedTransactions;
-                let count = this.currentCount;
-                res.forEach(trans => {
-                    if(typeof grouped[new Date(trans.time).toDateString()] == 'undefined') {
-                        grouped[new Date(trans.time).toDateString()] = [];
+        getTransactions(type,limit = this.limit){
+            if(type == 'load') {
+                let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,page:this.page,limit:limit});
+                transactions.then(res => {
+                    if(res.length != 0) {
+                        let newTrans = res.filter( tr => {
+                            let found = this.transactions.all.find(t => t.hash == tr.hash);
+                            if(typeof found == 'undefined') return tr;
+                        });
+                        this.$store.dispatch('updateAllTransactions',{new:false,transactions:newTrans});
+                    }else {
+                        this.showMoreBtn = false;
                     }
-                    grouped[new Date(trans.time).toDateString()].push(trans);
-                    count++;
+                    this.loading = false;
                 });
-                if(res.length != 0) {
-                    this.groupedTransactions = grouped;
-                    this.currentCount = count;
-                }else {
-                    this.showMoreBtn = false;
-                }
-                this.loading = false;
-            });
+            }else if(type == 'new') {
+                let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:limit});
+                transactions.then(res => {
+                    let newTrans = res.filter( tr => {
+                        let found = this.transactions.all.find(t => t.hash == tr.hash);
+                        if(typeof found == 'undefined') return tr;
+                    });
+                    newTrans.forEach(element => {
+                        if(typeof this.newTr.find(tr => tr.hash == element.hash) == 'undefined') {
+                            this.newTr.unshift(element);
+                            this.newTransactions += 1;
+                        }
+                    });
+                });
+            }
         },
         getTotalTransactions() {
-            let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,param:'count'});
-            transactions.then(res => this.totalTransactions = res.count);
+            return new Promise((resolve,reject) => {
+                let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,param:'count'});
+                transactions.then(res => {
+                    this.totalTransactions = res.count;
+                    resolve();
+                });
+            });
+            
+        },
+        mergeNewTransactions() {
+            return new Promise ((resolve,reject) => {
+                this.$store.dispatch('updateAllTransactions',{new:true,transactions:this.newTr})
+                .then(() => {
+                    this.newTr = [];
+                    this.newTransactions = 0;
+                    this.getTotalTransactions()
+                    .then(() => {
+                        resolve();
+                    })
+                });
+            });
+
         },
         loadMore() {
-            this.page++;
-            this.getTransactions();
+            this.mergeNewTransactions()
+            .then(() => {
+                this.page += 1;
+                this.getTransactions('load');
+            });
+            
         },
         group() {
             console.log(this.groupedTransactions);
         },
         navigateAccount() {
             this.$router.push('/account')
+        },
+        setFilter(type,value) {
+            this.filter[type] = value;
+        },
+        applyFilter() {
+            this.openFilter = false;
+        },
+        clearFilter() {
+            this.openFilter = false;
+            this.filter['direction'] = '';
+            this.filter['spendType'] = 'spendTx';
         }
+    },
+    beforeDestroy () {
+	  clearInterval(this.polling)
     }
 }
 </script>
@@ -111,5 +245,70 @@ export default {
 .actions {
   width: 50%;
   margin-top: 5px;
+}
+.newTx {
+    position:fixed;
+    bottom:2%;
+    left:50%;
+    -ms-transform: translateX(-50%);
+    -webkit-transform:translateX(-50%);
+    transform:translateX(-50%);
+    background:$primary-color;
+    color:#fff;
+    padding:.7rem 1rem;
+    text-align:center;
+    border-radius: 32px;
+    cursor:pointer;
+}
+.newTxCount {
+    background: #fff;
+    border-radius: 50%;
+    color: #000;
+    padding: .1rem.5rem;
+    line-height: 3px;
+    font-size: .9rem;
+    font-weight: bold;
+    font-family: monospace;
+}
+.filterModal .ae-dropdown-button{
+    width:90px;
+}
+.typeTx .ae-dropdown-button {
+    width:90px !important;
+}
+.filters h4 {
+    margin-top:0 !important;
+    margin-bottom:5px;
+}
+.filters .ae-badge.selected {
+    background:$primary-color;
+    color:#fff;
+}
+.w-100 {
+    width:100%;
+}
+.filtersOpen {
+    width:32%;
+}
+.filters li:first-child {
+    border-top:none;
+}
+.filterButtons {
+    margin-top:15px;
+}
+.filterButtons .ae-button {
+    padding:0 1rem !important;
+    height:45px !important;
+}
+.filtersBtn {
+    margin: 0;
+    height: auto !important;
+    padding: .7rem 1rem !important;
+}
+.popup {
+    padding:0;
+}
+.popupPadding {
+    padding:4px 14px;
 }
 </style>

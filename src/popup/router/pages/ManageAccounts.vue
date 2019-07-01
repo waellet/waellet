@@ -154,8 +154,8 @@ export default {
 .ae-list-item { cursor: default !important; }
 .ae-list-item .ae-icon { float: right; font-size: 1.2rem; }
 // .ae-icon-edit, .ae-icon-plus { color: #00b6ff !important; }
-.ae-icon-check { color: #13b100 !important; }
-.ae-icon-close { color: #b10000 !important; }
+#manageAccounts .ae-icon-check { color: #13b100 !important; }
+#manageAccounts .ae-icon-close { color: #b10000 !important; }
 .editaccount div, .addaccount div { width: 100%; }
 .editaccount div span, .editaccount div input, .addaccount div span { float: left; }
 .editaccount div button, .addaccount div button { float: right; }

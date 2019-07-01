@@ -4,7 +4,7 @@
             <ae-identicon :address="transactionData.tx.sender_id" />
             <div class="transaction-address">
                 <ae-address :value="transactionData.tx.sender_id" length="short" />
-                <ae-text face="mono-xs" class="transactionDate">{{ new Date(transactionData.time).toDateString() + ' ' + new Date(transactionData.time).toLocaleTimeString() }}</ae-text>
+                <ae-text face="mono-xs" class="transactionDate">{{ new Date(transactionData.time).toLocaleTimeString() }}</ae-text>
             </div>
             <div class="text-right balance-change">
                 <ae-badge class="badgeTransactionType" :class="transactionTypeClass">{{transactionType}}</ae-badge>

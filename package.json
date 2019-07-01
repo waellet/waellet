@@ -44,6 +44,7 @@
     "emailjs-com": "^2.3.2",
     "extensionizer": "^1.0.1",
     "file-saver": "^2.0.1",
+    "lodash-es": "^4.17.11",
     "node-fetch": "^2.3.0",
     "nyc": "^14.1.1",
     "qrcode.vue": "^1.6.1",

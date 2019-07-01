@@ -57,6 +57,12 @@
           "txHash":"Tx hash",
           "transactions":"Transactions",
           "explorer":"View in explorer"
+        },
+        "tip" :{
+          "domainVerified":"Verified",
+          "domainNotVerified":"Not yet verified",
+          "sendHeading":"Send a tip",
+          "check":"Check"
         }
       },
       "messages": {
