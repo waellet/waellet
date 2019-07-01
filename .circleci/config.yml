@@ -53,12 +53,6 @@ jobs:
           name: Link Cypress Binary
           command: ln -s /home/circleci/.cache ~/.cache
       - run:
-          name: Install Dependencies
-          command: npm install
-      - run:
-          name: Build Application
-          command: npm run build
-      - run:
           name: Run Acceptance Tests
           command: npm run test
           
