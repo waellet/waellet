@@ -73,7 +73,7 @@ import locales from '../../locales/locales.json';
 import { extractHostName } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
-
+ 
 export default {
     data() {
         return {
