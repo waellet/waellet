@@ -73,7 +73,7 @@ export default {
     },
     methods: {
         transactionInExplorer() {
-            chrome.tabs.create({url: this.network[this.current.network].explorerUrl + '/#/tx/' + this.transaction.hash, active: false});
+            browser.tabs.create({url: this.network[this.current.network].explorerUrl + '/#/tx/' + this.transaction.hash, active: false});
         },
         back() {
             this.$router.push('/transactions');

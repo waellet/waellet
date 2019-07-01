@@ -81,7 +81,7 @@ export default {
       loading: false,
       language: locales['en'],
       modalVisible: false,
-      logo: chrome.runtime.getURL('../../../icons/icon_128.png'),
+      logo: browser.runtime.getURL('../../../icons/icon_128.png'),
       privateKey:'',
       seedPhrase:'',
       importType:'privateKey',
@@ -103,18 +103,17 @@ export default {
   methods: {
     init () {
       // check if there is an account generated already
-      // chrome.storage.sync.set({userAccount: ''}, () => {});
-      // chrome.storage.sync.set({isLogged: ''}, () => {});
-      // chrome.storage.sync.set({confirmSeed: true}, () => {});
-      // chrome.storage.sync.set({mnemonic: ''}, () => {});
-      // chrome.storage.sync.remove('subaccounts', () => {});
-      
+      // browser.storage.sync.set({userAccount: ''}).then(() => {});
+      // browser.storage.sync.set({isLogged: ''}).then(() => {});
+      // browser.storage.sync.set({confirmSeed: true}).then(() => {});
+      // browser.storage.sync.set({mnemonic: ''}).then(() => {});
+      // browser.storage.sync.remove('subaccounts').then(() => {});
       var newTab = false;
-      chrome.storage.sync.get('showAeppPopup', data => {
+      browser.storage.sync.get('showAeppPopup').then((data) => {
         
         if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
           
-          chrome.storage.sync.set({showAeppPopup:{}}, () => {
+          browser.storage.sync.set({showAeppPopup:{}}).then(() => {
             if(data.showAeppPopup.type == 'confirm') {
               this.$router.push({'name':'confirm-share', params: {
                 data:data.showAeppPopup.data
@@ -127,15 +126,15 @@ export default {
             return;
           });
         }else {
-          chrome.storage.sync.get('pendingTransaction', data => {
+          browser.storage.sync.get('pendingTransaction').then((data) => {
               
               if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('data')) {
                 this.$router.push({'name':'sign', params: {
                   data:data.pendingTransaction.data
                 }});
               }else {
-                chrome.storage.sync.get('isLogged', data => {
-                  chrome.storage.sync.get('userAccount', user => {
+                browser.storage.sync.get('isLogged').then((data) => {
+                  browser.storage.sync.get('userAccount').then((user) => {
                       if(user.userAccount && user.hasOwnProperty('userAccount')) {
                         try {
                           user.userAccount.encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
@@ -144,7 +143,7 @@ export default {
                         }
                         this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
                         if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                          chrome.storage.sync.get('subaccounts', subaccounts => {
+                          browser.storage.sync.get('subaccounts').then((subaccounts) => {
                             let sub = [];
                             if(!subaccounts.hasOwnProperty('subaccounts') || subaccounts.subaccounts == "" || ( typeof subaccounts.subaccounts == 'object' && !subaccounts.subaccounts.find(f => f.publicKey == user.userAccount.publicKey))) {
                               sub.push({
@@ -160,7 +159,7 @@ export default {
                               });
                             }
                             this.$store.dispatch('setSubAccounts', sub);
-                            chrome.storage.sync.get('activeAccount', active => {
+                            browser.storage.sync.get('activeAccount').then((active) => {
                               if(active.hasOwnProperty('activeAccount')) {
                                 this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:sub[active.activeAccount].publicKey,index:active.activeAccount});
                               }
@@ -168,7 +167,7 @@ export default {
                           });
                         }
                       } 
-                      chrome.storage.sync.get('confirmSeed', seed => {
+                      browser.storage.sync.get('confirmSeed').then((seed) => {
                         if(seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
                           
                           this.$router.push('/seed');
@@ -176,7 +175,7 @@ export default {
                         }
                       });
                       if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                        chrome.storage.sync.get('wallet',wallet => {
+                        browser.storage.sync.get('wallet').then((wallet) => {
                           if(wallet.hasOwnProperty('wallet') && wallet.wallet != "") {
                             this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
                             this.$store.commit('SWITCH_LOGGED_IN', true);
@@ -290,7 +289,7 @@ export default {
         let context = this;
         if(accountPassword.length >= 4){
           context.loading = true;
-          chrome.storage.sync.get('userAccount', async user => {
+          browser.storage.sync.get('userAccount').then(async (user) => {
               this.errorMsg = "";
               if(user.userAccount && user.hasOwnProperty('userAccount')) {
                   let encPrivateKey = user.userAccount.encryptedPrivateKey;
@@ -315,15 +314,15 @@ export default {
                           balance:0,
                           root:true
                       };
-                      chrome.storage.sync.set({isLogged: true}, () => {
-                        chrome.storage.sync.set({wallet:JSON.stringify(wallet)},() => {
+                      browser.storage.sync.set({isLogged: true}).then(() => {
+                        browser.storage.sync.set({wallet:JSON.stringify(wallet)},() => {
                           if(address !== user.userAccount.publicKey) {
                               user.userAccount.publicKey = address;
                               user.userAccount.encryptedPrivateKey = encPrivateKey;
-                              chrome.storage.sync.set({userAccount:  user.userAccount}, () => {
+                              browser.storage.sync.set({userAccount:  user.userAccount}).then(() => {
                                 sub.push(account);
-                                chrome.storage.sync.set({subaccounts:sub }, () => {
-                                  chrome.storage.sync.set({activeAccount: 0}, () => {
+                                browser.storage.sync.set({subaccounts:sub }).then(() => {
+                                  browser.storage.sync.set({activeAccount: 0}).then(() => {
                                     this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:account.publicKey,index:0});
                                     this.$store.dispatch('setSubAccounts',sub);
                                     this.$store.commit('SET_WALLET', wallet);
@@ -334,11 +333,11 @@ export default {
                               });
                               return;
                           }
-                          chrome.storage.sync.get('subaccounts',subaccounts => {
+                          browser.storage.sync.get('subaccounts').then((subaccounts) => {
                             if((subaccounts.hasOwnProperty('subaccounts') && subaccounts.subaccounts == "") ||  !subaccounts.hasOwnProperty('subaccounts')){
                               sub.push(account);
-                              chrome.storage.sync.set({subaccounts:sub }, () => {
-                                  chrome.storage.sync.set({activeAccount: 0}, () => {
+                              browser.storage.sync.set({subaccounts:sub }).then(() => {
+                                  browser.storage.sync.set({activeAccount: 0}).then(() => {
                                     this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:account.publicKey,index:0});
                                   });
                               });
