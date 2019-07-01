@@ -108,6 +108,7 @@ export default {
       // chrome.storage.sync.set({confirmSeed: true}, () => {});
       // chrome.storage.sync.set({mnemonic: ''}, () => {});
       // chrome.storage.sync.remove('subaccounts', () => {});
+      
       var newTab = false;
       chrome.storage.sync.get('showAeppPopup', data => {
         
@@ -356,7 +357,7 @@ export default {
                       this.loginError = true;
                       this.inputError = {error:''};
                   }
-                  context.loading = false;
+                  this.loading = false;
               }
           });
         }else {

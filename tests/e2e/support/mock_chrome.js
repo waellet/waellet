@@ -1,4 +1,4 @@
-import { mnemonic } from '../utils';
+import { mnemonic, tabs, transaction } from '../utils';
 const onBeforeLoad = (win,mock = '') => {
     win.chrome = win.chrome || {};
     try {
@@ -33,6 +33,15 @@ const onBeforeLoad = (win,mock = '') => {
                 }
             }
         }
+       win.chrome.tabs = {
+           query(data,callback) {
+                if(mock == 'domain') {
+                    callback(tabs.reverse());
+                }else {
+                    callback(tabs);
+                }
+           }
+       }
 
         window.chrome = win.chrome;
         if(mock == 'account') {
@@ -47,6 +56,12 @@ const onBeforeLoad = (win,mock = '') => {
         }else if(mock == 'subaccounts') {
             let sub = [{"balance":106,"name":"Main account","publicKey":"ak_d45oN2qzS1vqdiWVYCfDeWLVb3EepWxAJrsDbCSmnYiZguerw","root":true},{"balance":0,"name":"Sub account 2","publicKey":"ak_26jiGAScn8BMaxrwUbK2XY1b5xLPM52kYwiVnjirY9jtsFtojx","root":false},{"balance":0,"name":"Sub account 3","publicKey":"ak_24cB1bEdJ53jyEUgKu57F5k1idFGi8XiA4eXSnbv5htnHSdjEC","root":false}];
             win.chrome.storage.sync.set({subaccounts: sub},()=>{});
+        }else if(mock == 'sign') {
+            chrome.storage.sync.set({
+                pendingTransaction:{
+                    data:transaction
+                }
+            }, () => { });
         }
     }catch(err) {
         console.log(err);
