@@ -73,7 +73,7 @@ export default {
     },
     mounted() {
         this.generateSeeds();
-        chrome.storage.sync.set({confirmSeed: false}, () => {});
+        browser.storage.sync.set({confirmSeed: false}).then(() => {});
     },
     computed: {
         shiffledSeed() {
@@ -84,12 +84,12 @@ export default {
     methods: { 
         generateSeeds() {
             let mnemonic;
-            chrome.storage.sync.get('mnemonic', data => {
+            browser.storage.sync.get('mnemonic').then(data => {
                 if(data.hasOwnProperty("mnemonic") && data.mnemonic != "" ) {
                     mnemonic = data.mnemonic;
                 }else {
                     mnemonic = generateMnemonic();
-                    chrome.storage.sync.set({mnemonic: mnemonic}, () => {});
+                    browser.storage.sync.set({mnemonic: mnemonic}).then(() => {});
                 }
                 mnemonic = mnemonic.split(" ");
                 this.seeds.forEach(function(item, index) {
@@ -132,15 +132,15 @@ export default {
                     }else {
                         this.seedError = {};
                         this.loading = true;
-                        chrome.storage.sync.get('accountPassword',async pass => {
+                        browser.storage.sync.get('accountPassword').then(async pass => {
                             if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
                                 originalSeed = originalSeed.replace(/,/g, ' ');
                                 let privateKey = mnemonicToSeed(originalSeed);
                                 let wallet = generateHdWallet(privateKey);
                                 const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,privateKey.toString('hex'), wallet);
                                 if(keyPair) {
-                                    chrome.storage.sync.set({isLogged: true}, async () => {
-                                        chrome.storage.sync.set({userAccount: keyPair}, () => {
+                                    browser.storage.sync.set({isLogged: true}).then(async () => {
+                                        browser.storage.sync.set({userAccount: keyPair}).then(() => {
                                             this.loading = false;
                                             let sub = [];
                                             sub.push({
@@ -149,13 +149,13 @@ export default {
                                                 balance:0,
                                                 root:true
                                             });
-                                            chrome.storage.sync.set({accountPassword: ''}, () => {});
-                                            chrome.storage.sync.set({mnemonic: ''}, () => {});
-                                            chrome.storage.sync.set({confirmSeed: true}, () => {});
-                                            chrome.storage.sync.set({wallet: wallet}, () => {});
-                                            chrome.storage.sync.set({subaccounts: sub}, () => {
+                                            browser.storage.sync.set({accountPassword: ''}).then(() => {});
+                                            browser.storage.sync.set({mnemonic: ''}).then(() => {});
+                                            browser.storage.sync.set({confirmSeed: true}).then(() => {});
+                                            browser.storage.sync.set({wallet: wallet}).then(() => {});
+                                            browser.storage.sync.set({subaccounts: sub}).then(() => {
                                                 this.$store.dispatch('setSubAccounts', sub);
-                                                chrome.storage.sync.set({activeAccount: 0}, () => {
+                                                browser.storage.sync.set({activeAccount: 0}).then(() => {
                                                     this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
                                                     this.$store.commit('UPDATE_ACCOUNT', keyPair);
                                                     this.$store.commit('SWITCH_LOGGED_IN', true);

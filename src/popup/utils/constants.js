@@ -7,6 +7,7 @@ export const MAGNITUDE_EXA = 18;
 export const MAGNITUDE_GIGA = 9;
 export const MAGNITUDE_MICRO = -6;
 export const MAGNITUDE_PICO = -12;
+export const MINPASSWORDLENGTH = 8;
 
 const STUB_ADDRESS = 'ak_enAPooFqpTQKkhJmU47J16QZu9HbPQQPwWBVeGnzDbDnv9dxp';
 const MAX_UINT256 = BigNumber(2).exponentiatedBy(256).minus(1);

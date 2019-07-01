@@ -51,7 +51,7 @@ import { getHdWalletAccount } from '../../utils/hdWallet';
 export default {
     data () {
         return {
-            logo_top: chrome.runtime.getURL('../../../icons/icon_48.png'),
+            logo_top: browser.runtime.getURL('../../../icons/icon_48.png'),
             language: locales['en'],
             locales: locales,
             new_accname: '',
@@ -94,7 +94,7 @@ export default {
                     return acc;
                 });
                 this.$store.dispatch('setSubAccounts', editedAccounts).then(() => {
-                    chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => { });
+                    browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => { });
                 });
                 account.edit = false;
             }
@@ -122,13 +122,13 @@ export default {
                     root:false,
                     balance:0
                 }).then(() => {
-                    chrome.storage.sync.set({ subaccounts: this.subaccounts}, () => {
+                    browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {
                         this.$store.dispatch('popupAlert', {
                             name: 'account',
                             type: 'added_success'
                         }).then(() => {
                             let index =  this.subaccounts.length - 1;
-                            chrome.storage.sync.set({activeAccount: index }, () => {
+                            browser.storage.sync.set({activeAccount: index }).then(() => {
                                 this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:public_K,index:index});
                             });
                             this.setAccounts();

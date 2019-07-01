@@ -192,10 +192,7 @@ export default {
       this.$router.push('/account')
     },
     openExplorer(url) {
-      chrome.tabs.create({url,active:false});
-    },
-    selectSendSubaccount(account) {
-      this.form.address = account.publicKey;
+      browser.tabs.create({url,active:false});
     }
   }
 }
