@@ -107,7 +107,7 @@ export default {
         }
     },
     created() {
-        chrome.tabs.query({active:true,currentWindow:true},(tabs) => {
+        browser.tabs.query({active:true,currentWindow:true}).then((tabs) => {
             var currentTabUrl = tabs[0].url;
             this.favicon = tabs[0].favIconUrl;
             this.domain = extractHostName(currentTabUrl);
