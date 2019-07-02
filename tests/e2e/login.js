@@ -36,7 +36,7 @@ export const loginAndLogout = () => {
     .should('be.visible')
     .get('input[type="password"]')
     .type("1234")
-    .get('.ae-loader')
+    // .get('.ae-loader')
     .should('be.visible')
     .get('.ae-toolbar')
     .should('be.visible')
