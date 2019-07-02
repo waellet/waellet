@@ -30,6 +30,6 @@ Currently, Waellet is still in beta and under heavy development. Last week we on
 
 Contributions are more than welcome.
 
-If you spot an issue while testing/using the waellet - [submit an issue](https://github.com/waellet/waellet/issues)
+If you spot an issue while testing/using the waellet - [submit an issue](https://github.com/aeternity/aepp-waellet/issues)
 
 If you want to help us with building this amazing project submit your PR!
