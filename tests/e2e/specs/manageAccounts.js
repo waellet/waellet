@@ -1,6 +1,6 @@
 import { onBeforeLoad } from '../support/mock_chrome.js';
 import { login } from '../login';
-import { generateWallet, mnemonic, PRIVATE_KEY_IMPORT,PRIVATE_KEY, ACCOUNT_PASSWORD, importPrivate ,importSeed,importKeystore} from '../utils.js';
+import { generateWallet, mnemonic, PRIVATE_KEY_IMPORT,PRIVATE_KEY, ACCOUNT_PASSWORD,ACCOUNT_PASSWORD_STRONG, importPrivate ,importSeed,importKeystore} from '../utils.js';
 import { getHdWalletAccount,generateHdWallet } from '../utils';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 
@@ -354,7 +354,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .get('.dropdown-holder li').eq(2).find('input[type="radio"]')
         .should('be.checked')
         .get('.allTransactions')
-        .children().should('have.length', 0)
+        .children().should('have.length', 1)
     });
 
 

@@ -44,6 +44,7 @@ export const current = {
   language: 'en'
 };
 export const ACCOUNT_PASSWORD = "qwerty";
+export const ACCOUNT_PASSWORD_STRONG = "qwerty#@!123ABCD";
 export const PRIVATE_KEY = "ef07a269ce62e81dbd507d2d677e06654765984aa4650bcf2ed68bbfc783f8e4301ba902bf2b2c176ac934eb41181866ae25f19dcbdd42c4aa448c0f82c913f9";
 export const PRIVATE_KEY_IMPORT = "82e8a6103b5fd09b82d71e0ef18686b66f798428312ef84adfb51f1c7ca794a0e4197f13b860b0f18b960d83e230e50752dc9f77ec2ea568300dcf728c1a8acd";
 export const PUBLIC_KEY_SEND = "ak_2uhfvqH1NhiTcZ6F8QmDRvZQdoYGN3agdZi9AZyY4pP3A9zdFZ";
@@ -91,8 +92,8 @@ export const generateWallet = () => {
   .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'seed') }})
   .wait(2000)
   .get('footer button.primary').click()
-  .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD)
-  .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD)
+  .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG)
+  .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG)
   .get('button').contains('Continue').click()
   .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'seed') }})
   .get('button.nextStep').click()
@@ -118,8 +119,8 @@ export const importPrivate = () => {
   .get('button.importBtn').click()
   .get('.ae-modal input').type(PRIVATE_KEY_IMPORT)
   .get('.ae-modal button').contains('Continue').click()
-  .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD)
-  .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD)
+  .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG)
+  .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG)
   .get('button').contains('Import').click()
   .get('.ae-loader')
   .should('be.visible')
@@ -135,8 +136,8 @@ export const importSeed  = () => {
   .get('.tabs span').eq(2).click()
   .get('textarea').clear().type(mnemonic)
   .get('button').contains('Continue').click()
-  .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD)
-  .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD)
+  .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG)
+  .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG)
   .get('button').contains('Restore').click()
   .get('.ae-loader')
   .should('be.visible')
@@ -152,7 +153,7 @@ export const importKeystore = () => {
   .get('.tabs span').eq(1).click()
   .uploadFile('input[type="file"]','../../keystore4.json','application/json')
   .get('button').contains('Continue').click()
-  .get('input[type="password"]').clear().type("1234")
+  .get('input[type="password"]').clear().type(ACCOUNT_PASSWORD_STRONG)
   .get('button').contains('Import').click()
   .get('.ae-loader')
   .should('be.visible')
