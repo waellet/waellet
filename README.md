@@ -2,6 +2,12 @@
 
 [![CircleCI](https://circleci.com/gh/aeternity/aepp-waellet/tree/master.svg?style=svg)](https://circleci.com/gh/aeternity/aepp-waellet/tree/master)
 
+Install from: 
+- [Chrome Web Extensions Store](https://chrome.google.com/webstore/detail/waellet/nnkfipoloblhgnahnaocfkhmmplcdneb)
+- [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/waellet/)
+
+or see instructions below how to build it from source.
+
 ![](https://hack.bg/wp-content/uploads/2019/06/waellet_cover-1038x498.png)
 
 **Waellet is a browser extension that allows you to interact with Aeternity blockchain in your browser.**
