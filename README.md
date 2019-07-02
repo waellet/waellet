@@ -1,6 +1,6 @@
 # Waellet
 
-[![CircleCI](https://circleci.com/gh/waellet/waellet/tree/master.svg?style=svg)](https://circleci.com/gh/waellet/waellet/tree/master)
+[![CircleCI](https://circleci.com/gh/aeternity/aepp-waellet/tree/master.svg?style=svg)](https://circleci.com/gh/aeternity/aepp-waellet/tree/master)
 
 ![](https://hack.bg/wp-content/uploads/2019/06/waellet_cover-1038x498.png)
 
