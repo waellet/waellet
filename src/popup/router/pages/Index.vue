@@ -315,7 +315,7 @@ export default {
                           root:true
                       };
                       browser.storage.sync.set({isLogged: true}).then(() => {
-                        browser.storage.sync.set({wallet:JSON.stringify(wallet)},() => {
+                        browser.storage.sync.set({wallet:JSON.stringify(wallet)}).then(() => {
                           if(address !== user.userAccount.publicKey) {
                               user.userAccount.publicKey = address;
                               user.userAccount.encryptedPrivateKey = encPrivateKey;
