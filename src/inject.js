@@ -1,4 +1,4 @@
-import { extractHostName } from './popup/utils/helper';
+import { extractHostName, detectBrowser } from './popup/utils/helper';
 
 if(typeof navigator.clipboard == 'undefined') {
     redirectToWarning(extractHostName(window.location.href),window.location.href)
@@ -10,6 +10,7 @@ if(typeof navigator.clipboard == 'undefined') {
             href:window.location.href
         }
     })
+    
 }
 
 // Subscribe from postMessages from page
@@ -23,16 +24,25 @@ window.addEventListener("message", ({data}) => {
 chrome.runtime.onMessage.addListener(({ data }, sender) => {
     if(data.method == 'phishingCheck') {
         if(data.blocked) {
-            redirectToWarning(data.data.hostname,data.data.href)
+            redirectToWarning(data.data.hostname,data.data.href,data.extUrl)
         }
     }
     // console.log(data)
     // window.postMessage(data, '*')
 })
 
-const redirectToWarning = (hostname,href) => {
+const redirectToWarning = (hostname,href,extUrl = '') => {
     window.stop()
-    let redirectUrl = `chrome-extension://${chrome.runtime.id}/phishing/phishing.html#hostname=${hostname}&href=${href}`
+    let extensionUrl = 'chrome-extension'
+    if(detectBrowser() == 'Firefox') {
+        extensionUrl = 'moz-extension'
+    }
+    let redirectUrl = ''
+    if(extUrl != '') {
+        redirectUrl = `${extUrl}phishing/phishing.html#hostname=${hostname}&href=${href}`
+    }else {
+        redirectUrl = `${extensionUrl}://${chrome.runtime.id}/phishing/phishing.html#hostname=${hostname}&href=${href}`
+    }
     window.location.href = redirectUrl
     return
 };

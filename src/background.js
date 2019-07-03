@@ -14,16 +14,13 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 });
 
 setInterval(() => {
-    chrome.windows.getAll({}, (wins) => {
+    browser.windows.getAll({}).then((wins) => {
         if(wins.length == 0) {
             sessionStorage.removeItem("phishing_urls");
         }
     });
 },60000);
 
-chrome.windows.onRemoved.addListener(function(windowid) {
-    localStorage.removeItem("phishing_urls");
-})
 chrome.browserAction.setBadgeText({ 'text': 'beta' });
 chrome.browserAction.setBadgeBackgroundColor({ color: "#FF004D"});
 
@@ -135,26 +132,21 @@ function getAccount() {
 //         })
 //     });
 
-chrome.runtime.onMessage.addListener((msg, sender) => {
-    console.log(msg)
+browser.runtime.onMessage.addListener((msg, sender) => {
     switch(msg.method) {
         case 'phishingCheck':
-            let data = {...msg};
+            let data = {...msg, extUrl: browser.extension.getURL ('./') };
             phishingCheckUrl(msg.data.hostname)
             .then(res => {
-                
                 if(typeof res.result !== 'undefined' && res.result == 'blocked') {
                     let whitelist = getPhishingUrls().filter(url => url === msg.data.hostname);
                     if(whitelist.length) {
-                        console.log("case 1")
                         data.blocked = false;
                         return postPhishingData(data);
                     }
-                    console.log("case 2")
                     data.blocked = true;
                     return postPhishingData(data);
                 }
-                console.log("case 3")
                 data.blocked = false;
                 return postPhishingData(data);
             });
