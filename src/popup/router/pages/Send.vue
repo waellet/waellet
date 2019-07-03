@@ -193,7 +193,10 @@ export default {
     },
     openExplorer(url) {
       browser.tabs.create({url,active:false});
-    }
+    },
+    selectSendSubaccount(account) {
+      this.form.address = account.publicKey;
+    }	
   }
 }
 </script>

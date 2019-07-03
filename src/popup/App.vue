@@ -205,6 +205,7 @@ export default {
     changeAccount (index,subaccount) {
       browser.storage.sync.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
+        this.$store.commit('RESET_TRANSACTIONS',[]);
       });
     },
     hideMenu (event) {

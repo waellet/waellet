@@ -14,7 +14,8 @@ const config = {
     'inject': './inject.js',
     'popup/popup': './popup/popup.js',
     'options/options': './options/options.js',
-    'main':'./main.js'
+    'main':'./main.js',
+    'phishing/phishing':'./phishing/phishing.js'
   },
   output: {
     path: __dirname + '/dist',
@@ -68,6 +69,7 @@ const config = {
       { from: 'icons', to: 'icons', ignore: ['icon.xcf'] },
       { from: 'popup/popup.html', to: 'popup/popup.html', transform: transformHtml },
       { from: 'options/options.html', to: 'options/options.html', transform: transformHtml },
+      { from: 'phishing/phishing.html', to: 'phishing/phishing.html', transform:transformHtml },
       {
         from: 'manifest.json',
         to: 'manifest.json',

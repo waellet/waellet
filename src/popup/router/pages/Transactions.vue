@@ -44,8 +44,11 @@
                 <ae-list-item fill="neutral" class="flex-direction-column">
                     <h4>Spend Type</h4>
                     <div>
-                        <ae-badge :class="filter.spendType == 'spendTx' ? 'selected' : ''" @click.native="setFilter('spendType','spendTx')">spendtx</ae-badge>
-                        <ae-badge :class="filter.spendType == 'other' ? 'selected' : ''" @click.native="setFilter('spendType','other')">other</ae-badge>
+                        <ae-badge :class="filter.spendType == 'all' ? 'selected' : ''" @click.native="setFilter('spendType','all')">all</ae-badge>
+                        <ae-badge :class="filter.spendType == 'spendTx' ? 'selected' : ''" @click.native="setFilter('spendType','spendTx')">spend tx</ae-badge>
+                        <ae-badge :class="filter.spendType == 'namePreclaimTx' ? 'selected' : ''" @click.native="setFilter('spendType','namePreclaimTx')">name preclaim tx</ae-badge>
+                        <ae-badge :class="filter.spendType == 'nameClaimTx' ? 'selected' : ''" @click.native="setFilter('spendType','nameClaimTx')">name claim tx</ae-badge>
+                        <ae-badge :class="filter.spendType == 'nameUpdateTx' ? 'selected' : ''" @click.native="setFilter('spendType','nameUpdateTx')">name update tx</ae-badge>
                     </div>
                 </ae-list-item>
                 <!--<ae-list-item fill="neutral" class="flex-direction-column">
@@ -91,7 +94,7 @@ export default {
             newTr:[],
             openFilter:false,
             filter:{
-                spendType:'spendTx',
+                spendType:'all',
                 direction:''
             },
             upadateInterval:null
@@ -109,7 +112,16 @@ export default {
                 (this.filter.direction == 'incoming' ? 
                     this.transactions.all.filter(tx => tx.tx.recipient_id == this.account.publicKey) : 
                     this.transactions.all.filter(tx => tx.tx.sender_id == this.account.publicKey) );
-            txs = (this.filter.spendType == 'spendTx' ? txs.filter(tx => tx.tx.type == 'SpendTx') : txs.filter(tx => tx.tx.type != 'SpendTx') )
+            if(this.filter.spendType == 'spendTx') {
+                txs = txs.filter(tx => tx.tx.type == 'SpendTx') 
+            }else if(this.filter.spendType == 'namePreclaimTx') {
+                txs = txs.filter(tx => tx.tx.type == 'NamePreclaimTx') 
+            }else if(this.filter.spendType == 'nameClaimTx') {
+                txs = txs.filter(tx => tx.tx.type == 'NameClaimTx') 
+            }else if(this.filter.spendType == 'nameUpdateTx') {
+                txs = txs.filter(tx => tx.tx.type == 'NameUpdateTx') 
+            }
+            
             return groupBy(
                 orderBy(txs,['time'],['desc']),
                 (tx) => {
@@ -130,7 +142,6 @@ export default {
             this.loading = true;
             this.page = 1;
             this.getTotalTransactions();
-            this.$store.commit('RESET_TRANSACTIONS',[]);
             this.getTransactions('load');
             this.showMoreBtn = true;
         },
@@ -240,7 +251,7 @@ export default {
         clearFilter() {
             this.openFilter = false;
             this.filter['direction'] = '';
-            this.filter['spendType'] = 'spendTx';
+            this.filter['spendType'] = 'all';
         }
     },
     beforeDestroy () {
@@ -297,6 +308,9 @@ export default {
 .filters h4 {
     margin-top:0 !important;
     margin-bottom:5px;
+}
+.filters .ae-badge {
+    background:#d9d9d9;
 }
 .filters .ae-badge.selected {
     background:$primary-color;

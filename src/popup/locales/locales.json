@@ -56,7 +56,9 @@
           "txTo":"To",
           "txHash":"Tx hash",
           "transactions":"Transactions",
-          "explorer":"View in explorer"
+          "explorer":"View in explorer",
+          "txName":"Name",
+          "txAccount":"Account"
         },
         "tip" :{
           "domainVerified":"Verified",
