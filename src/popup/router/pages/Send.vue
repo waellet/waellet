@@ -1,6 +1,5 @@
 <template>
   <div class="popup">
-    <ae-main>
       <div class="actions">
         <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
       </div>
@@ -56,7 +55,6 @@
         <p>{{language.strings.success}}</p>
         <a :href="tx.url">{{language.strings.seeTransactionExplorer}}</a>
       </div>
-    </ae-main>
   </div>
 </template>
 
@@ -203,11 +201,6 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
-
-.actions {
-  width: 50%;
-  margin-top: 5px;
-}
 .sendContent div { 
   margin-bottom: 10px;
 }

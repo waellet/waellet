@@ -64,7 +64,7 @@
             <transition name="slide-fade">
               <ul v-if="dropdown.settings" class="dropdown-holder">
                 <li>
-                  <ae-button @click="myAccount" class="toAccount">
+                  <ae-button @click="navigateAccount" class="toAccount">
                     <ae-icon name="home" />
                     {{ language.strings.myAccount }}
                   </ae-button>
@@ -271,7 +271,7 @@ export default {
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
     },
-    myAccount () {
+    navigateAccount () {
       this.dropdown.settings = false;
       this.$router.push('/account');
     },
@@ -321,6 +321,7 @@ export default {
 @import '../common/base';
 @-moz-document url-prefix() {
   html { scrollbar-width: none; }
+  .actions .backbutton .ae-icon { vertical-align: middle !important; }
 }
 // ::-webkit-scrollbar { 
 //     display: none; 
@@ -404,4 +405,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="2"] { background: #9d3fc0 }
 .Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="3"] { background: #1d7fe2 }
 .Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="4"] { background: $color-alternative }
+
+.actions { text-align: left; }
+.actions .backbutton { padding: 0; color: #9d3fc0 !important; }
 </style>
