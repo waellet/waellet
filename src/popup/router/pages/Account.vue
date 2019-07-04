@@ -45,7 +45,7 @@
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
-import { setInterval, setTimeout, setImmediate } from 'timers';
+import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
 import { getTranscationByPublicAddress }  from '../../utils/transactions';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 export default {

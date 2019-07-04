@@ -237,7 +237,7 @@ export default {
             
         },
         group() {
-            console.log(this.groupedTransactions);
+            
         },
         navigateAccount() {
             this.$router.push('/account')
