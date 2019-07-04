@@ -54,5 +54,8 @@ export default {
   },
   [types.SET_ACCOUNT_NAME] (state, payload) {
     state.subaccounts[state.activeAccount].name = payload;
+  },
+  [types.INIT_SDK] (state, payload) {
+    state.sdk = payload
   }
 }; 

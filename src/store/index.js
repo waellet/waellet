@@ -48,7 +48,8 @@ export default new Vuex.Store({
       latest:[],
       all:[],
       new:[]
-    }
+    },
+    sdk:null
   },
   getters,
   mutations,

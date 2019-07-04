@@ -21,8 +21,8 @@ export default {
   },
   updateBalance({ commit, state }) {
     // get balance based on new or already fetched api
-    state.aeAPI.then(ae => {
-      ae.balance(state.account.publicKey)
+   
+      state.sdk.balance(state.account.publicKey)
         .then(balance => {
           commit(types.UPDATE_BALANCE, convertToAE(balance) );
         })
@@ -30,12 +30,12 @@ export default {
           console.log(e);
           commit(types.UPDATE_BALANCE, convertToAE(0) );
         });
-    });
+    
   },
   updateBalanceSubaccounts({ commit, state }) {
-    state.aeAPI.then(ae => {
+   
       state.subaccounts.forEach((sub,index) => {
-          ae.balance(sub.publicKey)
+          state.sdk.balance(sub.publicKey)
           .then(balance => {
             commit(types.UPDATE_SUBACCOUNTS_BALANCE, { account:index, balance: convertToAE(balance) } );
           })
@@ -43,7 +43,7 @@ export default {
             commit(types.UPDATE_SUBACCOUNTS_BALANCE, { account:index, balance:  convertToAE(0) } );
           });
       });
-    });
+
   },
   popupAlert({ commit }, payload) {
     switch (payload.name) {
@@ -76,13 +76,15 @@ export default {
           case 'seedFastCopy':
               commit(types.SHOW_POPUP,{show:true,...popupMessages.SEED_FAST_COPY});
             break;
-            case 'requiredField':
+          case 'requiredField':
                 commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_FIELD});
-              break;
-            case 'added_success':
+            break;
+          case 'added_success':
                 commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_ADDED});
-              break;
-            SUCCESS_ADDED
+            break;
+          case 'token_add':
+                commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_FIELDS_ADD_TOKEN});
+            break;
           default:
             break;
         }
@@ -119,5 +121,8 @@ export default {
   },
   setAccountName({ commit , state}, payload) {
     commit(types.SET_ACCOUNT_NAME, payload);
+  },
+  initSdk({ commit }, payload) {
+    commit(types.INIT_SDK, payload)
   }
 };

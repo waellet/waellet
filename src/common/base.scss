@@ -3,7 +3,7 @@ $main-font-color: #333;
 $main-color: #08c;
 
 $input-background:#ececec;
-$input-toolbar-background:#d0d0d0;
+$input-toolbar-background:#e0e0e0;
 $input-toolbar-color:#000;
 $primary-color:#FF0D6A;
 $input-border-color:#B300FF;
@@ -336,4 +336,7 @@ main {
 }
 .filterModal .ae-modal-light {
   width:100% !important;
+}
+.input-container {
+  margin:1rem 0;
 }

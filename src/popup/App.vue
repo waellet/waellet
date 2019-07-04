@@ -147,12 +147,13 @@
 
 <script>
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
+import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import store from '../store';
 import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout } from 'timers';
-
+import { getHdWalletAccount } from './utils/hdWallet';
 export default {
   
   data () {
@@ -170,7 +171,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network','popup','isLoggedIn', 'AeAPI','subaccounts','activeAccount', 'balance','activeAccountName']),
+    ...mapGetters (['account', 'current', 'network','popup','isLoggedIn', 'AeAPI','subaccounts','activeAccount', 'balance','activeAccountName','wallet', 'sdk']),
     popupButtonFill(){
       return this.popup.type == 'error' ? 'primary' : 'alternative';
     },
@@ -182,14 +183,22 @@ export default {
       browser.storage.sync.set({language: 'en'}).then(() => {
         this.language = locales['en'];
       });
+      
+      //init SDK
+      setTimeout(() => {
+        if(this.isLoggedIn && this.sdk == null) {
+          this.initSDK()
+        }
+      },500)
+      
       // browser.storage.sync.get('language', langChoose => {
       //   this.language = locales[langChoose.language];
       // });
        // fetch api one time
-      let states = this.$store.state;
-      if (typeof states.aeAPI == 'undefined') {
-        this.$store.state.aeAPI = this.fetchApi();
-      }
+      // let states = this.$store.state;
+      // if (typeof states.aeAPI == 'undefined') {
+      //   this.$store.state.aeAPI = this.fetchApi();
+      // }
   },
   mounted: function mounted () {
     this.hideLoader();
@@ -200,7 +209,7 @@ export default {
       var self = this;
       setTimeout(function() {
         self.mainLoading = false;
-      }, 1000);
+      }, 1500);
     },
     changeAccount (index,subaccount) {
       browser.storage.sync.set({activeAccount: index}).then(() => {
@@ -243,6 +252,7 @@ export default {
     switchNetwork (network) {
       this.$store.dispatch('switchNetwork', network).then(() => {
         this.$store.state.aeAPI = this.fetchApi();
+        this.initSDK()
         this.$store.dispatch('updateBalance');
         let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
         transactions.then(res => {
@@ -312,7 +322,24 @@ export default {
           },
           networkId: states.network[states.current.network].networkId,
       });
+      ae.then(a => {
+        console.log(a);
+      })
       return ae;
+    },
+    initSDK:async function initSDK() {
+      let sdk = await Universal({
+        url: this.network[this.current.network].url, 
+        internalUrl: this.network[this.current.network].internalUrl,
+        keypair: {
+            publicKey: this.account.publicKey,
+            secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey
+        },
+        networkId: this.network[this.current.network].networkId, 
+        nativeMode: true,
+        compilerUrl: 'https://compiler.aepps.com'
+      })
+      this.$store.dispatch('initSdk',sdk)
     }
   }
 };

@@ -37,17 +37,19 @@
         <p class="paragraph noTransactions">No transactions found!</p> 
     </div>
     <Loader :loading="loading" v-bind="{'content':''}"></Loader>
-    <!-- <button @click="showSign">Show sign transaction</button> -->
+    <button @click="showTokens">Show tokens</button>
   </div> 
 </template>
 
 <script>
-import Ae from '@aeternity/aepp-sdk/es/ae/universal';
+
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
 import { getTranscationByPublicAddress }  from '../../utils/transactions';
 import { getHdWalletAccount } from '../../utils/hdWallet';
+import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+
 export default {
   name: 'Account',
   data () {
@@ -60,7 +62,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount']),
+    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk']),
     publicKey() { 
       return this.account.publicKey; 
     },
@@ -78,6 +80,7 @@ export default {
       }
   },
   created () {
+    
     this.pollData();
   },
   mounted(){
@@ -88,14 +91,19 @@ export default {
         this.$router.push('/transactions');
     },
     pollData() {
-      this.polling = setInterval(() => {
-        this.$store.dispatch('updateBalance');
-        // this.$store.dispatch('updateBalanceSubaccounts');
-      }, 1000);
-      this.pollingTransaction = setInterval(() => {
-        this.$store.dispatch('updateBalanceSubaccounts');
-        this.updateTransactions();
-      }, 5000);
+      
+        this.polling = setInterval(() => {
+          if(this.sdk != null) {
+            this.$store.dispatch('updateBalance');
+          }
+        }, 1000);
+        this.pollingTransaction = setInterval(() => {
+          if(this.sdk != null) {
+            this.$store.dispatch('updateBalanceSubaccounts');
+            this.updateTransactions();
+          }
+        }, 5000);
+      
     },
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -121,6 +129,9 @@ export default {
     },
     openTipPage() {
       this.$router.push('/tip');
+    },
+    showTokens() {
+      this.$router.push('/tokens')
     }
   },
   beforeDestroy () {

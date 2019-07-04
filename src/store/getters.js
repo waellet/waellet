@@ -33,5 +33,8 @@ export const getters = {
   },
   activeAccountName(state) {
     return state.subaccounts.find(s => s.publicKey == state.account.publicKey).name;
+  },
+  sdk(state) {
+    return state.sdk
   }
 };

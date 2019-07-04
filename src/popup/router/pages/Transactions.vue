@@ -83,7 +83,7 @@ export default {
             allTransactions:[],
             loading:true,
             page:1,
-            limit:5,
+            limit:100,
             showMoreBtn:true,
             totalTransactions:0,
             currentCount:0,
