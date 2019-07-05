@@ -17,18 +17,36 @@
               <span class="dropdown-button-name" v-html="current.network" slot="button"></span>
             </button>
             <transition name="slide-fade">
-              <ul v-if="dropdown.network" class="dropdown-holder">
-                <li v-for="(value, name) in network" v-bind:key="value.networkId">
+              <!-- <ul v-if="dropdown.network" class="dropdown-holder"> -->
+              <ae-list v-if="dropdown.network" class="dropdown-holder">
+                <ae-list-item fill="neutral" @click="switchNetwork(name)" :class="current.network == name ? 'activeAccount' : '' " v-for="(value, name) in network" v-bind:key="name">
+                    <!-- <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" /> -->
+                    <div class="subAccountInfo">
+                      <div class="subAccountName">{{ name }}</div>
+                      <div class="subAccountBalance" :title="value.url">{{ value.url }}</div>
+                    </div>
+                    <ae-check class="subAccountCheckbox"  type="radio" :value="name" v-model="current.network" /> 
+                </ae-list-item>
+                <ae-list-item fill="neutral" class="manageAccounts">
+                  <ae-button @click="navigateNetworks" class="triggerhidedd">
+                    <ae-button face="icon" fill="primary" class="iconBtn">
+                      <ae-icon name="plus" />
+                    </ae-button>
+                    <span class="newSubaccount">{{ language.strings.manageNetworks }}</span>
+                  </ae-button>
+                </ae-list-item>
+              </ae-list>
+                <!-- <li v-for="(value, name) in network" v-bind:key="value.networkId">
                   <ae-button v-on:click="switchNetwork(name)" class="status triggerhidedd" :class="current.network == name ? 'current' : ''">
                       {{ name }}
                   </ae-button>
                 </li>
-              </ul>
+              </ul> -->
             </transition>
           </div>
 
           <!-- account dropdown -->
-          <div id="account" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="center" ref="account">
+          <div id="account" class="dropdown big" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="center" ref="account">
             <button v-on:click.prevent="toggleDropdown">
               <ae-identicon id="identIcon" class="dropdown-button-icon" v-bind:address="this.account.publicKey" size="base" slot="button" />
               <span class="dropdown-button-name" slot="button">{{ activeAccountName }}</span>
@@ -111,10 +129,11 @@
         <!-- logged in header END -->
       </ae-header>
       <ae-modal-light
+        class="popup-modal"
         v-if="popup.show"
         @close="closePopup"
         :title="popup.title"
-        :class="popup.secondBtn ? 'modal-two-buttons' : '' "
+        :class="(popup.secondBtn ? 'modal-two-buttons ' : '') + (popup.class ? popup.class : '')"
       >
         <div v-html="popup.msg"></div>
         <ae-button
@@ -122,20 +141,20 @@
           type="exciting"
           class="popup-button"
           face="round"
-          :fill="popupButtonFill"
+          :fill="popup.buttonsFillPrimary"
           uppercase
           @click.native="closePopup"
           slot="buttons"
-        >OK</ae-button>
+        >{{ popup.buttonsTextPrimary }}</ae-button>
         <ae-button
           v-if="popup.secondBtn"
           class="popup-button"
           face="round"
-          fill="secondary"
+          :fill="popup.buttonsFillSecondary"
           uppercase
           @click.native="popupSecondBtnClick"
           slot="buttons"
-        >See in explorer</ae-button>
+        >{{ popup.buttonsTextSecondary }}</ae-button>
       </ae-modal-light>
     <router-view></router-view>
     <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
@@ -170,21 +189,29 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network','popup','isLoggedIn', 'AeAPI','subaccounts','activeAccount', 'balance','activeAccountName']),
-    popupButtonFill(){
-      return this.popup.type == 'error' ? 'primary' : 'alternative';
-    },
+    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName']),
     extensionVersion() {
       return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
   },
   created: function () {
-      browser.storage.sync.set({language: 'en'}).then(() => {
-        this.language = locales['en'];
-      });
-      // browser.storage.sync.get('language', langChoose => {
-      //   this.language = locales[langChoose.language];
+      // browser.storage.sync.set({language: 'en'}).then(() => {
+      //   browser.storage.sync.set({activeLanguage: 'en'});
+      //   this.language = locales['en'];
+      //   this.current.language = 'en';
       // });
+      browser.storage.sync.get('activeLanguage').then((data) => {
+        if (data.hasOwnProperty('activeLanguage')) {
+          let defLang = locales['en'];
+          this.language = Object.assign(defLang, locales[data.activeLanguage]);
+          this.current.language = data.activeLanguage;
+        }
+      });
+      browser.storage.sync.get('activeNetwork').then((data) => {
+        if (data.hasOwnProperty('activeNetwork') && data.activeNetwork != 0) {
+          this.$store.state.current.network = data.activeNetwork;
+        }
+      });
        // fetch api one time
       let states = this.$store.state;
       if (typeof states.aeAPI == 'undefined') {
@@ -234,8 +261,9 @@ export default {
       this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
     },
     switchLanguage(languageChoose) {
-      browser.storage.sync.set({language: languageChoose}).then(() => {
-        this.language = locales[languageChoose];
+      browser.storage.sync.set({activeLanguage: languageChoose}).then(() => {
+        let defLang = Object.assign({}, locales['en']);
+        this.language = Object.assign(defLang, locales[languageChoose]);
         this.current.language = languageChoose;
       });
     },
@@ -267,6 +295,7 @@ export default {
     }, 
     closePopup() {
       this.$store.commit('HIDE_POPUP');
+      this.$store.commit('DEF_POPUP');
     },
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -274,6 +303,9 @@ export default {
     navigateAccount () {
       this.dropdown.settings = false;
       this.$router.push('/account');
+    },
+    navigateNetworks () {
+      this.$router.push('/manageNetworks');
     },
     manageAccounts () {
       this.$router.push('/manageAccounts');
@@ -299,6 +331,21 @@ export default {
     },
     showTransaction(){
       browser.tabs.create({url: this.popup.data, active: false});
+    },
+    removeUserNetwork () {
+      let networkName = this.popup.data;
+          // deleteIndex = null;
+      if (networkName != '') {
+          let un = this.userNetworks.filter(d => {
+            return d.name != networkName
+          });
+          this.$store.dispatch('setUserNetworks', un).then(() => {
+            browser.storage.sync.set({ userNetworks: un}).then(() => {
+              delete this.$store.state.network[networkName];
+              this.closePopup();
+            });
+          });
+      }
     },
     fetchApi() {
       let states = this.$store.state;
@@ -329,7 +376,7 @@ export default {
 .ae-main { width: 380px; }
 .fadeOut-enter-active, .fadeOut-leave-active { transition: all .5s ease-in-out; }
 .fadeOut-leave-to { opacity: 0; }
-.mainLoader { position: fixed; width: 100%; height: 100%; background-color: #FFF; top: 0; }
+.mainLoader { position: fixed; width: 100%; height: 100%; background-color: rgba(255,255,255,1); top: 0; }
 .mainLoader .ae-loader { position: absolute; top: 50%; left: 50%; margin: -1.5em; width: 3em !important; height: 3em !important; border-radius: 3em !important; }
 html { min-width: 357px; min-height: 600px; background-color: #f5f5f5; }
 p { font-weight: bolder; margin-left: 3px; }
@@ -345,6 +392,8 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .logo_top { display: flex; flex-flow: row wrap; justify-content: center; vertical-align: center; }
 .logo_top p { color: #FF0D6A; font-size: 20px; line-height: 12px; }
 .popup { color: #555; padding: 4px 14px; text-align: center; font-size: 16px; word-break: break-all; word-wrap: break-word; }
+#network.dropdown > ul { min-width: 250px; }
+#network > button { max-width: 80px; }
 #network li .status::before { content: ''; display: inline-block; width: 8px; height: 8px; -moz-border-radius: 7.5px; -webkit-border-radius: 7.5px; border-radius: 7.5px; margin-right: 5px;
                 border: 1px solid #DDD; background-color: #EFEFEF; }
 #network li .status.current::before { border-color: green; background-color: greenyellow; }
@@ -352,18 +401,20 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account  > button { width: 120px; }
 #account .dropdown-button-icon.ae-identicon.base { height: 1.8rem; margin-bottom: 3px; vertical-align: top; }
 #account .ae-dropdown-button .dropdown-button-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.subAccountInfo { margin-right:auto; margin-bottom:0 !important; max-width: 155px; }
+#network .subAccountInfo { max-width: 195px; }
 .subAccountIcon { margin-right: 10px; }
-.subAccountName { /*width: 110px; line-height: 28px;*/ color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important;}
-.subAccountBalance { font-family: monospace; margin-bottom:0 !important;}
-.subAccountInfo { margin-right:auto; margin-bottom:0 !important; }
+.subAccountName { /*width: 110px; line-height: 28px;*/ color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
+.subAccountBalance { font-family: monospace; margin-bottom:0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;}
 #account .subAccountCheckbox { float: right; }
-#account li { padding:0.75rem; cursor:pointer !important; }
-#account ul { width:250px; margin:0; transform:translateX(-50%); -webkit-transform:translateX(-50%); -ms-transform:translateX(-50%); }
+#account li, #network li { padding:0.75rem; cursor:pointer !important; }
+#account ul { width:250px; margin-left: -125px;}
 #account .activeAccount { background: #f6f6f6; }
-#account .manageAccounts { padding:0; }
-#account .manageAccounts button { padding:1.2rem 1rem; height: auto; }
-#account .iconBtn { padding: 0 !important; height: 30px !important; width: 30px; color: #fff; text-align: center; margin-right: 8px;}
-#account .iconBtn i { color: #fff !important; font-size: 1.2rem !important; margin: 0;float: none; text-align: center;}
+#account .manageAccounts, #network .manageAccounts { padding:0; }
+#account .manageAccounts button, #network .manageAccounts button { padding: 0.5rem 1rem; height: auto; justify-content: center; }
+#account .iconBtn, #network .iconBtn { padding: 0 !important; height: 30px !important; width: 30px; color: #fff; text-align: center; margin-right: 8px;}
+#account .iconBtn i, #network .iconBtn i { color: #fff !important; font-size: 1.2rem !important; margin: 0;float: none; text-align: center;}
+#account.dropdown ul li .ae-button > * { display: inline-block; vertical-align: middle; }
 .ae-check .ae-check-button { float: right; min-width: 0 !important; min-height: 0 !important; padding-left: 0 !important; }
 .ae-check-button:before { position: static !important; }
 .ae-check-button:after { left: 0 !important; top: 0 !important; width: 28px !important; height: 28px !important; }
@@ -383,14 +434,13 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .dropdown ul li .ae-button { width: 100%; text-align: left; margin: 0; padding: 0 1rem; white-space: nowrap; justify-content: unset; }
 .dropdown ul li .ae-button .ae-icon-left-more { margin-top: 3px; transition: all 0.3s; }
 .dropdown .have-subDropdown.show .ae-button .ae-icon-left-more { transform: rotate(90deg); }
-#account.dropdown ul li .ae-button > * { display: inline-block; vertical-align: middle; }
 .dropdown li { color: #717C87; margin: 0; }
-.dropdown li > .ae-button:hover, .sub-dropdown li:not(.backBtn) > .ae-button:hover { background-color: #F3F3F3; }
+.dropdown li > .ae-button:hover, .sub-dropdown li:not(.backBtn) > .ae-button:hover, #network li:hover { background-color: #F3F3F3; }
 .dropdown li > .ae-button { width: 100%; }
 .dropdown > .ae-button { text-align: center; }
 .dropdown > .ae-button, .dropdown .ae-dropdown-button { color: #717C87; vertical-align: top; height: 50px; width: 50px; display: inline-block !important; }
 .dropdown .dropdown-button-icon { font-size: 1.5rem; margin: 0 auto 5px; display: block; }
-.dropdown .dropdown-button-name { display: block; margin: 0 auto; }
+.dropdown .dropdown-button-name { display: block; margin: 0 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dropdown > button:hover, .dropdown > .ae-dropdown-button:hover { color: #FFF; }
 .slide-fade-enter-active { transition: all .3s ease; }
 .slide-fade-leave-active { transition: all .2s ease; }

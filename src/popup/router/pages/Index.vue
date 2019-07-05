@@ -108,6 +108,8 @@ export default {
       // browser.storage.sync.set({confirmSeed: true}).then(() => {});
       // browser.storage.sync.set({mnemonic: ''}).then(() => {});
       // browser.storage.sync.remove('subaccounts').then(() => {});
+      // browser.storage.sync.remove('userNetworks').then(() => {});
+      // browser.storage.sync.remove('activeNetwork').then(() => {});
       var newTab = false;
       browser.storage.sync.get('showAeppPopup').then((data) => {
         
@@ -164,6 +166,16 @@ export default {
                                 this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:sub[active.activeAccount].publicKey,index:active.activeAccount});
                               }
                             });
+                          });
+
+                          // Get user networks
+                          browser.storage.sync.get('userNetworks').then((usernetworks) => {
+                            if (usernetworks.hasOwnProperty('userNetworks')) {
+                                usernetworks.userNetworks.forEach(data => {
+                                  this.$store.state.network[data.name] = data;
+                                });
+                                this.$store.dispatch('setUserNetworks', usernetworks.userNetworks);
+                            }
                           });
                         }
                       } 

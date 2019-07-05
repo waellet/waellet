@@ -13,6 +13,9 @@ export const getters = {
   network(state) {
     return state.network;
   },
+  userNetworks(state) {
+    return state.userNetworks;
+  },
   current(state) {
     return state.current;
   },

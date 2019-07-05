@@ -10,6 +10,7 @@ import SignTransactionComponent from './pages/SignTransaction';
 import ManageAccount from './pages/ManageAccounts';
 import ConfirmPopupmessagesComponent from './pages/ConfirmPopupmessages';
 import TipComponent from './pages/TipPage';
+import ManageNetworks from './pages/ManageNetworks';
 
 export default [
   {
@@ -70,5 +71,9 @@ export default [
   {
     path:'/tip',
     component:TipComponent
+  },
+  {
+    path:'/manageNetworks',
+    component:ManageNetworks
   }
 ];

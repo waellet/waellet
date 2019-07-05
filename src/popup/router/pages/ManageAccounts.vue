@@ -5,7 +5,7 @@
         </div>
         <h3>{{ language.strings.manageAccounts }}</h3>
         <ae-list face="primary">
-            <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts">
+            <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts" v-bind:key="index">
                 <!-- IF not edit -->
                 <div v-if="!subaccount.edit">
                     <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
