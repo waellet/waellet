@@ -17,10 +17,8 @@
               <span class="dropdown-button-name" v-html="current.network" slot="button"></span>
             </button>
             <transition name="slide-fade">
-              <!-- <ul v-if="dropdown.network" class="dropdown-holder"> -->
               <ae-list v-if="dropdown.network" class="dropdown-holder">
                 <ae-list-item fill="neutral" @click="switchNetwork(name)" :class="current.network == name ? 'activeAccount' : '' " v-for="(value, name) in network" v-bind:key="name">
-                    <!-- <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" /> -->
                     <div class="subAccountInfo">
                       <div class="subAccountName">{{ name }}</div>
                       <div class="subAccountBalance" :title="value.url">{{ value.url }}</div>
@@ -36,12 +34,6 @@
                   </ae-button>
                 </ae-list-item>
               </ae-list>
-                <!-- <li v-for="(value, name) in network" v-bind:key="value.networkId">
-                  <ae-button v-on:click="switchNetwork(name)" class="status triggerhidedd" :class="current.network == name ? 'current' : ''">
-                      {{ name }}
-                  </ae-button>
-                </li>
-              </ul> -->
             </transition>
           </div>
 
