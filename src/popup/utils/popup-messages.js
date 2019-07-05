@@ -6,6 +6,7 @@ export const INCORRECT_AMOUNT = { type:'error', title:'Enter amount', msg:'Pleas
 export const TRANSACTION_FAILED = { type:'error', title:'Oops! Something went wrong', msg:'We cannot process this transaction! Plesse, try again!'}
 export const REQUIRED_FIELD = { type:'error', title:'Required fields!', msg:'Please fill in all fields.'}
 export const INCORRECT_FIELDS_ADD_TOKEN = { type:'error', title:'Incorrect fields', msg:'Please fill in all fields correctly! '}
+export const TOKEN_ADDED = { type:'error', title:'Token exists', msg:'Token already added! '}
 //success messages
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied' ,msg:'Public key copied to clipboard! '};
 export const SUCCESS_TRANSFER = { type:'success', title:'Transfer completed', msg:''}

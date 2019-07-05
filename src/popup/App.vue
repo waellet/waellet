@@ -99,6 +99,25 @@
                   </ul>
 
                 </li>
+                 <li id="tokens" class="have-subDropdown" :class="dropdown.tokens ? 'show' : ''">
+                  <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
+                    <ae-icon name="globe" />
+                    {{ language.strings.switchToken }}
+                    <ae-icon name="left-more" />
+                  </ae-button>
+
+                  <!-- Language sub dropdown -->
+                  <ul class="sub-dropdown">
+                    <li v-for="(tkn, index) in tokens" v-if="typeof tkn.parent == 'undefined' || tkn.parent == account.publicKey" :key="index">
+                      <ae-button @click="switchToken(index)" class="triggerhidedd" >
+                        <ae-identicon class="token-image" :address="tkn.contract" size="base" v-if="index != 0 "/>
+                        <img :src="ae_token" class="token-image" alt="" v-if="index == 0" >
+                        <span class="subAccountBalance">{{typeof tkn.parent == 'undefined' ? balance : tkn.balance }} {{ tkn.symbol }}</span>
+                      </ae-button>
+                    </li>
+                  </ul>
+
+                </li>
                 <li>
                   <ae-button @click="logout" class="toLogout">
                     <ae-icon name="sign-out" />
@@ -159,19 +178,21 @@ export default {
   data () {
     return {
       logo_top: browser.runtime.getURL('../../../icons/icon_48.png'),
+      ae_token: browser.runtime.getURL('../../../icons/ae.png'),
       language: locales['en'],
       locales: locales,
       dropdown: {
         network: false,
         settings: false,
         account: false,
-        languages: false
+        languages: false,
+        tokens: false
       },
       mainLoading: true
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network','popup','isLoggedIn', 'AeAPI','subaccounts','activeAccount', 'balance','activeAccountName','wallet', 'sdk']),
+    ...mapGetters (['account', 'current', 'network','popup','isLoggedIn', 'AeAPI','subaccounts','activeAccount', 'balance','activeAccountName','wallet', 'sdk','tokens']),
     popupButtonFill(){
       return this.popup.type == 'error' ? 'primary' : 'alternative';
     },
@@ -188,6 +209,9 @@ export default {
       setTimeout(() => {
         if(this.isLoggedIn && this.sdk == null) {
           this.initSDK()
+        }
+        if(this.isLoggedIn) {
+          this.pollData()
         }
       },500)
       
@@ -212,6 +236,7 @@ export default {
       }, 1500);
     },
     changeAccount (index,subaccount) {
+      this.current.token = 0
       browser.storage.sync.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
         this.$store.commit('RESET_TRANSACTIONS',[]);
@@ -248,6 +273,10 @@ export default {
         this.language = locales[languageChoose];
         this.current.language = languageChoose;
       });
+    },
+    switchToken(token){
+      this.current.token = token
+      this.$store.commit('RESET_TRANSACTIONS',[]);
     },
     switchNetwork (network) {
       this.$store.dispatch('switchNetwork', network).then(() => {
@@ -311,6 +340,25 @@ export default {
     showTransaction(){
       browser.tabs.create({url: this.popup.data, active: false});
     },
+    pollData() {
+      let triggerOnce = false
+      this.polling = setInterval(() => {
+        if(this.sdk != null) {
+            //Todo update token if is not AE
+            this.$store.dispatch('updateBalance');
+            if(this.dropdown.account) {
+              this.$store.dispatch('updateBalanceSubaccounts');
+            }
+            if(this.dropdown.settings) {
+              this.$store.dispatch('updateBalanceTokens');
+            }
+            if(!triggerOnce) {
+              this.$store.dispatch('updateBalanceSubaccounts');
+              triggerOnce = true
+            }
+        }
+      }, 5000);
+    },
     fetchApi() {
       let states = this.$store.state;
       let ae = Ae({
@@ -327,8 +375,8 @@ export default {
       })
       return ae;
     },
-    initSDK:async function initSDK() {
-      let sdk = await Universal({
+    initSDK() {
+      Universal({
         url: this.network[this.current.network].url, 
         internalUrl: this.network[this.current.network].internalUrl,
         keypair: {
@@ -338,9 +386,13 @@ export default {
         networkId: this.network[this.current.network].networkId, 
         nativeMode: true,
         compilerUrl: 'https://compiler.aepps.com'
+      }).then((sdk) => {
+        this.$store.dispatch('initSdk',sdk)
       })
-      this.$store.dispatch('initSdk',sdk)
     }
+  },
+  beforeDestroy() {
+    clearInterval(this.polling)
   }
 };
 </script>
@@ -432,4 +484,5 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="2"] { background: #9d3fc0 }
 .Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="3"] { background: #1d7fe2 }
 .Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="4"] { background: $color-alternative }
+.token-image { margin-right:1rem; width:28px; }
 </style>

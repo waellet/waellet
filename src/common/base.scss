@@ -315,6 +315,9 @@ main {
   &:after {
       content: ' AE';
   }
+  &.no-sign:after {
+    content: '';
+  }
 }
 .balanceBig {
   font-size:1.8rem;
@@ -338,5 +341,5 @@ main {
   width:100% !important;
 }
 .input-container {
-  margin:1rem 0;
+  margin:1.2rem 0;
 }

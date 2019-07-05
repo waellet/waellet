@@ -36,5 +36,14 @@ export const getters = {
   },
   sdk(state) {
     return state.sdk
+  },
+  tokens(state) {
+    return state.tokens
+  },
+  tokenSymbol(state) {
+    return state.tokens[state.current.token].symbol
+  },
+  tokenBalance(state) {
+    return state.current.token != 0 ? state.tokens[state.current.token].balance : state.balance
   }
 };

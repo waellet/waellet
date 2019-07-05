@@ -102,7 +102,7 @@ export default {
     },
     locales,
     computed: {
-        ...mapGetters(['account','transactions']),
+        ...mapGetters(['account','transactions','current']),
         showMore() {
             return this.currentCount + 1 <= this.totalTransactions;
         },
@@ -129,6 +129,9 @@ export default {
                     return dateString === new Date().toDateString() ? 'Today' : dateString;
                 },
             );
+        },
+        watchToken() {
+            return this.current.token
         }
     },
     created(){
@@ -159,7 +162,7 @@ export default {
                     }
                 },1000);
             }
-        }
+        },
     },
     methods: {
         getPage() {
@@ -174,34 +177,36 @@ export default {
             this.transactionsType = type;
         },
         getTransactions(type,limit = this.limit){
-            if(type == 'load') {
-                let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,page:this.page,limit:limit});
-                transactions.then(res => {
-                    if(res.length != 0) {
+            if(this.current.token == 0) {
+                if(type == 'load') {
+                    let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,page:this.page,limit:limit});
+                    transactions.then(res => {
+                        if(res.length != 0) {
+                            let newTrans = res.filter( tr => {
+                                let found = this.transactions.all.find(t => t.hash == tr.hash);
+                                if(typeof found == 'undefined') return tr;
+                            });
+                            this.$store.dispatch('updateAllTransactions',{new:false,transactions:newTrans});
+                        }else {
+                            this.showMoreBtn = false;
+                        }
+                        this.loading = false;
+                    });
+                }else if(type == 'new') {
+                    let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:limit});
+                    transactions.then(res => {
                         let newTrans = res.filter( tr => {
                             let found = this.transactions.all.find(t => t.hash == tr.hash);
                             if(typeof found == 'undefined') return tr;
                         });
-                        this.$store.dispatch('updateAllTransactions',{new:false,transactions:newTrans});
-                    }else {
-                        this.showMoreBtn = false;
-                    }
-                    this.loading = false;
-                });
-            }else if(type == 'new') {
-                let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:limit});
-                transactions.then(res => {
-                    let newTrans = res.filter( tr => {
-                        let found = this.transactions.all.find(t => t.hash == tr.hash);
-                        if(typeof found == 'undefined') return tr;
+                        newTrans.forEach(element => {
+                            if(typeof this.newTr.find(tr => tr.hash == element.hash) == 'undefined') {
+                                this.newTr.unshift(element);
+                                this.newTransactions += 1;
+                            }
+                        });
                     });
-                    newTrans.forEach(element => {
-                        if(typeof this.newTr.find(tr => tr.hash == element.hash) == 'undefined') {
-                            this.newTr.unshift(element);
-                            this.newTransactions += 1;
-                        }
-                    });
-                });
+                }
             }
         },
         getTotalTransactions() {

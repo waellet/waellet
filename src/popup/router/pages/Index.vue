@@ -94,7 +94,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['account','isLoggedIn','wallet'])
+    ...mapGetters(['account','isLoggedIn','wallet','tokens'])
   },
   mounted() {},
   created () {
@@ -107,7 +107,7 @@ export default {
       // browser.storage.sync.set({isLogged: ''}).then(() => {});
       // browser.storage.sync.set({confirmSeed: true}).then(() => {});
       // browser.storage.sync.set({mnemonic: ''}).then(() => {});
-      // browser.storage.sync.remove('subaccounts').then(() => {});
+      // browser.storage.sync.remove('tokens').then(() => {});
       var newTab = false;
       browser.storage.sync.get('showAeppPopup').then((data) => {
         
@@ -177,10 +177,17 @@ export default {
                       if (data.isLogged && data.hasOwnProperty('isLogged')) {
                         browser.storage.sync.get('wallet').then((wallet) => {
                           if(wallet.hasOwnProperty('wallet') && wallet.wallet != "") {
-                            this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
-                            this.$store.commit('SWITCH_LOGGED_IN', true);
-                            
-                            this.$router.push('/account');
+                            browser.storage.sync.get('tokens').then((tkn) => {
+                              let tokens = this.tokens
+                              if(tkn.hasOwnProperty('tokens')) {
+                                tokens = tkn.tokens
+                              }
+                              this.$store.dispatch('setTokens', tokens).then(() => {
+                                this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
+                                this.$store.commit('SWITCH_LOGGED_IN', true);
+                                this.$router.push('/account');
+                              })
+                            });
                           }
                         });
                       }

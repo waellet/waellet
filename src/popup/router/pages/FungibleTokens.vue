@@ -1,43 +1,57 @@
 <template>
-    <div class="popup">
-        <div class="actions">
-            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
-        </div>
-        <div class="tabs">
-            <span @click="switchTabs('search')" :class="tabAcitveClass('search')">Search</span>
-            <span @click="switchTabs('add')" :class="tabAcitveClass('add')">Custom Token</span>
-        </div>
-
-        <div v-if="activeTab == 'search'">
-            <h3>{{language.pages.tokens.searchHeading}}</h3>
-        </div>
-        <div v-if="activeTab == 'add'">
+    <div>
+        <div class="popup">
+            <div class="actions">
+                <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+            </div>
+        
             <h3>{{language.pages.tokens.addHeading}}</h3>
-            <div class="input-container">
-                <ae-input :label="language.pages.tokens.tokenContractLabel" v-model="token.contract" @keyup.native="validate('contract')">
-                    <ae-toolbar slot="footer">
-                        Valid token contract address
-                    </ae-toolbar>
-                </ae-input>
+            <div v-if="addStep == false">
+                <div class="input-container">
+                    <ae-input :label="language.pages.tokens.tokenContractLabel" v-model="token.contract" @keyup.native="validate('contract')">
+                        <ae-toolbar slot="footer">
+                            Valid token contract address
+                        </ae-toolbar>
+                    </ae-input>
+                </div>
+                <div class="input-container">
+                    <ae-input :label="language.pages.tokens.tokenSymbolLabel">
+                        <input type="text" :disabled="token.precisionDisabled" class="ae-input" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                        <ae-toolbar slot="footer">
+                            Symbol between 1 and 12 characters
+                        </ae-toolbar>
+                    </ae-input>
+                </div>
+                <div class="input-container">
+                    <ae-input :label="language.pages.tokens.tokenPrecision" >
+                        <input type="text" :disabled="token.precisionDisabled" class="ae-input" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                        <ae-toolbar slot="footer" >
+                            Number between 0 and 36
+                        </ae-toolbar>
+                    </ae-input>
+                </div>
+                <ae-button face="round" fill="primary" @click="next" extend >{{language.pages.tokens.next}}</ae-button>
             </div>
-            <div class="input-container">
-                <ae-input :label="language.pages.tokens.tokenSymbolLabel">
-                    <input type="text" :disabled="token.precisionDisabled" class="ae-input" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                    <ae-toolbar slot="footer">
-                        Symbol between 1 and 12 characters
-                    </ae-toolbar>
-                </ae-input>
+            <div v-if="addStep" >
+                <div class="flex  flex-justify-between token-add-holder">
+                    <div>
+                        <div class="token-title">Token</div>
+                        <div class="flex ">
+                            <ae-identicon :address="token.contract" />
+                            <div class="balanceBig balance no-sign">{{token.symbol}}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="token-title">Balance</div>
+                        <div class="balanceBig balance no-sign">{{token.balance}} {{token.symbol}}</div>
+                    </div>
+                </div>
+                <ae-button face="round" fill="primary" @click="addCustomToken" extend >{{language.pages.tokens.addHeading}}</ae-button>
             </div>
-            <div class="input-container">
-                <ae-input :label="language.pages.tokens.tokenPrecision" >
-                    <input type="text" :disabled="token.precisionDisabled" class="ae-input" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                    <ae-toolbar slot="footer" >
-                        Number between 0 and 36
-                    </ae-toolbar>
-                </ae-input>
-            </div>
-            <ae-button face="round" fill="primary" @click="addCustomToken" extend >{{language.pages.tokens.addHeading}}</ae-button>
         </div>
+        <transition name="fadeOut">
+            <span v-if="loading" class="mainLoader"><ae-loader /></span>
+        </transition>
     </div>
 </template>
 
@@ -55,41 +69,23 @@ export default {
                 contract:'',
                 symbol:'',
                 precision:0,
-                precisionDisabled:false
+                precisionDisabled:false,
+                balance:0,
+                name:''
             },
             error: {
                 type:null,
                 msg:null
             },
+            addStep:false,
+            loading:false
         }
     },
     locales,
     computed: {
-        ...mapGetters(['sdk','account'])
-    },
-    created(){
-        setTimeout(() => {
-            this.callContractMethod()
-        },2000)
-        
-        // .then((res) => {
-        //     console.log(res)
-        //     res.decode()
-        //     .then(data => {
-        //         console.log(data)
-        //     })
-        // })
+        ...mapGetters(['sdk','account','tokens'])
     },
     methods:{
-        async callContractMethod() {
-            let call = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,"ct_2CC7FPsumg5azo7xNH6XS9wCnzFqVCdE4WrKzrUk6Z4jNeazF8",'total_supply')
-            console.log(call)
-            call.decode()
-            .then(data => {
-                console.log(data)
-            })
-            
-        },
         switchTabs(tab) {
             this.activeTab = tab
         },
@@ -107,16 +103,49 @@ export default {
                 }
             }
         },
-        addCustomToken() {
+        async next() {
+            let added = this.tokens.find(tkn => tkn.contract == this.token.contract && tkn.parent == this.account.publicKey)
             if( this.token.contract.length != 53 || 
                 (this.token.symbol.length < 1 || this.token.symbol.length > 12) || 
                 isNaN(this.token.precision) ||
                 (!isNaN(this.token.precision) && (this.token.precision < 0 || this.token.precision > 36 ))
             ) {
-                this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'});
+                this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'})
+            }else if(typeof added != 'undefined'){
+                this.$store.dispatch('popupAlert', { name: 'account', type: 'token_exists'})
             }else {
-
+                this.loading = true
+                let call = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,this.token.contract,'balance',[this.account.publicKey])
+                let balance = await call.decode()
+                this.loading = false
+                this.token.balance = balance == 'None' ? 0 : balance.Some[0]
+                this.addStep = true
             }
+        },
+        async addCustomToken() {
+            let tokens = this.tokens.map(tkn => tkn)
+            tokens.push({
+                contract:this.token.contract,
+                name:this.token.name,
+                symbol:this.token.symbol,
+                precision:this.token.precision,
+                balance:this.token.balance,
+                parent:this.account.publicKey
+            })
+            this.$store.dispatch('setTokens', tokens).then(() => {
+                browser.storage.sync.set({ tokens: this.tokens}).then(() => { 
+                    this.$store.dispatch('popupAlert', {
+                            name: 'account',
+                            type: 'added_success'
+                        }).then(() => { 
+                            this.token.contract = ""
+                            this.token.symbol = ""
+                            this.token.precision = 0
+                            this.token.precisionDisabled = false
+                            this.addStep = false
+                        });
+                });
+            });
         },
         searchTokenMetaInfo(address) {
             this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,address,'meta_info')
@@ -126,6 +155,7 @@ export default {
                     if(typeof data.decimals != 'undefined' && typeof data.symbol != 'undefined') {
                         this.token.precision = data.decimals
                         this.token.symbol = data.symbol
+                        this.token.name = data.name
                         this.addToken = true
                         this.token.precisionDisabled = true
                     }
@@ -147,5 +177,30 @@ export default {
 }
 .tabs span {
     width:49%;
+}
+.token-title {
+    font-size:1.1rem;
+    text-align: left;
+    margin-bottom:1rem;
+}
+.token-add-holder {
+    margin-bottom:2rem;
+}
+.token-add-holder > div:first-child {
+    width:60%;
+}
+.token-add-holder > div:last-child {
+    width:40%;
+}
+.token-add-holder > div div {
+    text-align: left;
+    color:$color-secondary;
+}
+.token-add-holder .ae-identicon {
+    height:3rem !important;
+    margin-right:1rem;
+}
+.mainLoader {
+    opacity:0.5;
 }
 </style>
