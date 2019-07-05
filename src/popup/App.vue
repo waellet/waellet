@@ -58,8 +58,8 @@
           <!-- settings dropdown -->
           <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" ref="settings">
             <button v-on:click="toggleDropdown">
-              <ae-icon class="dropdown-button-icon" name="settings" slot="button" />
-              <span class="dropdown-button-name" slot="button">{{ language.strings.settings }}</span>
+              <ae-icon class="dropdown-button-icon" name="burger" slot="button" />
+              <span class="dropdown-button-name" slot="button">{{ language.strings.menu }}</span>
             </button>
             <transition name="slide-fade">
               <ul v-if="dropdown.settings" class="dropdown-holder">
@@ -70,9 +70,9 @@
                   </ae-button>
                 </li>
                 <li>
-                  <ae-button @click="exportKeypair('keypair')">
-                    <ae-icon name="save" />
-                    {{ language.strings.exportKeypair }}
+                  <ae-button @click="settings" class="settings">
+                    <ae-icon name="settings" />
+                    {{ language.strings.settings }}
                   </ae-button>
                 </li>
                 <li>
@@ -87,7 +87,6 @@
                     {{ language.strings.switchLanguage }}
                     <ae-icon name="left-more" />
                   </ae-button>
-
                   <!-- Language sub dropdown -->
                   <ul class="sub-dropdown">
                     <li v-for="(value, name) in locales" v-bind:key="name">
@@ -97,7 +96,6 @@
                       </ae-button>
                     </li>
                   </ul>
-
                 </li>
                 <li>
                   <ae-button @click="logout" class="toLogout">
@@ -152,6 +150,7 @@ import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout } from 'timers';
+import { fetchData } from './utils/helper';
 
 export default {
   
@@ -260,6 +259,11 @@ export default {
             this.$store.commit('UPDATE_ACCOUNT', '');
             this.$store.commit('SWITCH_LOGGED_IN', false);
             this.$store.commit('SET_WALLET', []);
+            browser.storage.sync.get('allowTracking').then(result => {
+              if(result.allowTracking == true) {
+                  fetchData('https://stats.waellet.com/user/logout', 'post', this.isLogged);
+              }
+            });
             this.$router.push('/');
           });
         });
@@ -274,6 +278,10 @@ export default {
     myAccount () {
       this.dropdown.settings = false;
       this.$router.push('/account');
+    },
+    settings () {
+      this.dropdown.settings = false;
+      this.$router.push('/settings');
     },
     manageAccounts () {
       this.$router.push('/manageAccounts');

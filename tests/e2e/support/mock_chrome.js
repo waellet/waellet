@@ -48,6 +48,7 @@ const onBeforeLoad = (win,mock = '') => {
            }
        }
 
+        win.chrome.storage.sync.set({allowTracking: false},()=>{});
         window.chrome = win.chrome;
         if(mock == 'account') {
             const account = {

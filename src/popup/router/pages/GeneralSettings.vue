@@ -1,39 +1,50 @@
 <template>
     <div class="popup">
-        <ae-main>
-            <div class="backbtn">
-                <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
-            </div>
-            <h3 style='text-align:center;'>Aeternity Naming System</h3>
-            <br>
+        <div class="backbtn">
+            <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{language.buttons.backToSettings}}</button>
+        </div>
+        <h3 style='text-align:center;'>{{language.pages.settings.generalSettings.heading}}</h3>
+        <ae-panel>
             <div class="maindiv_input-group-addon">
+                <h4>{{language.pages.settings.generalSettings.registerName}}</h4><hr>
+                <small class="sett_info">{{language.pages.settings.generalSettings.registerNameInfo}}</small>
                 <div class="checkName input-group-addon">
                     <input v-model="name" class="addon-input" />
                     <label class="addon-lbl" >.test</label>
                 </div>
-                <small><ae-icon name="github" /> Allowed only letters and numbers</small>
-                <ae-button class="regbtn" face="round" fill="primary" extend @click="registerName">Register name</ae-button>
+                <ae-button class="regbtn" face="icon" fill="primary" @click="registerName">
+                    <ae-icon name="plus" />
+                </ae-button>
+                <small style="font-size:12px;"><ae-icon style="font-size: 15px;" name="github" />{{language.pages.settings.generalSettings.registerNameRequirement}}</small>
             </div>
-            <div v-if="loading" class="loading">
-                <ae-loader />
+        </ae-panel>
+        
+        <ae-panel>
+            <div class="maindiv_input-group-addon">
+                <h4>Password change</h4><hr>
+                
             </div>
-        </ae-main>
+        </ae-panel>
+
+        <div v-if="loading" class="loading">
+            <ae-loader />
+        </div>
     </div>
 </template>
 
 <script>
-
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import locales from '../../locales/locales.json';
+const {Universal} = require('@aeternity/aepp-sdk');
 
 export default {
     data () {
         return {
             language: locales['en'],
+            loading: false,
             name: '',
             ak_address: '',
-            loading: false,
         }
     },
     computed: {
@@ -75,62 +86,61 @@ export default {
                     });
 
                     this.loading = true;
-                    const query = await client.aensQuery(name);
-                    console.log('query');
-                    console.log(query);
+                    // const query = await client.aensQuery(name);
                     const preclaim = await client.aensPreclaim(name);
-                    console.log('preclaim');
-                    console.log(preclaim);
-
                     this.loading = false;
+
                     this.$store.dispatch('popupAlert', {
                         name: 'account',
                         type: 'added_success'
                     });
+
                     const claim = await client.aensClaim(name, preclaim.salt, preclaim.height);
-                    console.log('claim');
-                    console.log(claim);
                     const update = await client.aensUpdate(claim.id, publicKey);
-                    console.log('update');
-                    console.log(update);
                 };
                 main(this.name+'.test');
             }
         },
-        navigateAccount() {
-            this.$router.push('/account')
-        },
+        navigateToSettings() {
+            this.$router.push('/settings')
+        }
     }
 }
 </script>
 
-<style>
+<style lang="scss">
+
+@import '../../../common/base';
 .backbtn {
     width: 50%; margin-top: 5px;
 }
 .regbtn{
-    margin: 20px 0;
+    background: #FF0D6A;
+    color: #ffffff;
+    float: right;
+    width: 19%;
+    border-radius: 0 !important;
 }
 .maindiv_input-group-addon {
     text-align: center;
-    margin: 10px 30px 10px;
+}
+.maindiv_input-group-addon h4 {
+    text-align: left;
+    margin: 0 !important; 
 }
 .input-group-addon {
     background: #ececec;
-    position: relative;
-    line-height: 4rem;
     border: 1px solid #ccc;
-    font-size: 22px;
+    width: 80%;
+    height: 56px;
+    float: left;
 }
 .addon-input {
     width: 75%;
-    border-right: 2px solid;
-    font-size: 22px;
     outline: none;
-    line-height: 4rem;
-    height: auto;
     color: #828282;
     padding: 0;
+    height: 55px;
     text-indent: 5px;
     caret-color: #ff0d6a;
 }
@@ -140,7 +150,11 @@ export default {
 }
 input:active,input:focus {
     border: none;
-    border-right: 2px solid;
     outline: none;
+}
+.sett_info {
+    display: block;
+    word-break: break-word;
+    text-align: left;
 }
 </style>
