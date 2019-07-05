@@ -6,9 +6,10 @@
             </div>
         
             <h3>{{language.pages.tokens.addHeading}}</h3>
-            <div v-if="addStep == false">
+            <div v-if="addStep == false" class="token-add-form">
                 <div class="input-container">
-                    <ae-input :label="language.pages.tokens.tokenContractLabel" v-model="token.contract" @keyup.native="validate('contract')">
+                    <ae-input :label="language.pages.tokens.tokenContractLabel" >
+                        <input type="text" class="ae-input token-contract" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar slot="footer">
                             Valid token contract address
                         </ae-toolbar>
@@ -16,7 +17,7 @@
                 </div>
                 <div class="input-container">
                     <ae-input :label="language.pages.tokens.tokenSymbolLabel">
-                        <input type="text" :disabled="token.precisionDisabled" class="ae-input" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                        <input type="text" :disabled="token.precisionDisabled" class="ae-input token-symbol" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar slot="footer">
                             Symbol between 1 and 12 characters
                         </ae-toolbar>
@@ -24,13 +25,13 @@
                 </div>
                 <div class="input-container">
                     <ae-input :label="language.pages.tokens.tokenPrecision" >
-                        <input type="text" :disabled="token.precisionDisabled" class="ae-input" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                        <input type="text" :disabled="token.precisionDisabled" class="ae-input token-precision" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar slot="footer" >
                             Number between 0 and 36
                         </ae-toolbar>
                     </ae-input>
                 </div>
-                <ae-button face="round" fill="primary" @click="next" extend >{{language.pages.tokens.next}}</ae-button>
+                <ae-button face="round" fill="primary" @click="next" class="to-confirm-add" extend >{{language.pages.tokens.next}}</ae-button>
             </div>
             <div v-if="addStep" >
                 <div class="flex  flex-justify-between token-add-holder">
@@ -46,11 +47,11 @@
                         <div class="balanceBig balance no-sign">{{token.balance}} {{token.symbol}}</div>
                     </div>
                 </div>
-                <ae-button face="round" fill="primary" @click="addCustomToken" extend >{{language.pages.tokens.addHeading}}</ae-button>
+                <ae-button face="round" fill="primary" @click="addCustomToken" class="add-token" extend >{{language.pages.tokens.addHeading}}</ae-button>
             </div>
         </div>
         <transition name="fadeOut">
-            <span v-if="loading" class="mainLoader"><ae-loader /></span>
+            <span v-if="loading" class="mainLoader mainLoaderTransparent"><ae-loader /></span>
         </transition>
     </div>
 </template>
@@ -148,19 +149,35 @@ export default {
             });
         },
         searchTokenMetaInfo(address) {
-            this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,address,'meta_info')
-            .then((res) => {
-                res.decode()
-                .then(data => {
-                    if(typeof data.decimals != 'undefined' && typeof data.symbol != 'undefined') {
-                        this.token.precision = data.decimals
-                        this.token.symbol = data.symbol
-                        this.token.name = data.name
-                        this.addToken = true
-                        this.token.precisionDisabled = true
-                    }
+            this.loading = true
+            try {
+                this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,address,'meta_info')
+                .then((res) => {
+                    res.decode()
+                    .then(data => {
+                        if(typeof data.decimals != 'undefined' && typeof data.symbol != 'undefined') {
+                            this.token.precision = data.decimals
+                            this.token.symbol = data.symbol
+                            this.token.name = data.name
+                            this.addToken = true
+                            this.token.precisionDisabled = true
+                        }
+                        this.loading = false
+                    })
+                    .catch(e => {
+                        this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
+                        this.loading = false
+                    })
                 })
-            })
+                .catch(e => {
+                    this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
+                    this.loading = false
+                })
+            }catch(e) {
+                this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
+                this.loading = false
+            }
+            
         }
     }
 }
@@ -200,7 +217,5 @@ export default {
     height:3rem !important;
     margin-right:1rem;
 }
-.mainLoader {
-    opacity:0.5;
-}
+
 </style>

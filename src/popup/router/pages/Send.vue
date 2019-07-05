@@ -1,62 +1,66 @@
 <template>
-  <div class="popup">
-    <ae-main>
-      <div class="actions">
-        <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
-      </div>
-      <p>{{language.pages.send.heading}}</p>
-      <div class="sendContent">
-        <div class="address">
-          <ae-address-input v-model="form.address" />
-          <ae-text class='addresslbl' slot="header">Recipient </ae-text>
+  <div>
+    <div class="popup">
+      <ae-main>
+        <div class="actions">
+          <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
         </div>
-        <div>
-          <p v-if="sendSubaccounts">or send to subaccount</p>
-          <ae-list class="sendSubaccount">
-            <ae-list-item v-for="(account,index) in sendSubaccounts" @click="selectSendSubaccount(account)" fill="neutral" :key="index" class=" flex-align-center">
-              <ae-identicon class="subAccountIcon" v-bind:address="account.publicKey" size="base" />
-              <div class="subAccountInfo flex flex-align-start flex-direction-column ">
-                <div class="subAccountName">{{account.name}}</div>
-                <div class="subAccountBalance">{{account.balance}} AE</div>
-              </div>
-            </ae-list-item>
-          </ae-list>
-        </div>
-        <div class="amount" v-if="!tx.status">
-          <ae-input :label="language.strings.amount" placeholder="0.0" aemount v-model="form.amount" class="sendAmount">
-            <ae-text slot="header" fill="black">{{tokenSymbol}}</ae-text>
-            <ae-toolbar slot="footer" class="flex-justify-between">
-              <span>
-                  {{language.strings.txFee}}
-              </span>
-              <span>
-                  {{txFee}} AE
-              </span>
-          </ae-toolbar>
-          </ae-input>
-          <div class="flex flex-justify-between balanceInfo">
-              <div>
-                  {{language.strings.maxSpendableValue}}
-              </div>
-              <div class="balance">
-                  {{tokenBalance}}
-              </div>
+        <p>{{language.pages.send.heading}}</p>
+        <div class="sendContent">
+          <div class="address">
+            <ae-address-input v-model="form.address" />
+            <ae-text class='addresslbl' slot="header">Recipient </ae-text>
+          </div>
+          <div>
+            <p v-if="sendSubaccounts">or send to subaccount</p>
+            <ae-list class="sendSubaccount">
+              <ae-list-item v-for="(account,index) in sendSubaccounts" @click="selectSendSubaccount(account)" fill="neutral" :key="index" class=" flex-align-center">
+                <ae-identicon class="subAccountIcon" v-bind:address="account.publicKey" size="base" />
+                <div class="subAccountInfo flex flex-align-start flex-direction-column ">
+                  <div class="subAccountName">{{account.name}}</div>
+                  <div class="subAccountBalance">{{account.balance}} AE</div>
+                </div>
+              </ae-list-item>
+            </ae-list>
+          </div>
+          <div class="amount" v-if="!tx.status">
+            <ae-input :label="language.strings.amount" placeholder="0.0" aemount v-model="form.amount" class="sendAmount">
+              <ae-text slot="header" fill="black">{{tokenSymbol}}</ae-text>
+              <ae-toolbar slot="footer" class="flex-justify-between">
+                <span>
+                    {{language.strings.txFee}}
+                </span>
+                <span>
+                    {{txFee}} AE
+                </span>
+            </ae-toolbar>
+            </ae-input>
+            <div class="flex flex-justify-between balanceInfo">
+                <div>
+                    {{language.strings.maxSpendableValue}}
+                </div>
+                <div class="balance">
+                    {{tokenBalance}}
+                </div>
+            </div>
+          </div>
+          <div>
+            <ae-button face="round" fill="primary" class="sendBtn extend" @click="send">{{language.buttons.send}}</ae-button>
           </div>
         </div>
-        <div>
-          <ae-button face="round" fill="primary" class="sendBtn extend" @click="send">{{language.buttons.send}}</ae-button>
+        <!-- <div v-if="loading" class="loading">
+          <ae-loader />
+        </div> -->
+        <input type="hidden" class="txHash" :value="tx.hash" />
+        <div class="result" v-if="tx.status">
+          <p>{{language.strings.success}}</p>
+          <a :href="tx.url">{{language.strings.seeTransactionExplorer}}</a>
         </div>
-      </div>
-     
-      <div v-if="loading" class="loading">
-        <ae-loader />
-      </div>
-      <input type="hidden" class="txHash" :value="tx.hash" />
-      <div class="result" v-if="tx.status">
-        <p>{{language.strings.success}}</p>
-        <a :href="tx.url">{{language.strings.seeTransactionExplorer}}</a>
-      </div>
-    </ae-main>
+      </ae-main>
+    </div>
+    <transition name="fadeOut">
+      <span v-if="loading" class="mainLoader mainLoaderTransparent"><ae-loader /></span>
+    </transition>
   </div>
 </template>
 

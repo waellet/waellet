@@ -102,6 +102,9 @@ export default {
           case 'token_exists':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_ADDED});
           break;
+          case 'token_invalid_address':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_INVALID_ADDRESS});
+          break;
           default:
             break;
         }

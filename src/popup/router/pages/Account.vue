@@ -37,7 +37,7 @@
         <p class="paragraph noTransactions">No transactions found!</p> 
     </div>
     <Loader :loading="loading" v-bind="{'content':''}"></Loader>
-    <button @click="showTokens">Show tokens</button>
+    
   </div> 
 </template>
 
@@ -131,9 +131,6 @@ export default {
     },
     openTipPage() {
       this.$router.push('/tip');
-    },
-    showTokens() {
-      this.$router.push('/tokens')
     }
   },
   beforeDestroy () {

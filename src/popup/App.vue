@@ -81,6 +81,12 @@
                     {{ language.strings.exportKeystore }}
                   </ae-button>
                 </li>
+                <li>
+                  <ae-button @click="toTokens" class="toTokens">
+                    <ae-icon name="aeternity" />
+                      Add tokens
+                  </ae-button>
+                </li>
                 <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
                   <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
                     <ae-icon name="globe" />
@@ -389,6 +395,10 @@ export default {
       }).then((sdk) => {
         this.$store.dispatch('initSdk',sdk)
       })
+    },
+    toTokens() {
+      this.dropdown.settings = false
+      this.$router.push('/tokens')
     }
   },
   beforeDestroy() {
@@ -410,6 +420,7 @@ export default {
 .fadeOut-leave-to { opacity: 0; }
 .mainLoader { position: fixed; width: 100%; height: 100%; background-color: #FFF; top: 0; }
 .mainLoader .ae-loader { position: absolute; top: 50%; left: 50%; margin: -1.5em; width: 3em !important; height: 3em !important; border-radius: 3em !important; }
+.mainLoader.mainLoaderTransparent { opacity:0.8; }
 html { min-width: 357px; min-height: 600px; background-color: #f5f5f5; }
 p { font-weight: bolder; margin-left: 3px; }
 input { background: transparent; border: none; border-bottom: 1px; height: 25px; line-height: 25px; }
