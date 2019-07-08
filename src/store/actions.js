@@ -74,15 +74,17 @@ export default {
             commit(types.SHOW_POPUP,{show:true,...popupMessages.PUBLIC_KEY_COPIED});
             break;
           case 'seedFastCopy':
-              commit(types.SHOW_POPUP,{show:true,...popupMessages.SEED_FAST_COPY});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.SEED_FAST_COPY});
             break;
             case 'requiredField':
-                commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_FIELD});
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_FIELD});
               break;
             case 'added_success':
-                commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_ADDED});
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_ADDED});
               break;
-            SUCCESS_ADDED
+            case 'only_allowed_chars':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.ALLOWED_CHARS});
+              break;
           default:
             break;
         }

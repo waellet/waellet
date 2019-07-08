@@ -8,8 +8,13 @@ import TransactionsComponent from './pages/Transactions';
 import TransactionDetailsComponent from './pages/TransactionDetails';
 import SignTransactionComponent from './pages/SignTransaction';
 import ManageAccount from './pages/ManageAccounts';
+import Settings from './pages/Settings';
+import GeneralSettings from './pages/GeneralSettings';
+import SecuritySettings from './pages/SecuritySettings';
+import AboutSettings from './pages/AboutSettings';
 import ConfirmPopupmessagesComponent from './pages/ConfirmPopupmessages';
 import TipComponent from './pages/TipPage';
+
 
 export default [
   {
@@ -66,6 +71,22 @@ export default [
   {
     path:'/manageAccounts',
     component:ManageAccount,
+  },
+  {
+    path:'/settings',
+    component:Settings,
+  },
+  {
+    path:'/generalSettings',
+    component:GeneralSettings,
+  },
+  {
+    path:'/securitySettings',
+    component:SecuritySettings,
+  },
+  {
+    path:'/aboutSettings',
+    component:AboutSettings,
   },
   {
     path:'/tip',
