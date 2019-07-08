@@ -18,7 +18,7 @@
                 <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest 4 symbols! </ae-toolbar>
                 <ae-toolbar v-if="loginError" slot="footer">Incorrect password !</ae-toolbar>
             </ae-input>
-            <ae-button face="round" extend fill="primary" @click="login({accountPassword})">Login</ae-button>
+            <ae-button face="round" extend fill="primary" class=loginBtn @click="login({accountPassword})">Login</ae-button>
             <ae-divider />
           </div>
           <ae-button face="round" v-if="!account.encryptedPrivateKey" fill="primary" class="mb-1" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>

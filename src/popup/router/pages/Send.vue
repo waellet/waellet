@@ -39,8 +39,8 @@
                 <div>
                     {{language.strings.maxSpendableValue}}
                 </div>
-                <div class="balance">
-                    {{tokenBalance}}
+                <div class="balance no-sign">
+                    {{tokenBalance}} {{tokenSymbol}}
                 </div>
             </div>
           </div>
@@ -130,7 +130,7 @@ export default {
         return;
       }
       //is the amount correct
-      if (this.maxValue - this.form.amount <= 0) {
+      if (this.maxValue - this.form.amount <= 0 && this.current.token == 0) {
         this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
         this.loading = false;
         return;
@@ -199,7 +199,7 @@ export default {
           console.log(err);
         }
       }else {
-        this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,this.tokens[this.current.token].contract,'transfer',[receiver,this.form.amount])
+        this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,this.tokens[this.current.token].contract,'transfer',[receiver,this.form.amount.toString()])
         .then(res => {
           res.decode()
           .then(transfer => {
