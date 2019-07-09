@@ -14,8 +14,8 @@ import SecuritySettings from './pages/SecuritySettings';
 import AboutSettings from './pages/AboutSettings';
 import ConfirmPopupmessagesComponent from './pages/ConfirmPopupmessages';
 import TipComponent from './pages/TipPage';
+import ManageNetworks from './pages/ManageNetworks';
 import FungibleTokensComponent from './pages/FungibleTokens';
-
 
 export default [
   {
@@ -92,6 +92,10 @@ export default [
   {
     path:'/tip',
     component:TipComponent
+  },
+  {
+    path:'/manageNetworks',
+    component:ManageNetworks
   },
   {
     path:'/tokens',

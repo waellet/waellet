@@ -16,6 +16,7 @@ export default {
     commit(types.SET_SUBACCOUNTS, payload);
   },
   switchNetwork({ commit }, payload) {
+    browser.storage.sync.set({activeNetwork: payload});
     return new Promise((resolve, reject) => {
       commit(types.SWITCH_NETWORK, payload);
       resolve();
@@ -59,7 +60,7 @@ export default {
         }
     })
   },
-  popupAlert({ commit }, payload) {
+  popupAlert({ commit, state }, payload) {
     switch (payload.name) {
       case 'spend':
         switch (payload.type) {
@@ -109,6 +110,19 @@ export default {
             break;
         }
         break;
+      case 'network':
+        switch (payload.type) {
+          case 'confirm_remove':
+            commit(types.SHOW_POPUP, {show: true, class: payload.type,data:payload.data, secondBtn:true, secondBtnClick: 'removeUserNetwork', ...popupMessages.REMOVE_USER_NETWORK});
+            break;
+          case 'cannot_remove':
+            commit(types.SHOW_POPUP, {show:true, ...popupMessages.REMOVE_USER_NETWORK_ACTIVE_ERROR});
+            break;
+          case 'name_exists':
+            commit(types.SHOW_POPUP, {show:true, ...popupMessages.USER_NETWORK_EXISTS_ERROR});
+            break;
+        }
+        break;
       default:
         break;
     }
@@ -141,6 +155,12 @@ export default {
   },
   setAccountName({ commit , state}, payload) {
     commit(types.SET_ACCOUNT_NAME, payload);
+  },
+  setUserNetwork({ commit }, payload) {
+    commit(types.SET_USERNETWORK, payload);
+  },
+  setUserNetworks({ commit }, payload) {
+    commit(types.SET_USERNETWORKS, payload);
   },
   initSdk({ commit }, payload) {
     commit(types.INIT_SDK, payload)
