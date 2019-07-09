@@ -22,6 +22,7 @@
         "seeTransactionExplorer": "See transaction in the explorer.",
         "accountName": "Account name",
         "switchLanguage" : "Language",
+        "switchToken": "Token",
         "settings": "Settings",
         "menu": "Menu",
         "back": "Back",
@@ -58,13 +59,26 @@
           "txTo":"To",
           "txHash":"Tx hash",
           "transactions":"Transactions",
-          "explorer":"View in explorer"
+          "explorer":"View in explorer",
+          "txName":"Name",
+          "txAccount":"Account"
         },
-        "tip" :{
+        "tip":{
           "domainVerified":"Verified",
           "domainNotVerified":"Not yet verified",
           "sendHeading":"Send a tip",
           "check":"Check"
+        },
+        "tokens": {
+          "tokenContractLabel":"Token Contract Address",
+          "tokenSymbolLabel":"Token Symbol",
+          "tokenPrecision":"Decimals of Precision",
+          "addHeading":"Add Token",
+          "searchHeading":"Search Token",
+          "errorPrecisionLength":"Decimal precision should be number between 0 and 36",
+          "errorPrecisionNumber":"Decimal precision should be number",
+          "errorContractLength":"Invalid token contract address",
+          "next":"Next"
         },
         "settings":{
           "heading" : "Settings",
