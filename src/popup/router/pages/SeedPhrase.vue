@@ -10,7 +10,7 @@
                     <ul>
                         <li>Safe a backup on multiple places</li>
                         <li>Remember your password to decrypt your waellet</li>
-                        <li>Never share the phase with anyone</li>
+                        <li>Never share the phrase with anyone</li>
                     </ul>
 
                 </div>

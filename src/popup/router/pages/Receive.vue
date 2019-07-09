@@ -53,11 +53,6 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
-
-.actions {
-  width: 50%;
-  margin-top: 5px;
-}
 .qr-wrapper {
   display: flex;
   justify-content: center;

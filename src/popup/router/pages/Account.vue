@@ -17,7 +17,7 @@
         <ae-input-plain fill="white" :placeholder="language.strings.accountName" @keyup.native="setAccountName" :value="activeAccountName"  />
       </template>
       <template slot="header">
-        <ae-text fill="white" face="mono-base">{{balance}} AE</ae-text>
+        <ae-text fill="white" face="mono-base">{{tokenBalance}} {{tokenSymbol}}</ae-text>
       </template>
       <ae-address :value="account.publicKey" copyOnClick enableCopyToClipboard length="medium" gap=0 />
       <ae-toolbar fill="primary" align="right" slot="footer">
@@ -47,12 +47,12 @@
         <p class="paragraph noTransactions">No transactions found!</p> 
     </div>
     <Loader :loading="loading" v-bind="{'content':''}"></Loader>
-    <!-- <button @click="showSign">Show sign transaction</button> -->
+    
   </div> 
 </template>
 
 <script>
-import Ae from '@aeternity/aepp-sdk/es/ae/universal';
+
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
@@ -60,6 +60,8 @@ import { getTranscationByPublicAddress }  from '../../utils/transactions';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { request } from 'http';
 import { fetchData } from '../../utils/helper';
+import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+
 export default {
   name: 'Account',
   data () {
@@ -77,12 +79,15 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount']),
+    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk','tokens','tokenSymbol','tokenBalance']),
     publicKey() { 
       return this.account.publicKey; 
     },
     watchBalance() {
       return this.balance;
+    },
+    watchToken() {
+      return this.current.token
     }
   },
   watch:{
@@ -92,6 +97,9 @@ export default {
       },
       watchBalance() {
         // this.updateTransactions();
+      },
+      watchToken() {
+        this.updateTransactions();
       }
   },
   created () {
@@ -106,16 +114,13 @@ export default {
         this.$router.push('/transactions');
     },
     pollData() {
-      this.polling = setInterval(() => {
-        this.$store.dispatch('updateBalance');
-        // this.$store.dispatch('updateBalanceSubaccounts');
-        this.toUsd = this.balance * this.usdRate;
-        this.toEur = this.balance * this.eurRate;
-      }, 1000);
-      this.pollingTransaction = setInterval(() => {
-        this.$store.dispatch('updateBalanceSubaccounts');
-        this.updateTransactions();
-      }, 5000);
+        this.polling = setInterval(() => {
+          if(this.sdk != null) {
+              this.updateTransactions();
+              this.toUsd = this.balance * this.usdRate;
+              this.toEur = this.balance * this.eurRate;
+          }
+        }, 5000);
     },
     async currencyConv () {
       browser.storage.sync.get('convertTimer').then(async result => {
@@ -150,11 +155,16 @@ export default {
       this.$router.push('/receive');
     },
     updateTransactions() {
-      this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3})
-      .then(res => {
+      if(this.current.token == 0) {
+        this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3})
+        .then(res => {
+          this.loading = false;
+          this.$store.dispatch('updateLatestTransactions',res);
+        });
+      }else {
         this.loading = false;
-        this.$store.dispatch('updateLatestTransactions',res);
-      });
+        this.$store.dispatch('updateLatestTransactions',[]);
+      }
     },
     setAccountName(e) {
       this.$store.dispatch('setAccountName', e.target.value)

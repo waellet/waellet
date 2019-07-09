@@ -4,6 +4,7 @@ import Vuex from 'vuex';
 import { getters } from './getters';
 import mutations from './mutations';
 import actions from './actions';
+import { POPUP_PROPS } from '../popup/utils/popup-messages';
 
 Vue.use(Vuex);
 
@@ -16,7 +17,8 @@ export default new Vuex.Store({
     balance: 0,
     current: {
       network: 'Testnet',
-      language: 'en'
+      language: 'en',
+      token:0
     },
     network: {
       Testnet: {
@@ -34,21 +36,24 @@ export default new Vuex.Store({
         explorerUrl:'https://testnet.explorer.aepps.com'
       },
     },
-    popup:{
-      show:false,
-      type:'',
-      title:'',
-      msg:'',
-      secondBtn:false,
-      secondBtnClick:'',
-      data:''
-    },
+    userNetworks: [],
+    popup: Object.assign({}, POPUP_PROPS),
     isLoggedIn:false,
     transactions: {
       latest:[],
       all:[],
       new:[]
-    }
+    },
+    sdk:null,
+    tokens:[
+      {
+        name:"AE",
+        symbol:"AE",
+        precision:7,
+        balance:0,
+        contract:''
+      }
+    ]
   },
   getters,
   mutations,

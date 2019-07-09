@@ -1,17 +1,25 @@
 import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 import Account from '@aeternity/aepp-sdk/es/account'
 // import ExtensionProvider from '@aeternity/aepp-sdk/es/provider/extension'
-
+import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
 
 global.browser = require('webextension-polyfill');
 
 // listen for our browerAction to be clicked
 chrome.browserAction.onClicked.addListener(function (tab) {
-	// for the current tab, inject the "inject.js" file & execute it
+    // for the current tab, inject the "inject.js" file & execute it
 	chrome.tabs.executeScript(tab.id, {
-		file: 'inject.js'
+        file: 'inject.js'
 	});
 });
+
+setInterval(() => {
+    browser.windows.getAll({}).then((wins) => {
+        if(wins.length == 0) {
+            sessionStorage.removeItem("phishing_urls");
+        }
+    });
+},60000);
 
 chrome.browserAction.setBadgeText({ 'text': 'beta' });
 chrome.browserAction.setBadgeBackgroundColor({ color: "#FF004D"});
@@ -116,13 +124,49 @@ function getAccount() {
 //                     case 'pageMessage':
 //                         console.log(msg);
 //                         provider.processMessage(msg);
-//                         break
+//                         break 
 //                 }
 //             })
 //         }).catch(err => {
 //             console.error(err)
 //         })
 //     });
+
+browser.runtime.onMessage.addListener((msg, sender) => {
+    switch(msg.method) {
+        case 'phishingCheck':
+            let data = {...msg, extUrl: browser.extension.getURL ('./') };
+            phishingCheckUrl(msg.data.hostname)
+            .then(res => {
+                if(typeof res.result !== 'undefined' && res.result == 'blocked') {
+                    let whitelist = getPhishingUrls().filter(url => url === msg.data.hostname);
+                    if(whitelist.length) {
+                        data.blocked = false;
+                        return postPhishingData(data);
+                    }
+                    data.blocked = true;
+                    return postPhishingData(data);
+                }
+                data.blocked = false;
+                return postPhishingData(data);
+            });
+        break;
+        case 'setPhishingUrl':
+            let urls = getPhishingUrls();
+            urls.push(msg.data.hostname);
+            setPhishingUrl(urls);
+        break;
+    }
+})
+
+
+
+const postPhishingData = (data) => {
+    browser.tabs.query({active:true, currentWindow:true}).then((tabs) => { 
+        const message = { method: 'phishingCheck', data };
+        tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, message)) 
+    });
+}
 
 const postToContent = (data) => {
     chrome.tabs.query({}, function (tabs) { // TODO think about direct communication with tab

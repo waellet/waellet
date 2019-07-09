@@ -22,7 +22,7 @@
                 <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest 4 symbols! </ae-toolbar>
                 <ae-toolbar v-if="loginError" slot="footer">Incorrect password !</ae-toolbar>
             </ae-input>
-            <ae-button face="round" extend fill="primary" @click="login({accountPassword})">Login</ae-button>
+            <ae-button face="round" extend fill="primary" class=loginBtn @click="login({accountPassword})">Login</ae-button>
             <ae-divider />
           </div>
           <ae-button face="round" v-if="!account.encryptedPrivateKey" fill="primary" class="mb-1" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
@@ -101,7 +101,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['account','isLoggedIn','wallet'])
+    ...mapGetters(['account','isLoggedIn','wallet','tokens'])
   },
   mounted() {},
   created () {
@@ -114,7 +114,7 @@ export default {
       // browser.storage.sync.set({isLogged: ''}).then(() => {});
       // browser.storage.sync.set({confirmSeed: true}).then(() => {});
       // browser.storage.sync.set({mnemonic: ''}).then(() => {});
-      // browser.storage.sync.remove('subaccounts').then(() => {});
+      // browser.storage.sync.remove('tokens').then(() => {});
       var newTab = false;
       browser.storage.sync.get('allowTracking').then((result) => {
         if (result.hasOwnProperty('allowTracking')) {
@@ -174,6 +174,16 @@ export default {
                               }
                             });
                           });
+
+                          // Get user networks
+                          browser.storage.sync.get('userNetworks').then((usernetworks) => {
+                            if (usernetworks.hasOwnProperty('userNetworks')) {
+                                usernetworks.userNetworks.forEach(data => {
+                                  this.$store.state.network[data.name] = data;
+                                });
+                                this.$store.dispatch('setUserNetworks', usernetworks.userNetworks);
+                            }
+                          });
                         }
                       } 
                       browser.storage.sync.get('confirmSeed').then((seed) => {
@@ -185,9 +195,17 @@ export default {
                       if (data.isLogged && data.hasOwnProperty('isLogged')) {
                         browser.storage.sync.get('wallet').then((wallet) => {
                           if(wallet.hasOwnProperty('wallet') && wallet.wallet != "") {
-                            this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
-                            this.$store.commit('SWITCH_LOGGED_IN', true);
-                            this.$router.push('/account');
+                            browser.storage.sync.get('tokens').then((tkn) => {
+                              let tokens = this.tokens
+                              if(tkn.hasOwnProperty('tokens')) {
+                                tokens = tkn.tokens
+                              }
+                              this.$store.dispatch('setTokens', tokens).then(() => {
+                                this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
+                                this.$store.commit('SWITCH_LOGGED_IN', true);
+                                this.$router.push('/account');
+                              })
+                            });
                           }
                         });
                       }

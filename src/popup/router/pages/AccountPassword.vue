@@ -30,7 +30,7 @@ import { mnemonicToSeed } from '@aeternity/bip39';
 import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet';
 import { MINPASSWORDLENGTH } from '../../utils/constants';
 import Password from 'vue-password-strength-meter';
-
+import { mapGetters } from 'vuex'
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title'],
     components: { Password },
@@ -46,6 +46,9 @@ export default {
             minPasswordLength: MINPASSWORDLENGTH,
             passwordScore: 0
         }
+    },
+    computed: {
+        ...mapGetters(['tokens'])
     },
     locales,
     methods: {
@@ -140,6 +143,8 @@ export default {
                                 this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
                             });
                             this.$store.dispatch('setSubAccounts', sub).then(() => {
+                                this.$store.commit('UNSET_TOKENS')
+                                this.$store.dispatch('setTokens',this.tokens)
                                 this.$store.commit('UPDATE_ACCOUNT', keyPair);
                                 this.$store.commit('SWITCH_LOGGED_IN', true);
                                 this.$store.commit('SET_WALLET', wallet);
