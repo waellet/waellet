@@ -1,4 +1,5 @@
 import * as types from './mutation-types';
+import { POPUP_PROPS } from '../popup/utils/popup-messages';
 
 export default {
   [types.UPDATE_ACCOUNT](state, payload) {
@@ -11,7 +12,11 @@ export default {
     state.current.network = payload;
   },
   [types.SHOW_POPUP](state,payload) {
-    state.popup = payload;
+    Object.assign(state.popup, payload);
+  },
+  [types.DEF_POPUP](state) {
+    let def_popup_props = Object.assign({}, POPUP_PROPS);
+    state.popup = def_popup_props;
   },
   [types.HIDE_POPUP](state) {
     state.popup.show = false;
@@ -54,6 +59,12 @@ export default {
   },
   [types.SET_ACCOUNT_NAME] (state, payload) {
     state.subaccounts[state.activeAccount].name = payload;
+  },
+  [types.SET_USERNETWORK](state, payload) {
+    state.userNetworks.push(payload);
+  },
+  [types.SET_USERNETWORKS](state, payload) {
+    state.userNetworks = payload;
   },
   [types.INIT_SDK] (state, payload) {
     state.sdk = payload

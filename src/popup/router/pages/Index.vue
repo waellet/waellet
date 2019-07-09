@@ -174,6 +174,16 @@ export default {
                               }
                             });
                           });
+
+                          // Get user networks
+                          browser.storage.sync.get('userNetworks').then((usernetworks) => {
+                            if (usernetworks.hasOwnProperty('userNetworks')) {
+                                usernetworks.userNetworks.forEach(data => {
+                                  this.$store.state.network[data.name] = data;
+                                });
+                                this.$store.dispatch('setUserNetworks', usernetworks.userNetworks);
+                            }
+                          });
                         }
                       } 
                       browser.storage.sync.get('confirmSeed').then((seed) => {

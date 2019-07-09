@@ -235,11 +235,6 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
-
-.actions {
-  width: 50%;
-  margin-top: 5px;
-}
 .sendContent div { 
   margin-bottom: 10px;
 }
