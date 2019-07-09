@@ -31,7 +31,8 @@
         "settings": "Settings",
         "menu": "Menu",
         "back": "Back",
-        "loadMore":"Load More"
+        "loadMore":"Load More",
+        "addToken": "Add Token"
       },
       "networks": {
         "testnet": "Testnet",

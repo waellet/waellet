@@ -5,7 +5,7 @@
   "manifest_version": 2,
   "applications": {
     "gecko": {
-      "id": "waellet@waellet.com",
+      "id": "hello@waellet.com",
       "strict_min_version": "53.0"
     }
   },
