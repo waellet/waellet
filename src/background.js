@@ -132,14 +132,15 @@ function getAccount() {
 //         })
 //     });
 
-browser.runtime.onMessage.addListener((msg, sender) => {
+browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
+    console.log(msg)
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
-            phishingCheckUrl(msg.data.hostname)
+            phishingCheckUrl(msg.params.hostname)
             .then(res => {
                 if(typeof res.result !== 'undefined' && res.result == 'blocked') {
-                    let whitelist = getPhishingUrls().filter(url => url === msg.data.hostname);
+                    let whitelist = getPhishingUrls().filter(url => url === msg.params.hostname);
                     if(whitelist.length) {
                         data.blocked = false;
                         return postPhishingData(data);
@@ -153,13 +154,41 @@ browser.runtime.onMessage.addListener((msg, sender) => {
         break;
         case 'setPhishingUrl':
             let urls = getPhishingUrls();
-            urls.push(msg.data.hostname);
+            urls.push(msg.params.hostname);
             setPhishingUrl(urls);
         break;
+        case 'aeppMessage':
+            switch(msg.params.type) {
+                case "txSign":
+                    return new Promise((resolve,reject) => {
+                        browser.storage.sync.set({showAeppPopup:{ data: msg.params, type:'sign',callback:'asd'  } } ).then( () => {
+                            chrome.windows.create({
+                                url: chrome.runtime.getURL('./popup/popup.html'),
+                                type: "popup",
+                                height: 600,
+                                width:420
+                                },(window) => {
+                                    connectToPopup((res) => {
+                                        resolve(res)
+                                    })
+                                })
+                        })
+                    })
+                break;
+            }
+        break
     }
+
+    return Promise.resolve("")
 })
 
-
+const connectToPopup = (cb) => {
+    chrome.extension.onConnect.addListener((port) => {
+        port.onMessage.addListener((msg) => {
+            cb(msg)
+        });
+   })
+}
 
 const postPhishingData = (data) => {
     browser.tabs.query({active:true, currentWindow:true}).then((tabs) => { 
@@ -170,7 +199,8 @@ const postPhishingData = (data) => {
 
 const postToContent = (data) => {
     chrome.tabs.query({}, function (tabs) { // TODO think about direct communication with tab
-        const message = { method: 'pageMessage', data };
+        const message = { method: 'aeppMessage', data };
+        console.log(tabs)
         tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, message)) // Send message to all tabs
     });
 }

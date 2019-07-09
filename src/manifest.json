@@ -39,10 +39,14 @@
     ],
     "js": ["inject.js"]
   }],
+  "externally_connectable": {
+    "matches": ["*://*.stackoverflow.com/*"]
+  },
   "web_accessible_resources": [
     "inject.js",
     "phishing/phishing.html",
-    "phishing/phishing.js"
+    "phishing/phishing.js",
+    "aepp.js"
   ],
   "options_ui": {
     "page": "options/options.html",

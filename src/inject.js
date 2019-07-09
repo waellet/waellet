@@ -1,32 +1,49 @@
 import { extractHostName, detectBrowser } from './popup/utils/helper';
 
+
 if(typeof navigator.clipboard == 'undefined') {
     redirectToWarning(extractHostName(window.location.href),window.location.href)
 } else {
-    chrome.runtime.sendMessage({
-        method:'phishingCheck',
-        data: {
-            hostname:extractHostName(window.location.href),
-            href:window.location.href
-        }
-    })
-    
+    sendToBackground('phishingCheck',{ hostname:extractHostName(window.location.href), href:window.location.href })    
 }
-
+let aepp = chrome.runtime.getURL("aepp.js")
+fetch(aepp)
+.then(res => res.text())
+.then(res => {
+    injectScript(res)
+})
 // Subscribe from postMessages from page
-
+window.addEventListener('StorageRequest', (e) => {
+    console.log(e)
+    e.detail.resolve({test:"asdad"})
+    // do something, then answer back with response
+})
 window.addEventListener("message", ({data}) => {
+    let method = "pageMessage";
+    if(typeof data.method != "undefined") {
+        method = data.method
+    }
+    console.log(JSON.parse(data))
     // Handle message from page and redirect to background script
-    chrome.runtime.sendMessage({ method: 'pageMessage', data })
+    sendToBackground(method,data)
+    .then(res => {
+        console.log(res)
+    })
+    // chrome.runtime.sendMessage({ method, data },(res) => {
+    //     console.log(method)
+    //     console.log(res)
+    // })
 }, false)
 
 // Handle message from background and redirect to page
-chrome.runtime.onMessage.addListener(({ data }, sender) => {
+chrome.runtime.onMessage.addListener(({ data }, sender, sendResponse) => {
+    console.log(data)
     if(data.method == 'phishingCheck') {
         if(data.blocked) {
             redirectToWarning(data.data.hostname,data.data.href,data.extUrl)
         }
     }
+    
     // console.log(data)
     // window.postMessage(data, '*')
 })
@@ -45,14 +62,33 @@ const redirectToWarning = (hostname,href,extUrl = '') => {
     }
     window.location.href = redirectUrl
     return
-};
+}
+
+const injectScript = (content) => {
+    try {
+      const container = document.head || document.documentElement
+      const scriptTag = document.createElement('script')
+      scriptTag.setAttribute('async', false)
+      scriptTag.textContent = content
+      container.insertBefore(scriptTag, container.children[0])
+    //   container.removeChild(scriptTag)
+    } catch (e) {
+      console.error('Waellet script injection failed', e)
+    }
+}
+
+// 
 
 function sendToBackground(method, params) {
-    chrome.runtime.sendMessage({
-        jsonrpc: "2.0",
-        id: null,
-        method,
-        params
+    return new Promise((resolve,reject) => {
+        chrome.runtime.sendMessage({
+            jsonrpc: "2.0",
+            id: null,
+            method,
+            params
+        },(res) => {
+            resolve(res)
+        })
     })
 }
 

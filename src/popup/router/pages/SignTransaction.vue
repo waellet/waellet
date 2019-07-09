@@ -1,5 +1,6 @@
 <template>
     <div>
+        {{data}}
         <ae-list class="spendTxDetailsList">
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div class="flex flex-align-center accountFrom">
@@ -41,15 +42,35 @@ import { convertToAE } from '../../utils/helper';
 
 export default {
     data(){
-        return {};
+        return {
+            data: {
+                senderId:'ak_5',
+                recipientId:'ak_5'
+            },
+            port:null
+        };
     },
-    props:['data'],
+    
     locales,
     methods: {
 
     },
     mounted() {
+        // chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
+        //     console.log(response)
+        // });
+        
+        console.log(this.data)
         browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { });
+    },
+    created(){
+        console.log("created")
+        this.port = chrome.extension.connect({ name: "conn" });
+       
+        
+        this.port.onMessage.addListener((msg, sender,sendResponse) => {
+            console.log("message recieved" + msg);
+        });
     },
     computed: {
         ...mapGetters(['account']),
@@ -62,6 +83,8 @@ export default {
     },
     methods: {
         cancelTransaction() {
+            //TO DO close the popup window
+            this.port.postMessage({sign:false})
             browser.storage.sync.set({pendingTransaction:''}).then(() => { });
             browser.storage.sync.get('showAeppPopup', data => {
                 if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
@@ -72,6 +95,7 @@ export default {
             });
         },
         signTransaction() {
+            this.port.postMessage({sign:true})
             browser.storage.sync.set({pendingTransaction:''}).then(() => { });
         }
     }
