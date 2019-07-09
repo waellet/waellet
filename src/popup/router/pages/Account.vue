@@ -1,4 +1,4 @@
-<template>
+  <template>
   <div class="popup">
     <h3>{{language.pages.account.heading}}</h3>
     <ae-card fill="primary">

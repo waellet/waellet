@@ -56,4 +56,26 @@ const detectBrowser = () => {
     }
 }
 
-export {shuffleArray, convertToAE, extractHostName, detectBrowser };
+const fetchData = (url, method, fetchedData) => {
+    if (method == 'post') {
+        fetch(url, {
+            method: method,
+            body: fetchedData
+        }).then(function(response) {
+            console.log(response);
+        }).then(function(data) {
+            console.log(data);
+        });
+    }
+    if (method == 'get') {
+        fetch(url, {
+            method: method,
+        }).then(function(response) {
+            console.log(response);
+        }).then(function(data) {
+            console.log(data);
+        });
+    }
+};
+export {shuffleArray, convertToAE, extractHostName, fetchData};
+

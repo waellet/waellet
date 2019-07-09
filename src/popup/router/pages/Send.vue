@@ -228,7 +228,7 @@ export default {
     },
     selectSendSubaccount(account) {
       this.form.address = account.publicKey;
-    }	
+    }
   }
 }
 </script>

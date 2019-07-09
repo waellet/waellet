@@ -68,7 +68,7 @@ import locales from '../../locales/locales.json';
 import { extractHostName } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
- 
+
 export default {
     data() {
         return {
@@ -102,7 +102,7 @@ export default {
         }
     },
     created() {
-        browser.tabs.query({active:true,currentWindow:true}).then((tabs) => {
+        chrome.tabs.query({active:true,currentWindow:true},(tabs) => {
             var currentTabUrl = tabs[0].url;
             this.favicon = tabs[0].favIconUrl;
             this.domain = extractHostName(currentTabUrl);
@@ -167,6 +167,7 @@ export default {
 
 .actions{
     width:50%;
+    margin-top: 5px;
 }
 
 .tipWebsiteHeader  {
