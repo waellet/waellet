@@ -7,6 +7,7 @@
         "account": "Account",
         "myAccount": "My Account",
         "currentAccountName" : "My Account 1",
+        "namingSystem": "AE Naming System",
         "manageAccounts": "Manage accounts",
         "addNewSubAccount": "Add new subaccount",
         "exportKeypair": "Export keypair",
@@ -23,6 +24,7 @@
         "switchLanguage" : "Language",
         "switchToken": "Token",
         "settings": "Settings",
+        "menu": "Menu",
         "back": "Back",
         "loadMore":"Load More"
       },
@@ -77,6 +79,29 @@
           "errorPrecisionNumber":"Decimal precision should be number",
           "errorContractLength":"Invalid token contract address",
           "next":"Next"
+        },
+        "settings":{
+          "heading" : "Settings",
+          "tabGeneral" : "General",
+          "tabGeneralsmall" : "Add name instead address, change your password",
+          "tabAdvanced": "Advanced",
+          "tabAdvancedsmall" : "Advanced settings",
+          "tabSecurity" : "Security & Privacy",
+          "tabSecuritysmall" : "Privacy settings",
+          "tabAbout" : "About",
+          "tabAboutsmall" : "Version, support center and contact info",
+          "generalSettings": {
+            "heading": "General",
+            "registerName": "Register Name",
+            "registerNameInfo": "A registered name can be used instead of the address",
+            "registerNameRequirement": "Allowed only letters and numbers"
+          },
+          "securitySettings": {
+            "heading": "Security and Privacy"
+          },
+          "aboutSettings": {
+            "heading": "About"
+          }
         }
       },
       "messages": {
@@ -95,6 +120,7 @@
         "importPrivateKey": "Import secret key",
         "import": "Import",
         "backToAccount": "Back to account",
+        "backToSettings": "Back to settings",
         "wholeTransaction": "Whole transaction history",
         "loadMore":"Load More"
       },
