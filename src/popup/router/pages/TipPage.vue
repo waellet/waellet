@@ -29,22 +29,17 @@
             <h3> {{language.pages.tip.sendHeading}}</h3>
             <h4>Select amount</h4>
             <div class="flex flex-justify-between tipWebisteAmount">  
-                <ae-badge :class="selectedTip == index ? 'primary' : ''" @click.native="selectTip(index)" v-for="(tip,index) in tips" :key="index">{{tip == 0 ? 'other' : tip + ' AE'}} </ae-badge>
-                
+                <ae-badge :class="selectedTip == index ? 'primary' : ''" @click.native="selectTip(index)" v-for="(tip,index) in tips" :key="index">{{tip == 0 ? 'other' : `${tip} ${tokenSymbol}`}} </ae-badge>
             </div>
-            <!-- <div class="sliderContainer">
-                
-                <input type="range" min="1" max="100" value="50" class="slider tipSlider">
-            </div> -->
             <div class="range-slider" :class="!showSlider ? 'hideSlider' : '' ">
                 <div class="sliderOver"></div>
-                <span class="tipMin tipAmount">1 AE</span>
-                <span class="tipMax tipAmount">100 AE</span>
+                <span class="tipMin tipAmount">1 {{tokenSymbol}}</span>
+                <span class="tipMax tipAmount">100 {{tokenSymbol}}</span>
                 <input class="range-slider__range" type="range"  min="1" max="100" step="1"  v-model="finalAmount" @input="setTip" ref="tipSlider">
             </div>
             <h4>Amount to tip</h4>
             <ae-input label="Tip amount" placeholder="0.0" aemount v-model="finalAmount" disabled="true" class="finalAmount">
-                <ae-text slot="header" fill="black">AE</ae-text>
+                <ae-text slot="header" fill="black">{{tokenSymbol}}</ae-text>
                 <ae-toolbar slot="footer" class="flex-justify-between">
                    <div>
                        Transaction fee
@@ -58,8 +53,8 @@
                 <div>
                     Balance
                 </div>
-                <div class="balance">
-                    {{balance}}
+                <div class="balance no-sign">
+                    {{tokenBalance}} {{tokenSymbol}}
                 </div>
             </div>
             <ae-button face="round" fill="alternative" extend class="sendTip" @click="sendTip">Send tip</ae-button>
@@ -92,7 +87,7 @@ export default {
     },
     locales,
     computed: {
-        ...mapGetters(['balance','account']),
+        ...mapGetters(['balance','account','tokenSymbol','tokenBalance']),
         maxValue() {
             let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -172,6 +167,7 @@ export default {
 
 .actions{
     width:50%;
+    margin-top: 5px;
 }
 
 .tipWebsiteHeader  {
@@ -258,41 +254,6 @@ export default {
     right:0;
     bottom:0;
     top:0;
-}
-.sliderContainer {
-   
-    .slider {
-        -webkit-appearance: none;  
-        appearance: none;
-        width: 100%; 
-        height: 5px;
-        background: #d3d3d3; 
-        outline: none; 
-        // opacity: 0.7; 
-        // -webkit-transition: .2s; 
-        // transition: opacity .2s;
-        border-radius: 10px;
-    }
-
-    .slider:hover {
-        opacity: 1; 
-    }
-    .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 20px; 
-        height: 20px; 
-        border-radius: 50%;
-        background: $primary-color; 
-        cursor: pointer; 
-    }
-    .slider::-moz-range-thumb {
-        width: 20px; 
-        height: 20px; 
-        border-radius: 50%;
-        background: $primary-color; 
-        cursor: pointer; 
-    }
 }
 
 $shade-10: #2c3e50 !default;

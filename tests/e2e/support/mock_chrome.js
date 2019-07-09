@@ -6,6 +6,11 @@ const onBeforeLoad = (win,mock = '') => {
             getURL(url){
                 let path = url.split("/").filter(u => u != "..").join("/");
                 return Cypress.config().baseUrl + path;
+            },
+            getManifest() {
+                return {
+                    version:"0.0.4"
+                }
             }
         };
         win.chrome.storage = {
@@ -43,6 +48,7 @@ const onBeforeLoad = (win,mock = '') => {
            }
        }
 
+        win.chrome.storage.sync.set({allowTracking: false},()=>{});
         window.chrome = win.chrome;
         if(mock == 'account') {
             const account = {

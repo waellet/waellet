@@ -1,6 +1,6 @@
 import {onBeforeLoad} from '../support/mock_chrome.js';
 import {login} from '../login';
-import {prepareEncryptedPrivateKey, ACCOUNT_PASSWORD, PRIVATE_KEY, mnemonic} from '../utils.js';
+import {prepareEncryptedPrivateKey, ACCOUNT_PASSWORD,ACCOUNT_PASSWORD_STRONG, PRIVATE_KEY, mnemonic} from '../utils.js';
 
 describe('Test cases for Import private key and seed phrase', () => {
 
@@ -32,14 +32,14 @@ describe('Test cases for Import private key and seed phrase', () => {
         cy.get('button').contains('Import').should('be.visible');
         cy.get('input[type="password"]').eq(0).type('1234');
         cy.get('button').contains('Import').click();
-        cy.get('.ae-toolbar').should('contain',"Passwords doesn't match! ");
+        cy.get('.ae-toolbar').should('contain',"Too weak password");
         cy.get('input[type="password"]').eq(0).clear();
-        cy.get('input[type="password"]').eq(0).type('123');
-        cy.get('input[type="password"]').eq(1).type('123');
+        cy.get('input[type="password"]').eq(0).type(ACCOUNT_PASSWORD_STRONG);
+        cy.get('input[type="password"]').eq(1).type(ACCOUNT_PASSWORD_STRONG + "as");
         cy.get('button').contains('Import').click();
-        cy.get('.ae-toolbar').should('contain',"Password must be at lest 4 symbols!");
-        cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD);
-        cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD);
+        cy.get('.ae-toolbar').should('contain',"Passwords doesn't match!");
+        cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG);
+        cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG);
         cy.get('button').contains('Import').click();
         cy.get('.ae-loader').should('be.visible');
         cy.get('.ae-card')
@@ -72,15 +72,15 @@ describe('Test cases for Import private key and seed phrase', () => {
         cy.get('button').should('be.visible').should('contain','Restore');
         cy.get('input[type="password"]').eq(0).type('1234');
         cy.get('button').contains('Restore').click();
-        cy.get('.ae-toolbar').should('contain',"Passwords doesn't match! ");
+        cy.get('.ae-toolbar').should('contain',"Too weak password");
 
-        cy.get('input[type="password"]').eq(0).clear().type('123');
-        cy.get('input[type="password"]').eq(1).type('123');
+        cy.get('input[type="password"]').eq(0).type(ACCOUNT_PASSWORD_STRONG);
+        cy.get('input[type="password"]').eq(1).type(ACCOUNT_PASSWORD_STRONG + "as");
         cy.get('button').contains('Restore').click();
-        cy.get('.ae-toolbar').should('contain',"Password must be at lest 4 symbols!");
+        cy.get('.ae-toolbar').should('contain',"Passwords doesn't match!");
 
-        cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD);
-        cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD);
+        cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG);
+        cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG);
         cy.get('button').contains('Restore').click();
         cy.get('.ae-loader').should('be.visible')
         cy.get('.ae-card')

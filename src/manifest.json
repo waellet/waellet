@@ -5,7 +5,7 @@
   "manifest_version": 2,
   "applications": {
     "gecko": {
-      "id": "",
+      "id": "hello@waellet.com",
       "strict_min_version": "53.0"
     }
   },
@@ -33,7 +33,6 @@
   },
   "content_scripts": [{
     "run_at": "document_start",
-    "all_frames": true,
     "matches": [
       "https://*/*",
       "http://*/*"
@@ -41,7 +40,9 @@
     "js": ["inject.js"]
   }],
   "web_accessible_resources": [
-    "inject.js"
+    "inject.js",
+    "phishing/phishing.html",
+    "phishing/phishing.js"
   ],
   "options_ui": {
     "page": "options/options.html",

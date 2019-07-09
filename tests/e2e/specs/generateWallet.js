@@ -1,11 +1,10 @@
 import {onBeforeLoad} from '../support/mock_chrome.js';
 import {login} from '../login';
-import {prepareEncryptedPrivateKey, ACCOUNT_PASSWORD, PRIVATE_KEY, mnemonic} from '../utils.js';
+import {prepareEncryptedPrivateKey, ACCOUNT_PASSWORD_STRONG, PRIVATE_KEY, mnemonic} from '../utils.js';
 
 
 
 describe('Test cases for Generate wallet', () => {
-
     it("generate waellet enter correct password", () => {
         cy.visit('popup/popup.html',{onBeforeLoad});
         cy.wait(2000);
@@ -17,15 +16,20 @@ describe('Test cases for Generate wallet', () => {
 
         cy.get('input[type="password"]').eq(0).type('1234');
         cy.get('button').contains('Continue').click();
-        cy.get('.ae-toolbar').should('contain',"Passwords doesn't match! ");
-        
+        cy.get('.ae-toolbar').should('contain',"Too weak password");
+
         cy.get('input[type="password"]').eq(0).clear().type('123');
         cy.get('input[type="password"]').eq(1).type('123');
         cy.get('button').contains('Continue').click();
-        cy.get('.ae-toolbar').should('contain',"Password must be at lest 4 symbols!");
+        cy.get('.ae-toolbar').should('contain',"Too weak password");
 
-        cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD);
-        cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD);
+        cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG);
+        cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG + "asd");
+        cy.get('button').contains('Continue').click();
+        cy.get('.ae-toolbar').should('contain',"Passwords doesn't match!");
+
+        cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG);
+        cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG);
         cy.get('button').contains('Continue').click();
     });
 
@@ -34,8 +38,8 @@ describe('Test cases for Generate wallet', () => {
         .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'seed') }})
         .wait(2000)
         .get('footer button.primary').click()
-        .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD)
-        .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD)
+        .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG)
+        .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG)
         .get('button').contains('Continue').click()
         .get('button.nextStep').click()
         .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'seed') }})
@@ -53,8 +57,8 @@ describe('Test cases for Generate wallet', () => {
         .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'seed') }})
         .wait(2000)
         .get('footer button.primary').click()
-        .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD)
-        .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD)
+        .get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG)
+        .get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG)
         .get('button').contains('Continue').click()
         .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'seed') }})
         .get('button.nextStep').click()

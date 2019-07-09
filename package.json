@@ -1,6 +1,6 @@
 {
   "name": "waellet",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "waellet - aeternity browser extension",
   "author": "Milen Radkov <milenradkov@me.com>",
   "license": "MIT",
@@ -17,7 +17,7 @@
     "test": " start-server-and-test start http://localhost:5000 start:tests",
     "start": "serve",
     "start:ci": "serve",
-    "start:tests": "cypress run "
+    "start:tests": "cypress open "
   },
   "dependencies": {
     "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",

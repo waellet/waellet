@@ -2,14 +2,25 @@
     <div>
         <main>
             <div class="popup" v-if="!loading">
-                <div v-if="step == 1" >
-                    <h3 class="phraseTitle">Check the spelling of each word and never create a screenshot or photo of this phrase!</h3> 
+                <div class="attentionHolder" v-if="step == 1" >
+
+                    <h1><div>!</div></h1>
+                    <h3>Please make sure to keep your seedphrase safe! Waellet does not store and cannot recover your seedphrase! It is your responsibility to keep it safe. If you loose access to your waellet, you will loose all your funds.</h3>
+                    <h4>Tips on how to protect your funds</h4>
+                    <ul>
+                        <li>Safe a backup on multiple places</li>
+                        <li>Remember your password to decrypt your waellet</li>
+                        <li>Never share the phrase with anyone</li>
+                    </ul>
+
                 </div>
                 <div v-if="step == 2">
                     <h3  class="phraseTitle">Carefully keep this phrase safe! Write these 12 words down and keep them in safe place. You need them to recover your account in the future. </h3>
-                    <ae-phraser>
-                        <ae-badge v-for="seed in seeds" >{{seed.name}}</ae-badge>
-                    </ae-phraser>
+                    <div class="seeds-container">
+                        <div class="col" v-for="column in columns">
+                            <ae-badge v-for="seed in column">{{seed.id + 1}} {{seed.name}}</ae-badge>
+                        </div>
+                    </div>
                     <progress class="seedProgress" :value="progress" max="100"></progress>
                 </div>
                 <div v-if="step == 3">
@@ -39,7 +50,7 @@
 <script>
 import locales from '../../locales/locales.json';
 
-import {shuffleArray} from '../../utils/helper';
+import {shuffleArray, fetchData} from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { addressGenerator } from '../../utils/address-generator';
 import { generateHdWallet } from '../../utils/hdWallet'
@@ -67,8 +78,9 @@ export default {
             selectedSeed:[],
             seedError:{},
             progress:0,
-            loading:false,
-            language: locales['en']
+            loading: false,
+            language: locales['en'],
+            generated: false
         };
     },
     mounted() {
@@ -78,6 +90,14 @@ export default {
     computed: {
         shiffledSeed() {
             return shuffleArray(this.seeds);
+        },
+        columns () {
+            let columns = []
+            let mid = Math.ceil(this.seeds.length /2)
+            for (let col = 0; col < 2; col++) {
+                columns.push(this.seeds.slice(col * mid, col * mid + mid))
+            }
+            return columns
         }
     },
     locales,
@@ -161,6 +181,12 @@ export default {
                                                     this.$store.commit('SWITCH_LOGGED_IN', true);
                                                     this.$store.commit('SET_WALLET', wallet);
                                                     this.$router.push('/account');
+                                                    this.generated = true;
+                                                    browser.storage.sync.get('allowTracking').then(result => {
+                                                        if(result.allowTracking == true) {
+                                                            fetchData('https://stats.waellet.com/user/created', 'post', this.generated);
+                                                        }
+                                                    });
                                                 });
                                             });
                                         });
@@ -168,6 +194,7 @@ export default {
                                 }
                             }
                         });
+                        
                     }
                 }
             }
@@ -200,6 +227,36 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
+.attentionHolder h1 {
+    color: red;
+    font-size: 50px;
+    margin: 0;
+}
+.attentionHolder h1 div {
+    border: 3px solid;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: auto;
+}
+.attentionHolder h3 {
+    word-break: break-word;
+}
+.attentionHolder h4, .attentionHolder ul {
+    margin: 0;
+}
+.attentionHolder ul li {
+    text-align: left;
+}
+.seeds-container {
+  display: flex;
+}
+.col {
+  margin: 5px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
 .mt-3 { margin-top:3rem;}
 .seedBadge { 
     user-select: unset;
@@ -221,7 +278,13 @@ export default {
     padding-left:1rem;
     color:#929ca6;
 }
-.phraseTitle { padding-left:1rem; font-size:1.5rem; font-weight:500; word-break:break-word; }
+.phraseTitle {
+    margin:10px;
+    padding-left:1rem;
+    font-size:1.5rem;
+    font-weight:500; 
+    word-break:break-word; 
+}
 .seedProgress {
     background:#fff;
     width: 100%;

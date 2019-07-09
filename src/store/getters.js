@@ -13,6 +13,9 @@ export const getters = {
   network(state) {
     return state.network;
   },
+  userNetworks(state) {
+    return state.userNetworks;
+  },
   current(state) {
     return state.current;
   },
@@ -33,5 +36,17 @@ export const getters = {
   },
   activeAccountName(state) {
     return state.subaccounts.find(s => s.publicKey == state.account.publicKey).name;
+  },
+  sdk(state) {
+    return state.sdk
+  },
+  tokens(state) {
+    return state.tokens
+  },
+  tokenSymbol(state) {
+    return state.tokens[state.current.token].symbol
+  },
+  tokenBalance(state) {
+    return state.current.token != 0 ? state.tokens[state.current.token].balance : state.balance
   }
 };

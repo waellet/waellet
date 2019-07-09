@@ -44,8 +44,11 @@
                 <ae-list-item fill="neutral" class="flex-direction-column">
                     <h4>Spend Type</h4>
                     <div>
-                        <ae-badge :class="filter.spendType == 'spendTx' ? 'selected' : ''" @click.native="setFilter('spendType','spendTx')">spendtx</ae-badge>
-                        <ae-badge :class="filter.spendType == 'other' ? 'selected' : ''" @click.native="setFilter('spendType','other')">other</ae-badge>
+                        <ae-badge :class="filter.spendType == 'all' ? 'selected' : ''" @click.native="setFilter('spendType','all')">all</ae-badge>
+                        <ae-badge :class="filter.spendType == 'spendTx' ? 'selected' : ''" @click.native="setFilter('spendType','spendTx')">spend tx</ae-badge>
+                        <ae-badge :class="filter.spendType == 'namePreclaimTx' ? 'selected' : ''" @click.native="setFilter('spendType','namePreclaimTx')">name preclaim tx</ae-badge>
+                        <ae-badge :class="filter.spendType == 'nameClaimTx' ? 'selected' : ''" @click.native="setFilter('spendType','nameClaimTx')">name claim tx</ae-badge>
+                        <ae-badge :class="filter.spendType == 'nameUpdateTx' ? 'selected' : ''" @click.native="setFilter('spendType','nameUpdateTx')">name update tx</ae-badge>
                     </div>
                 </ae-list-item>
                 <!--<ae-list-item fill="neutral" class="flex-direction-column">
@@ -72,6 +75,7 @@
 import locales from '../../locales/locales.json';
 import {mapGetters} from 'vuex';
 import { groupBy,orderBy } from 'lodash-es'; 
+import { clearInterval } from 'timers';
 export default {
     data() {
         return {
@@ -90,14 +94,15 @@ export default {
             newTr:[],
             openFilter:false,
             filter:{
-                spendType:'spendTx',
+                spendType:'all',
                 direction:''
-            }
+            },
+            upadateInterval:null
         }
     },
     locales,
     computed: {
-        ...mapGetters(['account','transactions']),
+        ...mapGetters(['account','transactions','current']),
         showMore() {
             return this.currentCount + 1 <= this.totalTransactions;
         },
@@ -107,7 +112,16 @@ export default {
                 (this.filter.direction == 'incoming' ? 
                     this.transactions.all.filter(tx => tx.tx.recipient_id == this.account.publicKey) : 
                     this.transactions.all.filter(tx => tx.tx.sender_id == this.account.publicKey) );
-            txs = (this.filter.spendType == 'spendTx' ? txs.filter(tx => tx.tx.type == 'SpendTx') : txs.filter(tx => tx.tx.type != 'SpendTx') )
+            if(this.filter.spendType == 'spendTx') {
+                txs = txs.filter(tx => tx.tx.type == 'SpendTx') 
+            }else if(this.filter.spendType == 'namePreclaimTx') {
+                txs = txs.filter(tx => tx.tx.type == 'NamePreclaimTx') 
+            }else if(this.filter.spendType == 'nameClaimTx') {
+                txs = txs.filter(tx => tx.tx.type == 'NameClaimTx') 
+            }else if(this.filter.spendType == 'nameUpdateTx') {
+                txs = txs.filter(tx => tx.tx.type == 'NameUpdateTx') 
+            }
+            
             return groupBy(
                 orderBy(txs,['time'],['desc']),
                 (tx) => {
@@ -115,6 +129,9 @@ export default {
                     return dateString === new Date().toDateString() ? 'Today' : dateString;
                 },
             );
+        },
+        watchToken() {
+            return this.current.token
         }
     },
     created(){
@@ -128,10 +145,24 @@ export default {
             this.loading = true;
             this.page = 1;
             this.getTotalTransactions();
-            this.$store.commit('RESET_TRANSACTIONS',[]);
             this.getTransactions('load');
             this.showMoreBtn = true;
-        }
+        },
+        'filter.direction': function (newValue,oldValue) {
+            if(this.filter.direction == 'inocming' || this.filter.direction == 'outgoing') {
+                this.updateInterval = setInterval(() => {
+                    let txs = this.filter.direction == 'incoming' ? this.transactions.all.filter(tx => tx.tx.recipient_id == this.account.publicKey) :  this.transactions.all.filter(tx => tx.tx.sender_id == this.account.publicKey);
+                    if(this.showMoreBtn == false ){
+                        window.clearInterval(this.updateInterval);
+                        return;
+                    }
+                    if(this.showMoreBtn && (txs.length % this.limit != 0 || txs.length == 0) ) {
+                        this.loading = true;
+                        this.loadMore();
+                    }
+                },1000);
+            }
+        },
     },
     methods: {
         getPage() {
@@ -146,34 +177,36 @@ export default {
             this.transactionsType = type;
         },
         getTransactions(type,limit = this.limit){
-            if(type == 'load') {
-                let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,page:this.page,limit:limit});
-                transactions.then(res => {
-                    if(res.length != 0) {
+            if(this.current.token == 0) {
+                if(type == 'load') {
+                    let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,page:this.page,limit:limit});
+                    transactions.then(res => {
+                        if(res.length != 0) {
+                            let newTrans = res.filter( tr => {
+                                let found = this.transactions.all.find(t => t.hash == tr.hash);
+                                if(typeof found == 'undefined') return tr;
+                            });
+                            this.$store.dispatch('updateAllTransactions',{new:false,transactions:newTrans});
+                        }else {
+                            this.showMoreBtn = false;
+                        }
+                        this.loading = false;
+                    });
+                }else if(type == 'new') {
+                    let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:limit});
+                    transactions.then(res => {
                         let newTrans = res.filter( tr => {
                             let found = this.transactions.all.find(t => t.hash == tr.hash);
                             if(typeof found == 'undefined') return tr;
                         });
-                        this.$store.dispatch('updateAllTransactions',{new:false,transactions:newTrans});
-                    }else {
-                        this.showMoreBtn = false;
-                    }
-                    this.loading = false;
-                });
-            }else if(type == 'new') {
-                let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:limit});
-                transactions.then(res => {
-                    let newTrans = res.filter( tr => {
-                        let found = this.transactions.all.find(t => t.hash == tr.hash);
-                        if(typeof found == 'undefined') return tr;
+                        newTrans.forEach(element => {
+                            if(typeof this.newTr.find(tr => tr.hash == element.hash) == 'undefined') {
+                                this.newTr.unshift(element);
+                                this.newTransactions += 1;
+                            }
+                        });
                     });
-                    newTrans.forEach(element => {
-                        if(typeof this.newTr.find(tr => tr.hash == element.hash) == 'undefined') {
-                            this.newTr.unshift(element);
-                            this.newTransactions += 1;
-                        }
-                    });
-                });
+                }
             }
         },
         getTotalTransactions() {
@@ -209,7 +242,7 @@ export default {
             
         },
         group() {
-            console.log(this.groupedTransactions);
+            
         },
         navigateAccount() {
             this.$router.push('/account')
@@ -223,11 +256,12 @@ export default {
         clearFilter() {
             this.openFilter = false;
             this.filter['direction'] = '';
-            this.filter['spendType'] = 'spendTx';
+            this.filter['spendType'] = 'all';
         }
     },
     beforeDestroy () {
-	  clearInterval(this.polling)
+      clearInterval(this.polling)
+      clearInterval(this.updateInterval)
     }
 }
 </script>
@@ -279,6 +313,9 @@ export default {
 .filters h4 {
     margin-top:0 !important;
     margin-bottom:5px;
+}
+.filters .ae-badge {
+    background:#d9d9d9;
 }
 .filters .ae-badge.selected {
     background:$primary-color;

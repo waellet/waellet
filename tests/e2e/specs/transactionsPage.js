@@ -25,7 +25,7 @@ describe("Tets cases for Transactions Page", () => {
             cy.get('.allTransactions .list-item-transaction').eq(0).then(elem => {
                 cy.wrap(elem).should('have.class',data.hash);
                 cy.wrap(elem).find('.ae-address').should('have.attr','title',data.tx.sender_id);
-                cy.wrap(elem).find('.transactionDate').should('contain',new Date(data.time).toDateString() + ' ' + new Date(data.time).toLocaleTimeString() );
+                cy.wrap(elem).find('.transactionDate').should('contain',new Date(data.time).toLocaleTimeString() );
                 cy.wrap(elem).find('div.balance').should('contain',amount);
                 cy.wrap(elem).find('small .balance').should('contain',fee);
                 if(data.tx.sender_id == account.publicKey) {
@@ -74,5 +74,9 @@ describe("Tets cases for Transactions Page", () => {
             .get('.allTransactions')
             .should('be.visible')
         });
+    });
+    it("check login page", () => {
+        cy.
+        visit('popup/popup.html',{onBeforeLoad});
     });
 });

@@ -1,6 +1,12 @@
 # Waellet
 
-[![CircleCI](https://circleci.com/gh/waellet/waellet/tree/master.svg?style=svg)](https://circleci.com/gh/waellet/waellet/tree/master)
+[![CircleCI](https://circleci.com/gh/aeternity/aepp-waellet/tree/master.svg?style=svg)](https://circleci.com/gh/aeternity/aepp-waellet/tree/master)
+
+Install from: 
+- [Chrome Web Extensions Store](https://chrome.google.com/webstore/detail/waellet/nnkfipoloblhgnahnaocfkhmmplcdneb)
+- [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/waellet/)
+
+or see instructions below how to build it from source.
 
 ![](https://hack.bg/wp-content/uploads/2019/06/waellet_cover-1038x498.png)
 
@@ -30,6 +36,6 @@ Currently, Waellet is still in beta and under heavy development. Last week we on
 
 Contributions are more than welcome.
 
-If you spot an issue while testing/using the waellet - [submit an issue](https://github.com/waellet/waellet/issues)
+If you spot an issue while testing/using the waellet - [submit an issue](https://github.com/aeternity/aepp-waellet/issues)
 
 If you want to help us with building this amazing project submit your PR!

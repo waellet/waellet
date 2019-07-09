@@ -6,9 +6,13 @@
         <div class="logo-center">
           <img :src="logo" alt="Waellet logo">
         </div>
+        <ae-modal-light v-if="modalAskVisible" @close="modalAskVisible = false" title="Do you want to track your stats?">
+          <small>Please, note that you can change this at any time in the Waellet settings</small>
+          <ae-button size="small" type="exciting" plain uppercase @click="trackStats" slot="buttons" >Yes</ae-button>
+          <ae-button size="small" type="dramatic" plain uppercase @click="doNotTrackStats" slot="buttons" >No</ae-button>
+        </ae-modal-light>
       </div>
     </main>
-    
     <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
     <footer v-if="!loading">
       <div class="wrapper">
@@ -18,7 +22,7 @@
                 <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest 4 symbols! </ae-toolbar>
                 <ae-toolbar v-if="loginError" slot="footer">Incorrect password !</ae-toolbar>
             </ae-input>
-            <ae-button face="round" extend fill="primary" @click="login({accountPassword})">Login</ae-button>
+            <ae-button face="round" extend fill="primary" class=loginBtn @click="login({accountPassword})">Login</ae-button>
             <ae-divider />
           </div>
           <ae-button face="round" v-if="!account.encryptedPrivateKey" fill="primary" class="mb-1" extend @click="generateAddress">{{ language.buttons.generateWallet }}</ae-button>
@@ -71,14 +75,16 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
+import { fetchData } from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
-import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet'
+import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet';
 
 export default {
   name: 'Home',
   data() {
     return {
       loading: false,
+      modalAskVisible: true,
       language: locales['en'],
       modalVisible: false,
       logo: browser.runtime.getURL('../../../icons/icon_128.png'),
@@ -90,11 +96,12 @@ export default {
       errorMsg:'This field is requried!',
       errorMsg:'',
       loginError:false,
-      accountPassword:''
+      accountPassword:'',
+      imported: false
     };
   },
   computed: {
-    ...mapGetters(['account','isLoggedIn','wallet'])
+    ...mapGetters(['account','isLoggedIn','wallet','tokens'])
   },
   mounted() {},
   created () {
@@ -107,12 +114,15 @@ export default {
       // browser.storage.sync.set({isLogged: ''}).then(() => {});
       // browser.storage.sync.set({confirmSeed: true}).then(() => {});
       // browser.storage.sync.set({mnemonic: ''}).then(() => {});
-      // browser.storage.sync.remove('subaccounts').then(() => {});
+      // browser.storage.sync.remove('tokens').then(() => {});
       var newTab = false;
+      browser.storage.sync.get('allowTracking').then((result) => {
+        if (result.hasOwnProperty('allowTracking')) {
+          this.modalAskVisible = false;
+        }
+      });
       browser.storage.sync.get('showAeppPopup').then((data) => {
-        
         if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
-          
           browser.storage.sync.set({showAeppPopup:{}}).then(() => {
             if(data.showAeppPopup.type == 'confirm') {
               this.$router.push({'name':'confirm-share', params: {
@@ -127,7 +137,6 @@ export default {
           });
         }else {
           browser.storage.sync.get('pendingTransaction').then((data) => {
-              
               if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('data')) {
                 this.$router.push({'name':'sign', params: {
                   data:data.pendingTransaction.data
@@ -165,11 +174,20 @@ export default {
                               }
                             });
                           });
+
+                          // Get user networks
+                          browser.storage.sync.get('userNetworks').then((usernetworks) => {
+                            if (usernetworks.hasOwnProperty('userNetworks')) {
+                                usernetworks.userNetworks.forEach(data => {
+                                  this.$store.state.network[data.name] = data;
+                                });
+                                this.$store.dispatch('setUserNetworks', usernetworks.userNetworks);
+                            }
+                          });
                         }
                       } 
                       browser.storage.sync.get('confirmSeed').then((seed) => {
                         if(seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
-                          
                           this.$router.push('/seed');
                           return;
                         }
@@ -177,10 +195,17 @@ export default {
                       if (data.isLogged && data.hasOwnProperty('isLogged')) {
                         browser.storage.sync.get('wallet').then((wallet) => {
                           if(wallet.hasOwnProperty('wallet') && wallet.wallet != "") {
-                            this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
-                            this.$store.commit('SWITCH_LOGGED_IN', true);
-                            
-                            this.$router.push('/account');
+                            browser.storage.sync.get('tokens').then((tkn) => {
+                              let tokens = this.tokens
+                              if(tkn.hasOwnProperty('tokens')) {
+                                tokens = tkn.tokens
+                              }
+                              this.$store.dispatch('setTokens', tokens).then(() => {
+                                this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
+                                this.$store.commit('SWITCH_LOGGED_IN', true);
+                                this.$router.push('/account');
+                              })
+                            });
                           }
                         });
                       }
@@ -193,6 +218,14 @@ export default {
       });
       
     },
+    trackStats() {
+      this.modalAskVisible = false;
+      browser.storage.sync.set({allowTracking:  true}).then(() => {});
+    },
+    doNotTrackStats(){
+      this.modalAskVisible = false;
+      browser.storage.sync.set({allowTracking:  false}).then(() => {});
+    },
     generateAddress: async function generateAddress({ dispatch }) {
         this.$router.push({name:'password',params:{
           confirmPassword:true,
@@ -202,7 +235,6 @@ export default {
           title:'Protect Account with Password'
         }});
     },
-   
     switchImportType(type) {
       this.importType = type;
       this.errorMsg = "This field is requried! ";
@@ -226,6 +258,7 @@ export default {
           }});
           this.modalVisible = false;
           this.inputError = {}; 
+          this.imported = true;
         }else {
           this.inputError = {error:''};
           this.errorMsg = "Private key is incorrect! ";
@@ -242,6 +275,7 @@ export default {
             }});
             this.modalVisible = false;
             this.inputError = {};
+            this.imported = true;
         }else {
             this.inputError = {error:''};
             this.errorMsg = "Incorrect seed phrase! ";
@@ -274,11 +308,17 @@ export default {
               }
             }
             reader.readAsText(this.walletFile);
+            this.imported = true;
           }else {
              this.inputError = {error:''};
              this.errorMsg = "Plese upload keystore.json file! ";
           }
       }
+      browser.storage.sync.get('allowTracking').then(result => {
+          if(result.allowTracking == true) {
+              fetchData('https://stats.waellet.com/user/imported', 'post', this.imported);
+          }
+      });
     },
     openImportModal() {
       this.modalVisible = true;
@@ -315,7 +355,7 @@ export default {
                           root:true
                       };
                       browser.storage.sync.set({isLogged: true}).then(() => {
-                        browser.storage.sync.set({wallet:JSON.stringify(wallet)},() => {
+                        browser.storage.sync.set({wallet:JSON.stringify(wallet)}).then(() => {
                           if(address !== user.userAccount.publicKey) {
                               user.userAccount.publicKey = address;
                               user.userAccount.encryptedPrivateKey = encPrivateKey;
@@ -344,6 +384,11 @@ export default {
                             }else {
                               sub = subaccounts.subaccounts;
                             }
+                            browser.storage.sync.get('allowTracking').then(result => {
+                                if(result.allowTracking == true) {
+                                    fetchData('https://stats.waellet.com/user/login', 'post', this.isLogged);
+                                }
+                            });
                             this.$store.dispatch('setSubAccounts',sub).then(() => {
                               this.$store.commit('SET_WALLET', wallet);
                               this.$store.commit('SWITCH_LOGGED_IN', true);

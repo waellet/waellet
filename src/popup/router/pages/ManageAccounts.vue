@@ -1,21 +1,26 @@
 <template>
     <div id="manageAccounts" class="popup">
+        <div class="actions">
+            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+        </div>
         <h3>{{ language.strings.manageAccounts }}</h3>
         <ae-list face="primary">
-            <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts">
+            <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts" v-bind:key="index">
                 <!-- IF not edit -->
                 <div v-if="!subaccount.edit">
+                    <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
                     <span class="name">{{ subaccount.name }}</span>
                     <button @click="subaccount.edit = !subaccount.edit"><ae-icon name="edit" class="primary" /></button>
                 </div>
                 <!-- IF edit -->
                 <div v-if="subaccount.edit">
+                    <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
                     <ae-input-plain placeholder="Enter name here.." v-model="subaccount.name" />
                     <button @click="cancelEdit(index)"><ae-icon name="close" /></button>
                     <button @click="nameSave(index)"><ae-icon name="check" /></button>
                 </div>
             </ae-list-item>
-            <ae-list-item class="addaccount" fill="secondary">
+            <ae-list-item class="addaccount" fill="primary">
                 <div v-if="!аddNewSubbAcc">
                     <span>{{ language.strings.addNewSubAccount }}</span>
                     <button @click="AddNewSubbAccount"><ae-icon name="plus" /></button>
@@ -68,9 +73,6 @@ export default {
         this.setAccounts();
     },
     methods: {
-        myAccount () {
-            this.$router.push('/account');
-        },
         setAccounts() {
             this.accounts = this.subaccounts.map(s => {
                 return {
@@ -141,6 +143,9 @@ export default {
                 });
             }
             this.newSubAcc = "";
+        },
+        navigateAccount() {
+            this.$router.push('/account')
         }
     }
 }
@@ -148,18 +153,15 @@ export default {
 
 <style lang="scss">
 @import '../../../common/base';
-
-#manageAccounts .btnBack { display: block; margin-bottom: 15px; }
-#manageAccounts .btnBack .ae-icon { transform: rotate(180deg); vertical-align: bottom; }
 .ae-list-item { cursor: default !important; }
 .ae-list-item .ae-icon { float: right; font-size: 1.2rem; }
 // .ae-icon-edit, .ae-icon-plus { color: #00b6ff !important; }
 #manageAccounts .ae-icon-check { color: #13b100 !important; }
 #manageAccounts .ae-icon-close { color: #b10000 !important; }
 .editaccount div, .addaccount div { width: 100%; }
-.editaccount div span, .editaccount div input, .addaccount div span { float: left; }
+.editaccount div span, .editaccount div input, .addaccount div span, .editaccount div canvas { float: left; }
 .editaccount div button, .addaccount div button { float: right; }
-.editaccount div input { width: 70% !important; }
+.editaccount div input { width: 60% !important; }
 
 .slideform { position: relative; width: 100%; overflow: hidden; padding: 0; top: 10px; list-style-type: none;
     box-shadow: 0 0 8px rgba(0, 33, 87, 0.15); transform-origin: top; transition: transform .4s ease-in-out; }
