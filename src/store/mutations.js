@@ -65,6 +65,7 @@ export default {
   },
   [types.SET_USERNETWORKS](state, payload) {
     state.userNetworks = payload;
+  },
   [types.INIT_SDK] (state, payload) {
     state.sdk = payload
   },
