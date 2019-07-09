@@ -1,7 +1,9 @@
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
-import {convertToAE} from '../popup/utils/helper';
+import { convertToAE } from '../popup/utils/helper';
+import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
+
 export default {
   setAccount({ commit }, payload) {
     commit(types.UPDATE_ACCOUNT, payload);
@@ -22,8 +24,7 @@ export default {
   },
   updateBalance({ commit, state }) {
     // get balance based on new or already fetched api
-    state.aeAPI.then(ae => {
-      ae.balance(state.account.publicKey)
+      state.sdk.balance(state.account.publicKey)
         .then(balance => {
           commit(types.UPDATE_BALANCE, convertToAE(balance) );
         })
@@ -31,12 +32,10 @@ export default {
           console.log(e);
           commit(types.UPDATE_BALANCE, convertToAE(0) );
         });
-    });
   },
   updateBalanceSubaccounts({ commit, state }) {
-    state.aeAPI.then(ae => {
       state.subaccounts.forEach((sub,index) => {
-          ae.balance(sub.publicKey)
+          state.sdk.balance(sub.publicKey)
           .then(balance => {
             commit(types.UPDATE_SUBACCOUNTS_BALANCE, { account:index, balance: convertToAE(balance) } );
           })
@@ -44,7 +43,22 @@ export default {
             commit(types.UPDATE_SUBACCOUNTS_BALANCE, { account:index, balance:  convertToAE(0) } );
           });
       });
-    });
+  },
+  updateBalanceTokens({ commit, state }) {
+    state.tokens.forEach((tkn, index) => {
+        if(typeof tkn.parent != 'undefined' && tkn.contract != '') {
+          state.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,tkn.contract,'balance',[state.account.publicKey])
+          .then((res) => {
+            res.decode()
+            .then(balance => {
+              commit(types.UPDATE_TOKENS_BALANCE, { token:index, balance: balance == 'None' ? 0 : balance.Some[0] } );
+            })
+          })
+          .catch(e => {
+
+          })
+        }
+    })
   },
   popupAlert({ commit, state }, payload) {
     switch (payload.name) {
@@ -75,14 +89,23 @@ export default {
             commit(types.SHOW_POPUP,{show:true,...popupMessages.PUBLIC_KEY_COPIED});
             break;
           case 'seedFastCopy':
-              commit(types.SHOW_POPUP,{show:true,...popupMessages.SEED_FAST_COPY});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.SEED_FAST_COPY});
             break;
-            case 'requiredField':
-                commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_FIELD});
-              break;
-            case 'added_success':
-                commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_ADDED});
-              break;
+          case 'requiredField':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_FIELD});
+            break;
+          case 'added_success':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_ADDED});
+            break;
+          case 'token_add':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_FIELDS_ADD_TOKEN});
+            break;
+          case 'token_exists':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_ADDED});
+          break;
+          case 'token_invalid_address':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_INVALID_ADDRESS});
+          break;
           default:
             break;
         }
@@ -139,4 +162,10 @@ export default {
   setUserNetworks({ commit }, payload) {
     commit(types.SET_USERNETWORKS, payload);
   },
+  initSdk({ commit }, payload) {
+    commit(types.INIT_SDK, payload)
+  },
+  setTokens({ commit }, payload) {
+    commit(types.SET_TOKENS, payload)
+  }
 };

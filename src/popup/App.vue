@@ -68,8 +68,8 @@
           <!-- settings dropdown -->
           <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" ref="settings">
             <button v-on:click="toggleDropdown">
-              <ae-icon class="dropdown-button-icon" name="settings" slot="button" />
-              <span class="dropdown-button-name" slot="button">{{ language.strings.settings }}</span>
+              <ae-icon class="dropdown-button-icon" name="burger" slot="button" />
+              <span class="dropdown-button-name" slot="button">{{ language.strings.menu }}</span>
             </button>
             <transition name="slide-fade">
               <ul v-if="dropdown.settings" class="dropdown-holder">
@@ -80,9 +80,9 @@
                   </ae-button>
                 </li>
                 <li>
-                  <ae-button @click="exportKeypair('keypair')">
-                    <ae-icon name="save" />
-                    {{ language.strings.exportKeypair }}
+                  <ae-button @click="settings" class="settings">
+                    <ae-icon name="settings" />
+                    {{ language.strings.settings }}
                   </ae-button>
                 </li>
                 <li>
@@ -91,19 +91,42 @@
                     {{ language.strings.exportKeystore }}
                   </ae-button>
                 </li>
+                <li>
+                  <ae-button @click="toTokens" class="toTokens">
+                    <ae-icon name="aeternity" />
+                      Add tokens
+                  </ae-button>
+                </li>
                 <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
                   <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
                     <ae-icon name="globe" />
                     {{ language.strings.switchLanguage }}
                     <ae-icon name="left-more" />
                   </ae-button>
-
                   <!-- Language sub dropdown -->
                   <ul class="sub-dropdown">
                     <li v-for="(value, name) in locales" v-bind:key="name">
                       <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd" :class="current.language == name ? 'current' : ''">
                         <img :src="'../icons/flag_'+name+'.png'" />
                         {{ name }}
+                      </ae-button>
+                    </li>
+                  </ul>
+                </li>
+                 <li id="tokens" class="have-subDropdown" :class="dropdown.tokens ? 'show' : ''">
+                  <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
+                    <ae-icon name="globe" />
+                    {{ language.strings.switchToken }}
+                    <ae-icon name="left-more" />
+                  </ae-button>
+
+                  <!-- Language sub dropdown -->
+                  <ul class="sub-dropdown">
+                    <li v-for="(tkn, index) in tokens" v-if="typeof tkn.parent == 'undefined' || tkn.parent == account.publicKey" :key="index">
+                      <ae-button @click="switchToken(index)" class="triggerhidedd" >
+                        <ae-identicon class="token-image" :address="tkn.contract" size="base" v-if="index != 0 "/>
+                        <img :src="ae_token" class="token-image" alt="" v-if="index == 0" >
+                        <span class="subAccountBalance">{{typeof tkn.parent == 'undefined' ? balance : tkn.balance }} {{ tkn.symbol }}</span>
                       </ae-button>
                     </li>
                   </ul>
@@ -158,39 +181,59 @@
 
 <script>
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
+import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import store from '../store';
 import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout } from 'timers';
+import { getHdWalletAccount } from './utils/hdWallet';
+import { fetchData } from './utils/helper';
 
 export default {
   
   data () {
     return {
       logo_top: browser.runtime.getURL('../../../icons/icon_48.png'),
+      ae_token: browser.runtime.getURL('../../../icons/ae.png'),
       language: locales['en'],
       locales: locales,
       dropdown: {
         network: false,
         settings: false,
         account: false,
-        languages: false
+        languages: false,
+        tokens: false
       },
       mainLoading: true
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName']),
+    ...mapGetters (['account', 'current', 'network','popup','isLoggedIn', 'AeAPI','subaccounts','activeAccount', 'balance','activeAccountName','wallet', 'sdk','tokens']),
+    popupButtonFill(){
+      return this.popup.type == 'error' ? 'primary' : 'alternative';
+    },
     extensionVersion() {
       return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
   },
   created: function () {
-      // browser.storage.sync.set({language: 'en'}).then(() => {
-      //   browser.storage.sync.set({activeLanguage: 'en'});
-      //   this.language = locales['en'];
-      //   this.current.language = 'en';
+      browser.storage.sync.set({language: 'en'}).then(() => {
+        this.language = locales['en'];
+      });
+      
+      //init SDK
+      setTimeout(() => {
+        if(this.isLoggedIn && this.sdk == null) {
+          this.initSDK()
+        }
+        if(this.isLoggedIn) {
+          this.pollData()
+        }
+      },500)
+      
+      // browser.storage.sync.get('language', langChoose => {
+      //   this.language = locales[langChoose.language];
       // });
       browser.storage.sync.get('activeLanguage').then((data) => {
         if (data.hasOwnProperty('activeLanguage')) {
@@ -205,10 +248,10 @@ export default {
         }
       });
        // fetch api one time
-      let states = this.$store.state;
-      if (typeof states.aeAPI == 'undefined') {
-        this.$store.state.aeAPI = this.fetchApi();
-      }
+      // let states = this.$store.state;
+      // if (typeof states.aeAPI == 'undefined') {
+      //   this.$store.state.aeAPI = this.fetchApi();
+      // }
   },
   mounted: function mounted () {
     this.hideLoader();
@@ -219,11 +262,13 @@ export default {
       var self = this;
       setTimeout(function() {
         self.mainLoading = false;
-      }, 1000);
+      }, 1500);
     },
     changeAccount (index,subaccount) {
+      this.current.token = 0
       browser.storage.sync.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
+        this.$store.commit('RESET_TRANSACTIONS',[]);
       });
     },
     hideMenu (event) {
@@ -259,9 +304,14 @@ export default {
         this.current.language = languageChoose;
       });
     },
+    switchToken(token){
+      this.current.token = token
+      this.$store.commit('RESET_TRANSACTIONS',[]);
+    },
     switchNetwork (network) {
       this.$store.dispatch('switchNetwork', network).then(() => {
         this.$store.state.aeAPI = this.fetchApi();
+        this.initSDK()
         this.$store.dispatch('updateBalance');
         let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
         transactions.then(res => {
@@ -280,6 +330,11 @@ export default {
             this.$store.commit('UPDATE_ACCOUNT', '');
             this.$store.commit('SWITCH_LOGGED_IN', false);
             this.$store.commit('SET_WALLET', []);
+            browser.storage.sync.get('allowTracking').then(result => {
+              if(result.allowTracking == true) {
+                  fetchData('https://stats.waellet.com/user/logout', 'post', this.isLogged);
+              }
+            });
             this.$router.push('/');
           });
         });
@@ -298,6 +353,10 @@ export default {
     },
     navigateNetworks () {
       this.$router.push('/manageNetworks');
+    }
+    settings () {
+      this.dropdown.settings = false;
+      this.$router.push('/settings');
     },
     manageAccounts () {
       this.$router.push('/manageAccounts');
@@ -339,6 +398,25 @@ export default {
           });
       }
     },
+    pollData() {
+      let triggerOnce = false
+      this.polling = setInterval(() => {
+        if(this.sdk != null) {
+            //Todo update token if is not AE
+            this.$store.dispatch('updateBalance');
+            if(this.dropdown.account) {
+              this.$store.dispatch('updateBalanceSubaccounts');
+            }
+            if(this.dropdown.settings) {
+              this.$store.dispatch('updateBalanceTokens');
+            }
+            if(!triggerOnce) {
+              this.$store.dispatch('updateBalanceSubaccounts');
+              triggerOnce = true
+            }
+        }
+      }, 5000);
+    },
     fetchApi() {
       let states = this.$store.state;
       let ae = Ae({
@@ -350,8 +428,33 @@ export default {
           },
           networkId: states.network[states.current.network].networkId,
       });
+      ae.then(a => {
+        console.log(a);
+      })
       return ae;
+    },
+    initSDK() {
+      Universal({
+        url: this.network[this.current.network].url, 
+        internalUrl: this.network[this.current.network].internalUrl,
+        keypair: {
+            publicKey: this.account.publicKey,
+            secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey
+        },
+        networkId: this.network[this.current.network].networkId, 
+        nativeMode: true,
+        compilerUrl: 'https://compiler.aepps.com'
+      }).then((sdk) => {
+        this.$store.dispatch('initSdk',sdk)
+      })
+    },
+    toTokens() {
+      this.dropdown.settings = false
+      this.$router.push('/tokens')
     }
+  },
+  beforeDestroy() {
+    clearInterval(this.polling)
   }
 };
 </script>
@@ -370,6 +473,7 @@ export default {
 .fadeOut-leave-to { opacity: 0; }
 .mainLoader { position: fixed; width: 100%; height: 100%; background-color: rgba(255,255,255,1); top: 0; }
 .mainLoader .ae-loader { position: absolute; top: 50%; left: 50%; margin: -1.5em; width: 3em !important; height: 3em !important; border-radius: 3em !important; }
+.mainLoader.mainLoaderTransparent { opacity:0.8; }
 html { min-width: 357px; min-height: 600px; background-color: #f5f5f5; }
 p { font-weight: bolder; margin-left: 3px; }
 input { background: transparent; border: none; border-bottom: 1px; height: 25px; line-height: 25px; }
@@ -447,7 +551,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="2"] { background: #9d3fc0 }
 .Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="3"] { background: #1d7fe2 }
 .Password .passwordStrengthMeter .Password__strength-meter--fill[data-score="4"] { background: $color-alternative }
-
 .actions { text-align: left; }
 .actions .backbutton { padding: 0; color: #9d3fc0 !important; }
+.token-image { margin-right:1rem; width:28px; }
 </style>

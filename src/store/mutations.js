@@ -65,5 +65,22 @@ export default {
   },
   [types.SET_USERNETWORKS](state, payload) {
     state.userNetworks = payload;
+  [types.INIT_SDK] (state, payload) {
+    state.sdk = payload
+  },
+  [types.SET_TOKENS] (state, payload) {
+    state.tokens = payload
+  },
+  [types.UPDATE_TOKENS_BALANCE] (state, payload) {
+    state.tokens[payload.token].balance = payload.balance
+  },
+  [types.UNSET_TOKENS] (state, payload) {
+    state.tokens = [{
+      name:"AE",
+      symbol:"AE",
+      precision:7,
+      balance:0,
+      contract:''
+    }];
   }
 }; 

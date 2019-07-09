@@ -17,7 +17,8 @@ export default new Vuex.Store({
     balance: 0,
     current: {
       network: 'Testnet',
-      language: 'en'
+      language: 'en',
+      token:0
     },
     network: {
       Testnet: {
@@ -42,7 +43,17 @@ export default new Vuex.Store({
       latest:[],
       all:[],
       new:[]
-    }
+    },
+    sdk:null,
+    tokens:[
+      {
+        name:"AE",
+        symbol:"AE",
+        precision:7,
+        balance:0,
+        contract:''
+      }
+    ]
   },
   getters,
   mutations,

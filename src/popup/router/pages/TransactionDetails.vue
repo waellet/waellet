@@ -11,7 +11,7 @@
                 <ae-badge :class="txTypeBadge" class="transactionType">{{transaction.tx.type}}</ae-badge>
             </ae-list-item> 
             <ae-list-item fill="neutral" class="flex-direction-column">
-                <div class="flex-col flex-justify-between flex mb-1">
+                <div class="flex-col flex-justify-between flex mb-1" v-if="isSpendTx">
                     <div class="detailTitle">{{language.pages.transactionDetails.amount}}</div>
                     <div class="balance transactionAmount">{{txAmount}}</div>
                 </div>
@@ -24,15 +24,23 @@
                     <div class="balance balanceTotal">{{txAmount + txFee}}</div>
                 </div>
             </ae-list-item>
-            <ae-list-item fill="neutral" class="flex-direction-column">
+            <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isSpendTx">
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txFrom}}</div>
                 <ae-address :value="transaction.tx.sender_id" length="flat"  class="flex-justify-items-left transationFrom text-left"/>
             </ae-list-item>
-            <ae-list-item fill="neutral" class="flex-direction-column">
+            <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isSpendTx">
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txTo}}</div>
                 <ae-address :value="transaction.tx.recipient_id" length="flat" class="flex-justify-items-left transactionTo text-left" />
             </ae-list-item>
-                <ae-list-item fill="neutral" class="flex-direction-column">
+            <ae-list-item fill="neutral" class="flex-direction-column"  v-if="!isSpendTx">
+                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txAccount}}</div>
+                <ae-address :value="transaction.tx.account_id" length="flat" class="flex-justify-items-left transactionTo text-left" />
+            </ae-list-item>
+            <ae-list-item fill="neutral" class="flex-direction-column" v-if="isNameClaimTx">
+                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txName}}</div>
+                <div  class="flex-justify-items-left transactionName text-left">{{transaction.tx.name}}</div>
+            </ae-list-item>
+            <ae-list-item fill="neutral" class="flex-direction-column">
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txHash}}</div>
                 <ae-address :value="transaction.hash" length="flat"  class="flex-justify-items-left transactionHash text-left"/>
             </ae-list-item>
@@ -59,7 +67,7 @@ export default {
     computed: {
         ...mapGetters(['account','current','network']),
         txAmount() {
-            return this.transaction.tx.amount / 10 ** 18;
+            return this.isSpendTx ? this.transaction.tx.amount / 10 ** 18 : 0; 
         },
         txFee() {
             return this.transaction.tx.fee / 10 ** 18;
@@ -69,6 +77,12 @@ export default {
         },
         transactionThemeColor () {
             return this.transaction.tx.sender_id == this.account.publicKey ? 'secondary' : 'alternative';
+        },
+        isSpendTx() {
+            return this.transaction.tx.type == 'SpendTx';
+        },
+        isNameClaimTx() {
+            return this.transaction.tx.type == 'NameClaimTx';
         }
     },
     methods: {
@@ -103,5 +117,9 @@ export default {
 }
 .transactionList {
     margin-bottom:45px !important;
+}
+.transactionName {
+    font-family:"IBM Plex Mono", monospace;
+    width:100%;
 }
 </style>

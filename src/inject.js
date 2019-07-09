@@ -1,26 +1,54 @@
-// console.log('injected script');
-// console.log("test");
+import { extractHostName, detectBrowser } from './popup/utils/helper';
+
+if(typeof navigator.clipboard == 'undefined') {
+    redirectToWarning(extractHostName(window.location.href),window.location.href)
+} else {
+    chrome.runtime.sendMessage({
+        method:'phishingCheck',
+        data: {
+            hostname:extractHostName(window.location.href),
+            href:window.location.href
+        }
+    })
+    
+}
+
 // Subscribe from postMessages from page
-const readyStateCheckInterval = setInterval(function () {
-    if (document.readyState === "complete") {
-        clearInterval(readyStateCheckInterval)
 
-        window.addEventListener("message", ({data}) => {
-            console.log("tuk");
-            // Handle message from page and redirect to background script
-            browser.runtime.sendMessage({ method: 'pageMessage', data })
-        }, false)
+window.addEventListener("message", ({data}) => {
+    // Handle message from page and redirect to background script
+    chrome.runtime.sendMessage({ method: 'pageMessage', data })
+}, false)
 
-        // Handle message from background and redirect to page
-        browser.runtime.onMessage.addListener(({ data }, sender) => {
-            window.postMessage(data, '*')
-        })
+// Handle message from background and redirect to page
+chrome.runtime.onMessage.addListener(({ data }, sender) => {
+    if(data.method == 'phishingCheck') {
+        if(data.blocked) {
+            redirectToWarning(data.data.hostname,data.data.href,data.extUrl)
+        }
     }
-}, 10)
+    // console.log(data)
+    // window.postMessage(data, '*')
+})
 
+const redirectToWarning = (hostname,href,extUrl = '') => {
+    window.stop()
+    let extensionUrl = 'chrome-extension'
+    if(detectBrowser() == 'Firefox') {
+        extensionUrl = 'moz-extension'
+    }
+    let redirectUrl = ''
+    if(extUrl != '') {
+        redirectUrl = `${extUrl}phishing/phishing.html#hostname=${hostname}&href=${href}`
+    }else {
+        redirectUrl = `${extensionUrl}://${chrome.runtime.id}/phishing/phishing.html#hostname=${hostname}&href=${href}`
+    }
+    window.location.href = redirectUrl
+    return
+};
 
 function sendToBackground(method, params) {
-    browser.runtime.sendMessage({
+    chrome.runtime.sendMessage({
         jsonrpc: "2.0",
         id: null,
         method,

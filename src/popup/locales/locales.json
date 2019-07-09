@@ -7,6 +7,7 @@
         "account": "Account",
         "myAccount": "My Account",
         "currentAccountName" : "My Account 1",
+        "namingSystem": "AE Naming System",
         "manageAccounts": "Manage accounts",
         "manageNetworks": "Manage networks",
         "network": "Network",
@@ -26,7 +27,9 @@
         "seeTransactionExplorer": "See transaction in the explorer.",
         "accountName": "Account name",
         "switchLanguage" : "Language",
+        "switchToken": "Token",
         "settings": "Settings",
+        "menu": "Menu",
         "back": "Back",
         "loadMore":"Load More"
       },
@@ -61,13 +64,49 @@
           "txTo":"To",
           "txHash":"Tx hash",
           "transactions":"Transactions",
-          "explorer":"View in explorer"
+          "explorer":"View in explorer",
+          "txName":"Name",
+          "txAccount":"Account"
         },
-        "tip" :{
+        "tip":{
           "domainVerified":"Verified",
           "domainNotVerified":"Not yet verified",
           "sendHeading":"Send a tip",
           "check":"Check"
+        },
+        "tokens": {
+          "tokenContractLabel":"Token Contract Address",
+          "tokenSymbolLabel":"Token Symbol",
+          "tokenPrecision":"Decimals of Precision",
+          "addHeading":"Add Token",
+          "searchHeading":"Search Token",
+          "errorPrecisionLength":"Decimal precision should be number between 0 and 36",
+          "errorPrecisionNumber":"Decimal precision should be number",
+          "errorContractLength":"Invalid token contract address",
+          "next":"Next"
+        },
+        "settings":{
+          "heading" : "Settings",
+          "tabGeneral" : "General",
+          "tabGeneralsmall" : "Add name instead address, change your password",
+          "tabAdvanced": "Advanced",
+          "tabAdvancedsmall" : "Advanced settings",
+          "tabSecurity" : "Security & Privacy",
+          "tabSecuritysmall" : "Privacy settings",
+          "tabAbout" : "About",
+          "tabAboutsmall" : "Version, support center and contact info",
+          "generalSettings": {
+            "heading": "General",
+            "registerName": "Register Name",
+            "registerNameInfo": "A registered name can be used instead of the address",
+            "registerNameRequirement": "Allowed only letters and numbers"
+          },
+          "securitySettings": {
+            "heading": "Security and Privacy"
+          },
+          "aboutSettings": {
+            "heading": "About"
+          }
         }
       },
       "messages": {
@@ -86,6 +125,7 @@
         "importPrivateKey": "Import secret key",
         "import": "Import",
         "backToAccount": "Back to account",
+        "backToSettings": "Back to settings",
         "wholeTransaction": "Whole transaction history",
         "loadMore":"Load More"
       },
