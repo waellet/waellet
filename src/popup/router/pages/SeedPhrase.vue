@@ -229,18 +229,19 @@ export default {
 @import '../../../common/base';
 .attentionHolder h1 {
     color: red;
-    font-size: 50px;
+    font-size: 35px;
     margin: 0;
 }
 .attentionHolder h1 div {
     border: 3px solid;
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     margin: auto;
 }
 .attentionHolder h3 {
     word-break: break-word;
+    margin: 1.5rem 0 1.5rem;
 }
 .attentionHolder h4, .attentionHolder ul {
     margin: 0;

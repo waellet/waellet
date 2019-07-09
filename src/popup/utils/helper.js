@@ -42,23 +42,17 @@ const extractHostName = (url) => {
 
 const fetchData = (url, method, fetchedData) => {
     if (method == 'post') {
-        fetch(url, {
-            method: method,
+        fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
             body: fetchedData
-        }).then(function(response) {
-            console.log(response);
-        }).then(function(data) {
-            console.log(data);
-        });
+        })
+        .then(response => response.json())
+        .then(json => console.log(json))
     }
     if (method == 'get') {
-        fetch(url, {
-            method: method,
-        }).then(function(response) {
-            console.log(response);
-        }).then(function(data) {
-            console.log(data);
-        });
+        return fetch(url)
+            .then(response => response.json())
     }
 };
+
 export {shuffleArray, convertToAE, extractHostName, fetchData};

@@ -165,7 +165,7 @@ export default {
         account: false,
         languages: false
       },
-      mainLoading: true
+      mainLoading: true,
     }
   },
   computed: {
@@ -178,21 +178,21 @@ export default {
     }
   },
   created: function () {
-      browser.storage.sync.set({language: 'en'}).then(() => {
-        this.language = locales['en'];
-      });
-      // browser.storage.sync.get('language', langChoose => {
-      //   this.language = locales[langChoose.language];
-      // });
-       // fetch api one time
-      let states = this.$store.state;
-      if (typeof states.aeAPI == 'undefined') {
-        this.$store.state.aeAPI = this.fetchApi();
-      }
+    browser.storage.sync.set({language: 'en'}).then(() => {
+      this.language = locales['en'];
+    });
+    // browser.storage.sync.get('language', langChoose => {
+    //   this.language = locales[langChoose.language];
+    // });
+      // fetch api one time
+    let states = this.$store.state;
+    if (typeof states.aeAPI == 'undefined') {
+      this.$store.state.aeAPI = this.fetchApi();
+    }
   },
   mounted: function mounted () {
     this.hideLoader();
-    this.dropdown.settings = false;
+    this.dropdown.settings = false; this.dropdown.languages = false;
   },
   methods: {
     hideLoader() {
@@ -204,6 +204,7 @@ export default {
     changeAccount (index,subaccount) {
       browser.storage.sync.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
+        this.dropdown.account = false;
       });
     },
     hideMenu (event) {
@@ -252,7 +253,7 @@ export default {
       browser.storage.sync.set({isLogged: false}).then(() => {
         browser.storage.sync.set({wallet: ''}).then(() => {
           browser.storage.sync.set({activeAccount: 0}).then(() => {
-            this.dropdown.settings = false;
+            this.dropdown.settings = false; this.dropdown.languages = false;
             this.dropdown.account = false;
             this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
             this.$store.commit('UNSET_SUBACCOUNTS');
@@ -276,11 +277,11 @@ export default {
       this.$store.dispatch('popupAlert', payload)
     },
     myAccount () {
-      this.dropdown.settings = false;
+      this.dropdown.settings = false; this.dropdown.languages = false;
       this.$router.push('/account');
     },
     settings () {
-      this.dropdown.settings = false;
+      this.dropdown.settings = false; this.dropdown.languages = false;
       this.$router.push('/settings');
     },
     manageAccounts () {
@@ -291,6 +292,7 @@ export default {
         let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keypair.json");
+        this.dropdown.settings = false; this.dropdown.languages = false; 
       }else if(type == 'keystore') {
         let blobData = "";
         try {
@@ -300,6 +302,7 @@ export default {
         }
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keystore.json");
+        this.dropdown.settings = false; this.dropdown.languages = false;
       }
     },
     popupSecondBtnClick(){

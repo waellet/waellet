@@ -16,6 +16,9 @@ const config = {
     'options/options': './options/options.js',
     'main':'./main.js'
   },
+  node: {
+    fs: 'empty', net: 'empty', tls: 'empty'
+  },
   output: {
     path: __dirname + '/dist',
     filename: '[name].js',

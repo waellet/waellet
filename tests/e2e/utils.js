@@ -97,7 +97,7 @@ export const generateWallet = () => {
   .get('button').contains('Continue').click()
   .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'seed') }})
   .get('button.nextStep').click()
-  .get('.ae-phraser-container').should('be.visible')
+  .get('.seeds-container').should('be.visible')
   .wait(10000)
   .get('button.nextStep').click()
   .wrap(seeds).each((num,i) => {
