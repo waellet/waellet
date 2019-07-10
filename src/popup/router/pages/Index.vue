@@ -114,7 +114,7 @@ export default {
       // browser.storage.sync.set({isLogged: ''}).then(() => {});
       // browser.storage.sync.set({confirmSeed: true}).then(() => {});
       // browser.storage.sync.set({mnemonic: ''}).then(() => {});
-      // browser.storage.sync.remove('tokens').then(() => {});
+      // browser.storage.sync.remove('pendingTransaction').then(() => {});
       var newTab = false;
       browser.storage.sync.get('allowTracking').then((result) => {
         if (result.hasOwnProperty('allowTracking')) {
@@ -128,7 +128,7 @@ export default {
               this.$router.push({'name':'confirm-share', params: {
                 data:data.showAeppPopup.data
               }});
-            }else if(data.showAeppPopup.type == 'sign') {
+            }else if(data.showAeppPopup.type == 'txSign') {
               this.$router.push({'name':'sign', params: {
                 data:data.showAeppPopup.data
               }});
@@ -201,6 +201,7 @@ export default {
                                 tokens = tkn.tokens
                               }
                               this.$store.dispatch('setTokens', tokens).then(() => {
+                                console.log(wallet)
                                 this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
                                 this.$store.commit('SWITCH_LOGGED_IN', true);
                                 this.$router.push('/account');

@@ -198,11 +198,13 @@
 
 <script>
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
+import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import store from '../store';
 import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout } from 'timers';
+import { getHdWalletAccount } from './utils/hdWallet';
 
 export default {
   
@@ -246,11 +248,20 @@ export default {
           this.$store.state.current.network = data.activeNetwork;
         }
       });
-       // fetch api one time
-      let states = this.$store.state;
-      if (typeof states.aeAPI == 'undefined') {
-        this.$store.state.aeAPI = this.fetchApi();
-      }
+
+      //init SDK
+      setTimeout(() => {
+        if(this.isLoggedIn && this.sdk == null) {
+          this.initSDK()
+        }
+        if(this.isLoggedIn) {
+          this.pollData()
+        }
+      },500)
+      // let states = this.$store.state;
+      // if (typeof states.aeAPI == 'undefined') {
+      //   this.$store.state.aeAPI = this.fetchApi();
+      // }
   },
   mounted: function mounted () {
     this.hideLoader();
@@ -261,7 +272,7 @@ export default {
       var self = this;
       setTimeout(function() {
         self.mainLoading = false;
-      }, 1000);
+      }, 1500);
     },
     changeAccount (index,subaccount) {
       browser.storage.sync.set({activeAccount: index}).then(() => {

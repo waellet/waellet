@@ -13,26 +13,28 @@ fetch(aepp)
     injectScript(res)
 })
 // Subscribe from postMessages from page
-window.addEventListener('StorageRequest', (e) => {
-    console.log(e)
-    e.detail.resolve({test:"asdad"})
-    // do something, then answer back with response
-})
+function evnt() {
+    return new Promise((resolve, reject) => {
+        let ev = 
+        console.log(resolve)
+        window.dispatchEvent(ev)
+    })
+}
 window.addEventListener("message", ({data}) => {
     let method = "pageMessage";
     if(typeof data.method != "undefined") {
         method = data.method
     }
-    console.log(JSON.parse(data))
     // Handle message from page and redirect to background script
     sendToBackground(method,data)
     .then(res => {
-        console.log(res)
+        if(method == 'aeppMessage') {
+            let e = new CustomEvent('ReceiveWalletResponse', {
+                detail: res
+            })
+            window.dispatchEvent(e)
+        }
     })
-    // chrome.runtime.sendMessage({ method, data },(res) => {
-    //     console.log(method)
-    //     console.log(res)
-    // })
 }, false)
 
 // Handle message from background and redirect to page
@@ -40,12 +42,9 @@ chrome.runtime.onMessage.addListener(({ data }, sender, sendResponse) => {
     console.log(data)
     if(data.method == 'phishingCheck') {
         if(data.blocked) {
-            redirectToWarning(data.data.hostname,data.data.href,data.extUrl)
+            redirectToWarning(data.params.hostname,data.params.href,data.extUrl)
         }
     }
-    
-    // console.log(data)
-    // window.postMessage(data, '*')
 })
 
 const redirectToWarning = (hostname,href,extUrl = '') => {
@@ -76,8 +75,6 @@ const injectScript = (content) => {
       console.error('Waellet script injection failed', e)
     }
 }
-
-// 
 
 function sendToBackground(method, params) {
     return new Promise((resolve,reject) => {

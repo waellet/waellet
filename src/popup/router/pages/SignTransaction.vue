@@ -4,16 +4,16 @@
         <ae-list class="spendTxDetailsList">
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div class="flex flex-align-center accountFrom">
-                    <ae-identicon :address="data.senderId" />
-                    <ae-address :value="data.senderId" length="short" class="spendAccountAddr" />
+                    <ae-identicon :address="account.publicKey" />
+                    <ae-address :value="account.publicKey" length="short" class="spendAccountAddr" />
                 </div>
                 <ae-filter-separator />
                 <div class="arrowSeprator">
                     <ae-icon name="left-more" />
                 </div>
                 <div class="flex flex-align-center accountTo">
-                    <ae-identicon :address="data.recipientId" />
-                    <ae-address :value="data.recipientId" length="short" class="spendAccountAddr" />
+                    <ae-identicon :address="data.tx.recipientId" />
+                    <ae-address :value="data.tx.recipientId" length="short" class="spendAccountAddr" />
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between">
@@ -39,46 +39,42 @@
 import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 import { convertToAE } from '../../utils/helper';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
 
 export default {
     data(){
         return {
-            data: {
-                senderId:'ak_5',
-                recipientId:'ak_5'
-            },
-            port:null
+            port:null,
+            txFee:MIN_SPEND_TX_FEE
         };
     },
-    
+    props:['data'],
     locales,
     methods: {
 
-    },
+    }, 
     mounted() {
-        // chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-        //     console.log(response)
-        // });
-        
-        console.log(this.data)
         browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { });
     },
     created(){
         console.log("created")
         this.port = chrome.extension.connect({ name: "conn" });
-       
+        console.log(this.data)
         
         this.port.onMessage.addListener((msg, sender,sendResponse) => {
             console.log("message recieved" + msg);
         });
+        console.log(this.account)
     },
     computed: {
         ...mapGetters(['account']),
         amount() {
-            return convertToAE(this.data.amount)
+            return this.data.tx.amount
         },
         fee() {
-            return convertToAE(this.data.fee)
+            console.log(this.account)
+            console.log(this.txFee)
+            return this.txFee
         }
     },
     methods: {

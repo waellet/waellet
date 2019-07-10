@@ -161,7 +161,7 @@ browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
             switch(msg.params.type) {
                 case "txSign":
                     return new Promise((resolve,reject) => {
-                        browser.storage.sync.set({showAeppPopup:{ data: msg.params, type:'sign',callback:'asd'  } } ).then( () => {
+                        browser.storage.sync.set({showAeppPopup:{ data: msg.params, type:'txSign' } } ).then( () => {
                             chrome.windows.create({
                                 url: chrome.runtime.getURL('./popup/popup.html'),
                                 type: "popup",

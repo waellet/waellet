@@ -77,5 +77,5 @@ const fetchData = (url, method, fetchedData) => {
         });
     }
 };
-export {shuffleArray, convertToAE, extractHostName, fetchData};
+export {shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser};
 

@@ -86,6 +86,7 @@ export default {
       }
   },
   created () {
+    console.log(this.account)
     this.pollData();
   },
   mounted(){

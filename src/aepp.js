@@ -1,44 +1,30 @@
 const Aepp = {
-    signAndSend({ address, amount }){
+    signAndSend({ recipientId, amount }){
         let req = {
             method:'aeppMessage',
             type:"txSign",
             tx: {
-               address,
-               amount
-            },
-            a:function() {
-                console.log("asdasd")
+                recipientId,
+                amount
             }
         }
-        window.postMessage(JSON.stringify(req), '*')
-
+        window.postMessage(req, '*')
+        return new Promise((resolve,reject) => {
+            receiveResponse((res) => {
+                resolve(res)
+            })
+        })
     },
     registerProvider() {
         console.log("register provider")
     }
 }
 
-function evnt() {
-    return new Promise((resolve, reject) => {
-        let ev = new CustomEvent('StorageRequest', {
-          detail: {
-              test:() => {
-                  console.log("asd")
-              }
-          }
-        })
-        console.log(resolve)
-        window.dispatchEvent(ev)
+const receiveResponse = (cb) => {
+    window.addEventListener('ReceiveWalletResponse', (e) => {
+        cb(e.detail) 
+        window.removeEventListener('ReceiveWalletResponse', () => {})
     })
 }
 
-window.abc = function() {
-    console.log("here")
-    evnt()
-    .then(res => {
-        console.log(res)
-    })
-    
-}
-window.Aepp = Aepp
+window.Aepp = Aepp 
