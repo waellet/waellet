@@ -298,7 +298,8 @@ export default {
     },
     switchLanguage(languageChoose) {
       browser.storage.sync.set({language: languageChoose}).then(() => {
-        this.language = locales[languageChoose];
+        let defLang = Object.assign({}, locales['en']);
+        this.language = Object.assign(defLang, locales[languageChoose]);
         this.current.language = languageChoose;
       });
     },
