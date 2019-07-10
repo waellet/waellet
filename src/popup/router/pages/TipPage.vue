@@ -5,7 +5,7 @@
         </div>
         <div>
             <div class="tipWebsiteHeader flex flex-align-center ">
-                <Loader class="loader" v-if="loadFavicon" :loading="loadFavicon" v-bind="{'content':''}"></Loader>
+                <Loader size="small" class="loader" v-if="loadFavicon" :loading="loadFavicon" v-bind="{'content':''}"></Loader>
                 <img :src="favicon" v-if="!loadFavicon && typeof favicon !== 'undefined'" class="domainFavicon"/>
                 <div v-if="!loadFavicon && typeof favicon == 'undefined' " class="domainFavicon noFavicon">No image</div>
                 <div class="domainInfo text-left">

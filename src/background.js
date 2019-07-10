@@ -133,7 +133,7 @@ function getAccount() {
 //     });
 
 browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
-    console.log(msg)
+
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
@@ -183,9 +183,24 @@ browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
 })
 
 const connectToPopup = (cb) => {
-    chrome.extension.onConnect.addListener((port) => {
+    browser.extension.onConnect.addListener((port) => {
         port.onMessage.addListener((msg) => {
             cb(msg)
+        });
+        port.onDisconnect.addListener(function(event) {
+            browser.storage.sync.remove('pendingTransaction').then(() => {});
+            browser.storage.sync.remove('showAeppPopup').then(() => {});  
+            cb({
+                "error": {
+                    "code": 1,
+                    "data": {
+                        "request": {}
+                    },
+                    "message": "Transaction verification failed"
+                },
+                "id": null,
+                "jsonrpc": "2.0"
+            })
         });
    })
 }

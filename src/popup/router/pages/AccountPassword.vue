@@ -17,7 +17,7 @@
                     </ae-input>
                     <ae-button face="round" extend fill="primary" @click="clickAction({accountPassword,data,confirmAccountPassword})">{{buttonTitle}}</ae-button>
                 </div>
-                <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
+                <Loader size= :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
             </div>
         </main>
     </div>

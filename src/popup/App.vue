@@ -27,7 +27,7 @@
                     </div>
                     <ae-check class="subAccountCheckbox"  type="radio" :value="name" v-model="current.network" /> 
                 </ae-list-item>
-                <ae-list-item fill="neutral" class="manageAccounts">
+                <ae-list-item fill="neutral" class="manageAccounts" v-if="!aeppPopup">
                   <ae-button @click="navigateNetworks" class="triggerhidedd">
                     <ae-button face="icon" fill="primary" class="iconBtn">
                       <ae-icon name="plus" />
@@ -61,7 +61,7 @@
                     </div>
                     <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="activeAccount" /> 
                 </ae-list-item>
-                <ae-list-item fill="neutral" class="manageAccounts">
+                <ae-list-item fill="neutral" class="manageAccounts" v-if="!aeppPopup">
                   <ae-button @click="manageAccounts" class="triggerhidedd">
                     <ae-button face="icon" fill="primary" class="iconBtn">
                       <ae-icon name="plus" />
@@ -74,7 +74,7 @@
           </div>
 
           <!-- settings dropdown -->
-          <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" ref="settings">
+          <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn && !aeppPopup" slot="mobile-right" direction="right" ref="settings">
             <button v-on:click="toggleDropdown">
               <ae-icon class="dropdown-button-icon" name="settings" slot="button" />
               <span class="dropdown-button-name" slot="button">{{ language.strings.settings }}</span>
@@ -190,9 +190,7 @@
       </ae-modal-light>
     <router-view></router-view>
     <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
-    <transition name="fadeOut">
-      <span v-if="mainLoading" class="mainLoader"><ae-loader v-bind="{'content':''}" /></span>
-    </transition>
+    <Loader size="big" :loading="mainLoading"></Loader>
   </ae-main>
 </template>
 
@@ -221,11 +219,12 @@ export default {
         languages: false,
         tokens: false
       },
-      mainLoading: true
+      mainLoading: true,
+      checkPendingTxInterval:null
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'wallet', 'sdk','tokens']),
+    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'wallet', 'sdk','tokens','aeppPopup']),
     extensionVersion() {
       return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
@@ -258,6 +257,7 @@ export default {
           this.pollData()
         }
       },500)
+      this.checkPendingTx()
       // let states = this.$store.state;
       // if (typeof states.aeAPI == 'undefined') {
       //   this.$store.state.aeAPI = this.fetchApi();
@@ -421,7 +421,7 @@ export default {
               triggerOnce = true
             }
         }
-      }, 5000);
+      }, 2500);
     },
     fetchApi() {
       let states = this.$store.state;
@@ -457,6 +457,17 @@ export default {
     toTokens() {
       this.dropdown.settings = false
       this.$router.push('/tokens')
+    },
+    checkPendingTx() {
+      this.checkPendingTxInterval = setInterval(() => {
+        browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
+          if(!pendingTx.hasOwnProperty('pendingTransaction')) {
+            clearInterval(this.checkPendingTxInterval)
+            this.$store.commit('SET_AEPP_POPUP',false)
+            this.$router.push('/account')
+          }
+        });
+      },1000)
     }
   },
   beforeDestroy() {
@@ -474,11 +485,9 @@ export default {
 // ::-webkit-scrollbar { 
 //     display: none; 
 // }
-.ae-main { width: 380px; }
-.fadeOut-enter-active, .fadeOut-leave-active { transition: all .5s ease-in-out; }
-.fadeOut-leave-to { opacity: 0; }
-.mainLoader { position: fixed; width: 100%; height: 100%; background-color: rgba(255,255,255,1); top: 0; }
-.mainLoader .ae-loader { position: absolute; top: 50%; left: 50%; margin: -1.5em; width: 3em !important; height: 3em !important; border-radius: 3em !important; }
+@-moz-document url-prefix() {
+  .ae-main { width: 380px; }
+}
 html { min-width: 357px; min-height: 600px; background-color: #f5f5f5; }
 p { font-weight: bolder; margin-left: 3px; }
 input { background: transparent; border: none; border-bottom: 1px; height: 25px; line-height: 25px; }

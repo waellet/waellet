@@ -13,7 +13,7 @@
         </ae-modal-light>
       </div>
     </main>
-    <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
+    <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
     <footer v-if="!loading">
       <div class="wrapper">
           <div v-if="account.encryptedPrivateKey">
@@ -121,27 +121,8 @@ export default {
           this.modalAskVisible = false;
         }
       });
-      browser.storage.sync.get('showAeppPopup').then((data) => {
-        if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
-          browser.storage.sync.set({showAeppPopup:{}}).then(() => {
-            if(data.showAeppPopup.type == 'confirm') {
-              this.$router.push({'name':'confirm-share', params: {
-                data:data.showAeppPopup.data
-              }});
-            }else if(data.showAeppPopup.type == 'txSign') {
-              this.$router.push({'name':'sign', params: {
-                data:data.showAeppPopup.data
-              }});
-            }
-            return;
-          });
-        }else {
-          browser.storage.sync.get('pendingTransaction').then((data) => {
-              if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('data')) {
-                this.$router.push({'name':'sign', params: {
-                  data:data.pendingTransaction.data
-                }});
-              }else {
+      browser.storage.sync.get('showAeppPopup').then((aepp) => {
+          browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
                 browser.storage.sync.get('isLogged').then((data) => {
                   browser.storage.sync.get('userAccount').then((user) => {
                       if(user.userAccount && user.hasOwnProperty('userAccount')) {
@@ -204,7 +185,30 @@ export default {
                                 console.log(wallet)
                                 this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
                                 this.$store.commit('SWITCH_LOGGED_IN', true);
-                                this.$router.push('/account');
+                                if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
+                                  browser.storage.sync.remove('showAeppPopup').then(() => {
+                                    this.$store.commit('SET_AEPP_POPUP',true)
+                                    if(aepp.showAeppPopup.type == 'confirm') {
+                                      this.$router.push({'name':'confirm-share', params: {
+                                        data:aepp.showAeppPopup.data
+                                      }});
+                                    }else if(aepp.showAeppPopup.type == 'txSign') {
+                                      aepp.showAeppPopup.data.popup = true
+                                      this.$router.push({'name':'sign', params: {
+                                        data:aepp.showAeppPopup.data
+                                      }});
+                                    }
+                                    return;
+                                  });
+                                }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('data')) {
+                                  this.$store.commit('SET_AEPP_POPUP',true)
+                                  pendingTx.pendingTransaction.data.popup = false
+                                  this.$router.push({'name':'sign', params: {
+                                    data:pendingTx.pendingTransaction.data
+                                  }});
+                                }else {
+                                  this.$router.push('/account');
+                                }
                               })
                             });
                           }
@@ -212,10 +216,7 @@ export default {
                       }
                   });
                 });
-              }
           });
-          
-        }
       });
       
     },

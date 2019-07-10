@@ -86,6 +86,12 @@
           "errorContractLength":"Invalid token contract address",
           "next":"Next"
         },
+        "signTx":{
+          "insufficientBalance": "Insufficient Balance",
+          "inccorectAddress": "Incorrect address",
+          "reject": "Reject",
+          "confirm": "Confirm"
+        },
         "settings":{
           "heading" : "Settings",
           "tabGeneral" : "General",
