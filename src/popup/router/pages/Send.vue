@@ -58,9 +58,7 @@
         </div>
       </ae-main>
     </div>
-    <transition name="fadeOut">
-      <span v-if="loading" class="mainLoader mainLoaderTransparent"><ae-loader /></span>
-    </transition>
+    <Loader size="big" :loading="loading" type="transparent" ></Loader>
   </div>
 </template>
 

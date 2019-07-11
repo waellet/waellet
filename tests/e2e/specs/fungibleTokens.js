@@ -7,6 +7,8 @@ const openTokensPage = () => {
     .visit('popup/popup.html',{onBeforeLoad})
     .get('#settings')
     .click()
+    .get('#tokens')
+    .click()
     .get('.toTokens')
     .click()
 }

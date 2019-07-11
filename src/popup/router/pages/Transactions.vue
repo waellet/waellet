@@ -24,7 +24,7 @@
             <p v-if="showMoreBtn == false">All transactions loaded! </p>
         </ae-list>
         <div class="newTx" @click="mergeNewTransactions" v-if="newTransactions != 0"><span class="newTxCount">{{newTransactions}}</span> new transactions</div>
-        <Loader :loading="loading" v-bind="{'content':''}"></Loader>
+        <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
 
 
         <ae-modal

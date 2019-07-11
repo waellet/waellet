@@ -27,7 +27,7 @@
         "seeTransactionExplorer": "See transaction in the explorer.",
         "accountName": "Account name",
         "switchLanguage" : "Language",
-        "switchToken": "Token",
+        "switchToken": "Tokens",
         "settings": "Settings",
         "menu": "Menu",
         "back": "Back",
@@ -85,6 +85,12 @@
           "errorPrecisionNumber":"Decimal precision should be number",
           "errorContractLength":"Invalid token contract address",
           "next":"Next"
+        },
+        "signTx":{
+          "insufficientBalance": "Insufficient Balance",
+          "inccorectAddress": "Incorrect address",
+          "reject": "Reject",
+          "confirm": "Confirm"
         },
         "settings":{
           "heading" : "Settings",

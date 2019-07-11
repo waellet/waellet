@@ -48,5 +48,8 @@ export const getters = {
   },
   tokenBalance(state) {
     return state.current.token != 0 ? state.tokens[state.current.token].balance : state.balance
+  },
+  aeppPopup(state) {
+    return state.aeppPopup
   }
 };

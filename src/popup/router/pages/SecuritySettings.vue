@@ -11,6 +11,13 @@
                 <switchButton class="tracker-switchbtn" :onChange="onChange" :onoff="onoff"></switchButton>
             </div>
         </ae-panel>
+        <ae-panel>
+            <div class="maindiv_input-group-addon">
+                <h4>Privacy Data</h4><hr>
+                <small class="sett_info">Clear privacy data so all websites must request access to view account information again.</small>
+                <ae-button face="round" fill="primary" class="settingBtn" extend @click="clearPrivacyData">Clear Privacy Data</ae-button>
+            </div>
+        </ae-panel>
         <div v-if="loading" class="loading">
             <ae-loader />
         </div>
@@ -51,6 +58,10 @@ export default {
                 browser.storage.sync.set({allowTracking:  false}).then(() => {});
             }
         },
+        clearPrivacyData( ) {
+            //confirm window to be addeded here after merge with the others 
+            browser.storage.sync.remove('connectedAepps')
+        }
     }
 }
 </script>
@@ -106,5 +117,8 @@ input:active,input:focus {
 .sett_info {
     display: block;
     word-break: break-word;
+}
+.settingBtn {
+    margin-top:1rem
 }
 </style>

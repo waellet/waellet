@@ -7,14 +7,16 @@ import '@aeternity/aepp-components-3/dist/aepp.components.css';
 import LoaderComponent from './components/Loader';
 import TransactionItemComponent from './components/TransactionItem';
 import SwitchButtonComponent from './components/SwitchButton';
+import AlertComponent from './components/Alert';
 
 Vue.use(VueRouter);
 Vue.use(VueClipboard);
 Vue.use(Components);
+
 Vue.component('Loader',LoaderComponent);
 Vue.component('TransactionItem',TransactionItemComponent);
 Vue.component('SwitchButton',SwitchButtonComponent);
-
+Vue.component('Alert', AlertComponent);
 export default new VueRouter({
   routes,
 });

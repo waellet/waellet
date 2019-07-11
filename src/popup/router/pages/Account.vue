@@ -36,7 +36,7 @@
     <div v-if="transactions.latest.length == 0 && !loading">
         <p class="paragraph noTransactions">No transactions found!</p> 
     </div>
-    <Loader :loading="loading" v-bind="{'content':''}"></Loader>
+    <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
     
   </div> 
 </template>
@@ -86,6 +86,7 @@ export default {
       }
   },
   created () {
+    console.log(this.account)
     this.pollData();
   },
   mounted(){

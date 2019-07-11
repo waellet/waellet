@@ -12,7 +12,7 @@ import Settings from './pages/Settings';
 import GeneralSettings from './pages/GeneralSettings';
 import SecuritySettings from './pages/SecuritySettings';
 import AboutSettings from './pages/AboutSettings';
-import ConfirmPopupmessagesComponent from './pages/ConfirmPopupmessages';
+import ConnectConfirmComponent from './pages/ConnectConfirm';
 import TipComponent from './pages/TipPage';
 import ManageNetworks from './pages/ManageNetworks';
 import FungibleTokensComponent from './pages/FungibleTokens';
@@ -64,9 +64,9 @@ export default [
 
   },
   {
-    name:'confirm-share',
-    path:'/confirm-share',
-    component:ConfirmPopupmessagesComponent,
+    name:'connect-confirm',
+    path:'/connect-confirm',
+    component:ConnectConfirmComponent,
     props:true
   },
   {

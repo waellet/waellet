@@ -50,9 +50,7 @@
                 <ae-button face="round" fill="primary" @click="addCustomToken" class="add-token" extend >{{language.pages.tokens.addHeading}}</ae-button>
             </div>
         </div>
-        <transition name="fadeOut">
-            <span v-if="loading" class="mainLoader mainLoaderTransparent"><ae-loader /></span>
-        </transition>
+       <Loader size="big" :loading="loading" type="transparent" ></Loader>
     </div>
 </template>
 
