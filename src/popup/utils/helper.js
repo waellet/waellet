@@ -119,6 +119,7 @@ const redirectAfterLogin = (ctx) => {
             ctx.$store.commit('SET_AEPP_POPUP',true)
           
           if(aepp.showAeppPopup.type == 'connectConfirm') {
+            aepp.showAeppPopup.data.popup = true
             ctx.$router.push({'name':'connect-confirm', params: {
               data:aepp.showAeppPopup.data
             }});

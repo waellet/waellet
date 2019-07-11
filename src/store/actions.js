@@ -46,7 +46,7 @@ export default {
   },
   updateBalanceTokens({ commit, state }) {
     state.tokens.forEach((tkn, index) => {
-        if(typeof tkn.parent != 'undefined' && tkn.contract != '') {
+        if(typeof tkn.parent != 'undefined' && tkn.contract != '' && tkn.parent == state.account.publicKey) {
           state.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,tkn.contract,'balance',[state.account.publicKey])
           .then((res) => {
             res.decode()

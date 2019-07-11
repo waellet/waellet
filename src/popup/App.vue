@@ -107,25 +107,25 @@
                 </li>
                 <li id="tokens" class="have-subDropdown" :class="dropdown.tokens ? 'show' : ''">
                     <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
-                    <ae-icon name="globe" />
+                    <ae-icon name="grid" />
                     {{ language.strings.switchToken }}
                     <ae-icon name="left-more" />
                   </ae-button>
 
                   <!-- Tokens dropdown -->
                   <ul class="sub-dropdown">
-                    <li>
-                      <ae-button @click="toTokens" class="toTokens">
-                        <ae-icon name="aeternity" />
-                        {{ language.strings.addToken}}
-                      </ae-button>
-                    </li>
-
                     <li v-for="(tkn, index) in tokens" v-if="typeof tkn.parent == 'undefined' || tkn.parent == account.publicKey" :key="index">
-                      <ae-button @click="switchToken(index)" class="triggerhidedd" >
+                      <ae-button @click="switchToken(index)" class="triggerhidedd flex flex-justify-between" >
                         <ae-identicon class="token-image" :address="tkn.contract" size="base" v-if="index != 0 "/>
                         <img :src="ae_token" class="token-image" alt="" v-if="index == 0" >
-                        <span class="subAccountBalance">{{typeof tkn.parent == 'undefined' ? balance : tkn.balance }} {{ tkn.symbol }}</span>
+                        <span class="subAccountBalance tokenBalance">{{typeof tkn.parent == 'undefined' ? balance : tkn.balance }} {{ tkn.symbol }}</span>
+                        <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="current.token" /> 
+                      </ae-button>
+                    </li>
+                    <li>
+                      <ae-button @click="toTokens" class="toTokens">
+                        <ae-icon name="plus" />
+                        {{ language.strings.addToken}}
                       </ae-button>
                     </li>
                   </ul>
@@ -257,6 +257,8 @@ export default {
         }
         if(this.isLoggedIn) {
           this.pollData()
+        }else {
+          this.hideLoader()
         }
       },500)
       this.checkPendingTx()
@@ -276,7 +278,6 @@ export default {
       // }
   },
   mounted: function mounted () {
-    this.hideLoader();
     this.dropdown.settings = false;
   },
   methods: {
@@ -463,7 +464,9 @@ export default {
         nativeMode: true,
         compilerUrl: 'https://compiler.aepps.com'
       }).then((sdk) => {
-        this.$store.dispatch('initSdk',sdk)
+        this.$store.dispatch('initSdk',sdk).then(() => {
+          this.hideLoader()
+        })
       })
     },
     toTokens() {
@@ -545,6 +548,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .ae-check-button:after { left: 0 !important; top: 0 !important; width: 28px !important; height: 28px !important; }
 .ae-check > input[type="radio"]:checked + .ae-check-button:before, .ae-check > input[type="checkbox"]:checked + .ae-check-button:before { border-color: #dae1ea !important; }
 #settings li .ae-icon { font-size: 1.2rem; margin-right: 10px; }
+#settings.dropdown ul { min-width: 250px }
 #languages .ae-button img { margin-right: 5px; }
 #languages .ae-button.current { text-decoration: underline; }
 .dropdown { display: inline-block; position: relative; vertical-align: top; }
@@ -584,4 +588,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .actions { text-align: left; }
 .actions .backbutton { padding: 0; color: #9d3fc0 !important; }
 .token-image { margin-right:1rem; width:28px; }
+.tokenBalance { margin-right: auto; }
+#tokens .ae-check-button:before { width: 20px !important; height: 20px !important; }
+#tokens .ae-check-button:after { width: 26px !important; height: 25px !important; }
 </style>

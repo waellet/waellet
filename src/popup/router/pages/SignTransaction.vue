@@ -33,7 +33,7 @@
             </div>
          </Alert>
         <ae-button-group class="btnFixed">
-            <ae-button face="round" fill="primary" @click="cancelTransaction">{{language.pages.signTx.reject}}</ae-button>
+            <ae-button face="round" fill="primary" @click="cancelTransaction" class="reject">{{language.pages.signTx.reject}}</ae-button>
             <ae-button face="round" fill="alternative" class="confirm" :class="signDisabled ? 'disabled' : '' " @click="signTransaction">{{language.pages.signTx.confirm}}</ae-button>
         </ae-button-group>
         <Loader size="big" :loading="loading" type="transparent" ></Loader>
@@ -79,12 +79,14 @@ export default {
 
     }, 
     mounted() {
-        browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { });
+    browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { })
     },
     created(){
-        this.port = chrome.extension.connect({ name: "conn" });
+        if(this.data.popup) {
+            this.port = chrome.extension.connect({ name: "conn" })
+            this.port.onMessage.addListener((msg, sender,sendResponse) => {})
+        }
         
-        this.port.onMessage.addListener((msg, sender,sendResponse) => {});
         setTimeout(() => {
             this.showAlert()
         },3500)
@@ -230,7 +232,9 @@ export default {
         }
     },
     beforeDestroy() {
-        this.port.postMessage(this.errorTx)
+        if(this.data.popup) {
+            this.port.postMessage(this.errorTx)
+        }
         this.removeTxStorageData()
     }
 }
@@ -271,7 +275,7 @@ export default {
     }
     &:after{
         content:"";
-        
+
     }
 }
 
