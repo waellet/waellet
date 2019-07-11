@@ -7,7 +7,6 @@
                     <span  class="spendAccountAddr">{{activeAccountName}}</span>
                     <!-- <ae-address :value="account.publicKey" length="short" /> -->
                 </div>
-                <ae-filter-separator />
                 <div class="arrowSeprator">
                     <ae-icon name="left-more" />
                 </div>
@@ -189,7 +188,9 @@ export default {
                                     let res = {
                                         "id": null,
                                         "jsonrpc": "2.0",
-                                        ...result
+                                        "method":"aeppMessage",
+                                        "params":{...result}
+                                        
                                     }
                                     this.port.postMessage(res)
                                     this.removeTxStorageData()
@@ -200,7 +201,6 @@ export default {
                                         this.removeTxStorageData()
                                         this.$router.push('/account');
                                     })
-                                    
                                 }
                             }
                             else {
@@ -253,12 +253,7 @@ export default {
     margin-bottom:0 !important;
 }
 .arrowSeprator {
-    position:absolute;
-    top:50%;
-    left:43%;
-    transform:translate(-50%,-50%);
-    -webkit-transform:translate(-50%,-50%);
-    -ms-transform:translate(-50%,-50%);
+    margin-right:1rem;
     background:$primary-color;
     color:#fff;
     border-radius: 50%;
@@ -270,11 +265,16 @@ export default {
     padding-top:1.5px;
     border: 1px solid #d8d8d8;
     line-height:20px;
+    .ae-icon {
+        font-size:1.2rem !important;
+        float:none !important;
+    }
+    &:after{
+        content:"";
+        
+    }
 }
-.arrowSeprator .ae-icon {
-    font-size:1.2rem !important;
-    float:none !important;
-}
+
 .whiteBg {
     background:#fff;
 }

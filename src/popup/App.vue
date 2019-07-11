@@ -3,7 +3,7 @@
       <ae-header :class="account.publicKey && isLoggedIn ? 'logged' : ''">
 
         <!-- login screen header -->
-        <div class="logo_top" slot="mobile-left" v-if="!isLoggedIn">
+        <div class="logo_top" :slot="menuSlot" v-if="!isLoggedIn">
           <img :src="logo_top" alt="">
           <p>{{ language.system.name }} <span class="extensionVersion extensionVersionTop">{{extensionVersion}}</span></p>
           
@@ -11,7 +11,7 @@
         
         <!-- logged in header START -->
           <!-- network dropdown -->
-          <div id="network" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-left" direction="left" ref="network">
+          <div id="network" class="dropdown" v-if="account.publicKey && isLoggedIn" :slot="menuSlot" direction="left" ref="network">
             <button v-on:click.prevent="toggleDropdown">
               <ae-icon class="dropdown-button-icon status" name="globe" slot="button" />
               <span class="dropdown-button-name" v-html="current.network" slot="button"></span>
@@ -46,7 +46,7 @@
           </div>
 
           <!-- account dropdown -->
-          <div id="account" class="dropdown big" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="center" ref="account">
+          <div id="account" class="dropdown big" v-if="account.publicKey && isLoggedIn" :slot="menuSlot" direction="center" ref="account">
             <button v-on:click.prevent="toggleDropdown">
               <ae-identicon id="identIcon" class="dropdown-button-icon" v-bind:address="this.account.publicKey" size="base" slot="button" />
               <span class="dropdown-button-name" slot="button">{{ activeAccountName }}</span>
@@ -74,7 +74,7 @@
           </div>
 
           <!-- settings dropdown -->
-          <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn && !aeppPopup" slot="mobile-right" direction="right" ref="settings">
+          <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn && !aeppPopup" :slot="mobileRight" direction="right" ref="settings">
             <button v-on:click="toggleDropdown">
               <ae-icon class="dropdown-button-icon" name="settings" slot="button" />
               <span class="dropdown-button-name" slot="button">{{ language.strings.settings }}</span>
@@ -220,7 +220,9 @@ export default {
         tokens: false
       },
       mainLoading: true,
-      checkPendingTxInterval:null
+      checkPendingTxInterval:null,
+      menuSlot:"mobile-left",
+      mobileRight: "mobile-right"
     }
   },
   computed: {
@@ -258,6 +260,16 @@ export default {
         }
       },500)
       this.checkPendingTx()
+      window.addEventListener('resize', () => {
+        
+        if(window.innerWidth <= 480) {
+          this.menuSlot = "mobile-left"
+          this.mobileRight = "mobile-right"
+        }else {
+          this.menuSlot = "default"
+          this.mobileRight = "default"
+        }
+      });
       // let states = this.$store.state;
       // if (typeof states.aeAPI == 'undefined') {
       //   this.$store.state.aeAPI = this.fetchApi();
@@ -463,8 +475,8 @@ export default {
         browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
           if(!pendingTx.hasOwnProperty('pendingTransaction')) {
             clearInterval(this.checkPendingTxInterval)
-            this.$store.commit('SET_AEPP_POPUP',false)
-            this.$router.push('/account')
+            // this.$store.commit('SET_AEPP_POPUP',false)
+            // this.$router.push('/account')
           }
         });
       },1000)
@@ -488,6 +500,9 @@ export default {
 @-moz-document url-prefix() {
   .ae-main { width: 380px; }
 }
+.desktop-right { width: 100%; display: flex; justify-content: space-evenly; }
+.desktop-right #account { position: relative; left: 0; top: 0; margin-left: 0; margin-top: 0; }
+.ae-header header .title { display: none; }
 html { min-width: 357px; min-height: 600px; background-color: #f5f5f5; }
 p { font-weight: bolder; margin-left: 3px; }
 input { background: transparent; border: none; border-bottom: 1px; height: 25px; line-height: 25px; }

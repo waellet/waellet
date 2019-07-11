@@ -75,7 +75,7 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
-import { fetchData } from '../../utils/helper';
+import { fetchData, redirectAfterLogin } from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet';
 
@@ -182,33 +182,9 @@ export default {
                                 tokens = tkn.tokens
                               }
                               this.$store.dispatch('setTokens', tokens).then(() => {
-                                console.log(wallet)
                                 this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
                                 this.$store.commit('SWITCH_LOGGED_IN', true);
-                                if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
-                                  browser.storage.sync.remove('showAeppPopup').then(() => {
-                                    this.$store.commit('SET_AEPP_POPUP',true)
-                                    if(aepp.showAeppPopup.type == 'confirm') {
-                                      this.$router.push({'name':'confirm-share', params: {
-                                        data:aepp.showAeppPopup.data
-                                      }});
-                                    }else if(aepp.showAeppPopup.type == 'txSign') {
-                                      aepp.showAeppPopup.data.popup = true
-                                      this.$router.push({'name':'sign', params: {
-                                        data:aepp.showAeppPopup.data
-                                      }});
-                                    }
-                                    return;
-                                  });
-                                }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('data')) {
-                                  this.$store.commit('SET_AEPP_POPUP',true)
-                                  pendingTx.pendingTransaction.data.popup = false
-                                  this.$router.push({'name':'sign', params: {
-                                    data:pendingTx.pendingTransaction.data
-                                  }});
-                                }else {
-                                  this.$router.push('/account');
-                                }
+                                redirectAfterLogin(this)
                               })
                             });
                           }
@@ -394,7 +370,7 @@ export default {
                             this.$store.dispatch('setSubAccounts',sub).then(() => {
                               this.$store.commit('SET_WALLET', wallet);
                               this.$store.commit('SWITCH_LOGGED_IN', true);
-                              this.$router.push('/account');
+                              redirectAfterLogin(this)
                             });
                           });
                         });
@@ -411,7 +387,7 @@ export default {
           this.inputError = {error:''};
           context.loading = false;
         }
-    },
+    }
   },
 };
 </script>
