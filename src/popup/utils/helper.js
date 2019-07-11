@@ -79,14 +79,19 @@ const fetchData = (url, method, fetchedData) => {
 }
 
 const setConnectedAepp = (host) => {
-    browser.storage.sync.get('connectedAepps').then((aepps) => {
-        let list = []
-        if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
-            list = aepps.connectedAepps.list
-        }
-        list.push({host})
-        browser.storage.sync.set({connectedAepps: { list }}).then(() => {
+    return new Promise((resolve, reject) => {
+        browser.storage.sync.get('connectedAepps').then((aepps) => {
 
+            let list = []
+            if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
+                list = aepps.connectedAepps.list
+            }
+            list.push({host})
+            console.log(host)
+            console.log(list)
+            browser.storage.sync.set({connectedAepps: { list }}).then(() => {
+                resolve()
+            })
         })
     })
 }
@@ -94,6 +99,7 @@ const setConnectedAepp = (host) => {
 const checkAeppConnected = (host) => {
     return new Promise((resolve, reject) => {
         browser.storage.sync.get('connectedAepps').then((aepps) => {
+            console.log(aepps)
             if(!aepps.hasOwnProperty('connectedAepps')) {
                 return resolve(false)
             }

@@ -53,10 +53,13 @@ export default {
         },
         connect() {
             setConnectedAepp(this.data.params.hostname)
-            if(this.data.popup) {
-                this.port.postMessage({message:"Connection established"})
-            }
-            window.close()
+            .then(() => {
+                if(this.data.popup) {
+                    this.port.postMessage({message:"Connection established"})
+                }
+                window.close()
+            })
+            
         }
     },
     computed: {

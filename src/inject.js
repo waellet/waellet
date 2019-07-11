@@ -13,13 +13,6 @@ fetch(aepp)
     injectScript(res)
 })
 // Subscribe from postMessages from page
-function evnt() {
-    return new Promise((resolve, reject) => {
-        let ev = 
-        console.log(resolve)
-        window.dispatchEvent(ev)
-    })
-}
 window.addEventListener("message", ({data}) => {
     let method = "pageMessage";
     if(typeof data.method != "undefined") {
@@ -39,7 +32,6 @@ window.addEventListener("message", ({data}) => {
 
 // Handle message from background and redirect to page
 chrome.runtime.onMessage.addListener(({ data }, sender, sendResponse) => {
-    console.log(data)
     if(data.method == 'phishingCheck') {
         if(data.blocked) {
             redirectToWarning(data.params.hostname,data.params.href,data.extUrl)

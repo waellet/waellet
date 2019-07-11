@@ -134,7 +134,6 @@ function getAccount() {
 //     });
 
 browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
-    console.log(msg)
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
@@ -163,6 +162,8 @@ browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
                 case "txSign":
                     return new Promise((resolve,reject) => {
                         checkAeppConnected(msg.params.hostname).then((check) => {
+                            console.log(check)
+                            console.log(msg.params.hostname)
                             if(check) {
                                 browser.storage.sync.set({showAeppPopup:{ data: msg.params, type:'txSign' } } ).then( () => {
                                     browser.windows.create({
