@@ -4,37 +4,33 @@
             <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
         </div>
         <h3>{{ language.strings.manageAccounts }}</h3>
-        <ae-panel>
-            <h4>Accounts</h4>
-            <hr>
-            <ae-list>
-                <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts" v-bind:key="index">
-                    <!-- IF not edit -->
-                    <div v-if="!subaccount.edit">
-                        <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
-                        <span class="name">{{ subaccount.name }}</span>
-                        <button @click="subaccount.edit = !subaccount.edit"><ae-icon name="edit" class="primary" /></button>
-                    </div>
-                    <!-- IF edit -->
-                    <div v-if="subaccount.edit">
-                        <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
-                        <ae-input-plain placeholder="Enter name here.." v-model="subaccount.name" />
-                        <button @click="cancelEdit(index)"><ae-icon name="close" /></button>
-                        <button @click="nameSave(index)"><ae-icon name="check" /></button>
-                    </div>
-                </ae-list-item>
-                <ae-list-item class="addaccount" fill="primary">
-                    <div v-if="!аddNewSubbAcc">
-                        <span>{{ language.strings.addNewSubAccount }}</span>
-                        <button @click="AddNewSubbAccount"><ae-icon name="plus" /></button>
-                    </div>
-                    <div v-if="аddNewSubbAcc">
-                        <span>{{ language.strings.addNewSubAccount }}</span>
-                        <button @click="closeNewSubbAccountForm"><ae-icon name="close" /></button>
-                    </div>
-                </ae-list-item>
-            </ae-list>
-        </ae-panel>
+        <ae-list face="primary">
+            <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts" v-bind:key="index">
+                <!-- IF not edit -->
+                <div v-if="!subaccount.edit">
+                    <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
+                    <span class="name">{{ subaccount.name }}</span>
+                    <button @click="subaccount.edit = !subaccount.edit"><ae-icon name="edit" class="primary" /></button>
+                </div>
+                <!-- IF edit -->
+                <div v-if="subaccount.edit">
+                    <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
+                    <ae-input-plain placeholder="Enter name here.." v-model="subaccount.name" />
+                    <button @click="cancelEdit(index)"><ae-icon name="close" /></button>
+                    <button @click="nameSave(index)"><ae-icon name="check" /></button>
+                </div>
+            </ae-list-item>
+            <ae-list-item class="addaccount" fill="primary">
+                <div v-if="!аddNewSubbAcc">
+                    <span>{{ language.strings.addNewSubAccount }}</span>
+                    <button @click="AddNewSubbAccount"><ae-icon name="plus" /></button>
+                </div>
+                <div v-if="аddNewSubbAcc">
+                    <span>{{ language.strings.addNewSubAccount }}</span>
+                    <button @click="closeNewSubbAccountForm"><ae-icon name="close" /></button>
+                </div>
+            </ae-list-item>
+        </ae-list>
         <transition name="slide">
             <ul class="slideform" v-if="dropdown">
                 <div class="add-form">
