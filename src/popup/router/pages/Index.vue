@@ -6,11 +6,6 @@
         <div class="logo-center">
           <img :src="logo" alt="Waellet logo">
         </div>
-        <ae-modal-light v-if="modalAskVisible" @close="modalAskVisible = false" title="Do you want to track your stats?">
-          <small>Please, note that you can change this at any time in the Waellet settings</small>
-          <ae-button size="small" type="exciting" plain uppercase @click="trackStats" slot="buttons" >Yes</ae-button>
-          <ae-button size="small" type="dramatic" plain uppercase @click="doNotTrackStats" slot="buttons" >No</ae-button>
-        </ae-modal-light>
       </div>
     </main>
     <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
@@ -196,14 +191,6 @@ export default {
       });
       
     },
-    trackStats() {
-      this.modalAskVisible = false;
-      browser.storage.sync.set({allowTracking:  true}).then(() => {});
-    },
-    doNotTrackStats(){
-      this.modalAskVisible = false;
-      browser.storage.sync.set({allowTracking:  false}).then(() => {});
-    },
     generateAddress: async function generateAddress({ dispatch }) {
         this.$router.push({name:'password',params:{
           confirmPassword:true,
@@ -292,11 +279,6 @@ export default {
              this.errorMsg = "Plese upload keystore.json file! ";
           }
       }
-      browser.storage.sync.get('allowTracking').then(result => {
-          if(result.allowTracking == true) {
-              fetchData('https://stats.waellet.com/user/imported', 'post', this.imported);
-          }
-      });
     },
     openImportModal() {
       this.modalVisible = true;
@@ -362,11 +344,6 @@ export default {
                             }else {
                               sub = subaccounts.subaccounts;
                             }
-                            browser.storage.sync.get('allowTracking').then(result => {
-                                if(result.allowTracking == true) {
-                                    fetchData('https://stats.waellet.com/user/login', 'post', this.isLogged);
-                                }
-                            });
                             this.$store.dispatch('setSubAccounts',sub).then(() => {
                               this.$store.commit('SET_WALLET', wallet);
                               this.$store.commit('SWITCH_LOGGED_IN', true);

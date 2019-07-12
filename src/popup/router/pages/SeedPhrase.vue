@@ -182,11 +182,6 @@ export default {
                                                     this.$store.commit('SET_WALLET', wallet);
                                                     this.$router.push('/account');
                                                     this.generated = true;
-                                                    browser.storage.sync.get('allowTracking').then(result => {
-                                                        if(result.allowTracking == true) {
-                                                            fetchData('https://stats.waellet.com/user/created', 'post', this.generated);
-                                                        }
-                                                    });
                                                 });
                                             });
                                         });

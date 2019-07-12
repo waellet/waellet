@@ -6,13 +6,6 @@
         <h3 style='text-align:center;'>{{language.pages.settings.securitySettings.heading}}</h3>
         <ae-panel>
             <div class="maindiv_input-group-addon">
-                <h4>Waellet Statistic Track</h4><hr>
-                <small class="sett_info">Take part in the Waellet statistics</small>
-                <switchButton class="tracker-switchbtn" :onChange="onChange" :onoff="onoff"></switchButton>
-            </div>
-        </ae-panel>
-        <ae-panel>
-            <div class="maindiv_input-group-addon">
                 <h4>Privacy Data</h4><hr>
                 <small class="sett_info">Clear privacy data so all websites must request access to view account information again.</small>
                 <ae-button face="round" fill="primary" class="settingBtn" extend @click="clearPrivacyData">Clear Privacy Data</ae-button>
@@ -48,15 +41,6 @@ export default {
     methods: {
         navigateToSettings() {
             this.$router.push('/settings')
-        },
-        onChange(){
-            this.onoff = !this.onoff;
-            if (this.onoff == true) {
-                browser.storage.sync.set({allowTracking:  true}).then(() => {});
-            }
-            if (this.onoff == false) {
-                browser.storage.sync.set({allowTracking:  false}).then(() => {});
-            }
         },
         clearPrivacyData( ) {
             //confirm window to be addeded here after merge with the others 
