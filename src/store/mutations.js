@@ -84,6 +84,9 @@ export default {
       contract:''
     }];
   },
+  [types.SET_ACTIVE_TOKEN] (state, payload) {
+    state.current.token = payload
+  },
   [types.SET_AEPP_POPUP] (state, payload) {
     state.aeppPopup = payload
   }

@@ -38,26 +38,30 @@ export default {
     locales,
     props:['data'],
     created() {
-        console.log(this.data)
         if(this.data.popup) {
-            this.port = chrome.extension.connect({ name: "conn" })
+            this.port = browser.runtime.connect({ name: "conn" })
             this.port.onMessage.addListener((msg, sender,sendResponse) => {})
         }
     },
     methods: {
         cancel() {
             if(this.data.popup) {
-                this.port.postMessage({message:"Connection canceled"})
+                this.port.postMessage({id:null,jsonrpc:"2.0",message:"Connection canceled"})
             }
-            window.close()
+            setTimeout(() => {
+                window.close()
+            },1000)
+            
         },
         connect() {
             setConnectedAepp(this.data.params.hostname)
             .then(() => {
                 if(this.data.popup) {
-                    this.port.postMessage({message:"Connection established"})
+                    this.port.postMessage({id:null,jsonrpc:"2.0",message:"Connection established"})
                 }
-                window.close()
+                setTimeout(() => {
+                    window.close()
+                },1000)
             })
             
         }
