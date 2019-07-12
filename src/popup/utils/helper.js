@@ -145,5 +145,3 @@ const redirectAfterLogin = (ctx) => {
 
 
 export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin }
-
-export {shuffleArray, convertToAE, extractHostName, fetchData};

@@ -29,15 +29,15 @@
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isSpendTx">
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txFrom}} <button v-clipboard:copy="transaction.tx.sender_id" @click="copy" class="copyBtn">COPY</button></div>
-                <ae-input disabled :value="transaction.tx.sender_id" length="flat"  class="flex-justify-items-left transationFrom text-left"/>
+                <input disabled :value="transaction.tx.sender_id" length="flat"  class="transationFrom transactionDetailsInputs"/>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isSpendTx">
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txTo}} <button v-clipboard:copy="transaction.tx.recipient_id" @click="copy" class="copyBtn">COPY</button></div>
-                <ae-input disabled :value="transaction.tx.recipient_id" length="flat" class="flex-justify-items-left transactionTo text-left" />
+                <input disabled :value="transaction.tx.recipient_id" length="flat" class="transactionTo transactionDetailsInputs"/>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column"  v-if="!isSpendTx">
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txAccount}} <button v-clipboard:copy="transaction.tx.account_id" @click="copy" class="copyBtn">COPY</button></div>
-                <ae-input disabled :value="transaction.tx.account_id" length="flat" class="flex-justify-items-left transactionTo text-left" />
+                <input disabled :value="transaction.tx.account_id" length="flat" class="transactionTo transactionDetailsInputs"/>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column" v-if="isNameClaimTx">
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txName}} <button v-clipboard:copy="transaction.tx.name" @click="copy" class="copyBtn">COPY</button></div>
@@ -45,7 +45,7 @@
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column">
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txHash}} <button v-clipboard:copy="transaction.hash" @click="copy" class="copyBtn">COPY</button></div>
-                <ae-input disabled :value="transaction.hash" length="flat"  class="flex-justify-items-left transactionHash text-left"/>
+                <input disabled :value="transaction.hash" length="flat"  class="transactionHash transactionDetailsInputs"/>
             </ae-list-item>
         </ae-list>
         <ae-button-group  class="btnFixed">
@@ -107,6 +107,12 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
+.transactionDetailsInputs {
+    width: 100%;
+    background: #EDF3F7;
+    color: #000;
+    padding: 20px;
+}
 .copyBtn {
     background: #ff0d6a;
     color: #ffffff;

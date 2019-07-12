@@ -6,10 +6,10 @@
         <div class="logo-center">
           <img :src="logo" alt="Waellet logo">
         </div>
-        <ae-modal-light v-if="modalAskVisible" @close="modalAskVisible = false" title="Do you want to track your stats?">
+        <ae-modal-light v-if="modalAskVisible" @close="modalAskVisible = false" title="Participate in our statistics to help us make Waellet better">
           <small>Please, note that you can change this at any time in the Waellet settings</small>
-          <ae-button size="small" type="exciting" plain uppercase @click="trackStats" slot="buttons" >Yes</ae-button>
-          <ae-button size="small" type="dramatic" plain uppercase @click="doNotTrackStats" slot="buttons" >No</ae-button>
+          <ae-button face="round" fill="primary" size="small" type="exciting" plain uppercase @click="trackStats" slot="buttons" >Yes</ae-button>
+          <ae-button face="round" fill="neutral" size="small" type="dramatic" plain uppercase @click="doNotTrackStats" slot="buttons" >No</ae-button>
         </ae-modal-light>
       </div>
     </main>

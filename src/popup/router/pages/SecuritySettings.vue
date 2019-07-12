@@ -18,6 +18,7 @@
                 <ae-button face="round" fill="primary" class="settingBtn" extend @click="clearPrivacyData">Clear Privacy Data</ae-button>
             </div>
         </ae-panel>
+        <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <div v-if="loading" class="loading">
             <ae-loader />
         </div>
@@ -38,7 +39,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount']),
+        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','popup']),
     },
     created() {
         browser.storage.sync.get('allowTracking').then((result) => {
@@ -86,7 +87,7 @@ export default {
 .input-group-addon {
     background: #ececec;
     border: 1px solid #ccc;
-    width: 80%;
+    width: 79%;
     height: 56px;
     float: left;
 }
@@ -106,11 +107,6 @@ export default {
 input:active,input:focus {
     border: none;
     outline: none;
-}
-.sett_info {
-    width: 79%;
-    word-break: break-word;
-    float: left;
 }
 .settingBtn {
     margin-top:1rem

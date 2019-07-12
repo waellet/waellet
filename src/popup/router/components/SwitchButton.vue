@@ -32,6 +32,7 @@ export default {
   display: inline-block;
   width: 60px;
   height: 34px;
+  margin: 10px 0px 0px 0px;
 }
 
 .switch input { 

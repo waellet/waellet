@@ -104,7 +104,6 @@ export default {
       }
   },
   created () {
-    console.log(this.account)
     this.pollData();
     this.currencyConv();
   },
@@ -125,21 +124,18 @@ export default {
               this.toUsd = this.balance * this.usdRate;
               this.toEur = this.balance * this.eurRate;
           }
-        }, 5000);
+        }, 2500);
     },
     async currencyConv () {
       browser.storage.sync.get('convertTimer').then(async result => {
         var time = new Date().getTime();
-        if ( result.convertTimer == '' || result.convertTimer == 'undefined' || result.convertTimer <= time) {
+        if ( !result.hasOwnProperty('convertTimer') || (result.hasOwnProperty('convertTimer') && (result.convertTimer == '' || result.convertTimer == 'undefined' || result.convertTimer <= time)) ) {
           const fetched = await fetchData('https://api.coingecko.com/api/v3/simple/price?ids=aeternity&vs_currencies=usd,eur','get','');
+          console.log('fetched');
           browser.storage.sync.set({ rateUsd : fetched.aeternity.usd}).then(() => { });
           browser.storage.sync.set({ rateEur : fetched.aeternity.eur}).then(() => { });
-          // console.log(result.convertTimer);
-          // console.log('v if');
           browser.storage.sync.set({ convertTimer : time+3600000}).then(() => { });
         }
-          // console.log(time);
-          // console.log(result.convertTimer);
         browser.storage.sync.get('rateUsd').then(resusd => {
           this.usdRate = resusd.rateUsd;
           this.toUsd = resusd.rateUsd * this.balance;
@@ -195,6 +191,7 @@ export default {
 }
 .transactionHistory {
   margin-top:1rem;
+  width: 100%;
 }
 .inputGroup-currencies{
   display: inline-block;

@@ -109,6 +109,9 @@ export default {
           case 'token_invalid_address':
               commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_INVALID_ADDRESS});
           break;
+          case 'only_allowed_chars':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.CHARS_ALLOWED});
+            break;
           default:
             break;
         }

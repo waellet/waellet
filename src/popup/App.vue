@@ -296,8 +296,9 @@ export default {
       this.$store.commit('RESET_TRANSACTIONS',[]);
     },
     switchNetwork (network) {
+      this.dropdown.network = false;
       this.$store.dispatch('switchNetwork', network).then(() => {
-        this.$store.state.aeAPI = this.fetchApi();
+        this.initSDK();
         this.$store.dispatch('updateBalance');
         let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
         transactions.then(res => {
@@ -309,7 +310,8 @@ export default {
       browser.storage.sync.set({isLogged: false}).then(() => {
         browser.storage.sync.set({wallet: ''}).then(() => {
           browser.storage.sync.set({activeAccount: 0}).then(() => {
-            this.dropdown.settings = false; this.dropdown.languages = false;
+            this.dropdown.settings = false;
+            this.dropdown.languages = false;
             this.dropdown.account = false;
             this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
             this.$store.commit('UNSET_SUBACCOUNTS');
@@ -330,6 +332,7 @@ export default {
     },
     navigateNetworks () {
       this.$router.push('/manageNetworks');
+      this.dropdown.network = false;
     },
     myAccount () {
       this.dropdown.settings = false; this.dropdown.languages = false;
@@ -503,7 +506,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .dropdown ul.sub-dropdown { box-shadow: none; visibility: hidden; max-height:0; padding: 0; overflow: hidden; transition: all 0.3s ease-in-out; }
 .dropdown .have-subDropdown.show ul.sub-dropdown { visibility: visible; max-height: 165px; }
 .dropdown ul.sub-dropdown .ae-button { padding: 0 2rem; }
-.dropdown ul li .ae-button { width: 100%; text-align: left; margin: 0; padding: 0 1rem; white-space: nowrap; justify-content: unset; }
+.dropdown ul li .ae-button { font-size: 14px; width: 100%; color: #000; text-align: left;  margin: 0; padding: 0 1rem; white-space: nowrap; justify-content: unset; }
 .dropdown ul li .ae-button .ae-icon-left-more { margin-top: 3px; transition: all 0.3s; }
 .dropdown .have-subDropdown.show .ae-button .ae-icon-left-more { transform: rotate(90deg); }
 .dropdown li { color: #717C87; margin: 0; }

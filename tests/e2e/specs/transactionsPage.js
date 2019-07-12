@@ -44,9 +44,10 @@ describe("Tets cases for Transactions Page", () => {
         .request("https://testnet.mdw.aepps.com/middleware/transactions/account/" + account.publicKey + '?limit=1')
         .then(res => {
             let data = res.body[0];
+            console.log(data);
             let amount = data.tx.amount / 10 ** 18;
             let fee = data.tx.fee / 10 ** 18;
-            let total = parseFloat(amount) + parseFloat(fee);
+            let total = (parseFloat(amount) + parseFloat(fee)).toFixed(7);
             cy.get('.allTransactions .list-item-transaction').eq(0).click()
             .get('.transactionDate')
             .should('contain',new Date(data.time).toLocaleString())
@@ -59,14 +60,14 @@ describe("Tets cases for Transactions Page", () => {
             .get('.balanceTotal')
             .should('contain',total)
             .get('.transationFrom')
-            .should('contain',data.tx.sender_id)
+            .should('have.value',data.tx.sender_id)
             .get('.transactionTo')
-            .should('contain',data.tx.recipient_id)
+            .should('have.value',data.tx.recipient_id)
             .get('.transactionHash')
-            .should('contain',data.hash)
+            .should('have.value',data.hash)
             .get('.transactionExplorerBtn')
             .should('be.visible')
-            .get('.backBtn')
+            .get('.backbutton')
             .should('be.visible')
             .click()
             .get('.ae-loader')
