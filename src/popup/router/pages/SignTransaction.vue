@@ -187,7 +187,6 @@ export default {
                                 let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
                                 let msg = 'You send ' + this.amount + ' AE'
                                 if(this.data.popup) {
-                                    window.close()
                                     let res = {
                                         "id": null,
                                         "jsonrpc": "2.0",
@@ -197,6 +196,9 @@ export default {
                                     }
                                     this.port.postMessage(res)
                                     this.removeTxStorageData()
+                                    setTimeout(() => {
+                                        window.close()
+                                    },1000)
                                 }else {
                                     this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl})
                                     .then(() => {
@@ -252,7 +254,7 @@ export default {
     position:relative;
     cursor: unset;
     text-transform: uppercase;
-    font-size:1rem;
+    font-size:.9rem;
 }
 .spendTxDetailsList .ae-button {
     margin-bottom:0 !important;
