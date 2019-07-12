@@ -42,8 +42,8 @@
                 <ae-button extend face="round" :fill="buttonFill" class="mt-3 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
                 
             </div>
+            <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
             <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
-            <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
         </main>
     </div>
 </template>

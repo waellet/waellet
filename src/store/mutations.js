@@ -83,5 +83,8 @@ export default {
       balance:0,
       contract:''
     }];
+  },
+  [types.SET_AEPP_POPUP] (state, payload) {
+    state.aeppPopup = payload
   }
 }; 

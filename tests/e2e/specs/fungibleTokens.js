@@ -7,13 +7,9 @@ const openTokensPage = () => {
     .visit('popup/popup.html',{onBeforeLoad})
     .get('#settings')
     .click()
-    .get('.dropdown-holder')
-    .should('be.visible')
     .get('#tokens')
     .click()
-    .get('.sub-dropdown')
-    .should('be.visible')
-    .get('#tokens > .sub-dropdown > :nth-child(1) > .ae-button')
+    .get('.toTokens')
     .click()
 }
 

@@ -17,7 +17,7 @@
                     </ae-input>
                     <ae-button face="round" extend fill="primary" @click="clickAction({accountPassword,data,confirmAccountPassword})">{{buttonTitle}}</ae-button>
                 </div>
-                <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
+                <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
             </div>
         </main>
     </div>
@@ -31,6 +31,8 @@ import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet';
 import { MINPASSWORDLENGTH } from '../../utils/constants';
 import Password from 'vue-password-strength-meter';
 import { mapGetters } from 'vuex'
+import { redirectAfterLogin } from '../../utils/helper';
+
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title'],
     components: { Password },
@@ -148,7 +150,7 @@ export default {
                                 this.$store.commit('UPDATE_ACCOUNT', keyPair);
                                 this.$store.commit('SWITCH_LOGGED_IN', true);
                                 this.$store.commit('SET_WALLET', wallet);
-                                this.$router.push('/account');
+                                redirectAfterLogin(this)
                             });
                         });
                         

@@ -6,6 +6,7 @@ export const login = (customState) => {
     const state = prepareEncryptedPrivateKey(customState);
     cy
       .visit('/popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'account') }})
+      .wait(4000)
       .get('input[type=password]').type(ACCOUNT_PASSWORD)
       .get('button')
       .contains('Login')

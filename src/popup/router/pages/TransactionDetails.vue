@@ -24,7 +24,7 @@
                 </div>
                 <div class="flex-col flex-justify-between flex flex-align-center">
                     <div class="detailTitle">{{language.pages.transactionDetails.total}}</div>
-                    <div class="balance balanceTotal">{{txAmount + txFee}}</div>
+                    <div class="balance balanceTotal">{{txTotal}}</div>
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isSpendTx">
@@ -86,6 +86,9 @@ export default {
         },
         isNameClaimTx() {
             return this.transaction.tx.type == 'NameClaimTx';
+        },
+        txTotal() {
+            return (this.txAmount + this.txFee).toFixed(7)
         }
     },
     methods: {

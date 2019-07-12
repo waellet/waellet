@@ -2,6 +2,7 @@ import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 import Account from '@aeternity/aepp-sdk/es/account'
 // import ExtensionProvider from '@aeternity/aepp-sdk/es/provider/extension'
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
+import { checkAeppConnected } from './popup/utils/helper';
 
 global.browser = require('webextension-polyfill');
 
@@ -132,14 +133,14 @@ function getAccount() {
 //         })
 //     });
 
-browser.runtime.onMessage.addListener((msg, sender) => {
+browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
-            phishingCheckUrl(msg.data.hostname)
+            phishingCheckUrl(msg.params.hostname)
             .then(res => {
                 if(typeof res.result !== 'undefined' && res.result == 'blocked') {
-                    let whitelist = getPhishingUrls().filter(url => url === msg.data.hostname);
+                    let whitelist = getPhishingUrls().filter(url => url === msg.params.hostname);
                     if(whitelist.length) {
                         data.blocked = false;
                         return postPhishingData(data);
@@ -153,24 +154,130 @@ browser.runtime.onMessage.addListener((msg, sender) => {
         break;
         case 'setPhishingUrl':
             let urls = getPhishingUrls();
-            urls.push(msg.data.hostname);
+            urls.push(msg.params.hostname);
             setPhishingUrl(urls);
         break;
+        case 'aeppMessage':
+            switch(msg.params.type) {
+                case "txSign":
+                    return new Promise((resolve,reject) => {
+                        checkAeppConnected(msg.params.hostname).then((check) => {
+                            console.log(check)
+                            console.log(msg.params.hostname)
+                            if(check) {
+                                browser.storage.sync.set({showAeppPopup:{ data: msg.params, type:'txSign' } } ).then( () => {
+                                    browser.windows.create({
+                                        url: browser.runtime.getURL('./popup/popup.html'),
+                                        type: "popup",
+                                        height: 600,
+                                        width:420
+                                        }).then((window) => {
+                                            connectToPopup((res) => {
+                                                resolve(res)
+                                            }, 'txSign')
+                                        })
+                                })
+                            }else {
+                                resolve({id:null, jsonrpc:"2.0",message: "Aepp not registered. Establish connection first"})
+                            }
+                        });
+                    })
+                break;
+                case 'connectConfirm':
+                        return new Promise((resolve,reject) => {
+                            checkAeppConnected(msg.params.params.hostname).then((check) => {
+                                if(!check) {
+                                    browser.storage.sync.set({showAeppPopup:{ data: msg.params, type:'connectConfirm' } } ).then( () => {
+                                        browser.windows.create({
+                                            url: browser.runtime.getURL('./popup/popup.html'),
+                                            type: "popup",
+                                            height: 600,
+                                            width:420
+                                            }).then((window) => {
+                                                connectToPopup((res) => {
+                                                    resolve(res)
+                                                }, 'connectConfirm')
+                                            })
+                                    })
+                                } else {
+                                    resolve({id:null, jsonrpc:"2.0",message: "Connection already established"})
+                                }
+                            })
+                        })
+                break;
+                case 'getAddress':
+                    return new Promise((resolve, reject) => {
+                        browser.storage.sync.get('userAccount').then((user)=> {
+                            browser.storage.sync.get('isLogged').then((data) => {
+                                if (data.isLogged && data.hasOwnProperty('isLogged')) {
+                                    browser.storage.sync.get('subaccounts').then((subaccounts) => {
+                                        browser.storage.sync.get('activeAccount').then((active) => {
+                                            let activeIdx = 0
+                                            if(active.hasOwnProperty("activeAccount")) {
+                                                activeIdx = active.activeAccount
+                                            }
+                                            let address = subaccounts.subaccounts[activeIdx].publicKey
+                                            return resolve({id:null, jsonrpc:"2.0",address})
+                                        })
+                                    })
+                                }else {
+                                    return resolve({id:null, jsonrpc:"2.0",address:""})
+                                }
+                            })
+                        })
+                    })
+                break;
+
+                case 'getNetwork':
+                    
+                break;
+            }
+        break
     }
+
+    return Promise.resolve("")
 })
 
-
+const connectToPopup = (cb,type) => {
+    browser.extension.onConnect.addListener((port) => {
+        port.onMessage.addListener((msg) => {
+            cb(msg)
+        });
+        port.onDisconnect.addListener((event) => {
+            browser.storage.sync.remove('pendingTransaction').then(() => {});
+            browser.storage.sync.remove('showAeppPopup').then(() => {});  
+            if(type == 'txSign') {
+                cb({
+                    "error": {
+                        "code": 1,
+                        "data": {
+                            "request": {}
+                        },
+                        "message": "Transaction verification failed"
+                    },
+                    "id": null,
+                    "jsonrpc": "2.0"
+                })
+            }else if(type == 'connectConfirm') {
+                cb({id:null, jsonrpc:"2.0",message:"Connection canceled"})
+            }else {
+                cb()
+            }
+            
+        });
+   })
+}
 
 const postPhishingData = (data) => {
     browser.tabs.query({active:true, currentWindow:true}).then((tabs) => { 
         const message = { method: 'phishingCheck', data };
-        tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, message)) 
+        tabs.forEach(({ id }) => browser.tabs.sendMessage(id, message)) 
     });
 }
 
 const postToContent = (data) => {
-    chrome.tabs.query({}, function (tabs) { // TODO think about direct communication with tab
-        const message = { method: 'pageMessage', data };
-        tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, message)) // Send message to all tabs
+    browser.tabs.query({}, function (tabs) { // TODO think about direct communication with tab
+        const message = { method: 'aeppMessage', data };
+        tabs.forEach(({ id }) => browser.tabs.sendMessage(id, message)) // Send message to all tabs
     });
 }

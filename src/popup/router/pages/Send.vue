@@ -54,9 +54,7 @@
       <p>{{language.strings.success}}</p>
       <a :href="tx.url">{{language.strings.seeTransactionExplorer}}</a>
     </div>
-    <transition name="fadeOut">
-      <span v-if="loading" class="mainLoader mainLoaderTransparent"><ae-loader /></span>
-    </transition>
+    <Loader size="big" :loading="loading" type="transparent" ></Loader>
     <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
   </div>
 </template>

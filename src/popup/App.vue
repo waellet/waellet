@@ -3,7 +3,7 @@
       <ae-header :class="account.publicKey && isLoggedIn ? 'logged' : ''">
 
         <!-- login screen header -->
-        <div class="logo_top" slot="mobile-left" v-if="!isLoggedIn">
+        <div class="logo_top" :slot="menuSlot" v-if="!isLoggedIn">
           <img :src="logo_top" alt="">
           <p>{{ language.system.name }} <span class="extensionVersion extensionVersionTop">{{extensionVersion}}</span></p>
           
@@ -11,7 +11,7 @@
         
         <!-- logged in header START -->
           <!-- network dropdown -->
-          <div id="network" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-left" direction="left" ref="network">
+          <div id="network" class="dropdown" v-if="account.publicKey && isLoggedIn" :slot="menuSlot" direction="left" ref="network">
             <button v-on:click.prevent="toggleDropdown">
               <ae-icon class="dropdown-button-icon status" name="globe" slot="button" />
               <span class="dropdown-button-name" v-html="current.network" slot="button"></span>
@@ -27,7 +27,7 @@
                     </div>
                     <ae-check class="subAccountCheckbox"  type="radio" :value="name" v-model="current.network" /> 
                 </ae-list-item>
-                <ae-list-item fill="neutral" class="manageAccounts">
+                <ae-list-item fill="neutral" class="manageAccounts" v-if="!aeppPopup">
                   <ae-button @click="navigateNetworks" class="triggerhidedd">
                     <ae-button face="icon" fill="primary" class="iconBtn">
                       <ae-icon name="plus" />
@@ -46,7 +46,7 @@
           </div>
 
           <!-- account dropdown -->
-          <div id="account" class="dropdown big" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="center" ref="account">
+          <div id="account" class="dropdown big" v-if="account.publicKey && isLoggedIn" :slot="menuSlot" direction="center" ref="account">
             <button v-on:click.prevent="toggleDropdown">
               <ae-identicon id="identIcon" class="dropdown-button-icon" v-bind:address="this.account.publicKey" size="base" slot="button" />
               <span class="dropdown-button-name" slot="button">{{ activeAccountName }}</span>
@@ -61,7 +61,7 @@
                     </div>
                     <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="activeAccount" /> 
                 </ae-list-item>
-                <ae-list-item fill="neutral" class="manageAccounts">
+                <ae-list-item fill="neutral" class="manageAccounts" v-if="!aeppPopup">
                   <ae-button @click="manageAccounts" class="triggerhidedd">
                     <ae-button face="icon" fill="primary" class="iconBtn">
                       <ae-icon name="plus" />
@@ -74,7 +74,7 @@
           </div>
 
           <!-- settings dropdown -->
-          <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" ref="settings">
+          <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn && !aeppPopup" :slot="mobileRight" direction="right" ref="settings">
             <button v-on:click="toggleDropdown">
               <ae-icon class="dropdown-button-icon" name="burger" slot="button" />
               <span class="dropdown-button-name" slot="button">{{ language.strings.menu }}</span>
@@ -95,24 +95,25 @@
                 </li>
                 <li id="tokens" class="have-subDropdown" :class="dropdown.tokens ? 'show' : ''">
                     <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
-                    <ae-icon name="globe" />
+                    <ae-icon name="grid" />
                     {{ language.strings.switchToken }}
                     <ae-icon name="left-more" />
                   </ae-button>
 
                   <!-- Tokens dropdown -->
                   <ul class="sub-dropdown">
-                    <li>
-                      <ae-button @click="toTokens" class="toTokens">
-                        <ae-icon name="aeternity" />
-                        {{ language.strings.addToken}}
-                      </ae-button>
-                    </li>
                     <li v-for="(tkn, index) in tokens" v-if="typeof tkn.parent == 'undefined' || tkn.parent == account.publicKey" :key="index">
-                      <ae-button @click="switchToken(index)" class="triggerhidedd" >
+                      <ae-button @click="switchToken(index)" class="triggerhidedd flex flex-justify-between" >
                         <ae-identicon class="token-image" :address="tkn.contract" size="base" v-if="index != 0 "/>
                         <img :src="ae_token" class="token-image" alt="" v-if="index == 0" >
-                        <span class="subAccountBalance">{{typeof tkn.parent == 'undefined' ? balance : tkn.balance }} {{ tkn.symbol }}</span>
+                        <span class="subAccountBalance tokenBalance">{{typeof tkn.parent == 'undefined' ? balance : tkn.balance }} {{ tkn.symbol }}</span>
+                        <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="current.token" /> 
+                      </ae-button>
+                    </li>
+                    <li>
+                      <ae-button @click="toTokens" class="toTokens">
+                        <ae-icon name="plus" />
+                        {{ language.strings.addToken}}
                       </ae-button>
                     </li>
                   </ul>
@@ -153,19 +154,19 @@
       </ae-header>
     <router-view></router-view>
     <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
-    <transition name="fadeOut">
-      <span v-if="mainLoading" class="mainLoader"><ae-loader v-bind="{'content':''}" /></span>
-    </transition>
+    <Loader size="big" :loading="mainLoading"></Loader>
   </ae-main>
 </template>
 
 <script>
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
+import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import store from '../store';
 import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout } from 'timers';
+import { getHdWalletAccount } from './utils/hdWallet';
 
 export default {
   
@@ -183,10 +184,13 @@ export default {
         tokens: false
       },
       mainLoading: true,
+      checkPendingTxInterval:null,
+      menuSlot:"mobile-left",
+      mobileRight: "mobile-right"
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'wallet', 'sdk','tokens']),
+    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'wallet', 'sdk','tokens','aeppPopup']),
     extensionVersion() {
       return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
@@ -209,22 +213,43 @@ export default {
           this.$store.state.current.network = data.activeNetwork;
         }
       });
-       // fetch api one time
-      let states = this.$store.state;
-      if (typeof states.aeAPI == 'undefined') {
-        this.$store.state.aeAPI = this.fetchApi();
-      }
+
+      //init SDK
+      setTimeout(() => {
+        if(this.isLoggedIn && this.sdk == null) {
+          this.initSDK()
+        }
+        if(this.isLoggedIn) {
+          this.pollData()
+        }else {
+          this.hideLoader()
+        }
+      },500)
+      this.checkPendingTx()
+      window.addEventListener('resize', () => {
+        
+        if(window.innerWidth <= 480) {
+          this.menuSlot = "mobile-left"
+          this.mobileRight = "mobile-right"
+        }else {
+          this.menuSlot = "default"
+          this.mobileRight = "default"
+        }
+      });
+      // let states = this.$store.state;
+      // if (typeof states.aeAPI == 'undefined') {
+      //   this.$store.state.aeAPI = this.fetchApi();
+      // }
   },
   mounted: function mounted () {
-    this.hideLoader();
-    this.dropdown.settings = false; this.dropdown.languages = false;
+    this.dropdown.settings = false;
   },
   methods: {
     hideLoader() {
       var self = this;
       setTimeout(function() {
         self.mainLoading = false;
-      }, 1000);
+      }, 1500);
     },
     changeAccount (index,subaccount) {
       browser.storage.sync.set({activeAccount: index}).then(() => {
@@ -352,7 +377,7 @@ export default {
               triggerOnce = true
             }
         }
-      }, 5000);
+      }, 2500);
     },
     fetchApi() {
       let states = this.$store.state;
@@ -382,12 +407,25 @@ export default {
         nativeMode: true,
         compilerUrl: 'https://compiler.aepps.com'
       }).then((sdk) => {
-        this.$store.dispatch('initSdk',sdk)
+        this.$store.dispatch('initSdk',sdk).then(() => {
+          this.hideLoader()
+        })
       })
     },
     toTokens() {
       this.dropdown.settings = false
       this.$router.push('/tokens')
+    },
+    checkPendingTx() {
+      this.checkPendingTxInterval = setInterval(() => {
+        browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
+          if(!pendingTx.hasOwnProperty('pendingTransaction')) {
+            clearInterval(this.checkPendingTxInterval)
+            // this.$store.commit('SET_AEPP_POPUP',false)
+            // this.$router.push('/account')
+          }
+        });
+      },1000)
     }
   },
   beforeDestroy() {
@@ -405,11 +443,12 @@ export default {
 // ::-webkit-scrollbar { 
 //     display: none; 
 // }
-.ae-main { width: 380px; }
-.fadeOut-enter-active, .fadeOut-leave-active { transition: all .5s ease-in-out; }
-.fadeOut-leave-to { opacity: 0; }
-.mainLoader { position: fixed; width: 100%; height: 100%; background-color: rgba(255,255,255,1); top: 0; }
-.mainLoader .ae-loader { position: absolute; top: 50%; left: 50%; margin: -1.5em; width: 3em !important; height: 3em !important; border-radius: 3em !important; }
+@-moz-document url-prefix() {
+  .ae-main { width: 380px; }
+}
+.desktop-right { width: 100%; display: flex; justify-content: space-evenly; }
+.desktop-right #account { position: relative; left: 0; top: 0; margin-left: 0; margin-top: 0; }
+.ae-header header .title { display: none; }
 html { min-width: 357px; min-height: 600px; background-color: #f5f5f5; }
 p { font-weight: bolder; margin-left: 3px; }
 input { background: transparent; border: none; border-bottom: 1px; height: 25px; line-height: 25px; }
@@ -452,6 +491,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .ae-check-button:after { left: 0 !important; top: 0 !important; width: 28px !important; height: 28px !important; }
 .ae-check > input[type="radio"]:checked + .ae-check-button:before, .ae-check > input[type="checkbox"]:checked + .ae-check-button:before { border-color: #dae1ea !important; }
 #settings li .ae-icon { font-size: 1.2rem; margin-right: 10px; }
+#settings.dropdown ul { min-width: 250px }
 #languages .ae-button img { margin-right: 5px; }
 #languages .ae-button.current { text-decoration: underline; }
 .dropdown { display: inline-block; position: relative; vertical-align: top; }
@@ -491,4 +531,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .actions { text-align: left; }
 .actions .backbutton { padding: 0; color: #9d3fc0 !important; }
 .token-image { margin-right:1rem; width:28px; }
+.tokenBalance { margin-right: auto; }
+#tokens .ae-check-button:before { width: 20px !important; height: 20px !important; }
+#tokens .ae-check-button:after { width: 26px !important; height: 25px !important; }
 </style>

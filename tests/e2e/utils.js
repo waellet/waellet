@@ -18,11 +18,25 @@ export const tabs = [
   {url:"aeternity.com", favIconUrl: undefined }
 ];
 export const transaction = {
-  senderId:"ak_wzegeVb4g7afqzh4mXqbYyb3PVTgSYkWieYrKqn11bYu1pGqX",
-  recipientId:"ak_FxYhMbVDTquNu38PHWoMCoiw7CNq2sSQFbhK9zgyi1U1wH6Mv",
-  amount:2079983180000000000,
-  fee:2079983180000000000
+  tx: {
+    recipientId:"ak_FxYhMbVDTquNu38PHWoMCoiw7CNq2sSQFbhK9zgyi1U1wH6Mv",
+    amount:0.000001
+  }
 };
+export const transaction2 = {
+  tx: {
+    recipientId:"ak_FxYhMbVDTquNu38PHWoMCoiw7CNq2sSQFbhK9zgyi1U1wH6Mv",
+    amount:200
+  }
+};
+export const connectObj = {
+  type:"connectConfirm",
+  params: {
+    hostname:"testnet.explorer.aepps.com",
+    protocol:"https:",
+    title:"aeternity explorer"
+  }
+}
 export const network = {
   Testnet: {
     url: 'https://sdk-testnet.aepps.com',

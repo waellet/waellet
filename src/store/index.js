@@ -53,7 +53,8 @@ export default new Vuex.Store({
         balance:0,
         contract:''
       }
-    ]
+    ],
+    aeppPopup:false
   },
   getters,
   mutations,
