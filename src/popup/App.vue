@@ -289,6 +289,7 @@ export default {
       }, 1500);
     },
     changeAccount (index,subaccount) {
+      this.$store.commit('SET_ACTIVE_TOKEN',0)
       browser.storage.sync.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
       });
@@ -423,6 +424,9 @@ export default {
       this.polling = setInterval(() => {
         if(this.sdk != null) {
             //Todo update token if is not AE
+            if(this.current.token != 0) {
+              this.$store.dispatch('updateBalanceToken')
+            }
             this.$store.dispatch('updateBalance');
             if(this.dropdown.account) {
               this.$store.dispatch('updateBalanceSubaccounts');
@@ -454,7 +458,7 @@ export default {
       return ae;
     },
     initSDK() {
-        initializeSDK(this)
+        initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount })
     },
     toTokens() {
       this.dropdown.settings = false

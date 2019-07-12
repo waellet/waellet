@@ -1,5 +1,5 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
-import { checkAeppConnected } from './popup/utils/helper';
+import { checkAeppConnected, initializeSDK } from './popup/utils/helper';
 
 global.browser = require('webextension-polyfill');
 

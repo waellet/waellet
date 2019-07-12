@@ -47,7 +47,7 @@ export default {
   updateBalanceTokens({ commit, state }) {
     state.tokens.forEach((tkn, index) => {
         if(typeof tkn.parent != 'undefined' && tkn.contract != '' && tkn.parent == state.account.publicKey) {
-          state.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,tkn.contract,'balance',[state.account.publicKey])
+          state.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,tkn.contract,'balance',[state.account.publicKey])
           .then((res) => {
             res.decode()
             .then(balance => {
@@ -58,6 +58,16 @@ export default {
 
           })
         }
+    })
+  },
+  updateBalanceToken({commit, state} ) {
+    state.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,state.tokens[state.current.token].contract,'balance',[state.account.publicKey]) 
+    .then((res) => {
+      res.decode()
+      .then(balance => {
+        console.log(balance)
+        commit(types.UPDATE_TOKENS_BALANCE, { token:state.current.token, balance: balance == 'None' ? 0 : balance.Some[0] } );
+      })
     })
   },
   popupAlert({ commit, state }, payload) {

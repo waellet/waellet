@@ -35,7 +35,6 @@ window.addEventListener("message", ({data}) => {
 
 // Handle message from background and redirect to page
 browser.runtime.onMessage.addListener(({ data, method }, sender, sendResponse) => {
-    console.log(data)
     if(data.method == 'phishingCheck') {
         if(data.blocked) {
             redirectToWarning(data.params.hostname,data.params.href,data.extUrl)

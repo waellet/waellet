@@ -114,7 +114,7 @@ export default {
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_exists'})
             }else {
                 this.loading = true
-                let call = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,this.token.contract,'balance',[this.account.publicKey])
+                let call = await this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,this.token.contract,'balance',[this.account.publicKey])
                 let balance = await call.decode()
                 this.loading = false
                 this.token.balance = balance == 'None' ? 0 : balance.Some[0]
@@ -149,7 +149,7 @@ export default {
         searchTokenMetaInfo(address) {
             this.loading = true
             try {
-                this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,address,'meta_info')
+                this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,address,'meta_info')
                 .then((res) => {
                     res.decode()
                     .then(data => {
@@ -167,7 +167,7 @@ export default {
                         this.loading = false
                     })
                 })
-                .catch(e => {
+                .catch(e => { 
                     this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                     this.loading = false
                 })

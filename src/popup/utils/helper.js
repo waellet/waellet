@@ -152,21 +152,20 @@ const redirectAfterLogin = (ctx) => {
 }
 
 
-const initializeSDK = (ctx, background = false) => {
+const initializeSDK = (ctx, {network, current, account, wallet, activeAccount},background = false) => {
     return new Promise ((resolve,reject) => {
         Universal({
-            url: ctx.network[ctx.current.network].url, 
-            internalUrl: ctx.network[ctx.current.network].internalUrl,
+            url: network[current.network].url, 
+            internalUrl: network[current.network].internalUrl,
             keypair: {
-                publicKey: ctx.account.publicKey,
-                secretKey: getHdWalletAccount(ctx.wallet,ctx.activeAccount).secretKey
+                publicKey: account.publicKey,
+                secretKey: getHdWalletAccount(wallet,activeAccount).secretKey
             },
-            networkId: ctx.network[ctx.current.network].networkId, 
+            networkId: network[current.network].networkId, 
             nativeMode: true,
             compilerUrl: 'https://compiler.aepps.com'
         }).then((sdk) => {
             if(!background) {
-                console.log("here")
                 ctx.$store.dispatch('initSdk',sdk).then(() => {
                     ctx.hideLoader()
                 })
