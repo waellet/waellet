@@ -202,7 +202,8 @@ import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout } from 'timers';
-import { getHdWalletAccount } from './utils/hdWallet';
+
+import { initializeSDK } from './utils/helper';
 
 export default {
   
@@ -453,21 +454,7 @@ export default {
       return ae;
     },
     initSDK() {
-      Universal({
-        url: this.network[this.current.network].url, 
-        internalUrl: this.network[this.current.network].internalUrl,
-        keypair: {
-            publicKey: this.account.publicKey,
-            secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey
-        },
-        networkId: this.network[this.current.network].networkId, 
-        nativeMode: true,
-        compilerUrl: 'https://compiler.aepps.com'
-      }).then((sdk) => {
-        this.$store.dispatch('initSdk',sdk).then(() => {
-          this.hideLoader()
-        })
-      })
+        initializeSDK(this)
     },
     toTokens() {
       this.dropdown.settings = false
@@ -501,7 +488,7 @@ export default {
 //     display: none; 
 // }
 @-moz-document url-prefix() {
-  .ae-main { width: 380px; }
+  .ae-main { width: 380px; margin:0 auto; }
 }
 .desktop-right { width: 100%; display: flex; justify-content: space-evenly; }
 .desktop-right #account { position: relative; left: 0; top: 0; margin-left: 0; margin-top: 0; }

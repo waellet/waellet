@@ -38,9 +38,8 @@ export default {
     locales,
     props:['data'],
     created() {
-        console.log(this.data)
         if(this.data.popup) {
-            this.port = chrome.extension.connect({ name: "conn" })
+            this.port = browser.runtime.connect({ name: "conn" })
             this.port.onMessage.addListener((msg, sender,sendResponse) => {})
         }
     },

@@ -17,7 +17,7 @@
                     <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
                     <ae-input-plain placeholder="Enter name here.." v-model="subaccount.name" />
                     <button @click="cancelEdit(index)"><ae-icon name="close" /></button>
-                    <button @click="nameSave(index)"><ae-icon name="check" /></button>
+                    <button @click="nameSave(index)"><ae-icon name="check" /></button>  
                 </div>
             </ae-list-item>
             <ae-list-item class="addaccount" fill="primary">

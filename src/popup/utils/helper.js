@@ -1,3 +1,7 @@
+import Universal from '@aeternity/aepp-sdk/es/ae/universal';
+import { getHdWalletAccount } from './hdWallet';
+
+
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -87,8 +91,6 @@ const setConnectedAepp = (host) => {
                 list = aepps.connectedAepps.list
             }
             list.push({host})
-            console.log(host)
-            console.log(list)
             browser.storage.sync.set({connectedAepps: { list }}).then(() => {
                 resolve()
             })
@@ -99,7 +101,6 @@ const setConnectedAepp = (host) => {
 const checkAeppConnected = (host) => {
     return new Promise((resolve, reject) => {
         browser.storage.sync.get('connectedAepps').then((aepps) => {
-            console.log(aepps)
             if(!aepps.hasOwnProperty('connectedAepps')) {
                 return resolve(false)
             }
@@ -151,5 +152,30 @@ const redirectAfterLogin = (ctx) => {
 }
 
 
-export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin }
+const initializeSDK = (ctx, background = false) => {
+    return new Promise ((resolve,reject) => {
+        Universal({
+            url: ctx.network[ctx.current.network].url, 
+            internalUrl: ctx.network[ctx.current.network].internalUrl,
+            keypair: {
+                publicKey: ctx.account.publicKey,
+                secretKey: getHdWalletAccount(ctx.wallet,ctx.activeAccount).secretKey
+            },
+            networkId: ctx.network[ctx.current.network].networkId, 
+            nativeMode: true,
+            compilerUrl: 'https://compiler.aepps.com'
+        }).then((sdk) => {
+            if(!background) {
+                console.log("here")
+                ctx.$store.dispatch('initSdk',sdk).then(() => {
+                    ctx.hideLoader()
+                })
+            }else {
+                resolve(sdk)
+            }
+        })
+    })
+}
+
+export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin, initializeSDK }
 

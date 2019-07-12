@@ -83,7 +83,8 @@ export default {
     },
     created(){
         if(this.data.popup) {
-            this.port = chrome.extension.connect({ name: "conn" })
+            this.port = browser.runtime.connect({ name: "conn" })
+            console.log(this.port)
             this.port.onMessage.addListener((msg, sender,sendResponse) => {})
         }
         
