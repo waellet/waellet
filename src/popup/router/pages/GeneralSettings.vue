@@ -1,6 +1,6 @@
 <template>
     <div class="popup">
-        <div class="backbtn">
+        <div class="actions">
             <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{language.buttons.backToSettings}}</button>
         </div>
         <h3 style='text-align:center;'>{{language.pages.settings.generalSettings.heading}}</h3>
@@ -15,7 +15,7 @@
                 <ae-button class="regbtn" face="icon" fill="primary" @click="registerName">
                     <ae-icon name="plus" />
                 </ae-button>
-                <small style="font-size:12px;"><ae-icon style="font-size: 15px;" name="github" />{{language.pages.settings.generalSettings.registerNameRequirement}}</small>
+                <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{language.pages.settings.generalSettings.registerNameRequirement}}</small>
             </div>
         </ae-panel>
         

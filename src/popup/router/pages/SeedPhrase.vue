@@ -42,6 +42,7 @@
                 <ae-button extend face="round" :fill="buttonFill" class="mt-3 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
                 
             </div>
+            <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
             <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
         </main>
     </div>
@@ -49,6 +50,7 @@
 
 <script>
 import locales from '../../locales/locales.json';
+import { mapGetters } from 'vuex';
 
 import {shuffleArray, fetchData} from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
@@ -88,6 +90,7 @@ export default {
         browser.storage.sync.set({confirmSeed: false}).then(() => {});
     },
     computed: {
+        ...mapGetters(['popup']),
         shiffledSeed() {
             return shuffleArray(this.seeds);
         },

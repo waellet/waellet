@@ -253,7 +253,7 @@ export const createSubAccount = () => {
   .should('contain','Test 123')
   .get('#settings')
   .click()
-  .get('.toAccount')
+  .get('.dropdown-holder > :nth-child(1) > .ae-button')
   .click();
 };
 

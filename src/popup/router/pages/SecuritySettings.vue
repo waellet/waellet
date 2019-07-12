@@ -1,6 +1,6 @@
 <template>
     <div class="popup">
-        <div class="backbtn">
+        <div class="actions">
             <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{language.buttons.backToSettings}}</button>
         </div>
         <h3 style='text-align:center;'>{{language.pages.settings.securitySettings.heading}}</h3>
@@ -58,13 +58,6 @@ export default {
 <style lang="scss">
 
 @import '../../../common/base';
-.tracker-switchbtn {
-    text-align: left;
-    margin: 10px 0 0 0;
-}
-.backbtn {
-    width: 50%; margin-top: 5px;
-}
 .regbtn{
     background: #FF0D6A;
     color: #ffffff;
@@ -104,7 +97,8 @@ input:active,input:focus {
     outline: none;
 }
 .sett_info {
-    display: block;
+    width: 79%;
     word-break: break-word;
+    float: left;
 }
 </style>

@@ -43,6 +43,7 @@
                 </div>
             </ul>
         </transition>
+        <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
 
@@ -67,7 +68,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters (['account', 'current', 'network','subaccounts','wallet'])
+        ...mapGetters (['account', 'current', 'network','subaccounts','wallet', 'popup'])
     },
     created(){
         this.setAccounts();

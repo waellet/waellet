@@ -19,9 +19,9 @@
       <template slot="header">
         <ae-text fill="white" face="mono-base">{{tokenBalance}} {{tokenSymbol}}</ae-text>
       </template>
-      <ae-address :value="account.publicKey" copyOnClick enableCopyToClipboard length="medium" gap=0 />
+      <ae-address class="accountAddress" :value="account.publicKey" copyOnClick enableCopyToClipboard length="medium" gap=0 />
       <ae-toolbar fill="primary" align="right" slot="footer">
-        <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert({ name: 'account', type: 'publicKeyCopied' })">
+        <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="copy">
           <ae-icon name="copy" />
           {{language.buttons.copy}}
         </ae-button>
@@ -47,6 +47,7 @@
         <p class="paragraph noTransactions">No transactions found!</p> 
     </div>
     <Loader :loading="loading" v-bind="{'content':''}"></Loader>
+    <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     
   </div> 
 </template>
@@ -79,7 +80,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk','tokens','tokenSymbol','tokenBalance']),
+    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk','tokens','tokenSymbol','tokenBalance', 'popup']),
     publicKey() { 
       return this.account.publicKey; 
     },
@@ -110,6 +111,9 @@ export default {
     this.updateTransactions();
   }, 
   methods: {
+    copy(){
+      this.$store.dispatch('popupAlert', { name: 'account', type: 'publicKeyCopied'});
+    },
     showAllTranactions() {
         this.$router.push('/transactions');
     },
@@ -144,9 +148,6 @@ export default {
           this.toEur = reseur.rateEur * this.balance;
         });
       });
-    },
-    popupAlert(payload) {
-      this.$store.dispatch('popupAlert', payload)
     },
     navigateSend () {
       this.$router.push('/send');
@@ -185,7 +186,9 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
-
+.accountAddress {
+  color: #fff;
+}
 .paragraph {
   font-weight: normal;
 }
@@ -198,12 +201,13 @@ export default {
   width: 49%;
 }
 .inputGroup-currencies > div{
-  display: table-cell;
-  font-weight: bold;
-  border-bottom: 2px solid #ff0d6a;
-  vertical-align: middle;
-  border-radius: 10px;
-  border-bottom-left-radius: 0;
+    display: table-cell;
+    font-weight: bold;
+    border-bottom: 2px solid #ff0d6a;
+    vertical-align: middle;
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }
 .input-group-icon{
   background: #ff0d6a;

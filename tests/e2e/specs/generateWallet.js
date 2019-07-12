@@ -5,6 +5,7 @@ import {prepareEncryptedPrivateKey, ACCOUNT_PASSWORD_STRONG, PRIVATE_KEY, mnemon
 
 
 describe('Test cases for Generate wallet', () => {
+
     it("generate waellet enter correct password", () => {
         cy.visit('popup/popup.html',{onBeforeLoad});
         cy.wait(2000);
@@ -65,7 +66,7 @@ describe('Test cases for Generate wallet', () => {
         .get('.seeds-container').should('be.visible')
         .get('button.nextStep').click()
         .get('.ae-modal-light').should('be.visible')
-        .get('.ae-modal-light button').contains('OK').click()
+        .get('.ae-modal-light button').contains('Ok').click()
         .get('.ae-modal-light').should('not.be.visible')
         .wait(10000)
         .get('button.nextStep').click()

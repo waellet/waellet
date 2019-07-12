@@ -67,17 +67,20 @@ export default {
           case 'insufficient_balance':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.INSUFFICIENT_BALANCE});
             break;
+          case 'confirm_transaction':
+            commit(types.SHOW_POPUP, {show: true, class: payload.type,data:payload.data, secondBtn:true, secondBtnClick: 'confirmTransaction', ...popupMessages.CONFIRM_TRANSACTION});
+            break;
           case 'success_transfer':
             commit(types.SHOW_POPUP,{show:true,secondBtn:true,secondBtnClick:'showTransaction',...popupMessages.SUCCESS_TRANSFER,msg:payload.msg,data:payload.data})
             break;
           case 'incorrect_address':
-                commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_ADDRESS});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_ADDRESS});
             break;
           case 'incorrect_amount':
-                commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_AMOUNT});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_AMOUNT});
             break;
           case 'transaction_failed':
-                commit(types.SHOW_POPUP,{show:true,...popupMessages.TRANSACTION_FAILED});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.TRANSACTION_FAILED});
             break;
           default:
             break;

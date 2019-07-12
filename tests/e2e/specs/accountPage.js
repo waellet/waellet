@@ -116,7 +116,7 @@ describe("Test cases for Account Page" , () => {
         .should('not.have.class','show')
         .get('#languages')
         .click()
-        .get('.sub-dropdown button').eq(0)
+        .get('#languages > .sub-dropdown > :nth-child(1) > .ae-button')
         .click()
         .get('.dropdown-holder')
         .should('not.be.visible')
@@ -183,9 +183,9 @@ describe("Test cases for Account Page" , () => {
         .should('be.visible')
         .get('.ae-overlay')
         .should('be.visible')
-        .get('.ae-modal-light .buttons button')
-        .should('have.class','alternative')
-        .click()
+        .get('.ae-modal-light > .buttons > .ae-button')
+        .contains('Ok')
+        .click({ force: true })
         .get('.ae-modal-light')
         .should('not.be.visible')
         .get('.ae-overlay')
@@ -303,8 +303,8 @@ describe("Test cases for Account Page" , () => {
             let total = parseFloat(amount) + parseFloat(fee);
             let address = cy.wrap(elem).find('.ae-address').invoke('attr', 'title').then(el => {
                 cy.wrap(elem).click();
-                cy.get('.transationFrom')
-                .should('contain',el)
+                cy.get('.transationFrom > div > input')
+                .should('have.value', el)
                 .get('.transactionAmount')
                 .should('contain',amount)
                 .get('.transactionFee')

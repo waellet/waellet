@@ -53,6 +53,7 @@
         <transition name="fadeOut">
             <span v-if="loading" class="mainLoader mainLoaderTransparent"><ae-loader /></span>
         </transition>
+        <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
 
@@ -84,7 +85,7 @@ export default {
     },
     locales,
     computed: {
-        ...mapGetters(['sdk','account','tokens'])
+        ...mapGetters(['sdk','account','tokens','popup'])
     },
     methods:{
         switchTabs(tab) {

@@ -76,8 +76,8 @@
           <!-- settings dropdown -->
           <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn" slot="mobile-right" direction="right" ref="settings">
             <button v-on:click="toggleDropdown">
-              <ae-icon class="dropdown-button-icon" name="settings" slot="button" />
-              <span class="dropdown-button-name" slot="button">{{ language.strings.settings }}</span>
+              <ae-icon class="dropdown-button-icon" name="burger" slot="button" />
+              <span class="dropdown-button-name" slot="button">{{ language.strings.menu }}</span>
             </button>
             <transition name="slide-fade">
               <ul v-if="dropdown.settings" class="dropdown-holder">
@@ -85,18 +85,6 @@
                   <ae-button @click="navigateAccount" class="toAccount">
                     <ae-icon name="home" />
                     {{ language.strings.myAccount }}
-                  </ae-button>
-                </li>
-                <li>
-                  <ae-button @click="exportKeypair('keypair')">
-                    <ae-icon name="save" />
-                    {{ language.strings.exportKeypair }}
-                  </ae-button>
-                </li>
-                <li>
-                  <ae-button @click="exportKeypair('keystore')" id="exportKeystore">
-                    <ae-icon name="save" />
-                    {{ language.strings.exportKeystore }}
                   </ae-button>
                 </li>
                 <li>
@@ -120,7 +108,6 @@
                         {{ language.strings.addToken}}
                       </ae-button>
                     </li>
-
                     <li v-for="(tkn, index) in tokens" v-if="typeof tkn.parent == 'undefined' || tkn.parent == account.publicKey" :key="index">
                       <ae-button @click="switchToken(index)" class="triggerhidedd" >
                         <ae-identicon class="token-image" :address="tkn.contract" size="base" v-if="index != 0 "/>
@@ -129,7 +116,6 @@
                       </ae-button>
                     </li>
                   </ul>
-
                 </li>
                 <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
                   <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
@@ -147,7 +133,12 @@
                       </ae-button>
                     </li>
                   </ul>
-
+                </li>
+                <li>
+                  <ae-button @click="exportKeypair('keystore')" id="exportKeystore">
+                    <ae-icon name="save" />
+                    {{ language.strings.exportKeystore }}
+                  </ae-button>
                 </li>
                 <li>
                   <ae-button @click="logout" class="toLogout">
@@ -160,34 +151,6 @@
           </div>
         <!-- logged in header END -->
       </ae-header>
-      <ae-modal-light
-        class="popup-modal"
-        v-if="popup.show"
-        @close="closePopup"
-        :title="popup.title"
-        :class="(popup.secondBtn ? 'modal-two-buttons ' : '') + (popup.class ? popup.class : '')"
-      >
-        <div v-html="popup.msg"></div>
-        <ae-button
-          size="small"
-          type="exciting"
-          class="popup-button"
-          face="round"
-          :fill="popup.buttonsFillPrimary"
-          uppercase
-          @click.native="closePopup"
-          slot="buttons"
-        >{{ popup.buttonsTextPrimary }}</ae-button>
-        <ae-button
-          v-if="popup.secondBtn"
-          class="popup-button"
-          face="round"
-          :fill="popup.buttonsFillSecondary"
-          uppercase
-          @click.native="popupSecondBtnClick"
-          slot="buttons"
-        >{{ popup.buttonsTextSecondary }}</ae-button>
-      </ae-modal-light>
     <router-view></router-view>
     <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
     <transition name="fadeOut">
@@ -333,10 +296,6 @@ export default {
         });
       });
     }, 
-    closePopup() {
-      this.$store.commit('HIDE_POPUP');
-      this.$store.commit('DEF_POPUP');
-    },
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
     },
@@ -374,27 +333,6 @@ export default {
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keystore.json");
         this.dropdown.settings = false; this.dropdown.languages = false;
-      }
-    },
-    popupSecondBtnClick(){
-      this[this.popup.secondBtnClick]();
-    },
-    showTransaction(){
-      browser.tabs.create({url: this.popup.data, active: false});
-    },
-    removeUserNetwork () {
-      let networkName = this.popup.data;
-          // deleteIndex = null;
-      if (networkName != '') {
-          let un = this.userNetworks.filter(d => {
-            return d.name != networkName
-          });
-          this.$store.dispatch('setUserNetworks', un).then(() => {
-            browser.storage.sync.set({ userNetworks: un}).then(() => {
-              delete this.$store.state.network[networkName];
-              this.closePopup();
-            });
-          });
       }
     },
     pollData() {
