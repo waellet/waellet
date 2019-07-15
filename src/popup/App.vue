@@ -87,12 +87,6 @@
                     {{ language.strings.myAccount }}
                   </ae-button>
                 </li>
-                <li>
-                  <ae-button @click="settings" class="settings">
-                    <ae-icon name="settings" />
-                    {{ language.strings.settings }}
-                  </ae-button>
-                </li>
                 <li id="tokens" class="have-subDropdown" :class="dropdown.tokens ? 'show' : ''">
                     <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
                     <ae-icon name="grid" />
@@ -118,27 +112,16 @@
                     </li>
                   </ul>
                 </li>
-                <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
-                  <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
-                    <ae-icon name="globe" />
-                    {{ language.strings.switchLanguage }}
-                    <ae-icon name="left-more" />
+                <li>
+                  <ae-button @click="utilities" class="utilities">
+                    <ae-icon name="underline" />
+                    {{ language.strings.utilities }}
                   </ae-button>
-
-                  <!-- Language sub dropdown -->
-                  <ul class="sub-dropdown">
-                    <li v-for="(value, name) in locales" v-bind:key="name">
-                      <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd" :class="current.language == name ? 'current' : ''">
-                        <img :src="'../icons/flag_'+name+'.png'" />
-                        {{ name }}
-                      </ae-button>
-                    </li>
-                  </ul>
                 </li>
                 <li>
-                  <ae-button @click="exportKeypair('keystore')" id="exportKeystore">
-                    <ae-icon name="save" />
-                    {{ language.strings.exportKeystore }}
+                  <ae-button @click="settings" class="settings">
+                    <ae-icon name="settings" />
+                    {{ language.strings.settings }}
                   </ae-button>
                 </li>
                 <li>
@@ -332,7 +315,6 @@ export default {
     },
     navigateNetworks () {
       this.$router.push('/manageNetworks');
-      this.dropdown.network = false;
     },
     myAccount () {
       this.dropdown.settings = false; this.dropdown.languages = false;
@@ -341,6 +323,10 @@ export default {
     settings () {
       this.dropdown.settings = false; this.dropdown.languages = false;
       this.$router.push('/settings');
+    },
+    utilities () {
+      this.dropdown.settings = false; this.dropdown.languages = false;
+      this.$router.push('/utilities');
     },
     manageAccounts () {
       this.$router.push('/manageAccounts');

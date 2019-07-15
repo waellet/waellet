@@ -11,7 +11,9 @@ import ManageAccount from './pages/ManageAccounts';
 import Settings from './pages/Settings';
 import GeneralSettings from './pages/GeneralSettings';
 import SecuritySettings from './pages/SecuritySettings';
+import AdvancedSettings from './pages/AdvancedSettings';
 import AboutSettings from './pages/AboutSettings';
+import Utilities from './pages/Utilities';
 import ConnectConfirmComponent from './pages/ConnectConfirm';
 import TipComponent from './pages/TipPage';
 import ManageNetworks from './pages/ManageNetworks';
@@ -86,8 +88,16 @@ export default [
     component:SecuritySettings,
   },
   {
+    path:'/advancedSettings',
+    component:AdvancedSettings,
+  },
+  {
     path:'/aboutSettings',
     component:AboutSettings,
+  },
+  {
+    path:'/utilities',
+    component:Utilities,
   },
   {
     path:'/tip',

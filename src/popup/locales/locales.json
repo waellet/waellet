@@ -28,6 +28,7 @@
         "accountName": "Account name",
         "switchLanguage" : "Language",
         "switchToken": "Tokens",
+        "utilities": "Utilities",
         "settings": "Settings",
         "menu": "Menu",
         "back": "Back",
@@ -111,6 +112,9 @@
           },
           "securitySettings": {
             "heading": "Security and Privacy"
+          },
+          "advancedSettings": {
+            "heading": "Advanced"
           },
           "aboutSettings": {
             "heading": "About"
