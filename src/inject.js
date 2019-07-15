@@ -1,12 +1,12 @@
 import { extractHostName, detectBrowser } from './popup/utils/helper';
-
+global.browser = require('webextension-polyfill');
 
 if(typeof navigator.clipboard == 'undefined') {
     redirectToWarning(extractHostName(window.location.href),window.location.href)
 } else {
     sendToBackground('phishingCheck',{ hostname:extractHostName(window.location.href), href:window.location.href })    
 }
-let aepp = chrome.runtime.getURL("aepp.js")
+let aepp = browser.runtime.getURL("aepp.js")
 fetch(aepp)
 .then(res => res.text())
 .then(res => {
@@ -19,19 +19,22 @@ window.addEventListener("message", ({data}) => {
         method = data.method
     }
     // Handle message from page and redirect to background script
-    sendToBackground(method,data)
-    .then(res => {
-        if(method == 'aeppMessage') {
-            let e = new CustomEvent('ReceiveWalletResponse', {
-                detail: res
-            })
-            window.dispatchEvent(e)
-        }
-    })
+    if(!data.hasOwnProperty("resolve")) {
+        sendToBackground(method,data).then(res => {
+            
+            if (method == 'aeppMessage') {
+                res.resolve = true
+                res.method = method
+                window.postMessage(res, "*")
+            }
+        })
+    }
+    
+    
 }, false)
 
 // Handle message from background and redirect to page
-chrome.runtime.onMessage.addListener(({ data }, sender, sendResponse) => {
+browser.runtime.onMessage.addListener(({ data, method }, sender, sendResponse) => {
     if(data.method == 'phishingCheck') {
         if(data.blocked) {
             redirectToWarning(data.params.hostname,data.params.href,data.extUrl)
@@ -49,7 +52,7 @@ const redirectToWarning = (hostname,href,extUrl = '') => {
     if(extUrl != '') {
         redirectUrl = `${extUrl}phishing/phishing.html#hostname=${hostname}&href=${href}`
     }else {
-        redirectUrl = `${extensionUrl}://${chrome.runtime.id}/phishing/phishing.html#hostname=${hostname}&href=${href}`
+        redirectUrl = `${extensionUrl}://${browser.runtime.id}/phishing/phishing.html#hostname=${hostname}&href=${href}`
     }
     window.location.href = redirectUrl
     return
@@ -70,12 +73,12 @@ const injectScript = (content) => {
 
 function sendToBackground(method, params) {
     return new Promise((resolve,reject) => {
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
             jsonrpc: "2.0",
             id: null,
             method,
             params
-        },(res) => {
+        }).then((res) => {
             resolve(res)
         })
     })
@@ -94,3 +97,5 @@ function clickSign({target, value}) {
 function signResponse({value, sdkId, tx}) {
     sendToBackground('txSign', {value, sdkId, tx})
 }
+
+

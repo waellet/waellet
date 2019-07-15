@@ -75,7 +75,7 @@
 import locales from '../../locales/locales.json';
 import {mapGetters} from 'vuex';
 import { groupBy,orderBy } from 'lodash-es'; 
-import { clearInterval } from 'timers';
+import { clearInterval, clearTimeout  } from 'timers';
 export default {
     data() {
         return {
@@ -260,8 +260,10 @@ export default {
         }
     },
     beforeDestroy () {
-      clearInterval(this.polling)
-      clearInterval(this.updateInterval)
+    //   clearInterval(this.polling)
+    //   clearInterval(this.updateInterval)
+      window.clearTimeout(this.polling)
+      window.clearTimeout(this.upadateInterval)
     }
 }
 </script>
