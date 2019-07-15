@@ -7,47 +7,55 @@
         
             <h3>{{language.pages.tokens.addHeading}}</h3>
             <div v-if="addStep == false" class="token-add-form">
-                <div class="input-container">
-                    <ae-input :label="language.pages.tokens.tokenContractLabel" >
-                        <input type="text" class="ae-input token-contract" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                        <ae-toolbar slot="footer">
-                            Valid token contract address
-                        </ae-toolbar>
-                    </ae-input>
-                </div>
-                <div class="input-container">
-                    <ae-input :label="language.pages.tokens.tokenSymbolLabel">
-                        <input type="text" :disabled="token.precisionDisabled" class="ae-input token-symbol" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                        <ae-toolbar slot="footer">
-                            Symbol between 1 and 12 characters
-                        </ae-toolbar>
-                    </ae-input>
-                </div>
-                <div class="input-container">
-                    <ae-input :label="language.pages.tokens.tokenPrecision" >
-                        <input type="text" :disabled="token.precisionDisabled" class="ae-input token-precision" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                        <ae-toolbar slot="footer" >
-                            Number between 0 and 36
-                        </ae-toolbar>
-                    </ae-input>
-                </div>
-                <ae-button face="round" fill="primary" @click="next" class="to-confirm-add" extend >{{language.pages.tokens.next}}</ae-button>
+                <ae-panel>
+                    <h4>{{language.pages.tokens.addToken}}</h4>
+                    <hr>
+                    <div class="input-container">
+                        <ae-input :label="language.pages.tokens.tokenContractLabel" >
+                            <input type="text" class="ae-input token-contract" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                            <ae-toolbar slot="footer">
+                                Valid token contract address
+                            </ae-toolbar>
+                        </ae-input>
+                    </div>
+                    <div class="input-container">
+                        <ae-input :label="language.pages.tokens.tokenSymbolLabel">
+                            <input type="text" :disabled="token.precisionDisabled" class="ae-input token-symbol" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                            <ae-toolbar slot="footer">
+                                Symbol between 1 and 12 characters
+                            </ae-toolbar>
+                        </ae-input>
+                    </div>
+                    <div class="input-container">
+                        <ae-input :label="language.pages.tokens.tokenPrecision" >
+                            <input type="text" :disabled="token.precisionDisabled" class="ae-input token-precision" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                            <ae-toolbar slot="footer" >
+                                Number between 0 and 36
+                            </ae-toolbar>
+                        </ae-input>
+                    </div>
+                    <ae-button face="round" fill="primary" @click="next" class="to-confirm-add" extend >{{language.pages.tokens.next}}</ae-button>
+                </ae-panel>
             </div>
             <div v-if="addStep" >
-                <div class="flex  flex-justify-between token-add-holder">
-                    <div>
-                        <div class="token-title">Token</div>
-                        <div class="flex ">
-                            <ae-identicon :address="token.contract" />
-                            <div class="balanceBig balance no-sign">{{token.symbol}}</div>
+                <ae-panel>
+                    <h4>{{language.pages.tokens.addToken}}</h4>
+                    <hr>
+                    <div class="flex  flex-justify-between token-add-holder">
+                        <div>
+                            <div class="token-title">Token</div>
+                            <div class="flex ">
+                                <ae-identicon :address="token.contract" />
+                                <div class="balanceBig balance no-sign">{{token.symbol}}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="token-title">Balance</div>
+                            <div class="balanceBig balance no-sign">{{token.balance}} {{token.symbol}}</div>
                         </div>
                     </div>
-                    <div>
-                        <div class="token-title">Balance</div>
-                        <div class="balanceBig balance no-sign">{{token.balance}} {{token.symbol}}</div>
-                    </div>
-                </div>
-                <ae-button face="round" fill="primary" @click="addCustomToken" class="add-token" extend >{{language.pages.tokens.addHeading}}</ae-button>
+                    <ae-button face="round" fill="primary" @click="addCustomToken" class="add-token" extend >{{language.pages.tokens.addToken}}</ae-button>
+                </ae-panel>
             </div>
         </div>
        <Loader size="big" :loading="loading" type="transparent" ></Loader>
