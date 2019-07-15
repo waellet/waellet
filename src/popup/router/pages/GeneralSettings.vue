@@ -1,6 +1,6 @@
 <template>
     <div class="popup">
-        <div class="backbtn">
+        <div class="actions">
             <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{language.buttons.backToSettings}}</button>
         </div>
         <h3 style='text-align:center;'>{{language.pages.settings.generalSettings.heading}}</h3>
@@ -15,7 +15,7 @@
                 <ae-button class="regbtn" face="icon" fill="primary" @click="registerName">
                     <ae-icon name="plus" />
                 </ae-button>
-                <small style="font-size:12px;"><ae-icon style="font-size: 15px;" name="github" />{{language.pages.settings.generalSettings.registerNameRequirement}}</small>
+                <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{language.pages.settings.generalSettings.registerNameRequirement}}</small>
             </div>
         </ae-panel>
         
@@ -29,6 +29,7 @@
         <div v-if="loading" class="loading">
             <ae-loader />
         </div>
+        <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
 
@@ -48,7 +49,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount']),
+        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount', 'popup']),
     },
     methods: {
         registerName() {
@@ -60,12 +61,14 @@ export default {
                 });
             }
             else if (!onlyLettersAndNums.test(this.name)) {
+                console.log('asd');
                 this.$store.dispatch('popupAlert', {
                     name: 'account',
                     type: 'only_allowed_chars'
                 });
             }
             else {
+                console.log('XXX');
                 const {Universal} = require('@aeternity/aepp-sdk');
                 const main = async (name) => {
                     const   publicKey = this.account.publicKey,
@@ -131,7 +134,7 @@ export default {
 .input-group-addon {
     background: #ececec;
     border: 1px solid #ccc;
-    width: 80%;
+    width: 79%;
     height: 56px;
     float: left;
 }
@@ -153,8 +156,9 @@ input:active,input:focus {
     outline: none;
 }
 .sett_info {
+    text-align: left;
+    width: 100%;
     display: block;
     word-break: break-word;
-    text-align: left;
 }
 </style>

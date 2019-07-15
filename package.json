@@ -1,6 +1,6 @@
 {
   "name": "waellet",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "waellet - aeternity browser extension",
   "author": "Milen Radkov <milenradkov@me.com>",
   "license": "MIT",
@@ -48,6 +48,8 @@
     "node-fetch": "^2.3.0",
     "nyc": "^14.1.1",
     "qrcode.vue": "^1.6.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
     "sass-loader": "^7.1.0",
     "tweetnacl": "^1.0.1",
     "uuid": "^3.3.2",

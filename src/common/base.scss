@@ -83,6 +83,7 @@ main {
 }
 .modal-two-buttons .ae-modal-light {
   position:relative;
+  width: 100%;
 }
 .modal-two-buttons .buttons {
   position:absolute;
@@ -102,6 +103,9 @@ main {
 }
 .ae-overlay .ae-modal-light .buttons { 
   margin-top:5px !important;  
+}
+.ae-overlay .ae-modal-light h1 {
+  word-break: break-word;
 }
 .ae-overlay .ae-modal-light main { 
   padding-bottom:1rem; 
@@ -326,6 +330,7 @@ main {
 .balanceTotalSpend {
   color:$primary-color;
 }
+.popup-modal { width: 100%; }
 .popup-button { width:60%; }
 
 .backbutton {
@@ -337,7 +342,7 @@ main {
   vertical-align: top;
   line-height: 15px;
 }
-.filterModal .ae-modal-light {
+.ae-modal-light {
   width:100% !important;
 }
 .input-container {

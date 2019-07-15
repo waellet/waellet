@@ -36,6 +36,7 @@
                 </div>
             </ul>
         </transition>
+        <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
 
@@ -58,12 +59,26 @@ export default {
         }
     },
     computed: {
-        ...mapGetters (['current', 'userNetworks', 'wallet'])
+        ...mapGetters (['current', 'userNetworks', 'wallet', 'popup'])
     },
     created(){
 
     },
     methods: {
+        removeUserNetwork () {
+        let networkName = this.popup.data;
+            // deleteIndex = null;
+        if (networkName != '') {
+            let un = this.userNetworks.filter(d => {
+                return d.name != networkName
+            });
+            this.$store.dispatch('setUserNetworks', un).then(() => {
+                browser.storage.sync.set({ userNetworks: un}).then(() => {
+                delete this.$store.state.network[networkName];
+                });
+            });
+        }
+        },
         removeUserNetworkCheck (name) {
             if (this.$store.state.current.network == name) {
                 this.$store.dispatch('popupAlert', {

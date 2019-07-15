@@ -43,12 +43,14 @@
                 
             </div>
             <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
+            <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         </main>
     </div>
 </template>
 
 <script>
 import locales from '../../locales/locales.json';
+import { mapGetters } from 'vuex';
 
 import {shuffleArray, fetchData} from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
@@ -88,6 +90,7 @@ export default {
         browser.storage.sync.set({confirmSeed: false}).then(() => {});
     },
     computed: {
+        ...mapGetters(['popup']),
         shiffledSeed() {
             return shuffleArray(this.seeds);
         },
@@ -182,11 +185,6 @@ export default {
                                                     this.$store.commit('SET_WALLET', wallet);
                                                     this.$router.push('/account');
                                                     this.generated = true;
-                                                    browser.storage.sync.get('allowTracking').then(result => {
-                                                        if(result.allowTracking == true) {
-                                                            fetchData('https://stats.waellet.com/user/created', 'post', this.generated);
-                                                        }
-                                                    });
                                                 });
                                             });
                                         });
@@ -229,18 +227,19 @@ export default {
 @import '../../../common/base';
 .attentionHolder h1 {
     color: red;
-    font-size: 50px;
+    font-size: 35px;
     margin: 0;
 }
 .attentionHolder h1 div {
     border: 3px solid;
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     margin: auto;
 }
 .attentionHolder h3 {
     word-break: break-word;
+    margin: 1.5rem 0 1.5rem;
 }
 .attentionHolder h4, .attentionHolder ul {
     margin: 0;

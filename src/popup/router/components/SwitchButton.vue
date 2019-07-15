@@ -32,6 +32,7 @@ export default {
   display: inline-block;
   width: 60px;
   height: 34px;
+  margin: 10px 0px 0px 0px;
 }
 
 .switch input { 
@@ -65,11 +66,11 @@ export default {
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: #ff0d6a;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px #ff0d6a;
 }
 
 input:checked + .slider:before {

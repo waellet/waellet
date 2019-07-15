@@ -1,16 +1,9 @@
 <template>
     <div class="popup">
-        <div class="backbtn">
+        <div class="actions">
             <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{language.buttons.backToSettings}}</button>
         </div>
         <h3 style='text-align:center;'>{{language.pages.settings.securitySettings.heading}}</h3>
-        <ae-panel>
-            <div class="maindiv_input-group-addon">
-                <h4>Waellet Statistic Track</h4><hr>
-                <small class="sett_info">Take part in the Waellet statistics</small>
-                <switchButton class="tracker-switchbtn" :onChange="onChange" :onoff="onoff"></switchButton>
-            </div>
-        </ae-panel>
         <ae-panel>
             <div class="maindiv_input-group-addon">
                 <h4>Privacy Data</h4><hr>
@@ -18,6 +11,7 @@
                 <ae-button face="round" fill="primary" class="settingBtn" extend @click="clearPrivacyData">Clear Privacy Data</ae-button>
             </div>
         </ae-panel>
+        <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <div v-if="loading" class="loading">
             <ae-loader />
         </div>
@@ -38,7 +32,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount']),
+        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','popup']),
     },
     created() {
         browser.storage.sync.get('allowTracking').then((result) => {
@@ -48,15 +42,6 @@ export default {
     methods: {
         navigateToSettings() {
             this.$router.push('/settings')
-        },
-        onChange(){
-            this.onoff = !this.onoff;
-            if (this.onoff == true) {
-                browser.storage.sync.set({allowTracking:  true}).then(() => {});
-            }
-            if (this.onoff == false) {
-                browser.storage.sync.set({allowTracking:  false}).then(() => {});
-            }
         },
         clearPrivacyData( ) {
             //confirm window to be addeded here after merge with the others 
@@ -69,13 +54,6 @@ export default {
 <style lang="scss">
 
 @import '../../../common/base';
-.tracker-switchbtn {
-    text-align: left;
-    margin: 10px 0 0 0;
-}
-.backbtn {
-    width: 50%; margin-top: 5px;
-}
 .regbtn{
     background: #FF0D6A;
     color: #ffffff;
@@ -93,7 +71,7 @@ export default {
 .input-group-addon {
     background: #ececec;
     border: 1px solid #ccc;
-    width: 80%;
+    width: 79%;
     height: 56px;
     float: left;
 }
@@ -113,10 +91,6 @@ export default {
 input:active,input:focus {
     border: none;
     outline: none;
-}
-.sett_info {
-    display: block;
-    word-break: break-word;
 }
 .settingBtn {
     margin-top:1rem

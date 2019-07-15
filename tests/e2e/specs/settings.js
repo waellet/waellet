@@ -21,7 +21,7 @@ describe("Test cases for Settings Page", () => {
         .should('not.be.visible')
         .get('.settingslist')
         .should('be.visible')
-        .get('.backbtn .toAccount')
+        .get('.backbutton')
         .should('be.visible')
         .click()
         .get('.ae-card.primary')

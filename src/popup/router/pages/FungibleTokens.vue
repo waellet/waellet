@@ -58,7 +58,8 @@
                 </ae-panel>
             </div>
         </div>
-       <Loader size="big" :loading="loading" type="transparent" ></Loader>
+        <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
+        <Loader size="big" :loading="loading" type="transparent" ></Loader>
     </div>
 </template>
 
@@ -90,7 +91,7 @@ export default {
     },
     locales,
     computed: {
-        ...mapGetters(['sdk','account','tokens'])
+        ...mapGetters(['sdk','account','tokens','popup'])
     },
     methods:{
         switchTabs(tab) {

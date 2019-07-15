@@ -130,7 +130,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .should('contain','Main account');
     });
 
-    //Test fail because of mainnet middleware CORS
+    // Test fail because of mainnet middleware CORS
     // it("change network and check balances", () => {
     //     login()
     //     cy

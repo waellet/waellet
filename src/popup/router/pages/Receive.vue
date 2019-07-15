@@ -10,12 +10,13 @@
       </div>
       <ae-address :value="account.publicKey" gap=0 />
       <ae-toolbar fill="neutral" align="right" slot="footer">
-        <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="popupAlert({ name: 'account', type: 'publicKeyCopied' })">
+        <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="copy">
           <ae-icon name="copy" />
           {{ language.buttons.copy }}
         </ae-button>
       </ae-toolbar>
     </ae-card>
+    <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
 
   </div>
 </template>
@@ -38,12 +39,12 @@ export default {
   },
   locales,
   computed: {
-    ...mapGetters(['account'])
+    ...mapGetters(['account','popup'])
   },
   methods: {
-    popupAlert(payload) {
-      this.$store.dispatch('popupAlert', payload)
-    },
+      copy(){
+          this.$store.dispatch('popupAlert', { name: 'account', type: 'publicKeyCopied'});
+      },
     navigateAccount() {
       this.$router.push('/account')
     }
