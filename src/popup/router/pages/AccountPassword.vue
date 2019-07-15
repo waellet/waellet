@@ -20,7 +20,7 @@
                 <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
             </div>
         </main>
-    </div>
+    </div> 
 </template>
 <script>
 import locales from '../../locales/locales.json';

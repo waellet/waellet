@@ -1,3 +1,4 @@
+
 const Aepp = {
     request: {
         sign({ recipientId, amount }){
@@ -46,6 +47,7 @@ const Aepp = {
                     resolve(res)
                 })
             })
+            
         },
         connect() {
             let req = {
@@ -58,9 +60,30 @@ const Aepp = {
                 }
             }
             window.postMessage(req, '*')
-            return new Promise((resolve,reject) => {
-                receiveResponse((res) => {
-                    resolve(res)
+            return new window.Promise((resolve,reject) => {
+                receiveResponse((r) => {
+                    resolve(r)
+                })
+            })
+        },
+        contractCall({source,address, method, params}) {
+            console.log(address)
+            console.log(method)
+            console.log(params)
+            let req = {
+                method: "aeppMessage",
+                type:"contractCall",
+                params: {
+                    source,
+                    address,
+                    method,
+                    params
+                }
+            }
+            window.postMessage(req, '*')
+            return new Promise((resolve, reject) => {
+                receiveResponse((r) => {
+                    resolve(r)
                 })
             })
         }
@@ -83,10 +106,12 @@ const Aepp = {
 }
 
 const receiveResponse = (cb) => {
-    window.addEventListener('ReceiveWalletResponse', (e) => {
-        cb(e.detail) 
-        window.removeEventListener('ReceiveWalletResponse', () => {})
-    })
+    window.addEventListener("message", ({data}) => {
+        if(data.method == "aeppMessage" && data.hasOwnProperty("resolve")) {
+            cb(data)
+        }
+    });
 }
+
 
 window.Aepp = Aepp 

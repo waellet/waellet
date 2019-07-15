@@ -21,4 +21,5 @@ export const INIT_SDK = 'INIT_SDK';
 export const SET_TOKENS = 'SET_TOKENS';
 export const UPDATE_TOKENS_BALANCE = 'UPDATE_TOKENS_BALANCE';
 export const UNSET_TOKENS = 'UNSET_TOKENS';
+export const SET_ACTIVE_TOKEN = 'SET_ACTIVE_TOKEN';
 export const SET_AEPP_POPUP = 'SET_AEPP_POPUP';
