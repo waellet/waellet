@@ -76,8 +76,8 @@
           <!-- settings dropdown -->
           <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn && !aeppPopup" :slot="mobileRight" direction="right" ref="settings">
             <button v-on:click="toggleDropdown">
-              <ae-icon class="dropdown-button-icon" name="settings" slot="button" />
-              <span class="dropdown-button-name" slot="button">{{ language.strings.settings }}</span>
+              <ae-icon class="dropdown-button-icon" name="burger" slot="button" />
+              <span class="dropdown-button-name" slot="button">{{ language.strings.menu }}</span>
             </button>
             <transition name="slide-fade">
               <ul v-if="dropdown.settings" class="dropdown-holder">
@@ -85,18 +85,6 @@
                   <ae-button @click="navigateAccount" class="toAccount">
                     <ae-icon name="home" />
                     {{ language.strings.myAccount }}
-                  </ae-button>
-                </li>
-                <li>
-                  <ae-button @click="exportKeypair('keypair')">
-                    <ae-icon name="save" />
-                    {{ language.strings.exportKeypair }}
-                  </ae-button>
-                </li>
-                <li>
-                  <ae-button @click="exportKeypair('keystore')" id="exportKeystore">
-                    <ae-icon name="save" />
-                    {{ language.strings.exportKeystore }}
                   </ae-button>
                 </li>
                 <li>
@@ -129,7 +117,6 @@
                       </ae-button>
                     </li>
                   </ul>
-
                 </li>
                 <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
                   <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
@@ -147,7 +134,12 @@
                       </ae-button>
                     </li>
                   </ul>
-
+                </li>
+                <li>
+                  <ae-button @click="exportKeypair('keystore')" id="exportKeystore">
+                    <ae-icon name="save" />
+                    {{ language.strings.exportKeystore }}
+                  </ae-button>
                 </li>
                 <li>
                   <ae-button @click="logout" class="toLogout">
@@ -160,34 +152,6 @@
           </div>
         <!-- logged in header END -->
       </ae-header>
-      <ae-modal-light
-        class="popup-modal"
-        v-if="popup.show"
-        @close="closePopup"
-        :title="popup.title"
-        :class="(popup.secondBtn ? 'modal-two-buttons ' : '') + (popup.class ? popup.class : '')"
-      >
-        <div v-html="popup.msg"></div>
-        <ae-button
-          size="small"
-          type="exciting"
-          class="popup-button"
-          face="round"
-          :fill="popup.buttonsFillPrimary"
-          uppercase
-          @click.native="closePopup"
-          slot="buttons"
-        >{{ popup.buttonsTextPrimary }}</ae-button>
-        <ae-button
-          v-if="popup.secondBtn"
-          class="popup-button"
-          face="round"
-          :fill="popup.buttonsFillSecondary"
-          uppercase
-          @click.native="popupSecondBtnClick"
-          slot="buttons"
-        >{{ popup.buttonsTextSecondary }}</ae-button>
-      </ae-modal-light>
     <router-view></router-view>
     <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
     <Loader size="big" :loading="mainLoading"></Loader>
@@ -292,6 +256,8 @@ export default {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
       browser.storage.sync.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
+        this.dropdown.account = false;
+        this.$store.commit('RESET_TRANSACTIONS',[]);
       });
     },
     hideMenu (event) {
@@ -332,8 +298,9 @@ export default {
       this.$store.commit('RESET_TRANSACTIONS',[]);
     },
     switchNetwork (network) {
+      this.dropdown.network = false;
       this.$store.dispatch('switchNetwork', network).then(() => {
-        this.$store.state.aeAPI = this.fetchApi();
+        this.initSDK();
         this.$store.dispatch('updateBalance');
         let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
         transactions.then(res => {
@@ -346,6 +313,7 @@ export default {
         browser.storage.sync.set({wallet: ''}).then(() => {
           browser.storage.sync.set({activeAccount: 0}).then(() => {
             this.dropdown.settings = false;
+            this.dropdown.languages = false;
             this.dropdown.account = false;
             this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
             this.$store.commit('UNSET_SUBACCOUNTS');
@@ -357,10 +325,6 @@ export default {
         });
       });
     }, 
-    closePopup() {
-      this.$store.commit('HIDE_POPUP');
-      this.$store.commit('DEF_POPUP');
-    },
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
     },
@@ -370,13 +334,14 @@ export default {
     },
     navigateNetworks () {
       this.$router.push('/manageNetworks');
+      this.dropdown.network = false;
     },
     myAccount () {
-      this.dropdown.settings = false;
+      this.dropdown.settings = false; this.dropdown.languages = false;
       this.$router.push('/account');
     },
     settings () {
-      this.dropdown.settings = false;
+      this.dropdown.settings = false; this.dropdown.languages = false;
       this.$router.push('/settings');
     },
     manageAccounts () {
@@ -387,6 +352,7 @@ export default {
         let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keypair.json");
+        this.dropdown.settings = false; this.dropdown.languages = false; 
       }else if(type == 'keystore') {
         let blobData = "";
         try {
@@ -396,27 +362,7 @@ export default {
         }
         let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
         saveAs(blob, "keystore.json");
-      }
-    },
-    popupSecondBtnClick(){
-      this[this.popup.secondBtnClick]();
-    },
-    showTransaction(){
-      browser.tabs.create({url: this.popup.data, active: false});
-    },
-    removeUserNetwork () {
-      let networkName = this.popup.data;
-          // deleteIndex = null;
-      if (networkName != '') {
-          let un = this.userNetworks.filter(d => {
-            return d.name != networkName
-          });
-          this.$store.dispatch('setUserNetworks', un).then(() => {
-            browser.storage.sync.set({ userNetworks: un}).then(() => {
-              delete this.$store.state.network[networkName];
-              this.closePopup();
-            });
-          });
+        this.dropdown.settings = false; this.dropdown.languages = false;
       }
     },
     pollData() {
@@ -551,7 +497,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .dropdown ul.sub-dropdown { box-shadow: none; visibility: hidden; max-height:0; padding: 0; overflow: hidden; transition: all 0.3s ease-in-out; }
 .dropdown .have-subDropdown.show ul.sub-dropdown { visibility: visible; max-height: 165px; }
 .dropdown ul.sub-dropdown .ae-button { padding: 0 2rem; }
-.dropdown ul li .ae-button { width: 100%; text-align: left; margin: 0; padding: 0 1rem; white-space: nowrap; justify-content: unset; }
+.dropdown ul li .ae-button { font-size: 14px; width: 100%; color: #000; text-align: left;  margin: 0; padding: 0 1rem; white-space: nowrap; justify-content: unset; }
 .dropdown ul li .ae-button .ae-icon-left-more { margin-top: 3px; transition: all 0.3s; }
 .dropdown .have-subDropdown.show .ae-button .ae-icon-left-more { transform: rotate(90deg); }
 .dropdown li { color: #717C87; margin: 0; }

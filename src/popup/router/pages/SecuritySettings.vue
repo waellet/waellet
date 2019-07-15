@@ -1,6 +1,6 @@
 <template>
     <div class="popup">
-        <div class="backbtn">
+        <div class="actions">
             <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{language.buttons.backToSettings}}</button>
         </div>
         <h3 style='text-align:center;'>{{language.pages.settings.securitySettings.heading}}</h3>
@@ -11,6 +11,7 @@
                 <ae-button face="round" fill="primary" class="settingBtn" extend @click="clearPrivacyData">Clear Privacy Data</ae-button>
             </div>
         </ae-panel>
+        <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <div v-if="loading" class="loading">
             <ae-loader />
         </div>
@@ -31,7 +32,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount']),
+        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','popup']),
     },
     created() {
         browser.storage.sync.get('allowTracking').then((result) => {
@@ -53,13 +54,6 @@ export default {
 <style lang="scss">
 
 @import '../../../common/base';
-.tracker-switchbtn {
-    text-align: left;
-    margin: 10px 0 0 0;
-}
-.backbtn {
-    width: 50%; margin-top: 5px;
-}
 .regbtn{
     background: #FF0D6A;
     color: #ffffff;
@@ -77,7 +71,7 @@ export default {
 .input-group-addon {
     background: #ececec;
     border: 1px solid #ccc;
-    width: 80%;
+    width: 79%;
     height: 56px;
     float: left;
 }
@@ -97,10 +91,6 @@ export default {
 input:active,input:focus {
     border: none;
     outline: none;
-}
-.sett_info {
-    display: block;
-    word-break: break-word;
 }
 .settingBtn {
     margin-top:1rem

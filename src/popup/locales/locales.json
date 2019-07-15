@@ -65,6 +65,7 @@
           "txTo":"To",
           "txHash":"Tx hash",
           "transactions":"Transactions",
+          "backToTransactions":"back to Transactions",
           "explorer":"View in explorer",
           "txName":"Name",
           "txAccount":"Account"

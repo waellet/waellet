@@ -51,10 +51,8 @@ const onBeforeLoad = (win,mock = '') => {
                 }
            }
        }
-        win.browser = win.chrome
         win.chrome.storage.sync.set({allowTracking: false},()=>{});
         window.chrome = win.chrome;
-        window.browser = win.browser
         if(mock == 'account') {
             const account = {
                 publicKey:"ak_d45oN2qzS1vqdiWVYCfDeWLVb3EepWxAJrsDbCSmnYiZguerw",

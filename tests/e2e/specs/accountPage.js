@@ -27,20 +27,21 @@ describe("Test cases for Account Page" , () => {
         .click()
         .get('.dropdown-holder')
         .should('be.visible')
-        .get('.dropdown-holder li button').eq(0)
-        .should('have.class','current')
-        .get('.dropdown-holder li button').eq(1)
+        .get('.dropdown-holder li').eq(0)
+        .should('have.class','activeAccount')
+        .get('.dropdown-holder li').eq(1)
         .click()
         .get('#network')
         .click()
-        .get('.dropdown-holder li button').eq(1)
-        .should('have.class','current')
+        .get('.dropdown-holder li').eq(1)
+        .should('have.class','activeAccount')
+        .get('#network')
         .click()
         .get('.dropdown-holder')
         .should('not.be.visible')
         .get('.ae-card-header p')
         .should((elem) => {
-            expect(elem.text()).to.equal('0 AE');
+            expect(elem.text()).not.to.equal('0 AE')
         });
     });
 
@@ -116,7 +117,7 @@ describe("Test cases for Account Page" , () => {
         .should('not.have.class','show')
         .get('#languages')
         .click()
-        .get('.sub-dropdown button').eq(0)
+        .get('#languages > .sub-dropdown > :nth-child(1) > .ae-button')
         .click()
         .get('.dropdown-holder')
         .should('not.be.visible')
@@ -183,9 +184,9 @@ describe("Test cases for Account Page" , () => {
         .should('be.visible')
         .get('.ae-overlay')
         .should('be.visible')
-        .get('.ae-modal-light .buttons button')
-        .should('have.class','alternative')
-        .click()
+        .get('.ae-modal-light > .buttons > .ae-button')
+        .contains('Ok')
+        .click({ force: true })
         .get('.ae-modal-light')
         .should('not.be.visible')
         .get('.ae-overlay')
@@ -300,11 +301,11 @@ describe("Test cases for Account Page" , () => {
         .get('.transactionList .list-item-transaction').eq(0).then(elem => {
             let amount= elem.find('div.balance').text();
             let fee = elem.find('small .balance').text();
-            let total = parseFloat(amount) + parseFloat(fee);
+            let total = (parseFloat(amount) + parseFloat(fee)).toFixed(7);
             let address = cy.wrap(elem).find('.ae-address').invoke('attr', 'title').then(el => {
                 cy.wrap(elem).click();
                 cy.get('.transationFrom')
-                .should('contain',el)
+                .should('have.value', el)
                 .get('.transactionAmount')
                 .should('contain',amount)
                 .get('.transactionFee')

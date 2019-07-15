@@ -18,6 +18,9 @@ const config = {
     'phishing/phishing':'./phishing/phishing.js',
     "aepp":'./aepp.js'
   },
+  node: {
+    fs: 'empty', net: 'empty', tls: 'empty'
+  },
   output: {
     path: __dirname + '/dist',
     filename: '[name].js',

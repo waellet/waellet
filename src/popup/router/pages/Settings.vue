@@ -1,6 +1,6 @@
 <template>
     <div class="popup">
-        <div class="backbtn">
+        <div class="actions">
             <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
         </div>
         <h3 style='text-align:center;'>{{language.pages.settings.heading}}</h3>
