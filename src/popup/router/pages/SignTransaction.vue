@@ -11,20 +11,37 @@
                     <ae-icon name="left-more" />
                 </div>
                 <div class="flex flex-align-center accountTo">
-                    <ae-identicon :address="data.tx.recipientId" />
-                    <ae-address :value="data.tx.recipientId" length="short" class="spendAccountAddr" />
+                    <ae-identicon :address="receiver" />
+                    <ae-address :value="receiver" length="short" class="spendAccountAddr" />
                 </div>
             </ae-list-item>
-            <ae-list-item fill="neutral" class="flex-justify-between">
+            <ae-list-item fill="neutral" class="flex-justify-between flex-align-start flex-direction-column">
+                <div>
+                    <ae-badge v-if="data.type=='contractCall'">Contract Call</ae-badge>
+                    <ae-badge>{{txType}}</ae-badge>
+                </div>
                 <div class="balance balanceSpend">{{amount}}</div>
+                <div class="fiat-rate">${{convertCurrency(usdRate,amount)}}</div>
             </ae-list-item>
-            <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
-                <div>{{language.pages.transactionDetails.fee}}</div>
-                <div class="balance balanceBig txFee">{{fee}}</div>
+            <ae-list-item fill="neutral" class="flex-justify-between whiteBg flex-direction-column flex-align-center ">
+                <div class="flex extend flex-justify-between flex-align-center">
+                    <div>{{language.pages.transactionDetails.fee}}</div>
+                    <div class="text-right">
+                        <div class="balance balanceBig txFee">{{selectedFee}}</div>
+                        <div class="fiat-rate">${{convertCurrency(usdRate,selectedFee)}}</div>
+                    </div>
+                </div>
+                <div class="range-slider">
+                    <div class="sliderOver"></div>
+                    <input class="range-slider__range" type="range"  :min="txFee" :max="maxFee" step="0.000001" v-model="selectedFee">
+                </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div>{{language.pages.transactionDetails.total}}</div>
-                <div class="balance balanceBig balanceTotalSpend">{{totalSpend}}</div>
+                <div class="text-right">
+                    <div class="balance balanceBig balanceTotalSpend">{{totalSpend}}</div>
+                    <div class="fiat-rate">${{convertCurrency(usdRate,totalSpend)}}</div>
+                </div>
             </ae-list-item>
          </ae-list>
          <Alert fill="primary" :show="alertMsg != ''">
@@ -36,19 +53,20 @@
             <ae-button face="round" fill="primary" @click="cancelTransaction" class="reject">{{language.pages.signTx.reject}}</ae-button>
             <ae-button face="round" fill="alternative" class="confirm" :class="signDisabled ? 'disabled' : '' " @click="signTransaction">{{language.pages.signTx.confirm}}</ae-button>
         </ae-button-group>
-        <Loader size="big" :loading="loading" type="transparent" ></Loader>
+        <Loader size="big" :loading="loading" :type="loaderType" :content="loaderContent" ></Loader>
     </div>
 </template>
 
 <script>
 import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
-import { convertToAE } from '../../utils/helper';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
+import { convertToAE, currencyConv, convertAmountToCurrency } from '../../utils/helper';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE } from '../../utils/constants';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import BigNumber from 'bignumber.js';
+import { clearInterval, clearTimeout  } from 'timers';
 
 export default {
     data(){
@@ -60,6 +78,8 @@ export default {
             alertMsg:'',
             language: locales['en'],
             loading:false,
+            loaderType:'transparent',
+            loaderContent:"",
             errorTx:  {
                 "error": {
                     "code": 1,
@@ -70,7 +90,11 @@ export default {
                 },
                 "id": null,
                 "jsonrpc": "2.0"
-            }
+            },
+            selectedFee:0,
+            usdRate:0,
+            eurRate:0,
+            checkSDKReady:null
         };
     },
     props:['data'],
@@ -79,12 +103,28 @@ export default {
 
     }, 
     mounted() {
-    browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { })
+        if(typeof this.data.callType != "undefined" && this.data.callType == 'static') {
+            this.loaderType = ''
+            this.loading = true
+            this.loaderContent = "Calling contract method. Please do not close the window"
+            this.checkSDKReady = setInterval(async () => {
+                console.log(this.sdk)
+                if(this.sdk != null) {
+                    window.clearTimeout(this.checkSDKReady)
+                    let byteCode = await this.checkSourceByteCode(this.data.tx.source)
+                    console.log(byteCode)
+                    let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
+                    // this.contractCallStatic(this.data.tx)
+                }
+            },500)
+        }
+        browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { })
     },
     created(){
+        this.selectedFee = this.fee.toFixed(7)
+        currencyConv(this)
         if(this.data.popup) {
             this.port = browser.runtime.connect({ name: "conn" })
-            console.log(this.port)
             this.port.onMessage.addListener((msg, sender,sendResponse) => {})
         }
         
@@ -93,29 +133,52 @@ export default {
         },3500)
     },
     computed: {
-        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount']),
+        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk']),
         maxValue() {
             let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
         },
         amount() {
-            return this.data.tx.amount
+            return typeof this.data.tx.amount != "undefined" ? this.data.tx.amount : 0
         },
         fee() {
             return this.txFee
         },
         totalSpend() {
-            return (parseFloat(this.amount) + parseFloat(this.fee.toFixed())).toFixed(7)
+            return (parseFloat(this.amount) + parseFloat(this.selectedFee)).toFixed(7)
         },
         insufficientBalance() {
             return this.maxValue - this.amount <= 0
         },
         inccorectAddress() {
-            return this.data.tx.recipientId == ""
+            return this.receiver == ""
         },
         watchBalance() {
             return this.balance
-        }
+        },
+        receiver() {
+            if(this.data.type == 'txSign') {
+                return this.data.tx.recipientId
+            }else if(this.data.type == 'contractCall') {
+                return this.data.tx.address
+            }
+        },
+        txType() {
+            if(this.data.type == 'txSign') {
+                return "Spend"
+            }else if(this.data.type == 'contractCall') {
+                if(this.data.tx.method != "" ) {
+                    return this.data.tx.method
+                }
+                return "Contract Call"
+            }else if(this.data.tyoe == "contractDeploy") {
+                return "Contract Deploy"
+            }
+        },
+        maxFee() {
+            return MAX_REASONABLE_FEE.toFixed(7)
+        },
+
     },
     watch:{ 
         watchBalance() {
@@ -156,82 +219,119 @@ export default {
             browser.storage.sync.remove('pendingTransaction').then(() => {});
             browser.storage.sync.remove('showAeppPopup').then(() => {});  
         },
+        signSpendTx(amount) {
+            Wallet({
+                url: this.network[this.current.network].url,
+                internalUrl: this.network[this.current.network].internalUrl,
+                accounts: [
+                MemoryAccount({
+                    keypair: {
+                    secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey,
+                    publicKey: this.account.publicKey
+                    },
+                    networkId: this.network[this.current.network].networkId
+                })
+                ],
+                address: this.account.publicKey,
+                onTx: confirm, // guard returning boolean
+                onChain: confirm, // guard returning boolean
+                onAccount: confirm, // guard returning boolean
+                onContract: confirm, // guard returning boolean
+                networkId: this.network[this.current.network].networkId
+            })
+            .then(ae => {
+                ae.spend(parseInt(amount), this.receiver, { gas: this.selectedFee}).then(result => {
+                    if(typeof result == "object") {
+                        this.loading = false
+                        let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
+                        let msg = 'You send ' + this.amount + ' AE'
+                        if(this.data.popup) {
+                            let res = {
+                                "id": null,
+                                "jsonrpc": "2.0",
+                                "method":"aeppMessage",
+                                "params":{...result}
+                                
+                            }
+                            this.port.postMessage(res)
+                            this.removeTxStorageData()
+                            setTimeout(() => {
+                                window.close()
+                            },1000)
+                        }else {
+                            this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl})
+                            .then(() => {
+                                this.$store.commit('SET_AEPP_POPUP',false)
+                                this.removeTxStorageData()
+                                this.$router.push('/account');
+                            })
+                        }
+                    }
+                    else {
+                        
+                    }
+                })
+                .catch(err => {
+                    if(this.data.popup) {
+                        this.port.postMessage(this.errorTx)
+                        this.removeTxStorageData()
+                    }else {
+                        this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                    }
+                    this.loading = false;
+                    return;
+                });
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        },
+        async contractCallStatic(tx) {
+            let call = await this.sdk.contractCallStatic(tx.source,tx.address,tx.method,tx.params)
+            let decoded = await call.decode()
+            call.decoded = decoded
+            this.port.postMessage(call)
+            this.removeTxStorageData()
+            setTimeout(() => {
+                window.close()
+            },1000)
+        },
+        contractCall(){
+
+        },
         signTransaction() {
             if(!this.signDisabled) {
                 this.loading = true
                 let amount = BigNumber(this.amount).shiftedBy(MAGNITUDE);
                 try {
-                    Wallet({
-                        url: this.network[this.current.network].url,
-                        internalUrl: this.network[this.current.network].internalUrl,
-                        accounts: [
-                        MemoryAccount({
-                            keypair: {
-                            secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey,
-                            publicKey: this.account.publicKey
-                            },
-                            networkId: this.network[this.current.network].networkId
-                        })
-                        ],
-                        address: this.account.publicKey,
-                        onTx: confirm, // guard returning boolean
-                        onChain: confirm, // guard returning boolean
-                        onAccount: confirm, // guard returning boolean
-                        onContract: confirm, // guard returning boolean
-                        networkId: this.network[this.current.network].networkId
-                    })
-                    .then(ae => {
-                        ae.spend(parseInt(amount), this.data.tx.recipientId).then(result => {
-                            if(typeof result == "object") {
-                                this.loading = false
-                                let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
-                                let msg = 'You send ' + this.amount + ' AE'
-                                if(this.data.popup) {
-                                    let res = {
-                                        "id": null,
-                                        "jsonrpc": "2.0",
-                                        "method":"aeppMessage",
-                                        "params":{...result}
-                                        
-                                    }
-                                    this.port.postMessage(res)
-                                    this.removeTxStorageData()
-                                    setTimeout(() => {
-                                        window.close()
-                                    },1000)
-                                }else {
-                                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl})
-                                    .then(() => {
-                                        this.$store.commit('SET_AEPP_POPUP',false)
-                                        this.removeTxStorageData()
-                                        this.$router.push('/account');
-                                    })
-                                }
-                            }
-                            else {
-                                
-                            }
-                        })
-                        .catch(err => {
-                            if(this.data.popup) {
-                                this.port.postMessage(this.errorTx)
-                                this.removeTxStorageData()
-                            }else {
-                                this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
-                            }
-                            this.loading = false;
-                            return;
-                        });
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    });
+                    if(this.data.type == 'txSign') {
+                        this.signSpendTx(amount)
+                    }else if(this.data.type == 'contractCall') {
+                        if(this.data.callType == 'static') {
+                           
+                        }else if(this.data.callType == 'pay') {
+                            this.contractCall()
+                        }
+                    }
                 }catch(err) {
                     console.log(err);
                 }
-                
-
             }
+        },
+        convertCurrency(currency, amount) {
+            return parseFloat(convertAmountToCurrency(currency,amount)).toFixed(7)
+        },
+        async checkSourceByteCode(source) {
+            let byteCode = await this.sdk.contractCompile(source)
+            return byteCode
+        },
+        async getDeployedByteCode(address) {
+            let res = await fetch(`https://testnet.mdw.aepps.com/middleware/contracts/transactions/address/${address}`)
+            let txs = await res.json()
+            let byteCode = txs.transactions.find(tx => tx.tx.type == "ContractCreateTx")
+
+            console.log(byteCode)
+            return byteCode
         }
     },
     beforeDestroy() {
@@ -247,7 +347,7 @@ export default {
 @import '../../../common/base';
 .balanceSpend {
     font-size:2.5rem;
-    color:#000;
+    color:#001833;
 }
 .spendTxDetailsList .ae-list-item {
     padding:1rem;
@@ -311,5 +411,19 @@ export default {
 .confirm.disabled {
     opacity:0.5;
     cursor:unset;
+}
+.ae-badge {
+    border:2px solid #001833;
+    background:$color-alternative;
+}
+.ae-header {
+    margin-bottom:0 !important;
+}
+.extend {
+    width:100%;
+}
+.fiat-rate {
+    color:#939393;
+    font-size:1rem;
 }
 </style>

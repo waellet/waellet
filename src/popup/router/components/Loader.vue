@@ -1,10 +1,10 @@
 <template>
     <div>
         <div v-if="loading" class="loading">
-            <div class="center" v-if="size == 'small' ">
+            <div class="center" >
                 <span v-if="content != ''">{{content}}</span>
                 <br v-if="content != ''">
-                <ae-loader />
+                <ae-loader v-if="size == 'small' " />
             </div>
             <transition name="fadeOut" v-if="size == 'big'">
                 <span class="mainLoader" :class="type == 'transparent' ? 'mainLoaderTransparent' : ''"><ae-loader /></span>
@@ -40,5 +40,10 @@ export default {
 .loader .loading {
     width:32px;
     margin-right:15px;
+}
+.center {
+    position: relative;
+    z-index: 5;
+    word-break: break-word;
 }
 </style>

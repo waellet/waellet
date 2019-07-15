@@ -128,6 +128,11 @@ const redirectAfterLogin = (ctx) => {
             ctx.$router.push({'name':'sign', params: {
               data:aepp.showAeppPopup.data
             }});
+          }else if(aepp.showAeppPopup.type == 'contractCall') {
+            aepp.showAeppPopup.data.popup = true
+            ctx.$router.push({'name':'sign', params: {
+                data:aepp.showAeppPopup.data
+            }});
           }
           return;
         });
@@ -170,5 +175,29 @@ const initializeSDK = (ctx, {network, current, account, wallet, activeAccount},b
     })
 }
 
-export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin, initializeSDK }
+const  currencyConv = async (ctx) => {
+    browser.storage.sync.get('convertTimer').then(async result => {
+      var time = new Date().getTime();
+      if ( !result.hasOwnProperty('convertTimer') || (result.hasOwnProperty('convertTimer') && (result.convertTimer == '' || result.convertTimer == 'undefined' || result.convertTimer <= time)) ) {
+        const fetched = await fetchData('https://api.coingecko.com/api/v3/simple/price?ids=aeternity&vs_currencies=usd,eur','get','');
+        browser.storage.sync.set({ rateUsd : fetched.aeternity.usd}).then(() => { });
+        browser.storage.sync.set({ rateEur : fetched.aeternity.eur}).then(() => { });
+        browser.storage.sync.set({ convertTimer : time+3600000}).then(() => { });
+      }
+      browser.storage.sync.get('rateUsd').then(resusd => {
+        ctx.usdRate = resusd.rateUsd;
+        ctx.toUsd = resusd.rateUsd * ctx.balance;
+      });
+      browser.storage.sync.get('rateEur').then(reseur => {
+        ctx.eurRate = reseur.rateEur;
+        ctx.toEur = reseur.rateEur * ctx.balance;
+      });
+    });
+}
+
+const convertAmountToCurrency = (currency, amount) => {
+    return currency * amount
+}
+
+export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin, initializeSDK, currencyConv, convertAmountToCurrency }
 

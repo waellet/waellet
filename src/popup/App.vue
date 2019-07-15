@@ -1,6 +1,6 @@
 <template>
   <ae-main @click.native="hideMenu">
-      <ae-header :class="account.publicKey && isLoggedIn ? 'logged' : ''">
+      <ae-header :class="account.publicKey && isLoggedIn ? 'logged' + (aeppPopup ? ' aeppPopup' : '') : ''">
 
         <!-- login screen header -->
         <div class="logo_top" :slot="menuSlot" v-if="!isLoggedIn">
@@ -256,6 +256,7 @@ export default {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
       browser.storage.sync.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
+        this.initSDK();
         this.dropdown.account = false;
         this.$store.commit('RESET_TRANSACTIONS',[]);
       });
@@ -453,6 +454,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .pageTitle { margin: 0 0 10px; }
 .ae-header { border-bottom: 1px solid #EEE; margin-bottom: 10px; }
 .ae-header.logged { background: #001833; }
+.ae-header.logged.aeppPopup { margin-bottom:0 !important; }
 .ae-header.logged > * { color: #717C87; }
 .logo_top { display: flex; flex-flow: row wrap; justify-content: center; vertical-align: center; }
 .logo_top p { color: #FF0D6A; font-size: 20px; line-height: 12px; }

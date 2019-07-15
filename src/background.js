@@ -159,17 +159,9 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                 case "txSign":
                     checkAeppConnected(msg.params.hostname).then((check) => {
                         if(check) {
-                            browser.storage.sync.set({showAeppPopup:{ data: msg.params, type:'txSign' } } ).then( () => {
-                                browser.windows.create({
-                                    url: browser.runtime.getURL('./popup/popup.html'),
-                                    type: "popup",
-                                    height: 600,
-                                    width:420
-                                    }).then((window) => {
-                                        connectToPopup((res) => {
-                                            sendResponse(res)
-                                        }, 'txSign')
-                                    })
+                            openAeppPopup(msg,'txSign')
+                            .then(res => {
+                                sendResponse(res)
                             })
                         }else {
                             sendResponse({id:null, jsonrpc:"2.0",message: "Aepp not registered. Establish connection first"})
@@ -179,17 +171,9 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                 case 'connectConfirm':
                     checkAeppConnected(msg.params.params.hostname).then((check) => {
                         if(!check) {
-                            browser.storage.sync.set({showAeppPopup:{ data: msg.params, type:'connectConfirm' } } ).then( () => {
-                                browser.windows.create({
-                                    url: browser.runtime.getURL('./popup/popup.html'),
-                                    type: "popup",
-                                    height: 600,
-                                    width:420
-                                    }).then((window) => {
-                                        connectToPopup((res) => {
-                                            sendResponse(res)
-                                        }, 'connectConfirm')
-                                    })
+                            openAeppPopup(msg,'connectConfirm')
+                            .then(res => {
+                                sendResponse(res)
                             })
                         } else {
                             sendResponse({id:null, jsonrpc:"2.0",message: "Connection already established"})
@@ -218,7 +202,16 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                 break;
 
                 case 'contractCall':
-
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            openAeppPopup(msg,'contractCall')
+                            .then(res => {
+                                sendResponse(res)
+                            })
+                        }else {
+                            sendResponse({id:null, jsonrpc:"2.0",message: "Aepp not registered. Establish connection first"})
+                        }
+                    })
                     
                 break;
             }
@@ -256,6 +249,23 @@ const connectToPopup = (cb,type) => {
             
         });
    })
+}
+
+const openAeppPopup = (msg,type) => {
+    return new Promise((resolve,reject) => {
+        browser.storage.sync.set({showAeppPopup:{ data: msg.params, type } } ).then( () => {
+            browser.windows.create({
+                url: browser.runtime.getURL('./popup/popup.html'),
+                type: "popup",
+                height: 680,
+                width:420
+            }).then((window) => {
+                connectToPopup((res) => {
+                    resolve(res)
+                }, type)
+            })
+        })
+    })
 }
 
 const postPhishingData = (data) => {

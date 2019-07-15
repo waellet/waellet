@@ -4,38 +4,41 @@
             <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
         </div>
         <h3>{{ language.strings.manageNetworks }}</h3>
-        <ae-list face="primary">
-            <ae-list-item class="editaccount" fill="neutral" v-for="(userNetowrk, index) in userNetworks" v-bind:key="index">
-                <div>
-                    <span class="name">{{ userNetowrk.name }}</span>
-                    <button @click="removeUserNetworkCheck(userNetowrk.name)"><ae-icon name="close" class="primary" /></button>
-                </div>
-            </ae-list-item>
-            <ae-list-item class="addaccount" fill="secondary">
-                <div v-if="!аddNewUserNetwork">
-                    <span>{{ language.strings.addNewNetwork }}</span>
-                    <button @click="AddNewUserNetwork"><ae-icon name="plus" /></button>
-                </div>
-                <div v-if="аddNewUserNetwork">
-                    <span>{{ language.strings.addNewNetwork }}</span>
-                    <button @click="closeNewUserNetworkForm"><ae-icon name="close" /></button>
-                </div>
-            </ae-list-item>
-        </ae-list>
-        <transition name="slide">
-            <ul class="slideform" v-if="dropdown">
-                <div class="add-form">
-                    <h4 class="pageTitle">{{ language.strings.addNewNetwork }}</h4>
-                    <label style="float:left;"> {{ language.strings.networkName }}<span class="required_fields">*</span></label>
-                    <ae-input v-model="newUserNetwork" placeholder="Add Node name"></ae-input>
-                    <label style="float:left; margin-top: 10px;"> {{ language.strings.networkURL }}<span class="required_fields">*</span></label>
-                    <ae-input v-model="newUserNetworkURL" placeholder="Add Node URL"></ae-input>
-                    <hr>
-                    <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small>
-                    <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
-                </div>
-            </ul>
-        </transition>
+        <ae-panel>
+            <h4>Networks</h4>
+            <hr>
+            <ae-list >
+                <ae-list-item class="editaccount" fill="neutral" v-for="(userNetowrk, index) in userNetworks" v-bind:key="index">
+                    <div>
+                        <span class="name">{{ userNetowrk.name }}</span>
+                        <button @click="removeUserNetworkCheck(userNetowrk.name)"><ae-icon name="close" class="primary" /></button>
+                    </div>
+                </ae-list-item>
+                
+            </ae-list>
+        </ae-panel>
+        <ae-panel>
+            <h4 class="addaccount">
+                {{ language.strings.addNewNetwork }}
+                <button class="icon-btn" v-if="!аddNewUserNetwork" @click="AddNewUserNetwork"><ae-icon name="plus" /></button>
+                <button class="icon-btn" v-if="аddNewUserNetwork" @click="closeNewUserNetworkForm"><ae-icon name="close" /></button>
+            </h4>
+            <hr>
+            <transition name="slide">
+                <ul class="slideform" :class="dropdown ? 'open' : ''">
+                    <div class="add-form">
+                        <!-- <h4 class="pageTitle">{{ language.strings.addNewNetwork }}</h4> -->
+                        <label style="float:left;"> {{ language.strings.networkName }}<span class="required_fields">*</span></label>
+                        <ae-input class="node-name" v-model="newUserNetwork" placeholder="Add Node name"></ae-input>
+                        <label style="float:left; margin-top: 10px;"> {{ language.strings.networkURL }}<span class="required_fields">*</span></label>
+                        <ae-input class="node-url" v-model="newUserNetworkURL" placeholder="Add Node URL"></ae-input>
+                        <hr>
+                        <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small>
+                        <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
+                    </div>
+                </ul>
+            </transition>
+        </ae-panel>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
@@ -164,23 +167,24 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import '../../../common/base';
 .ae-list-item { cursor: default !important; }
-.ae-list-item .ae-icon { float: right; font-size: 1.2rem; }
+.ae-list-item .ae-icon, h4 .ae-icon , h4 .icon-btn{ float: right; font-size: 1.2rem; }
 // .ae-icon-edit, .ae-icon-plus { color: #00b6ff !important; }
 #manageAccounts .ae-icon-check { color: #13b100 !important; }
 #manageAccounts .ae-icon-close { color: #b10000 !important; }
+.editaccount:first-child { border-top: none !important; }
 .editaccount div, .addaccount div { width: 100%; }
 .editaccount div span, .editaccount div input, .addaccount div span, .editaccount div canvas { float: left; }
 .editaccount div button, .addaccount div button { float: right; }
 .editaccount div input { width: 60% !important; }
 
-.slideform { position: relative; width: 100%; overflow: hidden; padding: 0; top: 10px; list-style-type: none;
-    box-shadow: 0 0 8px rgba(0, 33, 87, 0.15); transform-origin: top; transition: transform .4s ease-in-out; }
+.slideform { position: relative; width: 100%; overflow: hidden; padding: 0; top: 10px; list-style-type: none; height: 0; margin:0;
+    /*box-shadow: 0 0 8px rgba(0, 33, 87, 0.15);*/ transform-origin: top; transition: all .4s ease-in-out; }
 .slide-enter, .slide-leave-to{ transform: scaleY(0); }
-.add-form { text-align: center; padding: 15px; margin: 10px; }
+.add-form { text-align: center; /*padding: 15px; margin: 10px; */}
 .required_fields { color: red; margin: 5px; }
-.ae-list-item .ae-icon { font-size: 1.7rem !important; }
-
+.ae-list-item .ae-icon, h4 .ae-icon { font-size: 1.7rem !important; }
+.slideform.open { height:300px }
 </style>
