@@ -48,7 +48,6 @@
     </div>
     <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
-    
   </div> 
 </template>
 

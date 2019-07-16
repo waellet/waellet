@@ -287,11 +287,14 @@ export default {
       }
     },
     toggleDropdown(event, parentClass) {
-      if (typeof parentClass == 'undefined') {
-        parentClass = '.dropdown';
+      if(!this.aeppPopup) {
+        if (typeof parentClass == 'undefined') {
+          parentClass = '.dropdown';
+        }
+        let dropdownParent = event.target.closest(parentClass);
+        this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
       }
-      let dropdownParent = event.target.closest(parentClass);
-      this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
+      
     },
     switchLanguage(languageChoose) {
       browser.storage.sync.set({language: languageChoose}).then(() => {
@@ -420,7 +423,6 @@ export default {
     checkPendingTx() {
       this.checkPendingTxInterval = setInterval(() => {
         browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
-          console.log(pendingTx)
           if(!pendingTx.hasOwnProperty('pendingTransaction') || ( pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length <= 0 )) {
             clearInterval(this.checkPendingTxInterval)
             if(this.$router.currentRoute.path == "/sign-transaction") {

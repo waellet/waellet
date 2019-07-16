@@ -122,6 +122,9 @@ export default {
           case 'only_allowed_chars':
               commit(types.SHOW_POPUP,{show:true,...popupMessages.CHARS_ALLOWED});
             break;
+          case 'confirm_privacy_clear':
+            commit(types.SHOW_POPUP, { show:true, secondBtn:true, secondBtnClick:'clearPrivacyData',...popupMessages.CONFIRM_PRIVACY_CLEAR})
+          break;
           default:
             break;
         }

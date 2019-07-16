@@ -114,7 +114,6 @@ const checkAeppConnected = (host) => {
 const redirectAfterLogin = (ctx) => {
   browser.storage.sync.get('showAeppPopup').then((aepp) => {
     browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
-       console.log(pendingTx)
       if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
         browser.storage.sync.remove('showAeppPopup').then(() => {
             ctx.$store.commit('SET_AEPP_POPUP',true)

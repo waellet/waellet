@@ -6,15 +6,32 @@
         <h3 style='text-align:center;'>{{language.pages.settings.securitySettings.heading}}</h3>
         <ae-panel>
             <div class="maindiv_input-group-addon">
-                <h4>Privacy Data</h4><hr>
-                <small class="sett_info">Clear privacy data so all websites must request access to view account information again.</small>
-                <ae-button face="round" fill="primary" class="settingBtn" extend @click="clearPrivacyData">Clear Privacy Data</ae-button>
+                <h4>{{language.pages.settings.securitySettings.privacyDataHeading}}</h4><hr>
+                <small class="sett_info">{{language.pages.settings.securitySettings.privacyDataSmall}}</small>
+                <ae-button face="round" fill="primary" class="settingBtn" extend @click="clearPrivacyConfirm">{{language.pages.settings.securitySettings.privacyDataClearBtn}}</ae-button>
+            </div>
+        </ae-panel>
+        <ae-panel>
+            <div class="maindiv_input-group-addon">
+                <h4>{{language.pages.settings.securitySettings.privateKeyHeading}}</h4><hr>
+                <small class="sett_info">{{language.pages.settings.securitySettings.privateKeySmall}}</small>
+                <ae-button face="round" fill="primary" class="settingBtn" extend @click="revealPrivateKey">{{language.pages.settings.securitySettings.privateKeyRevealBtn}}</ae-button>
             </div>
         </ae-panel>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <div v-if="loading" class="loading">
             <ae-loader />
         </div>
+        <Modal :modal="modal">
+            <div slot="content">
+                <small>Enter the password with which the private key is encrypted. After successfully entered password you will see your private key. Do not share it with anyone, it can be used to steal all your accounts</small>
+                <div v-if="privateKey != ''">{{privateKey}}</div>
+                <ae-input class="my-2" label="Password">
+                    <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                </ae-input>
+                <ae-button extend face="round" fill="primary" @click="decryptKeystore">Show private key</ae-button>
+            </div>
+        </Modal>
     </div>
 </template>
 
@@ -22,6 +39,7 @@
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import locales from '../../locales/locales.json';
+import { decrypt } from '../../utils/keystore';
 
 export default {
     data () {
@@ -29,6 +47,12 @@ export default {
             language: locales['en'],
             loading: false,
             onoff: false,
+            modal:{
+                visible:false,
+                title:''
+            },
+            password:'',
+            privateKey:''
         }
     },
     computed: {
@@ -43,9 +67,30 @@ export default {
         navigateToSettings() {
             this.$router.push('/settings')
         },
+        clearPrivacyConfirm() {
+            this.$store.dispatch('popupAlert', {
+                name: 'account',
+                type: 'confirm_privacy_clear'
+            });
+        },
         clearPrivacyData( ) {
             //confirm window to be addeded here after merge with the others 
             browser.storage.sync.remove('connectedAepps')
+        },
+        revealPrivateKey() {
+            this.modal.visible = true
+            this.modal.title = "Show Private Key"
+        },
+        decryptKeystore() {
+            browser.storage.sync.get('userAccount').then(async (user) => {
+                if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                    let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                    let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                    if(match) {
+                        this.privateKey = match
+                    }
+                }
+            })
         }
     }
 }
@@ -93,6 +138,9 @@ input:active,input:focus {
     outline: none;
 }
 .settingBtn {
-    margin-top:1rem
+    margin-top:2rem
+}
+small {
+    word-break: break-word;
 }
 </style>

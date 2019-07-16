@@ -24,8 +24,8 @@
                 <div class="fiat-rate">${{convertCurrency(usdRate,amount)}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg flex-direction-column flex-align-center ">
-                <div class="flex extend flex-justify-between flex-align-center">
-                    <div>{{language.pages.transactionDetails.fee}}</div>
+                <div class="flex extend flex-justify-between ">
+                    <div class="tx-label">{{language.pages.transactionDetails.fee}}</div>
                     <div class="text-right">
                         <div class="balance balanceBig txFee">{{selectedFee}}</div>
                         <div class="fiat-rate">${{convertCurrency(usdRate,selectedFee)}}</div>
@@ -37,7 +37,7 @@
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
-                <div>{{language.pages.transactionDetails.total}}</div>
+                <div class="tx-label">{{language.pages.transactionDetails.total}}</div>
                 <div class="text-right">
                     <div class="balance balanceBig balanceTotalSpend">{{totalSpend}}</div>
                     <div class="fiat-rate">${{convertCurrency(usdRate,totalSpend)}}</div>
@@ -130,14 +130,16 @@ export default {
                 }
             },500)
         }else {
-            browser.storage.sync.get('pendingTransaction').then((tx) => {
-                let list = {}
-                if(tx.hasOwnProperty('pendingTransaction') && tx.pendingTransaction.hasOwnProperty("list")) { 
-                    list = tx.pendingTransaction.list
-                }
-                list[this.data.id] = this.data
-                browser.storage.sync.set({pendingTransaction:{ list }}).then(() => { })
-            })
+            if(this.data.popup) {
+                browser.storage.sync.get('pendingTransaction').then((tx) => {
+                    let list = {}
+                    if(tx.hasOwnProperty('pendingTransaction') && tx.pendingTransaction.hasOwnProperty("list")) { 
+                        list = tx.pendingTransaction.list
+                    }
+                    list[this.data.id] = this.data
+                    browser.storage.sync.set({pendingTransaction:{ list }}).then(() => { })
+                })
+            }   
         }
     },
     created(){
@@ -404,7 +406,7 @@ export default {
 <style lang="scss" scoped>
 @import '../../../common/base';
 .balanceSpend {
-    font-size:2.5rem;
+    font-size:2rem;
     color:#001833;
 }
 .spendTxDetailsList .ae-list-item {
@@ -483,5 +485,8 @@ export default {
 .fiat-rate {
     color:#939393;
     font-size:1rem;
+}
+.tx-label {
+    margin-top:.4rem
 }
 </style>

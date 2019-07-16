@@ -138,10 +138,22 @@ export default {
         }
       }
       else {
-        this.$store.dispatch('popupAlert', {
-            name: 'spend',
-            type: 'confirm_transaction'
-        });
+        let tx = {
+          popup:false,
+          tx: {
+            amount:this.form.amount,
+            recipientId:receiver
+          },
+          type:'txSign'
+        }
+        this.$store.commit('SET_AEPP_POPUP',true)
+        this.$router.push({'name':'sign', params: {
+          data:tx
+        }});
+        // this.$store.dispatch('popupAlert', {
+        //     name: 'spend',
+        //     type: 'confirm_transaction'
+        // });
      } 
     },
     init() {

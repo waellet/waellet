@@ -110,6 +110,7 @@ p{
 }
 .identiconContainer {
     position:relative;
+    margin-top:2rem;
     &:before {
         content:""
     }
@@ -129,6 +130,7 @@ p{
             background:fixed linear-gradient(to bottom, white, #F1F4F7);
             position:relative;
             z-index:1;
+            padding:0 .9rem !important;
         }
     }
     .identicon:first-child:after, .identicon:last-child:after {

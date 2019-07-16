@@ -9,6 +9,7 @@ import TransactionItemComponent from './components/TransactionItem';
 import SwitchButtonComponent from './components/SwitchButton';
 import Popup from './components/Popup';
 import AlertComponent from './components/Alert';
+import ModalComponent from './components/Modal';
 
 Vue.use(VueRouter);
 Vue.use(VueClipboard);
@@ -18,8 +19,9 @@ Vue.component('Loader',LoaderComponent);
 Vue.component('TransactionItem',TransactionItemComponent);
 Vue.component('SwitchButton',SwitchButtonComponent);
 Vue.component('Popup',Popup);
-
 Vue.component('Alert', AlertComponent);
+Vue.component('Modal', ModalComponent);
+
 export default new VueRouter({
   routes,
 });

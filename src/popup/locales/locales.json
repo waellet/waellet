@@ -104,7 +104,7 @@
           "tabAdvanced": "Advanced",
           "tabAdvancedsmall" : "Advanced settings",
           "tabSecurity" : "Security & Privacy",
-          "tabSecuritysmall" : "Privacy settings",
+          "tabSecuritysmall" : "Privacy data, Reveal private key",
           "tabAbout" : "About",
           "tabAboutsmall" : "Version, support center and contact info",
           "generalSettings": {
@@ -114,7 +114,14 @@
             "registerNameRequirement": "Allowed only letters and numbers"
           },
           "securitySettings": {
-            "heading": "Security and Privacy"
+            "heading": "Security and Privacy",
+            "privacyDataHeading":"Privacy Data",
+            "privacyDataSmall":"Clear privacy data so all websites must request access to view account information again.",
+            "privacyDataClearBtn":"Clear Privacy Data",
+            "privateKeyHeading":"Reveal Private Key",
+            "privateKeySmall":"You can view your private key after you enter your password",
+            "privateKeyRevealBtn":"Reveal Private Key"
+            
           },
           "aboutSettings": {
             "heading": "About"

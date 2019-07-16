@@ -17,6 +17,7 @@ import TipComponent from './pages/TipPage';
 import ManageNetworks from './pages/ManageNetworks';
 import FungibleTokensComponent from './pages/FungibleTokens';
 
+
 export default [
   {
     path: '/',
