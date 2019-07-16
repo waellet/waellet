@@ -60,7 +60,7 @@
 <script>
 import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency } from '../../utils/helper';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE } from '../../utils/constants';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
@@ -112,31 +112,39 @@ export default {
                     window.clearTimeout(this.checkSDKReady)
                     let byteCode = await this.checkSourceByteCode(this.data.tx.source)
                     let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
-                    let call = await this.contractCallStatic(this.data.tx)
+                    
                     
                     if(byteCode.bytecode == deployedByteCode.tx.code) {
                         //Contract call static should be moved here after fixing differences between source of contract and the source compiled with
-
-                        return
+                        let call = await this.contractCallStatic(this.data.tx)
+                        this.port.postMessage(call)
                     }else {
                         this.errorTx.error.message = "Invalid contract interface"
                         this.port.postMessage(this.errorTx)
                     }
-                    this.removeTxStorageData()
+                    let list = await removeTxFromStorage(this.data.id)
+                    browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
                     setTimeout(() => {
                         window.close()
                     },1000)
                 }
             },500)
         }else {
-            browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { })
+            browser.storage.sync.get('pendingTransaction').then((tx) => {
+                let list = {}
+                if(tx.hasOwnProperty('pendingTransaction') && tx.pendingTransaction.hasOwnProperty("list")) { 
+                    list = tx.pendingTransaction.list
+                }
+                list[this.data.id] = this.data
+                browser.storage.sync.set({pendingTransaction:{ list }}).then(() => { })
+            })
         }
     },
     created(){
         this.selectedFee = this.fee.toFixed(7)
         currencyConv(this)
         if(this.data.popup) {
-            this.port = browser.runtime.connect({ name: "conn" })
+            this.port = browser.runtime.connect({ name: this.data.id })
             this.port.onMessage.addListener((msg, sender,sendResponse) => {})
         }
         
@@ -177,7 +185,7 @@ export default {
         },
         txType() {
             if(this.data.type == 'txSign') {
-                return "Spend"
+                return "Send AE"
             }else if(this.data.type == 'contractCall') {
                 if(this.data.tx.method != "" ) {
                     return this.data.tx.method
@@ -213,23 +221,32 @@ export default {
                 this.signDisabled = true
             }
         },
-        cancelTransaction() {
-            this.$store.commit('SET_AEPP_POPUP',false)
-            browser.storage.sync.get('pendingTransaction').then(data => {
-                if(!this.data.popup) {
-                    browser.storage.sync.remove('pendingTransaction').then(() => {})
-                    this.$router.push('/account');
+        async cancelTransaction() {
+            let list = await removeTxFromStorage(this.data.id)
+            if(!this.data.popup) {
+                browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                this.redirectInExtensionAfterAction()
+            }else {
+                browser.storage.sync.set({pendingTransaction: { list } }).then(() => {
+                    this.port.postMessage(this.errorTx)
+                    setTimeout(() => {
+                        window.close()
+                    },1000)
+                })
+            } 
+        },
+        redirectInExtensionAfterAction() {
+            browser.storage.sync.get('pendingTransaction').then((data) => {
+                if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('list') && Object.keys(data.pendingTransaction.list).length > 0) {
+                    let tx = data.pendingTransaction.list[Object.keys(data.pendingTransaction.list)[0]];
+                    tx.popup = false
+                    tx.countTx =  Object.keys(data.pendingTransaction.list).length
+                    this.data = tx
                 }else {
-                   browser.storage.sync.remove('pendingTransaction').then(() => {
-                       this.port.postMessage(this.errorTx)
-                       window.close()
-                   })
+                    this.$store.commit('SET_AEPP_POPUP',false)
+                    this.$router.push('/account')
                 }
             });
-        },
-        removeTxStorageData() {
-            browser.storage.sync.remove('pendingTransaction').then(() => {});
-            browser.storage.sync.remove('showAeppPopup').then(() => {});  
         },
         signSpendTx(amount) {
             Wallet({
@@ -252,7 +269,7 @@ export default {
                 networkId: this.network[this.current.network].networkId
             })
             .then(ae => {
-                ae.spend(parseInt(amount), this.receiver, { gas: this.selectedFee}).then(result => {
+                ae.spend(parseInt(amount), this.receiver, { gas: this.selectedFee}).then(async result => {
                     if(typeof result == "object") {
                         this.loading = false
                         let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
@@ -266,16 +283,21 @@ export default {
                                 
                             }
                             this.port.postMessage(res)
-                            this.removeTxStorageData()
+                            let list = await removeTxFromStorage(this.data.id)
+                            browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                            // this.removeTxStorageData()
                             setTimeout(() => {
                                 window.close()
                             },1000)
                         }else {
                             this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl})
-                            .then(() => {
+                            .then(async () => {
                                 this.$store.commit('SET_AEPP_POPUP',false)
-                                this.removeTxStorageData()
-                                this.$router.push('/account');
+                                let list = await removeTxFromStorage(this.data.id)
+                                browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                                this.redirectInExtensionAfterAction()
+                                // this.removeTxStorageData()
+                                // this.$router.push('/account');
                             })
                         }
                     }
@@ -283,10 +305,11 @@ export default {
                         
                     }
                 })
-                .catch(err => {
+                .catch(async err => {
                     if(this.data.popup) {
                         this.port.postMessage(this.errorTx)
-                        this.removeTxStorageData()
+                        let list = await removeTxFromStorage(this.data.id)
+                        browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
                     }else {
                         this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
                     }
@@ -308,7 +331,8 @@ export default {
                 this.errorTx.error.message = err.message
                 this.port.postMessage(this.errorTx)
             }
-            this.removeTxStorageData()
+            let list = await removeTxFromStorage(this.data.id)
+            browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
             setTimeout(() => {
                 window.close()
             },1000)
@@ -325,10 +349,16 @@ export default {
                 this.errorTx.error.message = err.message
                 this.port.postMessage(this.errorTx)
             }
-            this.removeTxStorageData()
-            setTimeout(() => {
-                window.close()
-            },1000)
+            let list = await removeTxFromStorage(this.data.id)
+            browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+            if(this.data.popup) {
+                setTimeout(() => {
+                    window.close()
+                },1000)
+            }else {
+                this.redirectInExtensionAfterAction()
+            }
+            
         },
         signTransaction() {
             if(!this.signDisabled) {
@@ -361,11 +391,12 @@ export default {
             return byteCode
         }
     },
-    beforeDestroy() {
+    async beforeDestroy() {
         if(this.data.popup) {
             this.port.postMessage(this.errorTx)
         }
-        this.removeTxStorageData()
+        let list = await removeTxFromStorage(this.data.id)
+        browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
     }
 }
 </script>

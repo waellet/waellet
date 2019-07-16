@@ -114,6 +114,7 @@ const checkAeppConnected = (host) => {
 const redirectAfterLogin = (ctx) => {
   browser.storage.sync.get('showAeppPopup').then((aepp) => {
     browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
+       console.log(pendingTx)
       if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
         browser.storage.sync.remove('showAeppPopup').then(() => {
             ctx.$store.commit('SET_AEPP_POPUP',true)
@@ -136,11 +137,13 @@ const redirectAfterLogin = (ctx) => {
           }
           return;
         });
-      }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('data')) {
+      }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length > 0) {
         ctx.$store.commit('SET_AEPP_POPUP',true)
-        pendingTx.pendingTransaction.data.popup = false
+        let tx = pendingTx.pendingTransaction.list[Object.keys(pendingTx.pendingTransaction.list)[0]];
+        tx.popup = false
+        tx.countTx =  Object.keys(pendingTx.pendingTransaction.list).length
         ctx.$router.push({'name':'sign', params: {
-          data:pendingTx.pendingTransaction.data
+          data:tx
         }});
       }else {
         ctx.$router.push('/account');
@@ -207,5 +210,33 @@ const contractDecodeData = async (sdk,source, fn, callValue, callResults, option
     return await sdk.contractDecodeData(source, fn, callValue, callResults, options)
 }
 
-export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin, initializeSDK, currencyConv, convertAmountToCurrency, contractEncodeCall, contractDecodeData }
+const removeTxFromStorage = (id) => {
+    return new Promise((resolve,reject) => {
+        browser.storage.sync.get('pendingTransaction').then((data) => {
+            browser.storage.sync.remove('showAeppPopup').then(() => {
+                let list = data.pendingTransaction.list
+                delete list[id]
+                resolve(list)
+            }); 
+        });
+    }) 
+}
+
+export { 
+    shuffleArray, 
+    convertToAE, 
+    extractHostName, 
+    fetchData, 
+    detectBrowser, 
+    setConnectedAepp, 
+    checkAeppConnected, 
+    redirectAfterLogin, 
+    initializeSDK, 
+    currencyConv, 
+    convertAmountToCurrency, 
+    contractEncodeCall, 
+    contractDecodeData, 
+    removeTxFromStorage 
+}
+
 

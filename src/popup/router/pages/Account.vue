@@ -63,6 +63,7 @@ import { request } from 'http';
 import { fetchData, currencyConv } from '../../utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
 
+
 export default {
   name: 'Account',
   data () {

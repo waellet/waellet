@@ -32,21 +32,33 @@ import { setConnectedAepp, checkAeppConnected } from '../../utils/helper';
 export default {
     data(){
         return {
-            port:null
+            port:null,
+            errorTx:  {
+                "error": {
+                    "code": 1,
+                    "data": {
+                        "request": {}
+                    },
+                    "message": "Transaction verification failed"
+                },
+                "id": null,
+                "jsonrpc": "2.0"
+            }
         }
     },
     locales,
     props:['data'],
     created() {
         if(this.data.popup) {
-            this.port = browser.runtime.connect({ name: "conn" })
+            this.port = browser.runtime.connect({ name: this.data.id })
             this.port.onMessage.addListener((msg, sender,sendResponse) => {})
         }
     },
     methods: {
         cancel() {
             if(this.data.popup) {
-                this.port.postMessage({id:null,jsonrpc:"2.0",message:"Connection canceled"})
+                this.errorTx.error.message = "Connection canceled"
+                this.port.postMessage(this.errorTx)
             }
             setTimeout(() => {
                 window.close()
