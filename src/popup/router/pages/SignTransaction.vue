@@ -106,19 +106,31 @@ export default {
         if(typeof this.data.callType != "undefined" && this.data.callType == 'static') {
             this.loaderType = ''
             this.loading = true
-            this.loaderContent = "Calling contract method. Please do not close the window"
+            this.loaderContent = this.language.pages.signTx.contractCall
             this.checkSDKReady = setInterval(async () => {
-                console.log(this.sdk)
                 if(this.sdk != null) {
                     window.clearTimeout(this.checkSDKReady)
                     let byteCode = await this.checkSourceByteCode(this.data.tx.source)
-                    console.log(byteCode)
                     let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
-                    // this.contractCallStatic(this.data.tx)
+                    let call = await this.contractCallStatic(this.data.tx)
+                    
+                    if(byteCode.bytecode == deployedByteCode.tx.code) {
+                        //Contract call static should be moved here after fixing differences between source of contract and the source compiled with
+
+                        return
+                    }else {
+                        this.errorTx.error.message = "Invalid contract interface"
+                        this.port.postMessage(this.errorTx)
+                    }
+                    this.removeTxStorageData()
+                    setTimeout(() => {
+                        window.close()
+                    },1000)
                 }
             },500)
+        }else {
+            browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { })
         }
-        browser.storage.sync.set({pendingTransaction:{data:this.data}}).then(() => { })
     },
     created(){
         this.selectedFee = this.fee.toFixed(7)
@@ -287,17 +299,36 @@ export default {
             });
         },
         async contractCallStatic(tx) {
-            let call = await this.sdk.contractCallStatic(tx.source,tx.address,tx.method,tx.params)
-            let decoded = await call.decode()
-            call.decoded = decoded
-            this.port.postMessage(call)
+            try {
+                let call = await this.sdk.contractCallStatic(tx.source,tx.address,tx.method,tx.params)
+                let decoded = await call.decode()
+                call.decoded = decoded
+                this.port.postMessage(call)
+            }catch(err) {
+                this.errorTx.error.message = err.message
+                this.port.postMessage(this.errorTx)
+            }
             this.removeTxStorageData()
             setTimeout(() => {
                 window.close()
             },1000)
+            
         },
-        contractCall(){
-
+        async contractCall(){
+           let call
+            try {
+                call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params)
+                let decoded = await call.decode()
+                call.decoded = decoded
+                this.port.postMessage(call)
+            }catch(err) {
+                this.errorTx.error.message = err.message
+                this.port.postMessage(this.errorTx)
+            }
+            this.removeTxStorageData()
+            setTimeout(() => {
+                window.close()
+            },1000)
         },
         signTransaction() {
             if(!this.signDisabled) {
@@ -307,9 +338,7 @@ export default {
                     if(this.data.type == 'txSign') {
                         this.signSpendTx(amount)
                     }else if(this.data.type == 'contractCall') {
-                        if(this.data.callType == 'static') {
-                           
-                        }else if(this.data.callType == 'pay') {
+                        if(this.data.callType == 'pay') {
                             this.contractCall()
                         }
                     }
@@ -329,8 +358,6 @@ export default {
             let res = await fetch(`https://testnet.mdw.aepps.com/middleware/contracts/transactions/address/${address}`)
             let txs = await res.json()
             let byteCode = txs.transactions.find(tx => tx.tx.type == "ContractCreateTx")
-
-            console.log(byteCode)
             return byteCode
         }
     },

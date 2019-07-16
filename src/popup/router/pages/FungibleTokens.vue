@@ -67,7 +67,6 @@
 import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
 import { FUNGIBLE_TOKEN_CONTRACT, MIN_SPEND_TX_FEE } from '../../utils/constants';
-
 export default {
     data() {
         return {
@@ -93,8 +92,7 @@ export default {
     computed: {
         ...mapGetters(['sdk','account','tokens','popup'])
     },
-    created() {
-        
+    async created() {
     },
     methods:{
         switchTabs(tab) {

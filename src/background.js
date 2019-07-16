@@ -130,6 +130,19 @@ function getAccount() {
 //         })
 //     });
 
+
+const error = {
+    "error": {
+        "code": 1,
+        "data": {
+            "request": {}
+        },
+        "message": "Transaction verification failed"
+    },
+    "id": null,
+    "jsonrpc": "2.0"
+}
+
 browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
     switch(msg.method) {
         case 'phishingCheck':
@@ -155,20 +168,31 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
             setPhishingUrl(urls);
         break;
         case 'aeppMessage':
+            
             switch(msg.params.type) {
                 case "txSign":
-                    checkAeppConnected(msg.params.hostname).then((check) => {
-                        if(check) {
-                            openAeppPopup(msg,'txSign')
-                            .then(res => {
-                                sendResponse(res)
-                            })
+                    checkPendingTx().then(pending => {
+                        if(!pending) {
+                            checkAeppConnected(msg.params.hostname).then((check) => {
+                                if(check) {
+                                    openAeppPopup(msg,'txSign')
+                                    .then(res => {
+                                        sendResponse(res)
+                                    })
+                                }else {
+                                    error.error.message = "Aepp not registered. Establish connection first"
+                                    sendResponse(error)
+                                }
+                            });
                         }else {
-                            sendResponse({id:null, jsonrpc:"2.0",message: "Aepp not registered. Establish connection first"})
+                            error.error.message = "There is pending transaction. Please handle it before continue with another"
+                            sendResponse(error)
                         }
-                    });
+                    })
+                    
                 break;
                 case 'connectConfirm':
+                    
                     checkAeppConnected(msg.params.params.hostname).then((check) => {
                         if(!check) {
                             openAeppPopup(msg,'connectConfirm')
@@ -176,7 +200,8 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                                 sendResponse(res)
                             })
                         } else {
-                            sendResponse({id:null, jsonrpc:"2.0",message: "Connection already established"})
+                            error.error.message = "Connection already established"
+                            sendResponse(error)
                         }
                     })
                 break;
@@ -202,14 +227,22 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                 break;
 
                 case 'contractCall':
-                    checkAeppConnected(msg.params.hostname).then((check) => {
-                        if(check) {
-                            openAeppPopup(msg,'contractCall')
-                            .then(res => {
-                                sendResponse(res)
+                    checkPendingTx().then(pending => {
+                        if(!pending) {
+                            checkAeppConnected(msg.params.hostname).then((check) => {
+                                if(check) {
+                                    openAeppPopup(msg,'contractCall')
+                                    .then(res => {
+                                        sendResponse(res)
+                                    })
+                                }else {
+                                    error.error.message = "Aepp not registered. Establish connection first"
+                                    sendResponse(error)
+                                }
                             })
                         }else {
-                            sendResponse({id:null, jsonrpc:"2.0",message: "Aepp not registered. Establish connection first"})
+                            error.error.message = "There is pending transaction. Please handle it before continue with another"
+                            sendResponse(error)
                         }
                     })
                     
@@ -221,6 +254,7 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
     return true
 })
 
+
 const connectToPopup = (cb,type) => {
     browser.runtime.onConnect.addListener((port) => {
         port.onMessage.addListener((msg) => {
@@ -230,19 +264,12 @@ const connectToPopup = (cb,type) => {
             browser.storage.sync.remove('pendingTransaction').then(() => {});
             browser.storage.sync.remove('showAeppPopup').then(() => {});  
             if(type == 'txSign') {
-                cb({
-                    "error": {
-                        "code": 1,
-                        "data": {
-                            "request": {}
-                        },
-                        "message": "Transaction verification failed"
-                    },
-                    "id": null,
-                    "jsonrpc": "2.0"
-                })
+                cb(error)
             }else if(type == 'connectConfirm') {
-                cb({id:null, jsonrpc:"2.0",message:"Connection canceled"})
+                error.error.message = "Connection canceled"
+                cb(error)
+            }else if(type == 'contractCall') {
+                cb(error)
             }else {
                 cb()
             }
@@ -264,6 +291,19 @@ const openAeppPopup = (msg,type) => {
                     resolve(res)
                 }, type)
             })
+        })
+    })
+}
+
+const checkPendingTx = () => {
+    return new Promise((resolve,reject) => {
+        browser.storage.sync.get('pendingTransaction').then((tx) => {
+            console.log(tx)
+            if(tx.hasOwnProperty("pendingTransaction")) {
+                resolve(true)
+            }else {
+                resolve(false)
+            }
         })
     })
 }

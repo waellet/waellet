@@ -85,6 +85,26 @@ const Aepp = {
                     resolve(r)
                 })
             })
+        },
+        contractCall({source, address, method, params = []}) {
+            let req = {
+              method: "aeppMessage",
+              type:"contractCall",
+              callType:"pay",
+              tx: {
+                  source,
+                  address,
+                  method,
+                  params
+              },
+              hostname:window.location.host
+            }
+            window.postMessage(req, '*')
+            return new Promise((resolve, reject) => {
+                receiveResponse((r) => {
+                    resolve(r)
+                })
+            })
         }
     },
     get: {

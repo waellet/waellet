@@ -165,8 +165,7 @@ import store from '../store';
 import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
-import { setTimeout } from 'timers';
-
+import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK } from './utils/helper';
 
 export default {
@@ -187,7 +186,8 @@ export default {
       mainLoading: true,
       checkPendingTxInterval:null,
       menuSlot:"mobile-left",
-      mobileRight: "mobile-right"
+      mobileRight: "mobile-right",
+      checkSDKReady:null
     }
   },
   computed: {
@@ -216,16 +216,22 @@ export default {
       });
 
       //init SDK
-      setTimeout(() => {
+      this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {
           this.initSDK()
+          this.pollData()
+          clearInterval(this.checkSDKReady)
         }
+      },500)
+
+      setTimeout(() => {
         if(this.isLoggedIn) {
           this.pollData()
         }else {
           this.hideLoader()
         }
       },500)
+
       this.checkPendingTx()
       window.addEventListener('resize', () => {
         
@@ -369,7 +375,7 @@ export default {
     pollData() {
       let triggerOnce = false
       this.polling = setInterval(() => {
-        if(this.sdk != null) {
+        if(this.sdk != null && this.isLoggedIn) {
             //Todo update token if is not AE
             if(this.current.token != 0) {
               this.$store.dispatch('updateBalanceToken')

@@ -5,7 +5,7 @@
         </div>
         <h3>{{ language.strings.manageNetworks }}</h3>
         <ae-panel>
-            <h4>Networks</h4>
+            <h4>{{ language.strings.networks }}</h4>
             <hr>
             <ae-list >
                 <ae-list-item class="editaccount" fill="neutral" v-for="(userNetowrk, index) in userNetworks" v-bind:key="index">

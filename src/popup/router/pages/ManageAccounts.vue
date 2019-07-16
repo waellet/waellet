@@ -5,7 +5,7 @@
         </div>
         <h3>{{ language.strings.manageAccounts }}</h3>
         <ae-panel>
-            <h4>All accounts</h4>
+            <h4>{{ language.strings.allAccounts }}</h4>
             <hr>
             <ae-list >
                 <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts" v-bind:key="index">
@@ -28,7 +28,7 @@
         </ae-panel>
         <ae-panel>
             <h4 class="addaccount">
-                Add account 
+                {{ language.strings.addNewSubAccount }}
                 <button v-if="!аddNewSubbAcc" @click="AddNewSubbAccount" class="icon-btn"><ae-icon name="plus" /></button>
                 <button v-if="аddNewSubbAcc" @click="closeNewSubbAccountForm" class="icon-btn"><ae-icon name="close" /></button>
             </h4>

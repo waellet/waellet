@@ -199,5 +199,13 @@ const convertAmountToCurrency = (currency, amount) => {
     return currency * amount
 }
 
-export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin, initializeSDK, currencyConv, convertAmountToCurrency }
+const contractEncodeCall = async (sdk,source, name, args = []) => {
+    return await sdk.contractEncodeCall(source,name,args)
+}
+
+const contractDecodeData = async (sdk,source, fn, callValue, callResults, options = {}) => {
+    return await sdk.contractDecodeData(source, fn, callValue, callResults, options)
+}
+
+export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin, initializeSDK, currencyConv, convertAmountToCurrency, contractEncodeCall, contractDecodeData }
 

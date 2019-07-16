@@ -32,7 +32,9 @@
         "menu": "Menu",
         "back": "Back",
         "loadMore":"Load More",
-        "addToken": "Add Token"
+        "addToken": "Add Token",
+        "allAccounts":"All accounts",
+        "networks": "Networks"
       },
       "networks": {
         "testnet": "Testnet",
@@ -92,7 +94,8 @@
           "insufficientBalance": "Insufficient Balance",
           "inccorectAddress": "Incorrect address",
           "reject": "Reject",
-          "confirm": "Confirm"
+          "confirm": "Confirm",
+          "contractCall": "Calling contract method. Please do not close the window"
         },
         "settings":{
           "heading" : "Settings",
