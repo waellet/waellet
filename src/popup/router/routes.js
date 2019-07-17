@@ -16,7 +16,7 @@ import ConnectConfirmComponent from './pages/ConnectConfirm';
 import TipComponent from './pages/TipPage';
 import ManageNetworks from './pages/ManageNetworks';
 import FungibleTokensComponent from './pages/FungibleTokens';
-
+import CreateFungibleTokenComponent from './pages/CreateFungibleToken';
 
 export default [
   {
@@ -101,5 +101,9 @@ export default [
   {
     path:'/tokens',
     component:FungibleTokensComponent
+  },
+  {
+    path:'/create-token',
+    component:CreateFungibleTokenComponent
   }
 ];

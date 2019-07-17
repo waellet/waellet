@@ -217,7 +217,7 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                         })
                     })
                 break;
-
+                        
                 case 'contractCall':
                     checkAeppConnected(msg.params.hostname).then((check) => {
                         if(check) {
@@ -227,6 +227,7 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                             })
                         }else {
                             error.error.message = "Aepp not registered. Establish connection first"
+                            error.id = msg.id
                             sendResponse(error)
                         }
                     })

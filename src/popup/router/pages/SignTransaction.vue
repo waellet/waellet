@@ -10,9 +10,13 @@
                 <div class="arrowSeprator">
                     <ae-icon name="left-more" />
                 </div>
-                <div class="flex flex-align-center accountTo">
-                    <ae-identicon :address="receiver" />
+                <div class="flex flex-align-center accountTo" v-if="data.type != 'contractCreate'">
+                    <ae-identicon :address="receiver"  />
                     <ae-address :value="receiver" length="short" class="spendAccountAddr" />
+                </div>
+                <div v-else class="flex flex-align-center accountTo">
+                    <ae-icon name="square" />
+                    <span class="spendAccountAddr">New contract</span>
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between flex-align-start flex-direction-column">
@@ -60,8 +64,8 @@
 <script>
 import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage } from '../../utils/helper';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE } from '../../utils/constants';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall } from '../../utils/helper';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee } from '../../utils/constants';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
 import { getHdWalletAccount } from '../../utils/hdWallet';
@@ -72,7 +76,7 @@ export default {
     data(){
         return {
             port:null,
-            txFee:MIN_SPEND_TX_FEE,
+            txFee:null,
             popup:false,
             signDisabled:true,
             alertMsg:'',
@@ -142,8 +146,36 @@ export default {
             }   
         }
     },
-    created(){
-        this.selectedFee = this.fee.toFixed(7)
+    async created(){
+        let txParams = {
+            ...this.sdk.Ae.defaults
+        }
+        
+        if(this.data.type == 'contractCreate') {
+            let params = this.data.tx.init.map(p => {
+                if(typeof p == 'string') {
+                    return `"${p}"`
+                }else {
+                    return p.toString()
+                }
+            })
+            let bytecode = await this.sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)
+            let callData = await contractEncodeCall(this.sdk,FUNGIBLE_TOKEN_CONTRACT,'init',[...params])
+            txParams = {
+                ...txParams,
+               ownerId:this.account.publicKey,
+               code:bytecode.bytecode,
+               callData,
+            } 
+        }else if(this.data.type == 'contractCall') {
+
+        }else if(this.data.type == 'txSign') {
+
+        }
+        let fee = calculateFee(TX_TYPES[this.data.type],txParams)
+        this.txFee = fee
+
+        this.selectedFee = this.fee.min.toFixed(7)
         currencyConv(this)
         if(this.data.popup) {
             this.port = browser.runtime.connect({ name: this.data.id })
@@ -164,7 +196,10 @@ export default {
             return typeof this.data.tx.amount != "undefined" ? this.data.tx.amount : 0
         },
         fee() {
-            return this.txFee
+            return this.txFee.min
+        },
+        maxFee() {
+            return this.txFee.max.toFixed(7)
         },
         totalSpend() {
             return (parseFloat(this.amount) + parseFloat(this.selectedFee)).toFixed(7)
@@ -193,12 +228,9 @@ export default {
                     return this.data.tx.method
                 }
                 return "Contract Call"
-            }else if(this.data.tyoe == "contractDeploy") {
-                return "Contract Deploy"
+            }else if(this.data.type == "contractCreate") {
+                return "Contract Create"
             }
-        },
-        maxFee() {
-            return MAX_REASONABLE_FEE.toFixed(7)
         },
 
     },
@@ -362,6 +394,14 @@ export default {
             }
             
         },
+        async contractDeploy() {
+            console.log("deploy")
+            let bytecode = await this.sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)
+            console.log(bytecode)
+            let deployed = await this.sdk.contractDeploy(bytecode.bytecode, FUNGIBLE_TOKEN_CONTRACT, [`"${this.data.tx.token.name}"`,this.data.tx.token.precision, `"${this.data.tx.token.symbol}"` ])
+            console.log(deployed)
+            this.loading = false
+        },
         signTransaction() {
             if(!this.signDisabled) {
                 this.loading = true
@@ -373,6 +413,8 @@ export default {
                         if(this.data.callType == 'pay') {
                             this.contractCall()
                         }
+                    }else if(this.data.type == 'contractCreate') {
+                        this.contractDeploy()
                     }
                 }catch(err) {
                     console.log(err);
@@ -457,6 +499,9 @@ export default {
 }
 .accountTo{
     width:70%;
+    .ae-icon {
+        font-size:2rem
+    }
 }
 .spendAccountAddr {
     font-size:0.9rem !important;

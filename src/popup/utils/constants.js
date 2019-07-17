@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import BigNumber from 'bignumber.js';
 import { TxBuilder } from '@aeternity/aepp-sdk/es';
+import { OBJECT_ID_TX_TYPE, TX_TYPE, VM_VERSIONS, ABI_VERSIONS } from '@aeternity/aepp-sdk/es/tx/builder/schema';
 
 export const MAGNITUDE = 18;
 export const MAGNITUDE_EXA = 18;
@@ -8,11 +9,16 @@ export const MAGNITUDE_GIGA = 9;
 export const MAGNITUDE_MICRO = -6;
 export const MAGNITUDE_PICO = -12;
 export const MINPASSWORDLENGTH = 8;
+export const TX_TYPES = {
+  'txSign':TX_TYPE.spend,
+  'contractCall':TX_TYPE.contractCall,
+  'contractCreate':TX_TYPE.contractCreate
+}
 
 const STUB_ADDRESS = 'ak_enAPooFqpTQKkhJmU47J16QZu9HbPQQPwWBVeGnzDbDnv9dxp';
 const MAX_UINT256 = BigNumber(2).exponentiatedBy(256).minus(1);
 const MIN_SPEND_TX_FEE_STRING = TxBuilder.calculateMinFee(
-  'spendTx', {
+    'spendTx', {
     params: {
       senderId: STUB_ADDRESS,
       recipientId: STUB_ADDRESS,
@@ -20,8 +26,26 @@ const MIN_SPEND_TX_FEE_STRING = TxBuilder.calculateMinFee(
       ttl: MAX_UINT256,
       nonce: MAX_UINT256,
     },
-  },
+  }
 );
+
+export const calculateFee = (type,params) => {
+  let MIN_FEE = TxBuilder.calculateMinFee(type, {
+    params: {
+      amount: MAX_UINT256,
+      ttl: MAX_UINT256,
+      nonce: MAX_UINT256,
+      ctVersion:{abiVersion:ABI_VERSIONS.SOPHIA,vmVersion:VM_VERSIONS.SOPHIA},
+      ...params
+    }
+  })
+  let min = BigNumber(MIN_FEE).shiftedBy(-MAGNITUDE)
+  let max = min.multipliedBy(10);
+  return {
+    min,
+    max
+  }
+}
 
 export const MIN_SPEND_TX_FEE = BigNumber(MIN_SPEND_TX_FEE_STRING).shiftedBy(-MAGNITUDE);
 export const MAX_REASONABLE_FEE = MIN_SPEND_TX_FEE.multipliedBy(10);

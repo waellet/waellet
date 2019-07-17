@@ -28,12 +28,12 @@
                 <ul class="slideform" :class="dropdown ? 'open' : ''">
                     <div class="add-form">
                         <!-- <h4 class="pageTitle">{{ language.strings.addNewNetwork }}</h4> -->
-                        <label style="float:left;"> {{ language.strings.networkName }}<span class="required_fields">*</span></label>
-                        <ae-input class="node-name" v-model="newUserNetwork" placeholder="Add Node name"></ae-input>
-                        <label style="float:left; margin-top: 10px;"> {{ language.strings.networkURL }}<span class="required_fields">*</span></label>
-                        <ae-input class="node-url" v-model="newUserNetworkURL" placeholder="Add Node URL"></ae-input>
-                        <hr>
-                        <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small>
+                        <!-- <label style="float:left;"> {{ language.strings.networkName }}<span class="required_fields">*</span></label> -->
+                        <ae-input class="node-name" :label="language.strings.networkName" v-model="newUserNetwork" placeholder="Add Node name"></ae-input>
+                        <!-- <label style="float:left; margin-top: 10px;"> {{ language.strings.networkURL }}<span class="required_fields">*</span></label> -->
+                        <ae-input class="node-url" :label="language.strings.networkURL" v-model="newUserNetworkURL" placeholder="Add Node URL"></ae-input>
+                        <!-- <hr>
+                        <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small> -->
                         <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
                     </div>
                 </ul>
@@ -186,5 +186,7 @@ export default {
 .add-form { text-align: center; /*padding: 15px; margin: 10px; */}
 .required_fields { color: red; margin: 5px; }
 .ae-list-item .ae-icon, h4 .ae-icon { font-size: 1.7rem !important; }
-.slideform.open { height:300px }
+.add-form .ae-input-container { margin-bottom: 1rem; }
+.slideform.open { height:240px }
+.ae-button { margin-top: 1rem}
 </style>

@@ -213,8 +213,11 @@ const removeTxFromStorage = (id) => {
     return new Promise((resolve,reject) => {
         browser.storage.sync.get('pendingTransaction').then((data) => {
             browser.storage.sync.remove('showAeppPopup').then(() => {
-                let list = data.pendingTransaction.list
-                delete list[id]
+                let list = {}
+                if(data.hasOwnProperty("pendingTransaction") && data.pendingTransaction.hasOwnProperty("list")) {
+                    list = data.pendingTransaction.list
+                    delete list[id]
+                }
                 resolve(list)
             }); 
         });

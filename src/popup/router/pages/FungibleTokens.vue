@@ -66,7 +66,7 @@
 <script>
 import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
-import { FUNGIBLE_TOKEN_CONTRACT, MIN_SPEND_TX_FEE } from '../../utils/constants';
+import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
 export default {
     data() {
         return {
@@ -75,7 +75,7 @@ export default {
             token: {
                 contract:'',
                 symbol:'',
-                precision:0,
+                precision:1,
                 precisionDisabled:false,
                 balance:0,
                 name:''
@@ -117,7 +117,7 @@ export default {
             if( this.token.contract.length != 53 || 
                 (this.token.symbol.length < 1 || this.token.symbol.length > 12) || 
                 isNaN(this.token.precision) ||
-                (!isNaN(this.token.precision) && (this.token.precision < 0 || this.token.precision > 36 ))
+                (!isNaN(this.token.precision) && (this.token.precision < 1 || this.token.precision > 36 ))
             ) {
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'})
             }else if(typeof added != 'undefined'){

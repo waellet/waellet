@@ -47,10 +47,10 @@
                 <ul class="slideform" :class="dropdown ? 'open' : ''">
                     <div class="add-form">
                         <!-- <h4 class="pageTitle">{{ language.strings.addNewSubAccount }}</h4> -->
-                        <label style="float:left;"> {{ language.strings.account }}<span class="required_fields">*</span></label>
-                        <ae-input v-model="newSubAcc" placeholder="Enter name"></ae-input>
-                        <hr>
-                        <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small>
+                        <!-- <label style="float:left;"> {{ language.strings.account }}<span class="required_fields">*</span></label> -->
+                        <ae-input :label="language.strings.account" v-model="newSubAcc" placeholder="Enter name"></ae-input>
+                        <!-- <hr>
+                        <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small> -->
                         <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
                     </div>
                 </ul>
@@ -180,10 +180,10 @@ export default {
 
 .slideform { position: relative; width: 100%; overflow: hidden; height:0; padding: 0; top: 10px; list-style-type: none; margin:0;
     /*box-shadow: 0 0 8px rgba(0, 33, 87, 0.15);*/ transform-origin: top; transition: all .4s ease-in-out; }
-.slideform.open { height:200px}
+.slideform.open { height:150px}
 .slide-enter, .slide-leave-to{ transform: scaleY(0); }
 .add-form { text-align: center; /*padding: 15px; margin: 10px;*/ }
 .required_fields { color: red; margin: 5px; }
 .ae-list-item .ae-icon, h4 .ae-icon { font-size: 1.7rem !important; }
-
+.ae-button { margin-top: 1rem; }
 </style>

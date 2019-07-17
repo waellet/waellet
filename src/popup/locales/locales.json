@@ -82,6 +82,7 @@
           "tokenContractLabel":"Token Contract Address",
           "tokenSymbolLabel":"Token Symbol",
           "tokenPrecision":"Decimals of Precision",
+          "tokenName":"Token Name",
           "addHeading":"Fungible Tokens",
           "addToken":"Add token",
           "searchHeading":"Search Token",
@@ -130,6 +131,10 @@
           "aboutSettings": {
             "heading": "About"
           }
+        },
+        "createFungibleToken" :{ 
+          "heading": "Create Fungible Token",
+          "deployTokenContract": "Deploy Token Contract"
         }
       },
       "messages": {

@@ -144,7 +144,7 @@ export default {
             amount:this.form.amount,
             recipientId:receiver
           },
-          type:'txSign'
+          type:'spend'
         }
         this.$store.commit('SET_AEPP_POPUP',true)
         this.$router.push({'name':'sign', params: {

@@ -116,6 +116,12 @@
                         {{ language.strings.addToken}}
                       </ae-button>
                     </li>
+                    <li>
+                      <ae-button @click="createToken">
+                        <ae-icon name="plus" />
+                        Create Token
+                      </ae-button>
+                    </li>
                   </ul>
                 </li>
                 <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
@@ -419,6 +425,10 @@ export default {
     toTokens() {
       this.dropdown.settings = false
       this.$router.push('/tokens')
+    },
+    createToken() {
+      this.dropdown.settings = false
+      this.$router.push('/create-token')
     },
     checkPendingTx() {
       this.checkPendingTxInterval = setInterval(() => {
