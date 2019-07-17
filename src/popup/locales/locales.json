@@ -120,8 +120,12 @@
             "privacyDataClearBtn":"Clear Privacy Data",
             "privateKeyHeading":"Reveal Private Key",
             "privateKeySmall":"You can view your private key after you enter your password",
-            "privateKeyRevealBtn":"Reveal Private Key"
-            
+            "privateKeyRevealBtn":"Reveal Private Key",
+            "privateKeyWarning":"Do not share your private key with anyone, it can be used to steal all your accounts",
+            "privateKey":"Your private key",
+            "showPrivateKey": "Show Private Key",
+            "incorrectPassword":"Incorrect Password",
+            "decryptingPrivateKey":"Decrypting private key"
           },
           "aboutSettings": {
             "heading": "About"

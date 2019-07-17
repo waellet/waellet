@@ -24,14 +24,29 @@
         </div>
         <Modal :modal="modal">
             <div slot="content">
-                <small>Enter the password with which the private key is encrypted. After successfully entered password you will see your private key. Do not share it with anyone, it can be used to steal all your accounts</small>
-                <div v-if="privateKey != ''">{{privateKey}}</div>
-                <ae-input class="my-2" label="Password">
-                    <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                </ae-input>
-                <ae-button extend face="round" fill="primary" @click="decryptKeystore">Show private key</ae-button>
+                <small v-if="privateKey == '' && !loading">{{language.pages.settings.securitySettings.privateKeyWarning}}</small>
+                <h3 v-if="privateKey != ''">{{language.pages.settings.securitySettings.privateKey}}</h3>
+                <Alert :fill="alert.fill" :show="alert.show && !loading">
+                    <div slot="content">
+                        {{alert.content}}
+                    </div>
+                </Alert>
+                <ae-toolbar fill="alternative" v-if="privateKey != ''" align="right">
+                    <ae-button face="toolbar" v-clipboard:copy="privateKey" >
+                        <ae-icon name="copy" />
+                        {{language.buttons.copy}}
+                    </ae-button>
+                </ae-toolbar>
+                <div v-if="privateKey == '' && !loading">
+                    <ae-input class="my-2" label="Password">
+                        <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                    </ae-input>
+                    <ae-button extend face="round" fill="primary" @click="decryptKeystore">{{language.pages.settings.securitySettings.showPrivateKey}}</ae-button>
+                </div>
+                <Loader :loading="loading" size="small" :content="language.pages.settings.securitySettings.decryptingPrivateKey"></Loader>
             </div>
         </Modal>
+
     </div>
 </template>
 
@@ -52,7 +67,13 @@ export default {
                 title:''
             },
             password:'',
-            privateKey:''
+            privateKey:'',
+            alert: {
+                fill:"neutral",
+                show:false,
+                content:""
+            },
+            loading:false
         }
     },
     computed: {
@@ -74,23 +95,39 @@ export default {
             });
         },
         clearPrivacyData( ) {
-            //confirm window to be addeded here after merge with the others 
             browser.storage.sync.remove('connectedAepps')
         },
         revealPrivateKey() {
             this.modal.visible = true
-            this.modal.title = "Show Private Key"
+            this.modal.title = this.language.pages.settings.securitySettings.showPrivateKey
+            this.reset()
         },
         decryptKeystore() {
+            this.loading = true
             browser.storage.sync.get('userAccount').then(async (user) => {
                 if(user.userAccount && user.hasOwnProperty('userAccount')) {
                     let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                     let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                    this.loading = false
                     if(match) {
                         this.privateKey = match
+                        this.setAlertData("alternative",true,match)
+                    }else {
+                        this.setAlertData("primary",true,this.language.pages.settings.securitySettings.incorrectPassword)
                     }
                 }
             })
+        },
+        reset() {
+            this.privateKey = ''
+            this.alert.show = false
+            this.alert.content = ''
+            this.password = ''
+        },
+        setAlertData(fill,show,content) {
+            this.alert.fill = fill
+            this.alert.show = show
+            this.alert.content = content
         }
     }
 }
