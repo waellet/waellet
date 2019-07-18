@@ -83,5 +83,11 @@ export default {
       balance:0,
       contract:''
     }];
+  },
+  [types.SET_ACTIVE_TOKEN] (state, payload) {
+    state.current.token = payload
+  },
+  [types.SET_AEPP_POPUP] (state, payload) {
+    state.aeppPopup = payload
   }
 }; 

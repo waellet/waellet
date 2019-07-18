@@ -12,6 +12,7 @@
                 <small><span class="balance">{{transactionData.tx.fee / 10 ** 18}}</span></small>
             </div>
         </ae-list-item>
+        <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
 
@@ -24,7 +25,7 @@ export default  {
         return {}
     },
     computed: {
-        ...mapGetters(['account']),
+        ...mapGetters(['account','popup']),
         balanceSign() {
             return this.transactionData.tx.sender_id == this.account.publicKey || this.transactionData.tx.account_id == this.account.publicKey ? 'minus' : 'plus';
         },
@@ -42,7 +43,10 @@ export default  {
     methods: {
         showTransactionDetails() {
             this.$router.push({'name':'transaction-details',params: { transaction: this.transactionData }});
-        }
+        },
+        showTransaction(){
+        browser.tabs.create({url: this.popup.data, active: false});
+        },
     }
 }
 </script>

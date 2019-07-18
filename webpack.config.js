@@ -15,7 +15,11 @@ const config = {
     'popup/popup': './popup/popup.js',
     'options/options': './options/options.js',
     'main':'./main.js',
-    'phishing/phishing':'./phishing/phishing.js'
+    'phishing/phishing':'./phishing/phishing.js',
+    "aepp":'./aepp.js'
+  },
+  node: {
+    fs: 'empty', net: 'empty', tls: 'empty'
   },
   output: {
     path: __dirname + '/dist',

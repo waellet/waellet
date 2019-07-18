@@ -20,7 +20,6 @@ describe("Test cases for Receive Page", () => {
         .get('.ae-overlay')
         .should('be.visible')
         .get('.ae-modal-light .buttons button')
-        .should('have.class','alternative')
         .click()
         .get('.ae-modal-light')
         .should('not.be.visible')

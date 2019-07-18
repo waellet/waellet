@@ -1,4 +1,4 @@
-import { mnemonic, tabs, transaction } from '../utils';
+import { mnemonic, tabs, transaction, transaction2, connectObj } from '../utils';
 const onBeforeLoad = (win,mock = '') => {
     win.chrome = win.chrome || {};
     try {
@@ -28,6 +28,10 @@ const onBeforeLoad = (win,mock = '') => {
                         res = {[data]:JSON.parse(localStorage.getItem(data))};
                     }
                     callback(res);
+                },
+                remove(data,callback) {
+                    localStorage.removeItem('data')
+                    callback()
                 }
             } 
         };
@@ -47,7 +51,6 @@ const onBeforeLoad = (win,mock = '') => {
                 }
            }
        }
-
         win.chrome.storage.sync.set({allowTracking: false},()=>{});
         window.chrome = win.chrome;
         if(mock == 'account') {
@@ -66,6 +69,19 @@ const onBeforeLoad = (win,mock = '') => {
             chrome.storage.sync.set({
                 pendingTransaction:{
                     data:transaction
+                }
+            }, () => { });
+        }else if(mock == 'sign2') {
+            chrome.storage.sync.set({
+                pendingTransaction:{
+                    data:transaction2
+                }
+            }, () => { });
+        }else if(mock == 'confirm-connection') {
+            chrome.storage.sync.set({
+                showAeppPopup:{
+                    data:{params:connectObj.params},
+                    type:connectObj.type
                 }
             }, () => { });
         }

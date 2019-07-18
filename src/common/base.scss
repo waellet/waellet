@@ -83,6 +83,7 @@ main {
 }
 .modal-two-buttons .ae-modal-light {
   position:relative;
+  width: 100%;
 }
 .modal-two-buttons .buttons {
   position:absolute;
@@ -103,6 +104,9 @@ main {
 .ae-overlay .ae-modal-light .buttons { 
   margin-top:5px !important;  
 }
+.ae-overlay .ae-modal-light h1 {
+  word-break: break-word;
+}
 .ae-overlay .ae-modal-light main { 
   padding-bottom:1rem; 
 }
@@ -116,7 +120,7 @@ main {
   transform:translateX(-50%);
   -webkit-transform:translateX(-50%);
   -ms-transform:translateX(-50%);
-  width:90%;
+  width:340px;
   button {
       margin-bottom:0 !important;
   }
@@ -326,6 +330,7 @@ main {
 .balanceTotalSpend {
   color:$primary-color;
 }
+.popup-modal { width: 100%; }
 .popup-button { width:60%; }
 
 .backbutton {
@@ -337,9 +342,13 @@ main {
   vertical-align: top;
   line-height: 15px;
 }
-.filterModal .ae-modal-light {
+.ae-modal-light {
   width:100% !important;
 }
 .input-container {
   margin:1.2rem 0;
+}
+.alert-card .ae-card-main {
+  justify-content: start !important;
+  align-items: center !important;
 }

@@ -6,14 +6,9 @@
         <div class="logo-center">
           <img :src="logo" alt="Waellet logo">
         </div>
-        <ae-modal-light v-if="modalAskVisible" @close="modalAskVisible = false" title="Do you want to track your stats?">
-          <small>Please, note that you can change this at any time in the Waellet settings</small>
-          <ae-button size="small" type="exciting" plain uppercase @click="trackStats" slot="buttons" >Yes</ae-button>
-          <ae-button size="small" type="dramatic" plain uppercase @click="doNotTrackStats" slot="buttons" >No</ae-button>
-        </ae-modal-light>
       </div>
     </main>
-    <Loader :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
+    <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
     <footer v-if="!loading">
       <div class="wrapper">
           <div v-if="account.encryptedPrivateKey">
@@ -75,7 +70,7 @@ import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
-import { fetchData } from '../../utils/helper';
+import { fetchData, redirectAfterLogin } from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet';
 
@@ -114,34 +109,15 @@ export default {
       // browser.storage.sync.set({isLogged: ''}).then(() => {});
       // browser.storage.sync.set({confirmSeed: true}).then(() => {});
       // browser.storage.sync.set({mnemonic: ''}).then(() => {});
-      // browser.storage.sync.remove('tokens').then(() => {});
+      // browser.storage.sync.remove('pendingTransaction').then(() => {});
       var newTab = false;
       browser.storage.sync.get('allowTracking').then((result) => {
         if (result.hasOwnProperty('allowTracking')) {
           this.modalAskVisible = false;
         }
       });
-      browser.storage.sync.get('showAeppPopup').then((data) => {
-        if(data.hasOwnProperty('showAeppPopup') && data.showAeppPopup.hasOwnProperty('type') && data.showAeppPopup.hasOwnProperty('data') && data.showAeppPopup.type != "" ) {
-          browser.storage.sync.set({showAeppPopup:{}}).then(() => {
-            if(data.showAeppPopup.type == 'confirm') {
-              this.$router.push({'name':'confirm-share', params: {
-                data:data.showAeppPopup.data
-              }});
-            }else if(data.showAeppPopup.type == 'sign') {
-              this.$router.push({'name':'sign', params: {
-                data:data.showAeppPopup.data
-              }});
-            }
-            return;
-          });
-        }else {
-          browser.storage.sync.get('pendingTransaction').then((data) => {
-              if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('data')) {
-                this.$router.push({'name':'sign', params: {
-                  data:data.pendingTransaction.data
-                }});
-              }else {
+      browser.storage.sync.get('showAeppPopup').then((aepp) => {
+          browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
                 browser.storage.sync.get('isLogged').then((data) => {
                   browser.storage.sync.get('userAccount').then((user) => {
                       if(user.userAccount && user.hasOwnProperty('userAccount')) {
@@ -203,7 +179,7 @@ export default {
                               this.$store.dispatch('setTokens', tokens).then(() => {
                                 this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
                                 this.$store.commit('SWITCH_LOGGED_IN', true);
-                                this.$router.push('/account');
+                                redirectAfterLogin(this)
                               })
                             });
                           }
@@ -211,20 +187,9 @@ export default {
                       }
                   });
                 });
-              }
           });
-          
-        }
       });
       
-    },
-    trackStats() {
-      this.modalAskVisible = false;
-      browser.storage.sync.set({allowTracking:  true}).then(() => {});
-    },
-    doNotTrackStats(){
-      this.modalAskVisible = false;
-      browser.storage.sync.set({allowTracking:  false}).then(() => {});
     },
     generateAddress: async function generateAddress({ dispatch }) {
         this.$router.push({name:'password',params:{
@@ -314,11 +279,6 @@ export default {
              this.errorMsg = "Plese upload keystore.json file! ";
           }
       }
-      browser.storage.sync.get('allowTracking').then(result => {
-          if(result.allowTracking == true) {
-              fetchData('https://stats.waellet.com/user/imported', 'post', this.imported);
-          }
-      });
     },
     openImportModal() {
       this.modalVisible = true;
@@ -384,15 +344,10 @@ export default {
                             }else {
                               sub = subaccounts.subaccounts;
                             }
-                            browser.storage.sync.get('allowTracking').then(result => {
-                                if(result.allowTracking == true) {
-                                    fetchData('https://stats.waellet.com/user/login', 'post', this.isLogged);
-                                }
-                            });
                             this.$store.dispatch('setSubAccounts',sub).then(() => {
                               this.$store.commit('SET_WALLET', wallet);
                               this.$store.commit('SWITCH_LOGGED_IN', true);
-                              this.$router.push('/account');
+                              redirectAfterLogin(this)
                             });
                           });
                         });
@@ -409,7 +364,7 @@ export default {
           this.inputError = {error:''};
           context.loading = false;
         }
-    },
+    }
   },
 };
 </script>

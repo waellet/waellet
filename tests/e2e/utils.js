@@ -18,11 +18,25 @@ export const tabs = [
   {url:"aeternity.com", favIconUrl: undefined }
 ];
 export const transaction = {
-  senderId:"ak_wzegeVb4g7afqzh4mXqbYyb3PVTgSYkWieYrKqn11bYu1pGqX",
-  recipientId:"ak_FxYhMbVDTquNu38PHWoMCoiw7CNq2sSQFbhK9zgyi1U1wH6Mv",
-  amount:2079983180000000000,
-  fee:2079983180000000000
+  tx: {
+    recipientId:"ak_FxYhMbVDTquNu38PHWoMCoiw7CNq2sSQFbhK9zgyi1U1wH6Mv",
+    amount:0.000001
+  }
 };
+export const transaction2 = {
+  tx: {
+    recipientId:"ak_FxYhMbVDTquNu38PHWoMCoiw7CNq2sSQFbhK9zgyi1U1wH6Mv",
+    amount:200
+  }
+};
+export const connectObj = {
+  type:"connectConfirm",
+  params: {
+    hostname:"testnet.explorer.aepps.com",
+    protocol:"https:",
+    title:"aeternity explorer"
+  }
+}
 export const network = {
   Testnet: {
     url: 'https://sdk-testnet.aepps.com',
@@ -97,7 +111,7 @@ export const generateWallet = () => {
   .get('button').contains('Continue').click()
   .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'seed') }})
   .get('button.nextStep').click()
-  .get('.ae-phraser-container').should('be.visible')
+  .get('.seeds-container').should('be.visible')
   .wait(10000)
   .get('button.nextStep').click()
   .wrap(seeds).each((num,i) => {
@@ -253,7 +267,7 @@ export const createSubAccount = () => {
   .should('contain','Test 123')
   .get('#settings')
   .click()
-  .get('.toAccount')
+  .get('.dropdown-holder > :nth-child(1) > .ae-button')
   .click();
 };
 
@@ -324,3 +338,70 @@ export const renameAccountFromManageAccounts = () => {
   .find('.subAccountName')
   .should('contain','Account 2')
 };
+
+
+export const createNetwork = () => {
+  cy
+  .visit('popup/popup.html',{onBeforeLoad})
+  .get('#network')
+  .click()
+  .get('.triggerhidedd > .ae-button')
+  .click()
+  .get('.dropdown-holder')
+  .should('not.be.visible')
+  .get('h3')
+  .should('contain','Manage networks')
+  .should('be.visible')
+  .get('.ae-list-item > div > button > .ae-icon')
+  .click()
+  .get('.add-form')
+  .should('be.visible')
+  .get('.pageTitle')
+  .should('be.visible')
+  .should('contain','Add new node')
+  .get('.ae-button').should('contain','Add')
+  .click()
+  .get('.ae-modal-light')
+  .get('h1').should('contain','Required fields!')
+  .get('.buttons > .ae-button').should('contain','Ok')
+  .click()
+  .get(':nth-child(3) > .ae-input-box > .ae-input')
+  .type('123')
+  .get('.ae-button').should('contain','Add')
+  .click()
+  .get('.ae-modal-light')
+  .get('h1').should('contain','Required fields!')
+  .get('.buttons > .ae-button').should('contain','Ok')
+  .click()
+  .get(':nth-child(3) > .ae-input-box > .ae-input')
+  .clear()
+  .get(':nth-child(5) > .ae-input-box > .ae-input')
+  .type('123')
+  .get('.ae-button').should('contain','Add')
+  .click()
+  .get('.ae-modal-light')
+  .get('h1').should('contain','Required fields!')
+  .get('.buttons > .ae-button').should('contain','Ok')
+  .click()
+  .get(':nth-child(5) > .ae-input-box > .ae-input')
+  .clear()
+  .get(':nth-child(3) > .ae-input-box > .ae-input')
+  .type('google')
+  .get(':nth-child(5) > .ae-input-box > .ae-input')
+  .type('www.google.com')
+  .get('.ae-button').should('contain','Add')
+  .click()
+  .get('.ae-modal-light')
+  .get('h1').should('contain','Successfully added!')
+  .get('.buttons > .ae-button').should('contain','Ok')
+  .click()
+  .get('#network')
+  .click()
+  .get('.dropdown-holder')
+  .should('be.visible')
+  .get('#network > .ae-list > :nth-child(3)')
+  .get(':nth-child(3) > .subAccountInfo > .subAccountName')
+  .should('contain','google')
+  .get(':nth-child(3) > .subAccountInfo > .subAccountBalance')
+  .should('contain','www.google.com')
+}

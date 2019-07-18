@@ -24,7 +24,7 @@
             <p v-if="showMoreBtn == false">All transactions loaded! </p>
         </ae-list>
         <div class="newTx" @click="mergeNewTransactions" v-if="newTransactions != 0"><span class="newTxCount">{{newTransactions}}</span> new transactions</div>
-        <Loader :loading="loading" v-bind="{'content':''}"></Loader>
+        <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
 
 
         <ae-modal
@@ -75,7 +75,7 @@
 import locales from '../../locales/locales.json';
 import {mapGetters} from 'vuex';
 import { groupBy,orderBy } from 'lodash-es'; 
-import { clearInterval } from 'timers';
+import { clearInterval, clearTimeout  } from 'timers';
 export default {
     data() {
         return {
@@ -260,8 +260,10 @@ export default {
         }
     },
     beforeDestroy () {
-      clearInterval(this.polling)
-      clearInterval(this.updateInterval)
+    //   clearInterval(this.polling)
+    //   clearInterval(this.updateInterval)
+      window.clearTimeout(this.polling)
+      window.clearTimeout(this.upadateInterval)
     }
 }
 </script>

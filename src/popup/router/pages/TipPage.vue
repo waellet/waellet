@@ -5,7 +5,7 @@
         </div>
         <div>
             <div class="tipWebsiteHeader flex flex-align-center ">
-                <Loader class="loader" v-if="loadFavicon" :loading="loadFavicon" v-bind="{'content':''}"></Loader>
+                <Loader size="small" class="loader" v-if="loadFavicon" :loading="loadFavicon" v-bind="{'content':''}"></Loader>
                 <img :src="favicon" v-if="!loadFavicon && typeof favicon !== 'undefined'" class="domainFavicon"/>
                 <div v-if="!loadFavicon && typeof favicon == 'undefined' " class="domainFavicon noFavicon">No image</div>
                 <div class="domainInfo text-left">
@@ -59,6 +59,7 @@
             </div>
             <ae-button face="round" fill="alternative" extend class="sendTip" @click="sendTip">Send tip</ae-button>
         </div>
+        <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
 
@@ -87,7 +88,7 @@ export default {
     },
     locales,
     computed: {
-        ...mapGetters(['balance','account','tokenSymbol','tokenBalance']),
+        ...mapGetters(['balance','account','tokenSymbol','tokenBalance','popup']),
         maxValue() {
             let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;

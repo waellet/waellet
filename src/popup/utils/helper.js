@@ -1,3 +1,7 @@
+import Universal from '@aeternity/aepp-sdk/es/ae/universal';
+import { getHdWalletAccount } from './hdWallet';
+
+
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -61,21 +65,110 @@ const fetchData = (url, method, fetchedData) => {
         fetch(url, {
             method: method,
             body: fetchedData
-        }).then(function(response) {
-            console.log(response);
-        }).then(function(data) {
-            console.log(data);
-        });
+        })
+        .then(response => response.json())
+        .then(json => console.log(json))
     }
     if (method == 'get') {
-        fetch(url, {
-            method: method,
-        }).then(function(response) {
-            console.log(response);
-        }).then(function(data) {
-            console.log(data);
-        });
+        return fetch(url)
+            .then(response => response.json())
     }
-};
-export {shuffleArray, convertToAE, extractHostName, fetchData};
+}
+
+const setConnectedAepp = (host) => {
+    return new Promise((resolve, reject) => {
+        browser.storage.sync.get('connectedAepps').then((aepps) => {
+
+            let list = []
+            if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
+                list = aepps.connectedAepps.list
+            }
+            list.push({host})
+            browser.storage.sync.set({connectedAepps: { list }}).then(() => {
+                resolve()
+            })
+        })
+    })
+}
+
+const checkAeppConnected = (host) => {
+    return new Promise((resolve, reject) => {
+        browser.storage.sync.get('connectedAepps').then((aepps) => {
+            if(!aepps.hasOwnProperty('connectedAepps')) {
+                return resolve(false)
+            }
+            if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
+                let list = aepps.connectedAepps.list
+                if(list.find(ae => ae.host == host)) {
+                    return resolve(true)
+                }
+                return resolve(false)
+            }
+    
+            return resolve(false)
+        })
+    })
+}
+
+
+const redirectAfterLogin = (ctx) => {
+  browser.storage.sync.get('showAeppPopup').then((aepp) => {
+    browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
+      if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
+        browser.storage.sync.remove('showAeppPopup').then(() => {
+            ctx.$store.commit('SET_AEPP_POPUP',true)
+          
+          if(aepp.showAeppPopup.type == 'connectConfirm') {
+            aepp.showAeppPopup.data.popup = true
+            ctx.$router.push({'name':'connect-confirm', params: {
+              data:aepp.showAeppPopup.data
+            }});
+          }else if(aepp.showAeppPopup.type == 'txSign') {
+            aepp.showAeppPopup.data.popup = true
+            ctx.$router.push({'name':'sign', params: {
+              data:aepp.showAeppPopup.data
+            }});
+          }
+          return;
+        });
+      }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('data')) {
+        ctx.$store.commit('SET_AEPP_POPUP',true)
+        pendingTx.pendingTransaction.data.popup = false
+        ctx.$router.push({'name':'sign', params: {
+          data:pendingTx.pendingTransaction.data
+        }});
+      }else {
+        ctx.$router.push('/account');
+      }
+    })
+  })
+}
+
+
+
+const initializeSDK = (ctx, {network, current, account, wallet, activeAccount},background = false) => {
+    return new Promise ((resolve,reject) => {
+        Universal({
+            url: network[current.network].url, 
+            internalUrl: network[current.network].internalUrl,
+            keypair: {
+                publicKey: account.publicKey,
+                secretKey: getHdWalletAccount(wallet,activeAccount).secretKey
+            },
+            networkId: network[current.network].networkId, 
+            nativeMode: true,
+            compilerUrl: 'https://compiler.aepps.com'
+        }).then((sdk) => {
+            if(!background) {
+                ctx.$store.dispatch('initSdk',sdk).then(() => {
+                    ctx.hideLoader()
+                })
+            }else {
+                resolve(sdk)
+            }
+        })
+    })
+}
+
+export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin, initializeSDK }
 

@@ -1,6 +1,6 @@
 <template>
     <div class="popup">
-        <div class="backbtn">
+        <div class="actions">
             <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
         </div>
         <h3 style='text-align:center;'>{{language.pages.settings.heading}}</h3>
@@ -73,10 +73,13 @@ export default {
 <style lang="scss">
 
 @import '../../../common/base';
+.settingslist  {
+    padding:0 !important;
+}
 .settingslist button {
     transition: 0.4s;
     position: relative;
-    padding: 10px;
+    padding: 1rem 1.5rem;
     width: 100%;
     display: block;
     font-size: 14px;
@@ -103,7 +106,7 @@ export default {
     transform: rotate(-45deg);
     -webkit-transform: rotate(-45deg);
     position: absolute;
-    right: 10px;
+    right: 1rem;
     top: 50%;
     margin-top: -15px;
     border-radius: 4px;

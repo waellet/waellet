@@ -46,8 +46,8 @@ export default {
   },
   updateBalanceTokens({ commit, state }) {
     state.tokens.forEach((tkn, index) => {
-        if(typeof tkn.parent != 'undefined' && tkn.contract != '') {
-          state.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,tkn.contract,'balance',[state.account.publicKey])
+        if(typeof tkn.parent != 'undefined' && tkn.contract != '' && tkn.parent == state.account.publicKey) {
+          state.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,tkn.contract,'balance',[state.account.publicKey])
           .then((res) => {
             res.decode()
             .then(balance => {
@@ -60,6 +60,16 @@ export default {
         }
     })
   },
+  updateBalanceToken({commit, state} ) {
+    state.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,state.tokens[state.current.token].contract,'balance',[state.account.publicKey]) 
+    .then((res) => {
+      res.decode()
+      .then(balance => {
+        console.log(balance)
+        commit(types.UPDATE_TOKENS_BALANCE, { token:state.current.token, balance: balance == 'None' ? 0 : balance.Some[0] } );
+      })
+    })
+  },
   popupAlert({ commit, state }, payload) {
     switch (payload.name) {
       case 'spend':
@@ -67,17 +77,20 @@ export default {
           case 'insufficient_balance':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.INSUFFICIENT_BALANCE});
             break;
+          case 'confirm_transaction':
+            commit(types.SHOW_POPUP, {show: true, class: payload.type,data:payload.data, secondBtn:true, secondBtnClick: 'confirmTransaction', ...popupMessages.CONFIRM_TRANSACTION});
+            break;
           case 'success_transfer':
             commit(types.SHOW_POPUP,{show:true,secondBtn:true,secondBtnClick:'showTransaction',...popupMessages.SUCCESS_TRANSFER,msg:payload.msg,data:payload.data})
             break;
           case 'incorrect_address':
-                commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_ADDRESS});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_ADDRESS});
             break;
           case 'incorrect_amount':
-                commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_AMOUNT});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_AMOUNT});
             break;
           case 'transaction_failed':
-                commit(types.SHOW_POPUP,{show:true,...popupMessages.TRANSACTION_FAILED});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.TRANSACTION_FAILED});
             break;
           default:
             break;
@@ -106,6 +119,9 @@ export default {
           case 'token_invalid_address':
               commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_INVALID_ADDRESS});
           break;
+          case 'only_allowed_chars':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.CHARS_ALLOWED});
+            break;
           default:
             break;
         }
