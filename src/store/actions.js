@@ -65,7 +65,6 @@ export default {
     .then((res) => {
       res.decode()
       .then(balance => {
-        console.log(balance)
         commit(types.UPDATE_TOKENS_BALANCE, { token:state.current.token, balance: balance == 'None' ? 0 : balance.Some[0] } );
       })
     })

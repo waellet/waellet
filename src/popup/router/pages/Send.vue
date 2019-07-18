@@ -65,11 +65,11 @@ import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
+import { MAGNITUDE, calculateFee, TX_TYPES, FUNGIBLE_TOKEN_CONTRACT  } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from '../../utils/hdWallet';
-import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+import { contractEncodeCall } from '../../utils/helper';
 
 export default {
   name: 'Send',
@@ -87,25 +87,62 @@ export default {
         block: '',
         url: ''
       },
-      txFee: MIN_SPEND_TX_FEE
+      fee: {
+        min:0,
+        max:0
+      }
     }
   },
   locales,
+  watch: {
+    activeToken() {
+      this.fetchFee()
+    }
+  },
   computed: {
     ...mapGetters(['account', 'balance', 'network', 'current', 'wallet', 'activeAccount', 'subaccounts', 'tokenSymbol', 'tokenBalance', 'sdk', 'tokens', 'popup']),
     maxValue() {
-      let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
+      let calculatedMaxValue = this.balance - this.maxFee
       return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
     },
     sendSubaccounts() {
       let subs = this.subaccounts.filter(sub => sub.publicKey != this.account.publicKey);
       return subs.length == 0 ? false : subs;
+    },
+    txFee() {
+      return this.fee.min
+    },
+    maxFee() {
+      return this.fee.max
+    },
+    activeToken() {
+      return this.current.token
     }
   },
   mounted() {
     this.init()
+    this.fetchFee()
+    console.log(Buffer.from(getHdWalletAccount(this.wallet,this.activeAccount).secretKey).toString('hex'))
   },
   methods: {
+    async fetchFee() {
+      let fee = await calculateFee(this.current.token == 0 ? TX_TYPES['txSign'] : TX_TYPES['contractCall'],{...await this.feeParams()})
+      this.fee = fee
+    },
+    async feeParams() {
+      if(this.current.token == 0) {
+        return {
+          ...this.sdk.Ae.defaults
+        }
+      }else {
+        return {
+          ...this.sdk.Ae.defaults,
+          callerId:this.account.publicKey,
+          contractId:this.tokens[this.current.token].contract,
+          callData: await contractEncodeCall(this.sdk,FUNGIBLE_TOKEN_CONTRACT,"transfer",[this.account.publicKey,"0"])
+        }
+      }
+    },
     send(){
       let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
       let receiver = this.form.address;
@@ -136,6 +173,22 @@ export default {
           this.loading = false;
           return;
         }
+        let tx = {
+          popup:false,
+          tx: {
+            source:FUNGIBLE_TOKEN_CONTRACT,
+            method:'transfer', 
+            params: [receiver,this.form.amount],
+            address:this.tokens[this.current.token].contract,
+            amount:this.form.amount,
+            token:this.tokenSymbol
+          },
+          type:'contractCall'
+        }
+        this.$store.commit('SET_AEPP_POPUP',true)
+        this.$router.push({'name':'sign', params: {
+          data:tx
+        }});
       }
       else {
         let tx = {
@@ -144,21 +197,16 @@ export default {
             amount:this.form.amount,
             recipientId:receiver
           },
-          type:'spend'
+          type:'txSign'
         }
         this.$store.commit('SET_AEPP_POPUP',true)
         this.$router.push({'name':'sign', params: {
           data:tx
         }});
-        // this.$store.dispatch('popupAlert', {
-        //     name: 'spend',
-        //     type: 'confirm_transaction'
-        // });
      } 
     },
     init() {
-      let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
-      // this.maxValue = calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0
+      let calculatedMaxValue = this.balance - this.maxFee
     },
     confirmTransaction () {
       this.loading = true;

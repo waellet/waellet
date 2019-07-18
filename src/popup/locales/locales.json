@@ -22,7 +22,7 @@
         "address": "Address",
         "amount": "Amount",
         "maxSpendableValue": "Maximum spendable value:",
-        "txFee": "Tx fee:",
+        "txFee": "Min Tx fee:",
         "success": "Success",
         "seeTransactionExplorer": "See transaction in the explorer.",
         "accountName": "Account name",

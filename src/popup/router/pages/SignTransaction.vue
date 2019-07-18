@@ -24,8 +24,8 @@
                     <ae-badge v-if="data.type=='contractCall'">Contract Call</ae-badge>
                     <ae-badge>{{txType}}</ae-badge>
                 </div>
-                <div class="balance balanceSpend">{{amount}}</div>
-                <div class="fiat-rate">${{convertCurrency(usdRate,amount)}}</div>
+                <div class="balance balanceSpend no-sign">{{amount}} {{token}}</div>
+                <div class="fiat-rate" v-if="!data.tx.token">${{convertCurrency(usdRate,amount)}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg flex-direction-column flex-align-center ">
                 <div class="flex extend flex-justify-between ">
@@ -37,14 +37,14 @@
                 </div>
                 <div class="range-slider">
                     <div class="sliderOver"></div>
-                    <input class="range-slider__range" type="range"  :min="txFee" :max="maxFee" step="0.000001" v-model="selectedFee">
+                    <input class="range-slider__range" type="range"  :min="fee" :max="maxFee" step="0.000001" v-model="selectedFee">
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
                 <div class="tx-label">{{language.pages.transactionDetails.total}}</div>
                 <div class="text-right">
-                    <div class="balance balanceBig balanceTotalSpend">{{totalSpend}}</div>
-                    <div class="fiat-rate">${{convertCurrency(usdRate,totalSpend)}}</div>
+                    <div class="balance balanceBig balanceTotalSpend no-sign">{{totalSpend}} {{token}}</div>
+                    <div class="fiat-rate" v-if="!data.tx.token">${{convertCurrency(usdRate,totalSpend)}}</div>
                 </div>
             </ae-list-item>
          </ae-list>
@@ -76,7 +76,10 @@ export default {
     data(){
         return {
             port:null,
-            txFee:null,
+            txFee:{
+                min:0,
+                max:0
+            },
             popup:false,
             signDisabled:true,
             alertMsg:'',
@@ -103,10 +106,7 @@ export default {
     },
     props:['data'],
     locales,
-    methods: {
-
-    }, 
-    mounted() {
+    async created(){
         if(typeof this.data.callType != "undefined" && this.data.callType == 'static') {
             this.loaderType = ''
             this.loading = true
@@ -144,38 +144,55 @@ export default {
                     browser.storage.sync.set({pendingTransaction:{ list }}).then(() => { })
                 })
             }   
-        }
-    },
-    async created(){
-        let txParams = {
-            ...this.sdk.Ae.defaults
-        }
-        
-        if(this.data.type == 'contractCreate') {
-            let params = this.data.tx.init.map(p => {
-                if(typeof p == 'string') {
-                    return `"${p}"`
-                }else {
-                    return p.toString()
+            this.checkSDKReady = setInterval(async () => {
+                if( this.sdk != null ) {
+                    window.clearTimeout(this.checkSDKReady)
+                    let txParams = {
+                        ...this.sdk.Ae.defaults
+                    }
+                    
+                    if(this.data.type == 'contractCreate') {
+                        this.data.tx.contract = {}
+                        this.data.tx.contract.params = this.data.tx.init.map(p => {
+                            if(typeof p == 'string') {
+                                return `"${p}"`
+                            }else {
+                                return p.toString()
+                            }
+                        })
+                        this.data.tx.contract.bytecode = (await this.sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
+                        let callData = await contractEncodeCall(this.sdk,FUNGIBLE_TOKEN_CONTRACT,'init',[...this.data.tx.contract.params])
+                        txParams = {
+                            ...txParams,
+                            ownerId:this.account.publicKey,
+                            code:this.data.tx.contract.bytecode,
+                            callData,
+                        } 
+                    }else if(this.data.type == 'contractCall') {
+                        this.data.tx.call = {}
+                        let callData = await contractEncodeCall(this.sdk,this.data.tx.source,this.data.tx.method,[...this.data.tx.params])
+                        txParams = {
+                            ...txParams,
+                            callData,
+                            contractId:this.data.tx.address,
+                            callerId:this.account.publicKey
+                        }
+                        
+                    }else if(this.data.type == 'txSign') {
+                        txParams = {
+                            ...txParams,
+                            senderId:this.account.publicKey,
+                            recipientId:this.data.tx.recipientId
+                        }
+                    }
+                    console.log(txParams)
+                    let fee = calculateFee(TX_TYPES[this.data.type],txParams)
+                    console.log(fee)
+                    this.txFee = fee
+                    this.selectedFee = this.fee.toFixed(7)
                 }
-            })
-            let bytecode = await this.sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)
-            let callData = await contractEncodeCall(this.sdk,FUNGIBLE_TOKEN_CONTRACT,'init',[...params])
-            txParams = {
-                ...txParams,
-               ownerId:this.account.publicKey,
-               code:bytecode.bytecode,
-               callData,
-            } 
-        }else if(this.data.type == 'contractCall') {
-
-        }else if(this.data.type == 'txSign') {
-
+            }, 500)
         }
-        let fee = calculateFee(TX_TYPES[this.data.type],txParams)
-        this.txFee = fee
-
-        this.selectedFee = this.fee.min.toFixed(7)
         currencyConv(this)
         if(this.data.popup) {
             this.port = browser.runtime.connect({ name: this.data.id })
@@ -189,7 +206,7 @@ export default {
     computed: {
         ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk']),
         maxValue() {
-            let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
+            let calculatedMaxValue = this.balance - this.fee
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
         },
         amount() {
@@ -202,6 +219,9 @@ export default {
             return this.txFee.max.toFixed(7)
         },
         totalSpend() {
+            if(typeof this.data.tx.token != 'undefined') {
+                return parseFloat(this.amount).toFixed(7)
+            }
             return (parseFloat(this.amount) + parseFloat(this.selectedFee)).toFixed(7)
         },
         insufficientBalance() {
@@ -232,7 +252,13 @@ export default {
                 return "Contract Create"
             }
         },
-
+        convertSelectedFee() {
+            return BigNumber(this.selectedFee).shiftedBy(MAGNITUDE)
+        },
+        token () {
+            console.log(this.data.tx.token)
+            return typeof this.data.tx.token != 'undefined' ? this.data.tx.token : 'AE' 
+        }
     },
     watch:{ 
         watchBalance() {
@@ -303,7 +329,7 @@ export default {
                 networkId: this.network[this.current.network].networkId
             })
             .then(ae => {
-                ae.spend(parseInt(amount), this.receiver, { gas: this.selectedFee}).then(async result => {
+                ae.spend(parseInt(amount), this.receiver, { fee: this.convertSelectedFee}).then(async result => {
                     if(typeof result == "object") {
                         this.loading = false
                         let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
@@ -373,12 +399,20 @@ export default {
             
         },
         async contractCall(){
-           let call
+            let call
             try {
-                call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params)
-                let decoded = await call.decode()
-                call.decoded = decoded
-                this.port.postMessage(call)
+                let byteCode = await this.checkSourceByteCode(this.data.tx.source)
+                let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
+                if(byteCode == deployedByteCode) {
+                    call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
+                    let decoded = await call.decode()
+                    call.decoded = decoded
+                    this.port.postMessage(call)
+                }else {
+                    this.errorTx.error.message = "Invalid contract interface"
+                    this.port.postMessage(this.errorTx)
+                }
+                
             }catch(err) {
                 this.errorTx.error.message = err.message
                 this.port.postMessage(this.errorTx)
@@ -395,14 +429,17 @@ export default {
             
         },
         async contractDeploy() {
-            console.log("deploy")
-            let bytecode = await this.sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)
-            console.log(bytecode)
-            let deployed = await this.sdk.contractDeploy(bytecode.bytecode, FUNGIBLE_TOKEN_CONTRACT, [`"${this.data.tx.token.name}"`,this.data.tx.token.precision, `"${this.data.tx.token.symbol}"` ])
-            console.log(deployed)
+            let deployed = await this.sdk.contractDeploy(this.data.tx.contract.bytecode, FUNGIBLE_TOKEN_CONTRACT, [...this.data.tx.contract.params ], { fee: this.convertSelectedFee })
             this.loading = false
+            if(this.data.popup) {
+                setTimeout(() => {
+                    window.close()
+                },1000)
+            }else {
+                this.redirectInExtensionAfterAction()
+            }
         },
-        signTransaction() {
+        async signTransaction() {
             if(!this.signDisabled) {
                 this.loading = true
                 let amount = BigNumber(this.amount).shiftedBy(MAGNITUDE);
@@ -412,6 +449,16 @@ export default {
                     }else if(this.data.type == 'contractCall') {
                         if(this.data.callType == 'pay') {
                             this.contractCall()
+                        }else {
+                            let call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
+                            let decoded = await call.decode()
+                            let msg = `You send ${this.data.tx.amount} ${this.data.tx.token}` 
+                            let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + call.hash
+                            this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg, data:txUrl})
+                            .then(() => {
+                                this.$store.commit('SET_AEPP_POPUP',false)
+                                this.$router.push('/account')
+                            })
                         }
                     }else if(this.data.type == 'contractCreate') {
                         this.contractDeploy()
