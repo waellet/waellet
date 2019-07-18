@@ -204,7 +204,7 @@ export default {
         },3500)
     },
     computed: {
-        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk']),
+        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens']),
         maxValue() {
             let calculatedMaxValue = this.balance - this.fee
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -330,6 +330,7 @@ export default {
             })
             .then(ae => {
                 ae.spend(parseInt(amount), this.receiver, { fee: this.convertSelectedFee}).then(async result => {
+                    console.log(result)
                     if(typeof result == "object") {
                         this.loading = false
                         let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
@@ -426,7 +427,6 @@ export default {
             }else {
                 this.redirectInExtensionAfterAction()
             }
-            
         },
         async contractDeploy() {
             let deployed = await this.sdk.contractDeploy(this.data.tx.contract.bytecode, FUNGIBLE_TOKEN_CONTRACT, [...this.data.tx.contract.params ], { fee: this.convertSelectedFee })
@@ -436,7 +436,24 @@ export default {
                     window.close()
                 },1000)
             }else {
-                this.redirectInExtensionAfterAction()
+                let msg = `Contract deployed at address <br> ${deployed.address}`
+                this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg})
+                .then(() => {
+                    let tokens = this.tokens.map(tkn => tkn)
+                    tokens.push({
+                        contract:deployed.address,
+                        name:this.data.tx.contract.params[0].split('"').join(''),
+                        symbol:this.data.tx.contract.params[2].split('"').join(''),
+                        precision:this.data.tx.contract.params[1],
+                        balance:0,
+                        parent:this.account.publicKey
+                    })
+                    this.$store.dispatch('setTokens', tokens).then(() => {
+                        browser.storage.sync.set({ tokens: this.tokens}).then(() => { 
+                            this.redirectInExtensionAfterAction()
+                        })
+                    })
+                })
             }
         },
         async signTransaction() {

@@ -47,7 +47,7 @@
         <p class="paragraph noTransactions">No transactions found!</p> 
     </div>
     <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
-    <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
+    <Loader size="small" :loading="loading" ></Loader>
   </div> 
 </template>
 

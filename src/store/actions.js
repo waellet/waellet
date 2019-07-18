@@ -82,6 +82,9 @@ export default {
           case 'success_transfer':
             commit(types.SHOW_POPUP,{show:true,secondBtn:true,secondBtnClick:'showTransaction',...popupMessages.SUCCESS_TRANSFER,msg:payload.msg,data:payload.data})
             break;
+          case 'success_deploy':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_DEPLOY,msg:payload.msg})
+            break;
           case 'incorrect_address':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_ADDRESS});
             break;

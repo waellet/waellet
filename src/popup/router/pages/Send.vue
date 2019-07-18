@@ -6,7 +6,8 @@
     <p>{{language.pages.send.heading}}</p>
     <div class="sendContent">
       <div class="address">
-        <ae-address-input v-model="form.address" />
+        <ae-input v-model="form.address" />
+
         <ae-text class='addresslbl' slot="header">Recipient </ae-text>
       </div>
       <div>
@@ -122,7 +123,6 @@ export default {
   mounted() {
     this.init()
     this.fetchFee()
-    console.log(Buffer.from(getHdWalletAccount(this.wallet,this.activeAccount).secretKey).toString('hex'))
   },
   methods: {
     async fetchFee() {
