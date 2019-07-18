@@ -32,7 +32,7 @@
                     </div>
                 </Alert>
                 <ae-toolbar fill="alternative" v-if="privateKey != ''" align="right">
-                    <ae-button face="toolbar" v-clipboard:copy="privateKey" >
+                    <ae-button face="toolbar" v-clipboard:copy="privateKey" @click="reset">
                         <ae-icon name="copy" />
                         {{language.buttons.copy}}
                     </ae-button>
@@ -119,10 +119,12 @@ export default {
             })
         },
         reset() {
-            this.privateKey = ''
-            this.alert.show = false
-            this.alert.content = ''
-            this.password = ''
+            setTimeout(() => {
+                this.privateKey = ''
+                this.alert.show = false
+                this.alert.content = ''
+                this.password = ''
+            },1000)
         },
         setAlertData(fill,show,content) {
             this.alert.fill = fill
