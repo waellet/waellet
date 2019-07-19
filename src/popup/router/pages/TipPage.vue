@@ -1,7 +1,7 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+            <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{language.buttons.backToUtilities}}</button>
         </div>
         <div>
             <div class="tipWebsiteHeader flex flex-align-center ">
@@ -118,8 +118,8 @@ export default {
         this.setSliderBackground(elem);
     },  
     methods: {
-        navigateAccount() {
-            this.$router.push('/account')
+        navigateUtilities() {
+            this.$router.push('/utilities')
         },
         checkDomain() {
             this.domainVerified = true;

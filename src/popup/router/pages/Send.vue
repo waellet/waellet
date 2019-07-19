@@ -65,11 +65,14 @@ import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_UINT256 } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+import {
+  getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl,
+} from '../../utils/airGap';
 
 export default {
   name: 'Send',
@@ -106,7 +109,13 @@ export default {
     this.init()
   },
   methods: {
+    init() {
+      let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
+      // this.maxValue = calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0
+    },
     send(){
+      let sender = this.subaccounts.filter(sender => sender.publicKey == this.account.publicKey);
+      let isAirGapAcc = sender[0].isAirGapAcc == true && sender[0].isAirGapAcc != undefined;
       let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
       let receiver = this.form.address;
       if(receiver == '') {
@@ -138,15 +147,22 @@ export default {
         }
       }
       else {
-        this.$store.dispatch('popupAlert', {
-            name: 'spend',
-            type: 'confirm_transaction'
-        });
+        if (isAirGapAcc) {
+          browser.storage.sync.get('airGapGeneratedKey').then(async publicKHex => {
+            const spendTx = await this.sdk.spendTx({senderId: this.account.publicKey, recipientId: receiver, amount: amount});
+            console.log('spendTx');
+            console.log(spendTx);
+            const generated = generateSignRequestUrl(this.network[this.current.network].networkId, spendTx, publicKHex.airGapGeneratedKey);
+            this.$router.push({'name': 'signTransactionByQrCode', params:{url:generated}})
+          });
+        }
+        else {
+          this.$store.dispatch('popupAlert', {
+              name: 'spend',
+              type: 'confirm_transaction'
+          });
+        }
      } 
-    },
-    init() {
-      let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
-      // this.maxValue = calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0
     },
     confirmTransaction () {
       this.loading = true;

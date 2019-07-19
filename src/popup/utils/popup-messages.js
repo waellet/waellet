@@ -25,9 +25,13 @@ export const INCORRECT_FIELDS_ADD_TOKEN = { type:'error', title:'Incorrect field
 export const TOKEN_ADDED = { type:'error', title:'Token exists', msg:'Token already added! '}
 export const TOKEN_INVALID_ADDRESS =  { type:'error', title:'Oops! Something went wrong', msg:'Invalid token contract address!'}
 export const CHARS_ALLOWED =  { type:'error', title:'Oops! Something went wrong', msg:'Allowed only letters and numbers!'}
+export const NOT_SELECTED_VAL =  { type:'error', title:'Oops! Something went wrong', msg:'Please, select token!'}
+export const REQUIRED_NUMBER = {type:'error', title:'Oops! Something went wrong', msg:'Please, enter valid and positive number!'}
+export const ACCOUNT_ALREADY_EXIST = {type:'error', title:'Oops! Something went wrong', msg:'This account already exist!'}
 //success messages
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};
 export const SUCCESS_TRANSFER = { type:'success', title:'Transfer completed', msg:''}
 export const SUCCESS_ADDED = { type:'success', title:'Successfully added!', msg:''}
 export const REMOVE_USER_NETWORK = {type:'success', title:'Are you sure?', msg:'', buttonsTextPrimary: 'No', buttonsTextSecondary: 'Yes', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}
 export const CONFIRM_TRANSACTION = {type:'success', title:'Confirm transaction?', msg:'You are about to send some tokens to somebody. This transaction is irreversible! ', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Confirm', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}
+export const AIRGAP_CREATED = {type:'success', title:'Vault sync completed!', msg:'Find your AirGap Vault under your accounts.'}

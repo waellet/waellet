@@ -56,6 +56,8 @@
     "vue": "^2.6.10",
     "vue-clipboard2": "^0.3.0",
     "vue-password-strength-meter": "^1.4.2",
+    "vue-qr-reader": "^1.6.0",
+    "vue-qrcode-reader": "^2.0.2",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
     "webextension-polyfill": "^0.3.1",
@@ -63,7 +65,7 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.1.2", 
+    "@babel/core": "^7.1.2",
     "@babel/plugin-proposal-optional-chaining": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
     "@cypress/webpack-preprocessor": "^4.1.0",

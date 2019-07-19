@@ -98,14 +98,15 @@ export default {
         validate(type) {
             if(type == 'contract') {
                 this.token.precisionDisabled = false
-                if(this.token.contract.length == 53) {
+                // if(this.token.contract.length == 53) {
                     this.searchTokenMetaInfo(this.token.contract)
-                }
+                // }
             }
         },
         async next() {
             let added = this.tokens.find(tkn => tkn.contract == this.token.contract && tkn.parent == this.account.publicKey)
-            if( this.token.contract.length != 53 || 
+            if( 
+                // this.token.contract.length != 53 || 
                 (this.token.symbol.length < 1 || this.token.symbol.length > 12) || 
                 isNaN(this.token.precision) ||
                 (!isNaN(this.token.precision) && (this.token.precision < 0 || this.token.precision > 36 ))
@@ -152,6 +153,8 @@ export default {
             try {
                 this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,address,'meta_info')
                 .then((res) => {
+                    console.log('res');
+                    console.log(res);
                     res.decode()
                     .then(data => {
                         if(typeof data.decimals != 'undefined' && typeof data.symbol != 'undefined') {
@@ -164,15 +167,21 @@ export default {
                         this.loading = false
                     })
                     .catch(e => {
+                console.log('parva');
+                console.log(e);
                         this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                         this.loading = false
                     })
                 })
                 .catch(e => { 
+                console.log('vtora');
+                console.log(e);
                     this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                     this.loading = false
                 })
             }catch(e) {
+                console.log('treta');
+                console.log(e);
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                 this.loading = false
             }

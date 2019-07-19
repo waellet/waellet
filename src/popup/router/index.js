@@ -9,6 +9,7 @@ import TransactionItemComponent from './components/TransactionItem';
 import SwitchButtonComponent from './components/SwitchButton';
 import Popup from './components/Popup';
 import AlertComponent from './components/Alert';
+import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader'
 
 Vue.use(VueRouter);
 Vue.use(VueClipboard);
@@ -18,8 +19,11 @@ Vue.component('Loader',LoaderComponent);
 Vue.component('TransactionItem',TransactionItemComponent);
 Vue.component('SwitchButton',SwitchButtonComponent);
 Vue.component('Popup',Popup);
-
 Vue.component('Alert', AlertComponent);
+Vue.component('QrcodeStream',QrcodeStream);
+Vue.component('QrcodeDropZone',QrcodeDropZone);
+Vue.component('QrcodeCapture',QrcodeCapture);
+
 export default new VueRouter({
   routes,
 });

@@ -69,6 +69,14 @@
                     <span class="newSubaccount">{{ language.strings.manageAccounts }}</span>
                   </ae-button>
                 </ae-list-item>
+                <ae-list-item fill="neutral" class="airGapVault" v-if="!aeppPopup">
+                  <ae-button @click="airGapVault" class="triggerhidedd">
+                    <ae-button face="icon" fill="primary" class="iconBtn">
+                      <ae-icon name="plus" />
+                    </ae-button>
+                    <span class="newSubaccount">{{ language.strings.airGapVault }}</span>
+                  </ae-button>
+                </ae-list-item>
               </ae-list>
             </transition>
           </div>
@@ -329,6 +337,9 @@ export default {
     utilities () {
       this.dropdown.settings = false; this.dropdown.languages = false;
       this.$router.push('/utilities');
+    },
+    airGapVault() {
+        this.$router.push('/airGapSetup')
     },
     manageAccounts () {
       this.$router.push('/manageAccounts');

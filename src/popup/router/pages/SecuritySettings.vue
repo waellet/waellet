@@ -8,7 +8,7 @@
             <div class="maindiv_input-group-addon">
                 <h4>Privacy Data</h4><hr>
                 <small class="sett_info">Clear privacy data so all websites must request access to view account information again.</small>
-                <ae-button face="round" fill="primary" class="settingBtn" extend @click="clearPrivacyData">Clear Privacy Data</ae-button>
+                <ae-button face="round" fill="primary" class="notround settingBtn" extend @click="clearPrivacyData">Clear Privacy Data</ae-button>
             </div>
         </ae-panel>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
@@ -92,7 +92,5 @@ input:active,input:focus {
     border: none;
     outline: none;
 }
-.settingBtn {
-    margin-top:1rem
-}
+.notround { border-radius: 0 !important; }
 </style>

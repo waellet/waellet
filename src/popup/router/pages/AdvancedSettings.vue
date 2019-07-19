@@ -8,7 +8,7 @@
         <ae-panel>
             <div class="maindiv_input-group-addon">
                 <h4>{{ language.strings.exportKeystore }}</h4><hr>
-                <ae-button @click="exportKeypair('keystore')" id="exportKeystore">
+                <ae-button @click="exportKeypair('keystore')" id="exportKeystore" class="notround" face="round" fill="primary">
                     <ae-icon name="save" />
                     {{ language.strings.exportKeystore }}
                 </ae-button>
@@ -17,7 +17,7 @@
         <ae-panel>
             <div class="maindiv_input-group-addon">
                 <h4>{{ language.strings.exportKeypair }}</h4><hr>
-                <ae-button @click="exportKeypair('keypair')" id="exportKeypair">
+                <ae-button @click="exportKeypair('keypair')" id="exportKeypair" class="notround" face="round" fill="primary">
                     <ae-icon name="save" />
                     {{ language.strings.exportKeypair }}
                 </ae-button>
@@ -77,5 +77,6 @@ export default {
 <style lang="scss">
 
 @import '../../../common/base';
+.notround { border-radius: 0 !important; }
 
 </style>

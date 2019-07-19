@@ -9,6 +9,7 @@
         "currentAccountName" : "My Account 1",
         "namingSystem": "AE Naming System",
         "manageAccounts": "Manage accounts",
+        "airGapVault": "Create a vault for AirGap",
         "manageNetworks": "Manage networks",
         "network": "Network",
         "networkName": "Node name",
@@ -119,6 +120,12 @@
           "aboutSettings": {
             "heading": "About"
           }
+        },
+        "utilities":{
+          "heading" : "Utilities"
+        },
+        "allowances":{
+          "heading" : "Allowances"
         }
       },
       "messages": {
@@ -133,11 +140,13 @@
         "send": "Send",
         "receive": "Receive",
         "tipWebsite": "Tip website",
+        "allowances": "Allowances",
         "generateWallet": "Generate wallet",
         "importPrivateKey": "Import secret key",
         "import": "Import",
         "backToAccount": "Back to account",
         "backToSettings": "Back to settings",
+        "backToUtilities": "Back to utilities",
         "wholeTransaction": "Whole transaction history",
         "loadMore":"Load More"
       },

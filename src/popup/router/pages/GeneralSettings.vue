@@ -12,7 +12,7 @@
                     <input v-model="name" class="addon-input" />
                     <label class="addon-lbl" >.test</label>
                 </div>
-                <ae-button class="regbtn" face="icon" fill="primary" @click="registerName">
+                <ae-button class="regbtn notround" face="icon" fill="primary" @click="registerName">
                     <ae-icon name="plus" />
                 </ae-button>
                 <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{language.pages.settings.generalSettings.registerNameRequirement}}</small>
@@ -25,7 +25,7 @@
                 <small class="sett_info">Current language: {{this.current.language}}</small>
                 <div class="language-settings">
                     <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
-                        <ae-button face="round" fill="primary" extend @click="toggleDropdown($event, '.have-subDropdown')">
+                        <ae-button class="notround switchlanguageBtn" face="round" fill="primary" extend @click="toggleDropdown($event, '.have-subDropdown')">
                             <ae-icon name="globe" />
                             {{ language.strings.switchLanguage }}
                             <ae-icon name="left-more" />
@@ -193,6 +193,7 @@ input:active,input:focus {
 .sett_info {
     text-align: left;
     width: 100%;
+    margin: 0 0px 10px;
     display: block;
     word-break: break-word;
 }
@@ -233,5 +234,6 @@ input:active,input:focus {
 .language-settings .have-subDropdown.show .ae-button .ae-icon-left-more {
     transform: rotate(90deg);
 }
-.ae-button { border-radius: 0 !important; }
+.notround { border-radius: 0 !important; }
+.notround:not(.regbtn) {width: 100% !important;}
 </style>

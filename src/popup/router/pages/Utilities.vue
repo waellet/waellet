@@ -3,28 +3,18 @@
         <div class="actions">
             <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
         </div>
-        <h3 style='text-align:center;'>{{language.pages.settings.heading}}</h3>
+        <h3 style='text-align:center;'>{{language.pages.utilities.heading}}</h3>
         <br>
         <ae-list class="settingslist" face="primary">
-            <button class="generalsett" @click="GeneralSettings">
-                <span class="settings-li">{{ language.pages.settings.tabGeneral }}</span>
+            <button class="generalsett" @click="openTipPage">
+                <span class="settings-li">{{language.buttons.tipWebsite}}</span>
                 <i class="arrowright"></i>
-                <p class="tabinfo">{{ language.pages.settings.tabGeneralsmall }}</p>
+                <p class="tabinfo">Make a donation for any website you want</p>
             </button>
-            <button class="advancedsett" @click="AdvancedSettings">
-                <span class="settings-li">{{ language.pages.settings.tabAdvanced }}</span>
+            <button class="generalsett" @click="openAllowencesPage">
+                <span class="settings-li">{{language.buttons.allowances}}</span>
                 <i class="arrowright"></i>
-                <p class="tabinfo">{{ language.pages.settings.tabAdvancedsmall }}</p>
-            </button>
-            <button class="securitysett" @click="SecuritySettings">
-                <span class="settings-li">{{ language.pages.settings.tabSecurity }}</span>
-                <i class="arrowright"></i>
-                <p class="tabinfo">{{ language.pages.settings.tabSecuritysmall }}</p>
-            </button>
-            <button class="aboutsett" @click="AboutSettings">
-                <span class="settings-li">{{ language.pages.settings.tabAbout }}</span>
-                <i class="arrowright"></i>
-                <p class="tabinfo">{{ language.pages.settings.tabAboutsmall }}</p>
+                <p class="tabinfo">Give an allowance to your people</p>
             </button>
         </ae-list>
 
@@ -47,22 +37,10 @@ import { getHdWalletAccount } from '../../utils/hdWallet';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
 
 export default {
-  name: 'Send',
   data() {
     return {
       language: locales['en'],
-      form: {
-        address: '',
-        amount: '',
-      },
       loading: false,
-      tx: {
-        status: false,
-        hash: '',
-        block: '',
-        url: ''
-      },
-      txFee: MIN_SPEND_TX_FEE
     }
   },
   locales,
@@ -70,6 +48,12 @@ export default {
     ...mapGetters(['account', 'balance', 'network', 'current', 'wallet', 'activeAccount', 'subaccounts', 'tokenSymbol', 'tokenBalance', 'sdk', 'tokens', 'popup']),
   },
   methods: {
+    openTipPage() {
+      this.$router.push('/tip');
+    },
+    openAllowencesPage() {
+      this.$router.push('/allowances');
+    },
     navigateAccount() {
       this.$router.push('/account')
     },
