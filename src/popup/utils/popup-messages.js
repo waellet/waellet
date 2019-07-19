@@ -28,6 +28,8 @@ export const CHARS_ALLOWED =  { type:'error', title:'Oops! Something went wrong'
 //success messages
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};
 export const SUCCESS_TRANSFER = { type:'success', title:'Transfer completed', msg:''}
+export const SUCCESS_DEPLOY = { type:'success', title:'Contract deployed', msg:''}
 export const SUCCESS_ADDED = { type:'success', title:'Successfully added!', msg:''}
 export const REMOVE_USER_NETWORK = {type:'success', title:'Are you sure?', msg:'', buttonsTextPrimary: 'No', buttonsTextSecondary: 'Yes', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}
 export const CONFIRM_TRANSACTION = {type:'success', title:'Confirm transaction?', msg:'You are about to send some tokens to somebody. This transaction is irreversible! ', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Confirm', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}
+export const CONFIRM_PRIVACY_CLEAR = {type:'success', title:'Confirm clear', msg:'You are about to clear all connected Aepps! After this all Aepps must be granted access again ', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Confirm', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}

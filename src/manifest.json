@@ -15,7 +15,8 @@
     "clipboardWrite",
     "activeTab",
     "webRequest",
-    "notifications"
+    "notifications",
+    "videoCapture"
   ],
   "icons": {
     "48": "icons/icon_48.png",

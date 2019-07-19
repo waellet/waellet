@@ -65,7 +65,6 @@ export default {
     .then((res) => {
       res.decode()
       .then(balance => {
-        console.log(balance)
         commit(types.UPDATE_TOKENS_BALANCE, { token:state.current.token, balance: balance == 'None' ? 0 : balance.Some[0] } );
       })
     })
@@ -82,6 +81,9 @@ export default {
             break;
           case 'success_transfer':
             commit(types.SHOW_POPUP,{show:true,secondBtn:true,secondBtnClick:'showTransaction',...popupMessages.SUCCESS_TRANSFER,msg:payload.msg,data:payload.data})
+            break;
+          case 'success_deploy':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_DEPLOY,msg:payload.msg})
             break;
           case 'incorrect_address':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_ADDRESS});
@@ -122,6 +124,9 @@ export default {
           case 'only_allowed_chars':
               commit(types.SHOW_POPUP,{show:true,...popupMessages.CHARS_ALLOWED});
             break;
+          case 'confirm_privacy_clear':
+            commit(types.SHOW_POPUP, { show:true, secondBtn:true, secondBtnClick:'clearPrivacyData',...popupMessages.CONFIRM_PRIVACY_CLEAR})
+          break;
           default:
             break;
         }

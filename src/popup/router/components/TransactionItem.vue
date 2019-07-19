@@ -7,7 +7,7 @@
                 <ae-text face="mono-xs" class="transactionDate">{{ new Date(transactionData.time).toLocaleTimeString() }}</ae-text>
             </div>
             <div class="text-right balance-change">
-                <ae-badge class="badgeTransactionType" :class="transactionTypeClass">{{transactionType}}</ae-badge>
+                <ae-badge class="badgeTransactionType" :class="transactionType.fill">{{transactionType.type}}</ae-badge>
                 <div class="balance" :class="balanceSign" v-if="transactionData.tx.type == 'SpendTx'">{{transactionData.tx.amount / 10 ** 18}}</div>
                 <small><span class="balance">{{transactionData.tx.fee / 10 ** 18}}</span></small>
             </div>
@@ -30,13 +30,27 @@ export default  {
             return this.transactionData.tx.sender_id == this.account.publicKey || this.transactionData.tx.account_id == this.account.publicKey ? 'minus' : 'plus';
         },
         transactionTypeClass() {
-            return "transaction" + (this.transactionData.tx.sender_id == this.account.publicKey || this.transactionData.tx.account_id == this.account.publicKey ? 'Outgoing' : 'Incoming');
+            return "transaction" + (this.transactionData.tx.sender_id == this.account.publicKey || this.transactionData.tx.account_id == this.account.publicKey || this.transactionData.tx.owner_id == this.account.publicKey ? 'Outgoing' : 'Incoming');
         },
+        // transactionType() {
+            
+        //     return this.transactionData.tx.sender_id == this.account.publicKey || this.transactionData.tx.account_id == this.account.publicKey || this.transactionData.tx.owner_id == this.account.publicKey ? 'outgoing' : 'incoming'
+        // },
         transactionType() {
-            return this.transactionData.tx.sender_id == this.account.publicKey || this.transactionData.tx.account_id == this.account.publicKey ? 'outgoing' : 'incoming'
+            if(this.transactionData.tx.type == "SpendTx") {
+                if(this.transactionData.tx.sender_id == this.account.publicKey) {
+                    return {fill:"primary", type: "Spend Tx Out"}
+                }else {
+                    return {fill:"alternative", type: "Spend Tx In"}
+                }
+            }else if(this.transactionData.tx.type == "ContractCreateTx") {
+                return {fill:"secondary", type: "Contract Create Tx"}
+            }else if(this.transactionData.tx.type == "NamePreclaimTx" || this.transactionData.tx.type == "NameUpdateTx" || this.transactionData.tx.type == "NameClaimTx") {
+                return {fill:"", type:this.transactionData.tx.type}
+            }
         },
         transactionAccount() {
-            return this.transactionData.tx.type == 'SpendTx' ? this.transactionData.tx.sender_id : this.transactionData.tx.account_id
+            return this.transactionData.tx.type == 'SpendTx' ? this.transactionData.tx.sender_id : (this.transactionData.tx.type  == 'ContractCreateTx' ? this.transactionData.tx.owner_id : this.transactionData.tx.account_id)
         }
     },
     locales,
@@ -45,8 +59,8 @@ export default  {
             this.$router.push({'name':'transaction-details',params: { transaction: this.transactionData }});
         },
         showTransaction(){
-        browser.tabs.create({url: this.popup.data, active: false});
-        },
+            browser.tabs.create({url: this.popup.data, active: false});
+        }
     }
 }
 </script>
@@ -54,7 +68,8 @@ export default  {
 <style lang="scss" scoped>
 @import '../../../common/base';
 .list-item-transaction {
-    justify-content: space-around;
+    justify-content: start;
+    
     .ae-address {
         
         font-weight: bold;
@@ -66,7 +81,7 @@ export default  {
         color: $color-secondary;
     }
     .balance-change {
-        
+        margin-right: 1rem;
         font-weight: bold;
         color: $color-secondary;
         text-align: right;
@@ -77,7 +92,7 @@ export default  {
             }
         }
         .minus {
-            color: $color-secondary !important;
+            color: $primary-color !important;
             &:before {
                 content: '-';
             }
@@ -95,6 +110,7 @@ export default  {
                 color: $color-neutral-negative-1;
             }
         }
+        
     }
     .balance {
         font-weight: bold;
@@ -110,6 +126,8 @@ export default  {
     }
     .transaction-address {
         text-align: left;
+        margin-right: auto;
+        margin-left: 1rem;
     }
 }
 </style>
