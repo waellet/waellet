@@ -12,7 +12,8 @@
                 </div>
                 <div class="flex flex-align-center accountTo" v-if="data.type != 'contractCreate'">
                     <ae-identicon :address="receiver"  />
-                    <ae-address :value="receiver" length="short" class="spendAccountAddr" />
+                    <ae-address :value="receiver" v-if="receiver" length="short" class="spendAccountAddr" />
+                    <span v-if="!receiver" class="spendAccountAddr">{{language.strings.unknownAccount}}</span>
                 </div>
                 <div v-else class="flex flex-align-center accountTo">
                     <ae-icon name="square" />
@@ -27,7 +28,7 @@
                 <div class="balance balanceSpend no-sign">{{amount}} {{token}}</div>
                 <div class="fiat-rate" v-if="!data.tx.token">${{convertCurrency(usdRate,amount)}}</div>
             </ae-list-item>
-            <ae-list-item fill="neutral" class="flex-justify-between whiteBg flex-direction-column flex-align-center ">
+            <ae-list-item fill="neutral" class="flex-justify-between whiteBg flex-direction-column flex-align-center " v-if="alertMsg == ''">
                 <div class="flex extend flex-justify-between ">
                     <div class="tx-label">{{language.pages.transactionDetails.fee}}</div>
                     <div class="text-right">
@@ -40,7 +41,7 @@
                     <input class="range-slider__range" type="range"  :min="fee" :max="maxFee" step="0.000001" v-model="selectedFee">
                 </div>
             </ae-list-item>
-            <ae-list-item fill="neutral" class="flex-justify-between whiteBg">
+            <ae-list-item fill="neutral" class="flex-justify-between whiteBg" v-if="alertMsg == ''">
                 <div class="tx-label">{{language.pages.transactionDetails.total}}</div>
                 <div class="text-right">
                     <div class="balance balanceBig balanceTotalSpend no-sign">{{totalSpend}} {{token}}</div>
@@ -101,12 +102,14 @@ export default {
             selectedFee:0,
             usdRate:0,
             eurRate:0,
-            checkSDKReady:null
+            checkSDKReady:null,
+            receiver:""
         };
     },
     props:['data'],
     locales,
     async created(){
+        this.setReceiver()
         if(typeof this.data.callType != "undefined" && this.data.callType == 'static') {
             this.loaderType = ''
             this.loading = true
@@ -179,15 +182,27 @@ export default {
                         }
                         
                     }else if(this.data.type == 'txSign') {
+                        let recipientId 
+                        if(this.data.tx.recipientId.substring(0,3) == 'ak_') {
+                            recipientId = this.data.tx.recipientId
+                        }else {
+                            let address = await this.sdk.api.getNameEntryByName(this.data.tx.recipientId)
+                            if(typeof address.pointers[0] != "undefined") {
+                                recipientId = address.pointers[0].id
+                                this.receiver = recipientId
+                            }else {
+                                this.receiver = ""
+                                this.showAlert()
+                                return
+                            }
+                        }
                         txParams = {
                             ...txParams,
                             senderId:this.account.publicKey,
-                            recipientId:this.data.tx.recipientId
+                            recipientId:recipientId
                         }
                     }
-                    console.log(txParams)
                     let fee = calculateFee(TX_TYPES[this.data.type],txParams)
-                    console.log(fee)
                     this.txFee = fee
                     this.selectedFee = this.fee.toFixed(7)
                 }
@@ -228,17 +243,10 @@ export default {
             return this.maxValue - this.amount <= 0
         },
         inccorectAddress() {
-            return this.receiver == ""
+            return this.receiver == null || this.receiver == ""
         },
         watchBalance() {
             return this.balance
-        },
-        receiver() {
-            if(this.data.type == 'txSign') {
-                return this.data.tx.recipientId
-            }else if(this.data.type == 'contractCall') {
-                return this.data.tx.address
-            }
         },
         txType() {
             if(this.data.type == 'txSign') {
@@ -256,7 +264,6 @@ export default {
             return BigNumber(this.selectedFee).shiftedBy(MAGNITUDE)
         },
         token () {
-            console.log(this.data.tx.token)
             return typeof this.data.tx.token != 'undefined' ? this.data.tx.token : 'AE' 
         }
     },
@@ -266,12 +273,20 @@ export default {
         }
     },
     methods: {
+        setReceiver() {
+            if(this.data.type == 'txSign') {
+                this.receiver = this.data.tx.recipientId
+            }else if(this.data.type == 'contractCall') {
+                this.receiver = this.data.tx.address
+            }
+        },
         showAlert() {
+            console.log(this.inccorectAddress)
             if(this.insufficientBalance) {
                 this.alertMsg = this.language.pages.signTx.insufficientBalance
             }else if(this.inccorectAddress) {
                 this.alertMsg = this.language.pages.signTx.inccorectAddress
-            }else {
+            }else{
                 this.alertMsg = ''
             }
 
@@ -573,6 +588,9 @@ export default {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.btnFixed {
+    background:#fff;
 }
 .btnFixed button {
     width:50%;

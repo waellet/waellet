@@ -34,7 +34,8 @@
         "loadMore":"Load More",
         "addToken": "Add Token",
         "allAccounts":"All accounts",
-        "networks": "Networks"
+        "networks": "Networks",
+        "unknownAccount":"Unknown"
       },
       "networks": {
         "testnet": "Testnet",
@@ -51,7 +52,9 @@
           "heading": "Receive AE tokens"
         },
         "send": {
-          "heading": "Send AE tokens"
+          "heading": "Send AE tokens",
+          "recipient":"Recipient",
+          "sendSubaccount":"or send to subaacount"
         },
         "transactions": {
           "heading": "Transactions history"
@@ -112,7 +115,8 @@
             "heading": "General",
             "registerName": "Register Name",
             "registerNameInfo": "A registered name can be used instead of the address",
-            "registerNameRequirement": "Allowed only letters and numbers"
+            "registerNameRequirement": "Allowed only letters and numbers",
+            "registeredNames": "Registered Names"
           },
           "securitySettings": {
             "heading": "Security and Privacy",
