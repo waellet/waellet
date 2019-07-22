@@ -14,7 +14,6 @@
 <a href="https://github.com/aeternity/aepp-waellet/blob/master/LICENSE">
   <img src="https://img.shields.io/badge/license-ISC-blue.svg" alt="License.">
 </a>
-
 <a href="https://github.com/aeternity/aepp-waellet/blob/master/LICENSE">
   <img src="https://img.shields.io/badge/aeternity-aepp-%23F22F70.svg" alt="Aeternity aepp">
 </a>
