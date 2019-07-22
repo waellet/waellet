@@ -1,6 +1,6 @@
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from './hdWallet';
-
+import { Crypto } from '@aeternity/aepp-sdk/es';
 
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -224,6 +224,14 @@ const removeTxFromStorage = (id) => {
     }) 
 }
 
+const checkAddress = (value) => {
+    return Crypto.isAddressValid(value);
+}
+
+const chekAensName = (value) => {
+    return value.endsWith('.test');
+}
+
 export { 
     shuffleArray, 
     convertToAE, 
@@ -238,7 +246,9 @@ export {
     convertAmountToCurrency, 
     contractEncodeCall, 
     contractDecodeData, 
-    removeTxFromStorage 
+    removeTxFromStorage,
+    checkAddress,
+    chekAensName
 }
 
 

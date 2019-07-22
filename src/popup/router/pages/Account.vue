@@ -106,7 +106,7 @@ export default {
   created () {
     this.pollData();
     currencyConv(this);
-   
+    
   },
   mounted(){
     this.updateTransactions();

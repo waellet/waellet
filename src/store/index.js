@@ -13,6 +13,7 @@ export default new Vuex.Store({
     subaccounts: [],
     account: {},
     activeAccount:0,
+    names:[],
     wallet:[],
     balance: 0,
     current: {

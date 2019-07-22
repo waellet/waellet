@@ -13,7 +13,7 @@
                     <div v-if="!subaccount.edit">
                         <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
                         <span class="name">{{ subaccount.name }}</span>
-                        <button @click="subaccount.edit = !subaccount.edit"><ae-icon name="edit" class="primary" /></button>
+                        <button @click="subaccount.edit = !subaccount.edit" v-if="!subaccount.isAens"><ae-icon name="edit" class="primary" /></button>
                     </div>
                     <!-- IF edit -->
                     <div v-if="subaccount.edit">

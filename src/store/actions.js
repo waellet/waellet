@@ -188,5 +188,33 @@ export default {
   },
   setTokens({ commit }, payload) {
     commit(types.SET_TOKENS, payload)
+  },
+  getRegisteredNames({commit, state}) {
+    const middlewareUrl = state.network[state.current.network].middlewareUrl;
+    let names = []
+
+    state.subaccounts.forEach( async ({ publicKey }, index) => {
+      let res = fetch(`${middlewareUrl}/middleware/names/reverse/${publicKey}`, {
+        method:'GET',
+        mode:'cors'
+      })
+      .then(n => n.json())
+      let pendingName = []
+      try {
+        pendingName = (await state.sdk.api.getPendingAccountTransactionsByPubkey(publicKey)).transactions.filter(({tx: {type}}) => type == 'NameClaimTx')
+      }catch(err) {
+        pendingName = []
+      }
+      res = await res
+      if(pendingName.length) {
+        pendingName.forEach(({ tx: { name, accountId } }) => {
+          res.push({name, pending:true, owner:accountId })
+        })
+      }
+      if(res.length) commit(types.SET_ACCOUNT_AENS, { account:index, name: res[0].name, pending: res[0].pending ? true : false })
+      names.push(res)
+      if(index == state.subaccounts.length - 1 ) commit(types.SET_NAMES, { names: Array.prototype.concat.apply([], names) })
+    })
+
   }
 };

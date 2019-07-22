@@ -59,6 +59,7 @@
                       <div class="subAccountName">{{subaccount.name}}</div>
                       <div class="subAccountBalance">{{subaccount.balance}} AE</div>
                     </div>
+                    <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="subaccount.pending"/>
                     <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="activeAccount" /> 
                 </ae-list-item>
                 <ae-list-item fill="neutral" class="manageAccounts" v-if="!aeppPopup">
@@ -275,9 +276,8 @@ export default {
     },
     hideMenu (event) {
       let target = event.target
-      
       // Hide dropdown menu on click of the element with class triggerhidedd
-      if (typeof target != 'undefined' && (target.className.indexOf('triggerhidedd') > -1 || target.parentElement.className.indexOf('triggerhidedd') > -1)) {
+      if (typeof target != 'undefined' && (target.className.indexOf('triggerhidedd') > -1 || (target.parentElement != null && target.parentElement.className.indexOf('triggerhidedd') > -1 ))) {
         let dropdownParent = event.target.closest('.dropdown');
         this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id];
         if (event.target.closest('.have-subDropdown') != null) {
@@ -383,6 +383,7 @@ export default {
     },
     pollData() {
       let triggerOnce = false
+      
       this.polling = setInterval(() => {
         if(this.sdk != null && this.isLoggedIn) {
             //Todo update token if is not AE
@@ -397,6 +398,7 @@ export default {
               this.$store.dispatch('updateBalanceTokens');
             }
             if(!triggerOnce) {
+              this.$store.dispatch('getRegisteredNames',{address:this.account.publicKey})
               this.$store.dispatch('updateBalanceSubaccounts');
               triggerOnce = true
             }
@@ -492,8 +494,9 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .subAccountInfo { margin-right:auto; margin-bottom:0 !important; max-width: 155px; }
 #network .subAccountInfo { max-width: 195px; }
 .subAccountIcon { margin-right: 10px; }
-.subAccountName { /*width: 110px; line-height: 28px;*/ color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
+.subAccountName { /*width: 110px; line-height: 28px;*/text-align: left; color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
 .subAccountBalance { font-family: monospace; margin-bottom:0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;}
+.name-pending { width:28px !important; height:28px !important; margin-right:5px; }
 #account .subAccountCheckbox { float: right; }
 #account li, #network li { padding:0.75rem; cursor:pointer !important; }
 #account ul { width:250px; margin-left: -125px;}

@@ -5,13 +5,11 @@
     </div>
     <p>{{language.pages.send.heading}}</p>
     <div class="sendContent">
-      <div class="address">
-        <ae-input v-model="form.address" />
-
-        <ae-text class='addresslbl' slot="header">Recipient </ae-text>
-      </div>
+      <ae-input :label="language.pages.send.recipient" class="address">
+          <textarea class="ae-input textarea" v-model="form.address" placeholder="ak.. / name.test"  slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+      </ae-input>
       <div>
-        <p v-if="sendSubaccounts">or send to subaccount</p>
+        <p v-if="sendSubaccounts">{{language.pages.send.sendSubaccount}}</p>
         <ae-list class="sendSubaccount">
           <ae-list-item v-for="(account,index) in sendSubaccounts" @click="selectSendSubaccount(account)" fill="neutral" :key="index" class=" flex-align-center">
             <ae-identicon class="subAccountIcon" v-bind:address="account.publicKey" size="base" />
@@ -22,27 +20,36 @@
           </ae-list-item>
         </ae-list>
       </div>
-      <div class="amount" v-if="!tx.status">
-        <ae-input :label="language.strings.amount" placeholder="0.0" aemount v-model="form.amount" class="sendAmount">
-          <ae-text slot="header" fill="black">{{tokenSymbol}}</ae-text>
-          <ae-toolbar slot="footer" class="flex-justify-between">
-            <span>
-              {{language.strings.txFee}}
-            </span>
-            <span>
-              {{txFee}} AE
-            </span>
-          </ae-toolbar>
-        </ae-input>
-        <div class="flex flex-justify-between balanceInfo">
-            <div>
-              {{language.strings.maxSpendableValue}}
-            </div>
-            <div class="balance no-sign">
-              {{tokenBalance}} {{tokenSymbol}}
-            </div>
-        </div>
+      
+      <ae-input :label="language.strings.amount" placeholder="0.0" aemount v-model="form.amount" class="sendAmount">
+        <ae-text slot="header" fill="black">
+          <span class="token-symbol">{{tokenSymbol}}</span>
+          <ae-dropdown v-if="tokens.length > 1">
+            <ae-icon name="grid" size="20px" slot="button" />
+            <li v-for="(tkn,key) in tokens" v-if="tkn.name != tokenSymbol" @click="setActiveToken(key)">
+              <img :src="ae_token" class="token-image" alt="" v-if="key == 0" >
+              <ae-identicon class="subAccountIcon" :address="tkn.contract" size="base" v-if="key != 0"/> {{tkn.name}}
+            </li>
+          </ae-dropdown>
+        </ae-text>
+        <ae-toolbar slot="footer" class="flex-justify-between">
+          <span>
+            {{language.strings.txFee}}
+          </span>
+          <span>
+            {{txFee}} AE
+          </span>
+        </ae-toolbar>
+      </ae-input>
+      <div class="flex flex-justify-between balanceInfo">
+          <div>
+            {{language.strings.maxSpendableValue}}
+          </div>
+          <div class="balance no-sign">
+            {{tokenBalance}} {{tokenSymbol}}
+          </div>
       </div>
+      
       <div>
         <ae-button face="round" fill="primary" class="sendBtn extend" @click="send">{{language.buttons.send}}</ae-button>
       </div>
@@ -70,12 +77,13 @@ import { MAGNITUDE, calculateFee, TX_TYPES, FUNGIBLE_TOKEN_CONTRACT  } from '../
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from '../../utils/hdWallet';
-import { contractEncodeCall } from '../../utils/helper';
+import { contractEncodeCall, checkAddress, chekAensName } from '../../utils/helper';
 
 export default {
   name: 'Send',
   data() {
     return {
+      ae_token: browser.runtime.getURL('../../../icons/ae.png'),
       language: locales['en'],
       form: {
         address: '',
@@ -120,11 +128,18 @@ export default {
       return this.current.token
     }
   },
-  mounted() {
+  async mounted() {
     this.init()
     this.fetchFee()
   },
   methods: {
+    paste(){
+
+    },
+    setActiveToken(token) {
+      this.current.token = token
+      this.$store.commit('RESET_TRANSACTIONS',[]);
+    },
     async fetchFee() {
       let fee = await calculateFee(this.current.token == 0 ? TX_TYPES['txSign'] : TX_TYPES['contractCall'],{...await this.feeParams()})
       this.fee = fee
@@ -146,7 +161,7 @@ export default {
     send(){
       let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
       let receiver = this.form.address;
-      if(receiver == '') {
+      if(receiver == '' || (!checkAddress(receiver) && !chekAensName(receiver) ) )  {
         this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address'});
         this.loading = false;
         return;
@@ -328,8 +343,24 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
-.sendContent div { 
+.sendContent > div:not(.sendAmount):not(.address) { 
   margin-bottom: 10px;
+}
+.sendContent > div {
+  overflow: unset;
+}
+.balanceInfo {
+  margin-top:10px;
+}
+.token-symbol {
+  margin-right: 2rem;
+}
+.ae-dropdown-button {
+  width:16px !important;
+  height:16px !important;
+}
+.sendContent .ae-dropdown {
+  margin-bottom:0 !important;
 }
 .ae-input-container .ae-input-box {
   background: #fff !important;
@@ -338,21 +369,25 @@ export default {
 }
 .address {
   position: relative;
-  background: #ececec;
+  // background: #ececec;
 }
 .address:focus-within { border-left: #FF0D6A 2px solid; }
 .address:focus-within {
-  p { color: #ff0d6a; }
-  p:after { content: '*'; color:#ff0d6a; }
+  p:not(.ae-text)  { color: #ff0d6a; }
+  p:after:not(.ae-text)  { content: '*'; color:#ff0d6a; }
 }
 .address textarea {
   background: none;
   border: none;
-  caret-color: #ff0d6a;
   font-size: 20px;
   outline: none;
+  text-align: center;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1.0625rem;
+  line-height: 1.5rem;
+  font-weight: bold;
 }
-.address p {
+.address p:not(.ae-text) {
     position: absolute;
     top: 0;
     left: 0;
@@ -366,5 +401,12 @@ export default {
 }
 .sendSubaccount .ae-list-item {
   cursor:pointer !important;
+}
+.paste {
+  cursor: pointer;
+  .ae-icon {
+    margin-right:2px;
+    display: inline-block;
+  }
 }
 </style>

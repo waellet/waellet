@@ -43,7 +43,18 @@ a {
   visibility: hidden;
   pointer-events: none;
 }
-
+.sendContent .ae-dropdown {
+  margin-bottom:0 !important;
+  width: 4rem;
+  position: absolute;
+  right: 0;
+  top: 0.5rem;
+}
+.sendContent .ae-dropdown .ae-dropdown-button {
+  width: 100% !important;
+  height: 16px !important;
+  font-size: 1.3rem;
+}
 .wrapper {
   max-width: 480px;
   -webkit-box-sizing: border-box;

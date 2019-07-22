@@ -60,6 +60,14 @@ export default {
   [types.SET_ACCOUNT_NAME] (state, payload) {
     state.subaccounts[state.activeAccount].name = payload;
   },
+  [types.SET_ACCOUNT_AENS] (state, { account, name, pending }) {
+    console.log(pending)
+    state.subaccounts[account].name = name
+    state.subaccounts[account].pending = pending
+  },
+  [types.SET_NAMES] (state, { names }){
+    state.names = names
+  },
   [types.SET_USERNETWORK](state, payload) {
     state.userNetworks.push(payload);
   },
@@ -89,5 +97,6 @@ export default {
   },
   [types.SET_AEPP_POPUP] (state, payload) {
     state.aeppPopup = payload
-  }
+  },
+  
 }; 

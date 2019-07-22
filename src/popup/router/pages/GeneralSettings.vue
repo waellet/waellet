@@ -21,8 +21,17 @@
         
         <ae-panel>
             <div class="maindiv_input-group-addon">
-                <h4>Password change</h4><hr>
-                
+                <h4>{{language.pages.settings.generalSettings.registeredNames}}</h4><hr>
+                <ae-list>
+                    <ae-list-item fill="neutral" v-for="(name, key) in names" :key="key" >
+                        <ae-identicon class="subAccountIcon" v-bind:address="name.owner" size="base" />
+                        <div class="subAccountInfo">
+                            <div class="subAccountName">{{name.name}}</div>
+                            <ae-address :value="name.owner" length="short" />
+                        </div>
+                        <ae-icon fill="primary" face="round" name="reload" v-if="name.pending"/>
+                    </ae-list-item>
+                </ae-list>
             </div>
         </ae-panel>
 
@@ -45,11 +54,13 @@ export default {
             language: locales['en'],
             loading: false,
             name: '',
-            ak_address: '',
+            ak_address: ''
         }
     },
     computed: {
-        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount', 'popup']),
+        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount', 'popup', 'names']),
+    },
+    async created(){
     },
     methods: {
         registerName() {
@@ -160,5 +171,8 @@ input:active,input:focus {
     width: 100%;
     display: block;
     word-break: break-word;
+}
+.ae-list .ae-list-item:first-child {
+    border-top:none !important
 }
 </style>
