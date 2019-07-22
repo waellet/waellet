@@ -15,6 +15,11 @@
   <img src="https://img.shields.io/badge/license-ISC-blue.svg" alt="License.">
 </a>
 
+<a href="https://github.com/aeternity/aepp-waellet/blob/master/LICENSE">
+  <img src="https://img.shields.io/badge/aeternity-aepp-%23F22F70.svg" alt="Aeternity aepp">
+</a>
+
+
 Install from: 
 - [Chrome Web Extensions Store](https://chrome.google.com/webstore/detail/waellet/nnkfipoloblhgnahnaocfkhmmplcdneb)
 - [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/waellet/)
