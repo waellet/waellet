@@ -12,7 +12,10 @@ export const MINPASSWORDLENGTH = 8;
 export const TX_TYPES = {
   'txSign':TX_TYPE.spend,
   'contractCall':TX_TYPE.contractCall,
-  'contractCreate':TX_TYPE.contractCreate
+  'contractCreate':TX_TYPE.contractCreate,
+  'namePreClaim': TX_TYPE.namePreClaim,
+  'nameClaim': TX_TYPE.nameClaim,
+  'nameUpdate': TX_TYPE.nameUpdate
 }
 
 const STUB_ADDRESS = 'ak_enAPooFqpTQKkhJmU47J16QZu9HbPQQPwWBVeGnzDbDnv9dxp';

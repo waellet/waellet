@@ -25,6 +25,7 @@ export const INCORRECT_FIELDS_ADD_TOKEN = { type:'error', title:'Incorrect field
 export const TOKEN_ADDED = { type:'error', title:'Token exists', msg:'Token already added! '}
 export const TOKEN_INVALID_ADDRESS =  { type:'error', title:'Oops! Something went wrong', msg:'Invalid token contract address!'}
 export const CHARS_ALLOWED =  { type:'error', title:'Oops! Something went wrong', msg:'Allowed only letters and numbers!'}
+export const AENS_NAME_EXIST =  { type:'error', title:'Oops! Something went wrong', msg:'This name is already registered!' }
 //success messages
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};
 export const SUCCESS_TRANSFER = { type:'success', title:'Transfer completed', msg:''}

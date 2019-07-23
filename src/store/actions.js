@@ -3,6 +3,8 @@ import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
 import { convertToAE } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
+import { uniqBy, head } from 'lodash-es';
+
 
 export default {
   setAccount({ commit }, payload) {
@@ -127,6 +129,9 @@ export default {
           case 'confirm_privacy_clear':
             commit(types.SHOW_POPUP, { show:true, secondBtn:true, secondBtnClick:'clearPrivacyData',...popupMessages.CONFIRM_PRIVACY_CLEAR})
           break;
+          case 'name_exist':
+              commit(types.SHOW_POPUP, { show:true, ...popupMessages.AENS_NAME_EXIST})
+          break;
           default:
             break;
         }
@@ -189,32 +194,98 @@ export default {
   setTokens({ commit }, payload) {
     commit(types.SET_TOKENS, payload)
   },
-  getRegisteredNames({commit, state}) {
+  async getRegisteredNames({commit, state}) {
     const middlewareUrl = state.network[state.current.network].middlewareUrl;
-    let names = []
 
-    state.subaccounts.forEach( async ({ publicKey }, index) => {
-      let res = fetch(`${middlewareUrl}/middleware/names/reverse/${publicKey}`, {
-        method:'GET',
-        mode:'cors'
-      })
-      .then(n => n.json())
-      let pendingName = []
-      try {
-        pendingName = (await state.sdk.api.getPendingAccountTransactionsByPubkey(publicKey)).transactions.filter(({tx: {type}}) => type == 'NameClaimTx')
-      }catch(err) {
-        pendingName = []
-      }
-      res = await res
-      if(pendingName.length) {
-        pendingName.forEach(({ tx: { name, accountId } }) => {
-          res.push({name, pending:true, owner:accountId })
+    let res = await Promise.all(state.subaccounts.map(async ({ publicKey }, index) => {
+      const names = (await Promise.all([
+        (async () => {
+          return (await state.sdk.api.getPendingAccountTransactionsByPubkey(publicKey)
+            .catch(() => ({ transactions: [] })))
+            .transactions
+            .filter(({ tx: { type } }) => type === 'NameClaimTx')
+            .map(({ tx, ...otherTx }) => ({
+              ...otherTx,
+              ...tx,
+              pending: true,
+              owner: tx.accountId,
+            }));
+        })(),
+        (async () => uniqBy(
+          await (await fetch(
+            `${middlewareUrl}/middleware/names/reverse/${publicKey}`,
+          )).json(),
+          'name',
+        ))(),
+      ])).flat();
+      if(names.length) commit(types.SET_ACCOUNT_AENS, { account:index, name: names[0].name, pending: names[0].pending ? true : false })
+      browser.storage.sync.get('pendingNames').then(pNames => {
+        let pending = []
+        if(pNames.hasOwnProperty("pendingNames") && pNames.pendingNames.hasOwnProperty('list') ) {
+          pending = pNames.pendingNames.list
+        }
+        names.filter(n => n.pending).forEach(n => {
+          if(typeof pending.find(p => p.name == n.name) == 'undefined') {
+            pending.push(n)
+          }
         })
-      }
-      if(res.length) commit(types.SET_ACCOUNT_AENS, { account:index, name: res[0].name, pending: res[0].pending ? true : false })
-      names.push(res)
-      if(index == state.subaccounts.length - 1 ) commit(types.SET_NAMES, { names: Array.prototype.concat.apply([], names) })
-    })
 
+        if(pending.length) {
+          browser.storage.sync.set({pendingNames: { list: pending}})
+          commit(types.SET_PENDING_NAMES, { names: pending })
+        }
+      })
+      return names;
+    }))
+
+    commit(types.SET_NAMES, { names: Array.prototype.concat.apply([], res) })
+  },
+  async updateRegisteredName({commit, state}) {
+    let pending = uniqBy(state.pendingNames, 'hash')
+    await Promise.all([
+      (async () => {
+        if(pending.length) {
+          let { hash, name } = head(pending)
+          let register = await state.sdk.poll(hash)
+          let tx = {
+              popup:false,
+              tx: {
+                  name,
+                  recipientId:''
+              },
+              type:'nameUpdate'
+          }
+          commit('SET_AEPP_POPUP',true)
+          this.$router.push({'name':'sign', params: {
+              data:tx,
+              type:tx.type
+          }})
+          return register
+        }
+      })()
+    ])
+    // await Promise.all(pending.map(async ({ hash, name }) => {
+    //   let register = await state.sdk.poll(hash)
+    //   console.log(register)
+    //   let tx = {
+    //       popup:false,
+    //       tx: {
+    //           name,
+    //           recipientId:'',
+    //           claim
+    //       },
+    //       type:'nameUpdate'
+    //   }
+    //   this.$store.commit('SET_AEPP_POPUP',true)
+    //   this.$router.push({'name':'sign', params: {
+    //       data:tx,
+    //       type:tx.type
+    //   }})
+    //   let update = await state.sdk.aensUpdate(
+    //     (await state.sdk.aensQuery(name)).id,
+    //     state.account.publicKey
+    //   )
+    //   console.log(update)
+    // }))
   }
 };

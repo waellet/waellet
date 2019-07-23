@@ -14,6 +14,7 @@ export default new Vuex.Store({
     account: {},
     activeAccount:0,
     names:[],
+    pendingNames:[],
     wallet:[],
     balance: 0,
     current: {

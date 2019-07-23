@@ -59,7 +59,7 @@ export default [
   },
   {
     name:'sign',
-    path:'/sign-transaction',
+    path:'/sign-transaction/:type?',
     component:SignTransactionComponent,
     props:true
 

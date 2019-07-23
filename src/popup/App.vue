@@ -159,7 +159,7 @@
           </div>
         <!-- logged in header END -->
       </ae-header>
-    <router-view></router-view>
+    <router-view :key="$route.fullPath"></router-view>
     <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
     <Loader size="big" :loading="mainLoading"></Loader>
   </ae-main>
@@ -398,7 +398,7 @@ export default {
               this.$store.dispatch('updateBalanceTokens');
             }
             if(!triggerOnce) {
-              this.$store.dispatch('getRegisteredNames',{address:this.account.publicKey})
+              this.$store.dispatch('getRegisteredNames')
               this.$store.dispatch('updateBalanceSubaccounts');
               triggerOnce = true
             }
@@ -496,7 +496,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .subAccountIcon { margin-right: 10px; }
 .subAccountName { /*width: 110px; line-height: 28px;*/text-align: left; color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
 .subAccountBalance { font-family: monospace; margin-bottom:0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;}
-.name-pending { width:28px !important; height:28px !important; margin-right:5px; }
+.name-pending { width:24px !important; height:24px !important; margin-right:5px; font-size:.8rem; }
 #account .subAccountCheckbox { float: right; }
 #account li, #network li { padding:0.75rem; cursor:pointer !important; }
 #account ul { width:250px; margin-left: -125px;}

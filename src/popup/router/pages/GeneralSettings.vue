@@ -29,15 +29,12 @@
                             <div class="subAccountName">{{name.name}}</div>
                             <ae-address :value="name.owner" length="short" />
                         </div>
-                        <ae-icon fill="primary" face="round" name="reload" v-if="name.pending"/>
+                        <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="name.pending"/>
                     </ae-list-item>
                 </ae-list>
             </div>
         </ae-panel>
-
-        <div v-if="loading" class="loading">
-            <ae-loader />
-        </div>
+        <Loader size="big" :loading="loading" type="transparent" content="" ></Loader>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
@@ -46,24 +43,29 @@
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import locales from '../../locales/locales.json';
-const {Universal} = require('@aeternity/aepp-sdk');
-
+import { Universal } from '@aeternity/aepp-sdk';
+import { clearInterval, clearTimeout  } from 'timers';
 export default {
     data () {
         return {
             language: locales['en'],
             loading: false,
             name: '',
-            ak_address: ''
+            ak_address: '',
+            polling:null
         }
     },
     computed: {
-        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount', 'popup', 'names']),
+        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount', 'popup', 'names', 'sdk']),
     },
-    async created(){
+    created() {
+        this.polling = setInterval(() => {
+            this.$store.dispatch('getRegisteredNames')
+            this.$store.dispatch('updateRegisteredName')
+        },5000)
     },
     methods: {
-        registerName() {
+        async registerName() {
             var onlyLettersAndNums = /^[A-Za-z0-9]+$/;
             if (this.name == '') {
                 this.$store.dispatch('popupAlert', {
@@ -72,52 +74,56 @@ export default {
                 });
             }
             else if (!onlyLettersAndNums.test(this.name)) {
-                console.log('asd');
                 this.$store.dispatch('popupAlert', {
                     name: 'account',
                     type: 'only_allowed_chars'
                 });
             }
             else {
-                console.log('XXX');
-                const {Universal} = require('@aeternity/aepp-sdk');
-                const main = async (name) => {
-                    const   publicKey = this.account.publicKey,
-                            secretKey = getHdWalletAccount(this.wallet,this.activeAccount).secretKey,
-                            url = this.network[this.current.network].url,
-                            internalUrl = this.network[this.current.network].internalUrl,
-                            networkId = this.network[this.current.network].networkId;
-                    
-                    const client = await Universal({
-                        url: url,
-                        internalUrl: internalUrl,
-                        keypair: {
-                            publicKey: publicKey,
-                            secretKey: secretKey
-                        },
-                        networkId: networkId,
-                        nativeMode: true
-                    });
-
-                    this.loading = true;
-                    // const query = await client.aensQuery(name);
-                    const preclaim = await client.aensPreclaim(name);
+                this.loading = true;
+                let name = `${this.name}.test`
+                const query = this.sdk.aensQuery(name)
+                .then(async () => {
                     this.loading = false;
-
                     this.$store.dispatch('popupAlert', {
                         name: 'account',
-                        type: 'added_success'
+                        type: 'name_exist'
                     });
+                })
+                .catch(async err => {
+                    let tx = {
+                        popup:false,
+                        tx: {
+                            name,
+                            recipientId:''
+                        },
+                        type:'namePreClaim'
+                    }
+                    this.$store.commit('SET_AEPP_POPUP',true)
+                    this.$router.push({'name':'sign', params: {
+                        data:tx,
+                        type:tx.type
+                    }});
 
-                    const claim = await client.aensClaim(name, preclaim.salt, preclaim.height);
-                    const update = await client.aensUpdate(claim.id, publicKey);
-                };
-                main(this.name+'.test');
+                    // const preclaim = await this.sdk.aensPreclaim(name);
+                    // const claim = await this.sdk.aensClaim(name, preclaim.salt, preclaim.height);
+                    // const update = await this.sdk.aensUpdate(claim.id, this.account.publicKey);
+
+                    // this.$store.dispatch('popupAlert', {
+                    //     name: 'account',
+                    //     type: 'added_success'
+                    // })
+
+                    // this.loading = false;
+                })
             }
         },
         navigateToSettings() {
             this.$router.push('/settings')
         }
+    },
+    beforeDestroy() {
+        window.clearTimeout(this.polling)
     }
 }
 </script>
