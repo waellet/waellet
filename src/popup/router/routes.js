@@ -23,6 +23,7 @@ import AirGapSetup from './pages/AirGapSetup';
 import SignTransactionByQrCode from './pages/SignTransactionByQrCode';
 
 import QrCodeReader from './pages/QrCodeReader';
+import CreateFungibleTokenComponent from './pages/CreateFungibleToken';
 
 export default [
   {
@@ -133,5 +134,9 @@ export default [
     component: SignTransactionByQrCode,
     props: true,
     name: 'signTransactionByQrCode'
+  },
+  {
+    path:'/create-token',
+    component:CreateFungibleTokenComponent
   }
 ];

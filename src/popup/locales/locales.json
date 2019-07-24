@@ -23,7 +23,7 @@
         "address": "Address",
         "amount": "Amount",
         "maxSpendableValue": "Maximum spendable value:",
-        "txFee": "Tx fee:",
+        "txFee": "Min Tx fee:",
         "success": "Success",
         "seeTransactionExplorer": "See transaction in the explorer.",
         "accountName": "Account name",
@@ -34,7 +34,10 @@
         "menu": "Menu",
         "back": "Back",
         "loadMore":"Load More",
-        "addToken": "Add Token"
+        "addToken": "Add Token",
+        "allAccounts":"All accounts",
+        "networks": "Networks",
+        "unknownAccount":"Unknown"
       },
       "networks": {
         "testnet": "Testnet",
@@ -51,7 +54,9 @@
           "heading": "Receive AE tokens"
         },
         "send": {
-          "heading": "Send AE tokens"
+          "heading": "Send AE tokens",
+          "recipient":"Recipient",
+          "sendSubaccount":"or send to subaacount"
         },
         "transactions": {
           "heading": "Transactions history"
@@ -82,7 +87,9 @@
           "tokenContractLabel":"Token Contract Address",
           "tokenSymbolLabel":"Token Symbol",
           "tokenPrecision":"Decimals of Precision",
-          "addHeading":"Add Token",
+          "tokenName":"Token Name",
+          "addHeading":"Fungible Tokens",
+          "addToken":"Add token",
           "searchHeading":"Search Token",
           "errorPrecisionLength":"Decimal precision should be number between 0 and 36",
           "errorPrecisionNumber":"Decimal precision should be number",
@@ -93,7 +100,8 @@
           "insufficientBalance": "Insufficient Balance",
           "inccorectAddress": "Incorrect address",
           "reject": "Reject",
-          "confirm": "Confirm"
+          "confirm": "Confirm",
+          "contractCall": "Calling contract method. Please do not close the window"
         },
         "settings":{
           "heading" : "Settings",
@@ -102,17 +110,29 @@
           "tabAdvanced": "Advanced",
           "tabAdvancedsmall" : "Advanced settings",
           "tabSecurity" : "Security & Privacy",
-          "tabSecuritysmall" : "Privacy settings",
+          "tabSecuritysmall" : "Privacy data, Reveal private key",
           "tabAbout" : "About",
           "tabAboutsmall" : "Version, support center and contact info",
           "generalSettings": {
             "heading": "General",
             "registerName": "Register Name",
             "registerNameInfo": "A registered name can be used instead of the address",
-            "registerNameRequirement": "Allowed only letters and numbers"
+            "registerNameRequirement": "Allowed only letters and numbers",
+            "registeredNames": "Registered Names"
           },
           "securitySettings": {
-            "heading": "Security and Privacy"
+            "heading": "Security and Privacy",
+            "privacyDataHeading":"Privacy Data",
+            "privacyDataSmall":"Clear privacy data so all websites must request access to view account information again.",
+            "privacyDataClearBtn":"Clear Privacy Data",
+            "privateKeyHeading":"Reveal Private Key",
+            "privateKeySmall":"You can view your private key after you enter your password",
+            "privateKeyRevealBtn":"Reveal Private Key",
+            "privateKeyWarning":"Do not share your private key with anyone, it can be used to steal all your accounts",
+            "privateKey":"Your private key",
+            "showPrivateKey": "Show Private Key",
+            "incorrectPassword":"Incorrect Password",
+            "decryptingPrivateKey":"Decrypting private key"
           },
           "advancedSettings": {
             "heading": "Advanced"
@@ -126,6 +146,10 @@
         },
         "allowances":{
           "heading" : "Allowances"
+        },
+        "createFungibleToken" :{ 
+          "heading": "Create Fungible Token",
+          "deployTokenContract": "Deploy Token Contract"
         }
       },
       "messages": {

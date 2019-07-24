@@ -1,5 +1,5 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
-import { checkAeppConnected, initializeSDK } from './popup/utils/helper';
+import { checkAeppConnected, initializeSDK, removeTxFromStorage } from './popup/utils/helper';
 
 global.browser = require('webextension-polyfill');
 
@@ -130,6 +130,19 @@ function getAccount() {
 //         })
 //     });
 
+
+const error = {
+    "error": {
+        "code": 1,
+        "data": {
+            "request": {}
+        },
+        "message": "Transaction verification failed"
+    },
+    "id": null,
+    "jsonrpc": "2.0"
+}
+
 browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
     switch(msg.method) {
         case 'phishingCheck':
@@ -159,40 +172,28 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                 case "txSign":
                     checkAeppConnected(msg.params.hostname).then((check) => {
                         if(check) {
-                            browser.storage.sync.set({showAeppPopup:{ data: msg.params, type:'txSign' } } ).then( () => {
-                                browser.windows.create({
-                                    url: browser.runtime.getURL('./popup/popup.html'),
-                                    type: "popup",
-                                    height: 600,
-                                    width:420
-                                    }).then((window) => {
-                                        connectToPopup((res) => {
-                                            sendResponse(res)
-                                        }, 'txSign')
-                                    })
+                            openAeppPopup(msg,'txSign')
+                            .then(res => {
+                                sendResponse(res)
                             })
                         }else {
-                            sendResponse({id:null, jsonrpc:"2.0",message: "Aepp not registered. Establish connection first"})
+                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
                         }
                     });
                 break;
                 case 'connectConfirm':
                     checkAeppConnected(msg.params.params.hostname).then((check) => {
                         if(!check) {
-                            browser.storage.sync.set({showAeppPopup:{ data: msg.params, type:'connectConfirm' } } ).then( () => {
-                                browser.windows.create({
-                                    url: browser.runtime.getURL('./popup/popup.html'),
-                                    type: "popup",
-                                    height: 600,
-                                    width:420
-                                    }).then((window) => {
-                                        connectToPopup((res) => {
-                                            sendResponse(res)
-                                        }, 'connectConfirm')
-                                    })
+                            openAeppPopup(msg,'connectConfirm')
+                            .then(res => {
+                                sendResponse(res)
                             })
                         } else {
-                            sendResponse({id:null, jsonrpc:"2.0",message: "Connection already established"})
+                            error.error.message = "Connection already established"
+                            error.id = msg.id
+                            sendResponse(error)
                         }
                     })
                 break;
@@ -216,10 +217,20 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                         })
                     })
                 break;
-
+                        
                 case 'contractCall':
-
-                    
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            openAeppPopup(msg,'contractCall')
+                            .then(res => {
+                                sendResponse(res)
+                            })
+                        }else {
+                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    })
                 break;
             }
         break
@@ -228,34 +239,62 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
     return true
 })
 
-const connectToPopup = (cb,type) => {
+
+const connectToPopup = (cb,type, id) => {
     browser.runtime.onConnect.addListener((port) => {
-        port.onMessage.addListener((msg) => {
-            cb(msg)
+        port.onMessage.addListener((msg,sender) => {
+            msg.id = sender.name
+            if(id == sender.name) cb(msg)
         });
-        port.onDisconnect.addListener((event) => {
-            browser.storage.sync.remove('pendingTransaction').then(() => {});
-            browser.storage.sync.remove('showAeppPopup').then(() => {});  
-            if(type == 'txSign') {
-                cb({
-                    "error": {
-                        "code": 1,
-                        "data": {
-                            "request": {}
-                        },
-                        "message": "Transaction verification failed"
-                    },
-                    "id": null,
-                    "jsonrpc": "2.0"
-                })
-            }else if(type == 'connectConfirm') {
-                cb({id:null, jsonrpc:"2.0",message:"Connection canceled"})
-            }else {
-                cb()
+        port.onDisconnect.addListener(async (event) => {
+            // browser.storage.sync.remove('pendingTransaction').then(() => {});
+            let list = await removeTxFromStorage(event.name)
+            browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+            browser.storage.sync.remove('showAeppPopup').then(() => {}); 
+            error.id = event.name
+            if(event.name == id) {
+                if(type == 'txSign') {
+                    cb(error)
+                }else if(type == 'connectConfirm') {
+                    error.error.message = "Connection canceled"
+                    cb(error)
+                }else if(type == 'contractCall') {
+                    cb(error)
+                }else {
+                    cb()
+                }
             }
-            
         });
    })
+}
+
+const openAeppPopup = (msg,type) => {
+    return new Promise((resolve,reject) => {
+        browser.storage.sync.set({showAeppPopup:{ data: msg.params, type } } ).then( () => {
+            browser.windows.create({
+                url: browser.runtime.getURL('./popup/popup.html'),
+                type: "popup",
+                height: 680,
+                width:420
+            }).then((window) => {
+                connectToPopup((res) => {
+                    resolve(res)
+                }, type, msg.params.id)
+            })
+        })
+    })
+}
+
+const checkPendingTx = () => {
+    return new Promise((resolve,reject) => {
+        browser.storage.sync.get('pendingTransaction').then((tx) => {
+            if(tx.hasOwnProperty("pendingTransaction")) {
+                resolve(false)
+            }else {
+                resolve(false)
+            }
+        })
+    })
 }
 
 const postPhishingData = (data) => {

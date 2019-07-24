@@ -1,4 +1,4 @@
-
+import uuid from 'uuid';
 const Aepp = {
     request: {
         sign({ recipientId, amount }){
@@ -12,16 +12,6 @@ const Aepp = {
                 },
                 error: {}
             }
-            if(recipientId == "" || recipientId.length != 53) {
-                error.error = {
-                    code:1,
-                    message: "Enter correct public address"
-                }
-    
-                return new Promise((resolve,reject) => {
-                    resolve(error)
-                });
-            }
             if(amount <= 0) {
                 error.error = {
                     code:1,
@@ -33,6 +23,7 @@ const Aepp = {
                 });
             }
             let req = {
+                id:uuid(),
                 method:'aeppMessage',
                 type:"txSign",
                 tx: {
@@ -45,12 +36,13 @@ const Aepp = {
             return new Promise((resolve,reject) => {
                 receiveResponse((res) => {
                     resolve(res)
-                })
+                }, req.id)
             })
             
         },
         connect() {
             let req = {
+                id:uuid(),
                 method:'aeppMessage',
                 type:"connectConfirm",
                 params: {
@@ -60,37 +52,59 @@ const Aepp = {
                 }
             }
             window.postMessage(req, '*')
-            return new window.Promise((resolve,reject) => {
+            return new Promise((resolve,reject) => {
                 receiveResponse((r) => {
                     resolve(r)
-                })
+                }, req.id)
             })
         },
-        contractCall({source,address, method, params}) {
-            console.log(address)
-            console.log(method)
-            console.log(params)
+        contractCallStatic({source,address, method, params = []}) {
             let req = {
+                id:uuid(),
                 method: "aeppMessage",
                 type:"contractCall",
-                params: {
+                callType:"static",
+                tx: {
                     source,
                     address,
                     method,
                     params
-                }
+                },
+                hostname:window.location.host
             }
             window.postMessage(req, '*')
             return new Promise((resolve, reject) => {
                 receiveResponse((r) => {
                     resolve(r)
-                })
+                }, req.id)
+            })
+        },
+        contractCall({source, address, method, params = []}) {
+            let req = {
+              id:uuid(),
+              method: "aeppMessage",
+              type:"contractCall",
+              callType:"pay",
+              tx: {
+                  source,
+                  address,
+                  method,
+                  params
+              },
+              hostname:window.location.host
+            }
+            window.postMessage(req, '*')
+            return new Promise((resolve, reject) => {
+                receiveResponse((r) => {
+                    resolve(r)
+                }, req.id)
             })
         }
     },
     get: {
         address() {
             let req = {
+                id:uuid(),
                 method:'aeppMessage',
                 type:"getAddress"
             }
@@ -105,13 +119,13 @@ const Aepp = {
     
 }
 
-const receiveResponse = (cb) => {
+const receiveResponse = (cb, id) => {
     window.addEventListener("message", ({data}) => {
         if(data.method == "aeppMessage" && data.hasOwnProperty("resolve")) {
-            cb(data)
+            if(data.id == id) cb(data)
+            
         }
     });
 }
-
 
 window.Aepp = Aepp 

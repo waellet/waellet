@@ -10,6 +10,7 @@ import SwitchButtonComponent from './components/SwitchButton';
 import Popup from './components/Popup';
 import AlertComponent from './components/Alert';
 import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader'
+import ModalComponent from './components/Modal';
 
 Vue.use(VueRouter);
 Vue.use(VueClipboard);
@@ -23,6 +24,7 @@ Vue.component('Alert', AlertComponent);
 Vue.component('QrcodeStream',QrcodeStream);
 Vue.component('QrcodeDropZone',QrcodeDropZone);
 Vue.component('QrcodeCapture',QrcodeCapture);
+Vue.component('Modal', ModalComponent);
 
 export default new VueRouter({
   routes,

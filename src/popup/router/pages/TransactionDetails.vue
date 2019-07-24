@@ -11,7 +11,7 @@
             </ae-list-item>
             <ae-list-item fill="neutral">
                 <div class="detailTitle">{{language.pages.transactionDetails.type}}</div>
-                <ae-badge :class="txTypeBadge" class="transactionType">{{transaction.tx.type}}</ae-badge>
+                <ae-badge :class="transactionType.fill" class="transactionType">{{transactionType.type}}</ae-badge>
             </ae-list-item> 
             <ae-list-item fill="neutral" class="flex-direction-column">
                 <div class="flex-col flex-justify-between flex mb-1" v-if="isSpendTx">
@@ -28,28 +28,28 @@
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isSpendTx">
-                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txFrom}} <button v-clipboard:copy="transaction.tx.sender_id" @click="copy" class="copyBtn">COPY</button></div>
+                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txFrom}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.sender_id" @click="copy" class="copyBtn">COPY</button></div>
                 <input disabled :value="transaction.tx.sender_id" length="flat"  class="transationFrom transactionDetailsInputs"/>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isSpendTx">
-                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txTo}} <button v-clipboard:copy="transaction.tx.recipient_id" @click="copy" class="copyBtn">COPY</button></div>
+                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txTo}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.recipient_id" @click="copy" class="copyBtn">COPY</button></div>
                 <input disabled :value="transaction.tx.recipient_id" length="flat" class="transactionTo transactionDetailsInputs"/>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column"  v-if="!isSpendTx">
-                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txAccount}} <button v-clipboard:copy="transaction.tx.account_id" @click="copy" class="copyBtn">COPY</button></div>
-                <input disabled :value="transaction.tx.account_id" length="flat" class="transactionTo transactionDetailsInputs"/>
+                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txAccount}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.account_id" @click="copy" class="copyBtn">COPY</button></div>
+                <input disabled :value="txAccount" length="flat" class="transactionTo transactionDetailsInputs"/>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column" v-if="isNameClaimTx">
-                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txName}} <button v-clipboard:copy="transaction.tx.name" @click="copy" class="copyBtn">COPY</button></div>
+                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txName}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.name" @click="copy" class="copyBtn">COPY</button></div>
                 <div  class="flex-justify-items-left transactionName text-left">{{transaction.tx.name}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column">
-                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txHash}} <button v-clipboard:copy="transaction.hash" @click="copy" class="copyBtn">COPY</button></div>
+                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txHash}} <button :class="transactionType.fill" v-clipboard:copy="transaction.hash" @click="copy" class="copyBtn">COPY</button></div>
                 <input disabled :value="transaction.hash" length="flat"  class="transactionHash transactionDetailsInputs"/>
             </ae-list-item>
         </ae-list>
         <ae-button-group  class="btnFixed">
-            <ae-button face="round" class=" transactionExplorerBtn" :fill="transactionThemeColor" @click="transactionInExplorer">    <ae-icon name="search" />  {{language.pages.transactionDetails.explorer}} </ae-button>
+            <ae-button face="round" class=" transactionExplorerBtn" :fill="transactionType.fill" @click="transactionInExplorer">    <ae-icon name="search" />  {{language.pages.transactionDetails.explorer}} </ae-button>
         </ae-button-group>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
@@ -78,6 +78,19 @@ export default {
         txTypeBadge () {
            return 'badge' + this.transaction.tx.type;
         },
+        transactionType() {
+            if(this.transaction.tx.type == "SpendTx") {
+                if(this.transaction.tx.sender_id == this.account.publicKey) {
+                    return {fill:"primary", type: "Spend Tx Out"}
+                }else {
+                    return {fill:"alternative", type: "Spend Tx In"}
+                }
+            }else if(this.transaction.tx.type == "ContractCreateTx") {
+                return {fill:"secondary", type: "Contract Create Tx"}
+            }else if(this.transaction.tx.type == "NamePreclaimTx" || this.transaction.tx.type == "NameUpdateTx" || this.transaction.tx.type == "NameClaimTx") {
+                return {fill:"", type:this.transaction.tx.type}
+            }
+        },
         transactionThemeColor () {
             return this.transaction.tx.sender_id == this.account.publicKey ? 'secondary' : 'alternative';
         },
@@ -87,8 +100,14 @@ export default {
         isNameClaimTx() {
             return this.transaction.tx.type == 'NameClaimTx';
         },
+        isConractCreateTx() {
+            return this.transaction.tx.type == 'ContractCreateTx';
+        },
         txTotal() {
             return (this.txAmount + this.txFee).toFixed(7)
+        },
+        txAccount() {
+            return this.isConractCreateTx ? this.transaction.tx.owner_id : this.transaction.tx.account_id
         }
     },
     methods: {
@@ -114,9 +133,18 @@ export default {
     padding: 20px;
 }
 .copyBtn {
-    background: #ff0d6a;
     color: #ffffff;
+    background:#929CA6;
     float: right;
+    &.primary {
+        background:$primary-color;
+    }
+    &.alternative {
+        background:$color-alternative;
+    }
+    &.secondary {
+        background:$color-secondary;
+    }
 }
 .ae-list-item {
     justify-content: space-between;

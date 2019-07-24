@@ -7,47 +7,55 @@
         
             <h3>{{language.pages.tokens.addHeading}}</h3>
             <div v-if="addStep == false" class="token-add-form">
-                <div class="input-container">
-                    <ae-input :label="language.pages.tokens.tokenContractLabel" >
-                        <input type="text" class="ae-input token-contract" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                        <ae-toolbar slot="footer">
-                            Valid token contract address
-                        </ae-toolbar>
-                    </ae-input>
-                </div>
-                <div class="input-container">
-                    <ae-input :label="language.pages.tokens.tokenSymbolLabel">
-                        <input type="text" :disabled="token.precisionDisabled" class="ae-input token-symbol" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                        <ae-toolbar slot="footer">
-                            Symbol between 1 and 12 characters
-                        </ae-toolbar>
-                    </ae-input>
-                </div>
-                <div class="input-container">
-                    <ae-input :label="language.pages.tokens.tokenPrecision" >
-                        <input type="text" :disabled="token.precisionDisabled" class="ae-input token-precision" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                        <ae-toolbar slot="footer" >
-                            Number between 0 and 36
-                        </ae-toolbar>
-                    </ae-input>
-                </div>
-                <ae-button face="round" fill="primary" @click="next" class="to-confirm-add" extend >{{language.pages.tokens.next}}</ae-button>
+                <ae-panel>
+                    <h4>{{language.pages.tokens.addToken}}</h4>
+                    <hr>
+                    <div class="input-container">
+                        <ae-input :label="language.pages.tokens.tokenContractLabel" >
+                            <input type="text" class="ae-input token-contract" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                            <ae-toolbar slot="footer">
+                                Valid token contract address
+                            </ae-toolbar>
+                        </ae-input>
+                    </div>
+                    <div class="input-container">
+                        <ae-input :label="language.pages.tokens.tokenSymbolLabel">
+                            <input type="text" :disabled="token.precisionDisabled" class="ae-input token-symbol" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                            <ae-toolbar slot="footer">
+                                Symbol between 1 and 12 characters
+                            </ae-toolbar>
+                        </ae-input>
+                    </div>
+                    <div class="input-container">
+                        <ae-input :label="language.pages.tokens.tokenPrecision" >
+                            <input type="text" :disabled="token.precisionDisabled" class="ae-input token-precision" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                            <ae-toolbar slot="footer" >
+                                Number between 0 and 36
+                            </ae-toolbar>
+                        </ae-input>
+                    </div>
+                    <ae-button face="round" fill="primary" @click="next" class="to-confirm-add" extend >{{language.pages.tokens.next}}</ae-button>
+                </ae-panel>
             </div>
             <div v-if="addStep" >
-                <div class="flex  flex-justify-between token-add-holder">
-                    <div>
-                        <div class="token-title">Token</div>
-                        <div class="flex ">
-                            <ae-identicon :address="token.contract" />
-                            <div class="balanceBig balance no-sign">{{token.symbol}}</div>
+                <ae-panel>
+                    <h4>{{language.pages.tokens.addToken}}</h4>
+                    <hr>
+                    <div class="flex  flex-justify-between token-add-holder">
+                        <div>
+                            <div class="token-title">Token</div>
+                            <div class="flex ">
+                                <ae-identicon :address="token.contract" />
+                                <div class="balanceBig balance no-sign">{{token.symbol}}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="token-title">Balance</div>
+                            <div class="balanceBig balance no-sign">{{token.balance}} {{token.symbol}}</div>
                         </div>
                     </div>
-                    <div>
-                        <div class="token-title">Balance</div>
-                        <div class="balanceBig balance no-sign">{{token.balance}} {{token.symbol}}</div>
-                    </div>
-                </div>
-                <ae-button face="round" fill="primary" @click="addCustomToken" class="add-token" extend >{{language.pages.tokens.addHeading}}</ae-button>
+                    <ae-button face="round" fill="primary" @click="addCustomToken" class="add-token" extend >{{language.pages.tokens.addToken}}</ae-button>
+                </ae-panel>
             </div>
         </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
@@ -59,7 +67,6 @@
 import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
-
 export default {
     data() {
         return {
@@ -68,7 +75,7 @@ export default {
             token: {
                 contract:'',
                 symbol:'',
-                precision:0,
+                precision:1,
                 precisionDisabled:false,
                 balance:0,
                 name:''
@@ -85,6 +92,8 @@ export default {
     locales,
     computed: {
         ...mapGetters(['sdk','account','tokens','popup'])
+    },
+    async created() {
     },
     methods:{
         switchTabs(tab) {
@@ -116,7 +125,7 @@ export default {
                 // this.token.contract.length != 53 || 
                 (this.token.symbol.length < 1 || this.token.symbol.length > 12) || 
                 isNaN(this.token.precision) ||
-                (!isNaN(this.token.precision) && (this.token.precision < 0 || this.token.precision > 36 ))
+                (!isNaN(this.token.precision) && (this.token.precision < 1 || this.token.precision > 36 ))
             ) {
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'})
             }else if(typeof added != 'undefined'){

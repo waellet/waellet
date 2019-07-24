@@ -42,6 +42,17 @@
                         </ul>
                     </li>
                 </div>
+                <h4>{{language.pages.settings.generalSettings.registeredNames}}</h4><hr>
+                <ae-list>
+                    <ae-list-item fill="neutral" v-for="(name, key) in names" :key="key" >
+                        <ae-identicon class="subAccountIcon" v-bind:address="name.owner" size="base" />
+                        <div class="subAccountInfo">
+                            <div class="subAccountName">{{name.name}}</div>
+                            <ae-address :value="name.owner" length="short" />
+                        </div>
+                        <ae-icon fill="primary" face="round" name="reload" v-if="name.pending"/>
+                    </ae-list-item>
+                </ae-list>
             </div>
         </ae-panel>
 
@@ -83,7 +94,7 @@ export default {
                     type: 'requiredField'
                 });
             }
-            else if (!onlyLettersAndNums.test(this.name)) {
+            else if (!o nlyLettersAndNums.test(this.name)) {
                 this.$store.dispatch('popupAlert', {
                     name: 'account',
                     type: 'only_allowed_chars'
@@ -236,4 +247,7 @@ input:active,input:focus {
 }
 .notround { border-radius: 0 !important; }
 .notround:not(.regbtn) {width: 100% !important;}
+.ae-list .ae-list-item:first-child {
+    border-top:none !important
+}
 </style>

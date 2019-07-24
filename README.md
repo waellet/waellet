@@ -1,14 +1,29 @@
 # Waellet
 
+<p align="center">
+<img
+    src="https://waellet.com/images/waellet_transparent.png"
+    width="500px">
+</p>
+
 [![CircleCI](https://circleci.com/gh/aeternity/aepp-waellet/tree/master.svg?style=svg)](https://circleci.com/gh/aeternity/aepp-waellet/tree/master)
+[![GitHub version](https://badge.fury.io/gh/aeternity%2Faepp-waellet.svg)](https://badge.fury.io/gh/aeternity%2Faepp-waellet)
+<a href="https://github.com/aeternity/aepp-waellet">
+  <img src="https://tokei.rs/b1/github/aeternity/aepp-waellet?category=lines" alt="Current total lines.">
+</a>
+<a href="https://github.com/aeternity/aepp-waellet/blob/master/LICENSE">
+  <img src="https://img.shields.io/badge/license-ISC-blue.svg" alt="License.">
+</a>
+<a href="https://github.com/aeternity/aepp-waellet/blob/master/LICENSE">
+  <img src="https://img.shields.io/badge/aeternity-aepp-%23F22F70.svg" alt="Aeternity aepp">
+</a>
+
 
 Install from: 
 - [Chrome Web Extensions Store](https://chrome.google.com/webstore/detail/waellet/nnkfipoloblhgnahnaocfkhmmplcdneb)
 - [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/waellet/)
 
 or see instructions below how to build it from source.
-
-![](https://hack.bg/wp-content/uploads/2019/06/waellet_cover-1038x498.png)
 
 **Waellet is a browser extension that allows you to interact with Aeternity blockchain in your browser.**
 
