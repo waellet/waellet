@@ -73,16 +73,11 @@ import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_UINT256 } from '../../utils/constants';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_UINT256, calculateFee, TX_TYPES, FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from '../../utils/hdWallet';
-import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
 import { getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl } from '../../utils/airGap';
-import { MAGNITUDE, calculateFee, TX_TYPES, FUNGIBLE_TOKEN_CONTRACT  } from '../../utils/constants';
-import BigNumber from 'bignumber.js';
-import Ae from '@aeternity/aepp-sdk/es/ae/universal';
-import { getHdWalletAccount } from '../../utils/hdWallet';
 import { contractEncodeCall, checkAddress, chekAensName } from '../../utils/helper';
 
 export default {
