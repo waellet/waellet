@@ -118,7 +118,7 @@
                       </ae-button>
                     </li>
                     <li>
-                      <ae-button @click="createToken">
+                      <ae-button @click="createToken" class="toCreateToken">
                         <ae-icon name="plus" />
                         Create Token
                       </ae-button>
@@ -383,10 +383,9 @@ export default {
     },
     pollData() {
       let triggerOnce = false
-      
-      this.polling = setInterval(() => {
+      let running = false
+      this.polling = setInterval(async () => {
         if(this.sdk != null && this.isLoggedIn) {
-            //Todo update token if is not AE
             if(this.current.token != 0) {
               this.$store.dispatch('updateBalanceToken')
             }
@@ -396,6 +395,14 @@ export default {
             }
             if(this.dropdown.settings) {
               this.$store.dispatch('updateBalanceTokens');
+            }
+            if(!this.$router.currentRoute.path.includes("/sign-transaction")) {
+              if(!running) {
+                running = true
+                this.$store.dispatch('updateRegisteredName').then(res => {
+                  running = false
+                })
+              }
             }
             if(!triggerOnce) {
               this.$store.dispatch('getRegisteredNames')
@@ -437,7 +444,7 @@ export default {
         browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
           if(!pendingTx.hasOwnProperty('pendingTransaction') || ( pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length <= 0 )) {
             clearInterval(this.checkPendingTxInterval)
-            if(this.$router.currentRoute.path == "/sign-transaction") {
+            if(this.$router.currentRoute.path.includes("/sign-transaction") &&  this.$router.currentRoute.params.data.popup == false) {
               this.$store.commit('SET_AEPP_POPUP',false)
               this.$router.push('/account')
             }
@@ -487,7 +494,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #network li .status::before { content: ''; display: inline-block; width: 8px; height: 8px; -moz-border-radius: 7.5px; -webkit-border-radius: 7.5px; border-radius: 7.5px; margin-right: 5px;
                 border: 1px solid #DDD; background-color: #EFEFEF; }
 #network li .status.current::before { border-color: green; background-color: greenyellow; }
-#account { position: absolute; left: 50%; margin-left: -60px; top: 50%; margin-top: -27px; }
+#account { position: absolute; left: 50%; margin-left: -60px; top: 50%; margin-top: -24px; }
 #account  > button { width: 120px; }
 #account .dropdown-button-icon.ae-identicon.base { height: 1.8rem; margin-bottom: 3px; vertical-align: top; }
 #account .ae-dropdown-button .dropdown-button-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

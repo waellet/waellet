@@ -28,6 +28,30 @@
                 <div class="balance balanceSpend no-sign" v-if="!isNameTx">{{amount}} {{token}}</div>
                 <div class="fiat-rate" v-if="!data.tx.token && !isNameTx">${{convertCurrency(usdRate,amount)}}</div>
             </ae-list-item>
+            <ae-list-item v-if="data.type == 'nameClaim' || data.type == 'nameUpdate' " fill="neutral" class="flex-justify-between whiteBg  flex-align-center " >
+                <div class="tx-label">
+                    {{language.pages.transactionDetails.name}}
+                </div>
+                <div>
+                    <strong>{{data.tx.name}}</strong>
+                </div>
+            </ae-list-item>
+            <ae-list-item v-if="data.type == 'nameClaim'" fill="neutral" class="flex-justify-between whiteBg flex-align-center " >
+                <div class="tx-label ">
+                    {{language.pages.transactionDetails.nameSalt}}
+                </div>
+                <div>
+                    <strong>{{data.tx.preclaim.salt}}</strong>
+                </div>
+            </ae-list-item>
+            <ae-list-item v-if="data.type == 'nameUpdate'" fill="neutral" class="flex-justify-between whiteBg  flex-align-center flex-direction-column" >
+                <div class="tx-label extend text-left">
+                    {{language.pages.transactionDetails.nameId}}
+                </div>
+                <div class="text-left">
+                    <strong>{{data.tx.claim.id}}</strong>
+                </div>
+            </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg flex-direction-column flex-align-center " v-if="alertMsg == ''">
                 <div class="flex extend flex-justify-between ">
                     <div class="tx-label">{{language.pages.transactionDetails.fee}}</div>
@@ -65,7 +89,7 @@
 <script>
 import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall } from '../../utils/helper';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee } from '../../utils/constants';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
@@ -109,7 +133,7 @@ export default {
     props:['data'],
     locales,
     async created(){
-        this.init()
+        await this.init()
     },
     computed: {
         ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance']),
@@ -134,7 +158,6 @@ export default {
         },
         insufficientBalance() {
             if(typeof this.data.tx.token != 'undefined') {
-                console.log(this.tokenBalance)
                 return this.tokenBalance - this.amount <= 0
             }
             return this.maxValue - this.amount <= 0
@@ -182,31 +205,21 @@ export default {
     watch:{ 
         watchBalance() {
             this.showAlert()
-        },
-        '$route' (to, from) {
-            console.log(to)
-            console.log(from)
-            console.log(this.data)
-            console.log("change")
         }
     },
     methods: {
-        init() {
+        async init() {
             this.setReceiver()
-            console.log(this.data)
             if(typeof this.data.callType != "undefined" && this.data.callType == 'static') {
-                console.log("jere")
                 this.loaderType = ''
                 this.loading = true
                 this.loaderContent = this.language.pages.signTx.contractCall
+                
                 this.checkSDKReady = setInterval(async () => {
-                    console.log('w')
                     if(this.sdk != null) {
                         window.clearTimeout(this.checkSDKReady)
-                        console.log("e")
                         let byteCode = await this.checkSourceByteCode(this.data.tx.source)
                         let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
-                        console.log("here")
                         
                         if(byteCode.bytecode == deployedByteCode.tx.code) {
                             //Contract call static should be moved here after fixing differences between source of contract and the source compiled with
@@ -301,8 +314,14 @@ export default {
                                 name:"nm_2Wb2xdC9WMSnExyHd8aoDu2Ee8qHD94nvsFQsyiy1iEyUGPQp9",
                                 nameSalt:this.data.tx.preclaim.salt
                             }
+                        }else if(this.data.type == 'nameUpdate') {
+                            txParams = {
+                                ...txParams,
+                                accountId:this.account.publicKey,
+                                nameId:this.data.tx.claim.id,
+                                pointers:this.data.tx.claim.pointers
+                            }
                         }
-                        console.log(txParams)
                         let fee = calculateFee(TX_TYPES[this.data.type],txParams)
                         this.txFee = fee
                         this.selectedFee = this.fee.toFixed(7)
@@ -344,8 +363,16 @@ export default {
         async cancelTransaction() {
             let list = await removeTxFromStorage(this.data.id)
             if(!this.data.popup) {
-                browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
-                this.redirectInExtensionAfterAction()
+                if(this.data.type == 'nameUpdate') {
+                    this.$store.dispatch('removePendingName', { hash: this.data.tx.hash }).then(() => {
+                        browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                        this.redirectInExtensionAfterAction()
+                    })
+                }else {
+                    browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                    this.redirectInExtensionAfterAction()
+                }   
+                
             }else {
                 browser.storage.sync.set({pendingTransaction: { list } }).then(() => {
                     this.port.postMessage(this.errorTx)
@@ -390,7 +417,6 @@ export default {
             })
             .then(ae => {
                 ae.spend(parseInt(amount), this.receiver, { fee: this.convertSelectedFee}).then(async result => {
-                    console.log(result)
                     if(typeof result == "object") {
                         this.loading = false
                         let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
@@ -535,32 +561,22 @@ export default {
             }});
         },  
         async nameClaim() {
-            console.log("before claim")
             const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false })
-            this.$router.push('/generalSettings')
-            // let tx = {
-            //     popup:false,
-            //     tx: {
-            //         name:this.data.tx.name,
-            //         recipientId:'',
-            //         claim
-            //     },
-            //     type:'nameUpdate'
-            // }
-            // this.$store.commit('SET_AEPP_POPUP',true)
-            // this.$router.push({'name':'sign', params: {
-            //     data:tx,
-            //     type:tx.type
-            // }})
+            setTimeout(() => {
+                this.$store.commit('SET_AEPP_POPUP',false)
+                this.$router.push('/generalSettings')
+            },1000)
         },
         async nameUpdate(){
             const update = await this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
-            console.log(update)
             this.$store.dispatch('popupAlert', {
                 name: 'account',
                 type: 'added_success'
             }).then(() => {
-                this.$router.push('/generalSettings')
+                this.$store.dispatch('removePendingName',{ hash: this.data.tx.hash }).then(() => {
+                    this.$store.commit('SET_AEPP_POPUP',false)
+                    this.$router.push('/generalSettings')
+                })  
             })
         },
         async signTransaction() {

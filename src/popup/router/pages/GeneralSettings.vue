@@ -61,7 +61,6 @@ export default {
     created() {
         this.polling = setInterval(() => {
             this.$store.dispatch('getRegisteredNames')
-            this.$store.dispatch('updateRegisteredName')
         },5000)
     },
     methods: {

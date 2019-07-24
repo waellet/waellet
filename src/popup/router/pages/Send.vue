@@ -3,7 +3,11 @@
     <div class="actions">
       <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
     </div>
-    <p>{{language.pages.send.heading}}</p>
+    <h3 class="flex flex-align-center">
+      {{language.pages.send.heading}} 
+      <ae-identicon class="send-account-icon" :address="account.publicKey" size="base" /> 
+      {{activeAccountName}}
+    </h3>
     <div class="sendContent">
       <ae-input :label="language.pages.send.recipient" class="address">
           <textarea class="ae-input textarea" v-model="form.address" placeholder="ak.. / name.test"  slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
@@ -109,7 +113,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current', 'wallet', 'activeAccount', 'subaccounts', 'tokenSymbol', 'tokenBalance', 'sdk', 'tokens', 'popup']),
+    ...mapGetters(['account', 'balance', 'network', 'current', 'wallet', 'activeAccount', 'subaccounts', 'tokenSymbol', 'tokenBalance', 'sdk', 'tokens', 'popup','activeAccountName']),
     maxValue() {
       let calculatedMaxValue = this.balance - this.maxFee
       return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -223,103 +227,6 @@ export default {
     init() {
       let calculatedMaxValue = this.balance - this.maxFee
     },
-    confirmTransaction () {
-      this.loading = true;
-      let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
-      let receiver = this.form.address;
-      if(receiver == '') {
-        this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address'});
-        this.loading = false;
-        return;
-      }
-      if(this.form.amount <= 0) {
-        this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_amount'});
-        this.loading = false;
-        return;
-      }
-      //is the amount correct
-      if (this.maxValue - this.form.amount <= 0 && this.current.token == 0) {
-        this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
-        this.loading = false;
-        return;
-      } 
-      if(this.current.token != 0 ) {
-        if(this.maxValue - this.txFee <= 0) {
-          this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
-          this.loading = false;
-          return;
-        }
-        if(this.tokenBalance - this.form.amount <= 0) {
-          this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
-          this.loading = false;
-          return;
-        }
-      }
-      if(this.current.token == 0) {
-        try {
-          Wallet({
-            url: this.network[this.current.network].url,
-            internalUrl: this.network[this.current.network].internalUrl,
-            accounts: [
-              MemoryAccount({
-                keypair: {
-                  secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey,
-                  publicKey: this.account.publicKey
-                },
-                networkId: this.network[this.current.network].networkId
-              })
-            ],
-            address: this.account.publicKey,
-            onTx: confirm, // guard returning boolean
-            onChain: confirm, // guard returning boolean
-            onAccount: confirm, // guard returning boolean
-            onContract: confirm, // guard returning boolean
-            networkId: this.network[this.current.network].networkId
-          })
-          .then(ae => {
-            ae.spend(parseInt(amount), receiver).then(result => {
-              if(typeof result == "object") {
-                let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash;
-                // this.tx.status = true;
-                this.tx.hash = result.hash;
-                this.tx.block = result.blockNumber;
-                this.tx.url = txUrl;
-              
-                let msg = 'You send ' + this.form.amount + ' AE';
-                this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl});
-                this.clearForm();
-              }
-              else {
-                alert("error");
-              }
-            })
-            .catch(err => {
-              console.log(err);
-              this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'});
-              this.loading = false;
-              return;
-            });
-          })
-          .catch(err => {
-            console.log(err);
-          });
-        }catch(err) {
-          console.log(err);
-        }
-      }else {
-        this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,this.tokens[this.current.token].contract,'transfer',[receiver,this.form.amount.toString()])
-        .then(res => {
-          res.decode()
-          .then(transfer => {
-            this.loading = false
-            let msg = 'You send ' + this.form.amount + ' ' + this.tokenSymbol
-            this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg})
-            this.clearForm();
-            this.$store.dispatch('updateBalanceTokens');
-          })
-        })
-      }
-    },
     clearForm () {
       setTimeout(() => {
         this.loading = false;
@@ -408,5 +315,8 @@ export default {
     margin-right:2px;
     display: inline-block;
   }
+}
+.send-account-icon {
+  margin:0 10px;
 }
 </style>

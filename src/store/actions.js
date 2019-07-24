@@ -3,8 +3,8 @@ import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
 import { convertToAE } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
-import { uniqBy, head } from 'lodash-es';
-
+import { uniqBy, head, flatten } from 'lodash-es';
+import router from '../popup/router/index'
 
 export default {
   setAccount({ commit }, payload) {
@@ -198,7 +198,7 @@ export default {
     const middlewareUrl = state.network[state.current.network].middlewareUrl;
 
     let res = await Promise.all(state.subaccounts.map(async ({ publicKey }, index) => {
-      const names = (await Promise.all([
+      let names = (await Promise.all([
         (async () => {
           return (await state.sdk.api.getPendingAccountTransactionsByPubkey(publicKey)
             .catch(() => ({ transactions: [] })))
@@ -217,7 +217,8 @@ export default {
           )).json(),
           'name',
         ))(),
-      ])).flat();
+      ]))
+      names = flatten(names)
       if(names.length) commit(types.SET_ACCOUNT_AENS, { account:index, name: names[0].name, pending: names[0].pending ? true : false })
       browser.storage.sync.get('pendingNames').then(pNames => {
         let pending = []
@@ -242,50 +243,44 @@ export default {
   },
   async updateRegisteredName({commit, state}) {
     let pending = uniqBy(state.pendingNames, 'hash')
-    await Promise.all([
-      (async () => {
+    return new Promise(async (resolve, reject) => {
         if(pending.length) {
           let { hash, name } = head(pending)
           let register = await state.sdk.poll(hash)
+          let claim  = await state.sdk.aensQuery(name)
           let tx = {
               popup:false,
               tx: {
                   name,
-                  recipientId:''
+                  recipientId:'',
+                  claim,
+                  hash
               },
               type:'nameUpdate'
           }
           commit('SET_AEPP_POPUP',true)
-          this.$router.push({'name':'sign', params: {
+          resolve(register)
+          router.push({'name':'sign', params: {
               data:tx,
               type:tx.type
           }})
-          return register
+          
+          // return register
+        }else {
+          resolve()
         }
-      })()
-    ])
-    // await Promise.all(pending.map(async ({ hash, name }) => {
-    //   let register = await state.sdk.poll(hash)
-    //   console.log(register)
-    //   let tx = {
-    //       popup:false,
-    //       tx: {
-    //           name,
-    //           recipientId:'',
-    //           claim
-    //       },
-    //       type:'nameUpdate'
-    //   }
-    //   this.$store.commit('SET_AEPP_POPUP',true)
-    //   this.$router.push({'name':'sign', params: {
-    //       data:tx,
-    //       type:tx.type
-    //   }})
-    //   let update = await state.sdk.aensUpdate(
-    //     (await state.sdk.aensQuery(name)).id,
-    //     state.account.publicKey
-    //   )
-    //   console.log(update)
-    // }))
+      })
+  },
+  removePendingName({ commit, state }, { hash }) {
+    return new Promise((resolve, reject) => {
+      let pending = state.pendingNames
+      pending = pending.filter(p => p.hash != hash)
+      browser.storage.sync.set({pendingNames: { list: pending}}).then(() => {
+        commit(types.SET_PENDING_NAMES, { names: pending })
+        setTimeout(() => {
+          resolve()
+        },1500)
+      })
+    })
   }
 };
