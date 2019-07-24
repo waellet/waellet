@@ -5,7 +5,7 @@
         </div>
         <h3 style='text-align:center;'>{{language.pages.utilities.heading}}</h3>
         <br>
-        <ae-list class="settingslist" face="primary">
+        <ae-list id="utilitiesPage" class="settingslist" face="primary">
             <button class="generalsett" @click="openTipPage">
                 <span class="settings-li">{{language.buttons.tipWebsite}}</span>
                 <i class="arrowright"></i>

@@ -120,19 +120,19 @@
                     </li>
                   </ul>
                 </li>
-                <li>
+                <li id="utilities">
                   <ae-button @click="utilities" class="utilities">
                     <ae-icon name="underline" />
                     {{ language.strings.utilities }}
                   </ae-button>
                 </li>
-                <li>
+                <li id="settings">
                   <ae-button @click="settings" class="settings">
                     <ae-icon name="settings" />
                     {{ language.strings.settings }}
                   </ae-button>
                 </li>
-                <li>
+                <li id="toLogout">
                   <ae-button @click="logout" class="toLogout">
                     <ae-icon name="sign-out" />
                     {{ language.strings.logout }}
@@ -343,6 +343,7 @@ export default {
     },
     manageAccounts () {
       this.$router.push('/manageAccounts');
+      this.dropdown.network = false;
     },
     exportKeypair (type) {
       if(type == 'keypair') {

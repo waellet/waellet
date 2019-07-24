@@ -5,12 +5,14 @@
         </div>
         <h3 style='text-align:center;'>Qr Code Scanner</h3>
         <br>
-        <p v-if="successMessage != ''">
-            <b>{{ successMessage }}</b>
-        </p>
-        <p v-if="errorMessage != ''" class="error">
-            <b>{{ errorMessage }}</b>
-        </p>
+        <div class="cameraMsg">
+            <p v-if="successMessage != ''">
+                <b>{{ successMessage }}</b>
+            </p>
+            <p v-if="errorMessage != ''" class="error">
+                <b>{{ errorMessage }}</b>
+            </p>
+        </div>
         <qrcode-stream @decode="onDecode" @init="onInit"></qrcode-stream>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
@@ -125,5 +127,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
-
+.cameraMsg p {
+word-break: break-word;
+}
 </style>

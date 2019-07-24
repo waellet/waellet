@@ -78,7 +78,8 @@ export default {
                 msg:null
             },
             addStep:false,
-            loading:false
+            loading:false,
+            timer: ''
         }
     },
     locales,
@@ -96,12 +97,18 @@ export default {
             this.$router.push('/account')
         },
         validate(type) {
-            if(type == 'contract') {
-                this.token.precisionDisabled = false
-                // if(this.token.contract.length == 53) {
-                    this.searchTokenMetaInfo(this.token.contract)
-                // }
+            if (this.timer) {
+                clearTimeout(this.timer);
+                this.timer = null;
             }
+            this.timer = setTimeout(() => {
+                if(type == 'contract') {
+                    this.token.precisionDisabled = false
+                    // if(this.token.contract.length == 53) {
+                        this.searchTokenMetaInfo(this.token.contract)
+                    // }
+                }
+            }, 3000);
         },
         async next() {
             let added = this.tokens.find(tkn => tkn.contract == this.token.contract && tkn.parent == this.account.publicKey)
@@ -167,21 +174,15 @@ export default {
                         this.loading = false
                     })
                     .catch(e => {
-                console.log('parva');
-                console.log(e);
                         this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                         this.loading = false
                     })
                 })
                 .catch(e => { 
-                console.log('vtora');
-                console.log(e);
                     this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                     this.loading = false
                 })
             }catch(e) {
-                console.log('treta');
-                console.log(e);
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                 this.loading = false
             }

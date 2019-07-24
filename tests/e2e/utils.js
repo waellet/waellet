@@ -345,7 +345,7 @@ export const createNetwork = () => {
   .visit('popup/popup.html',{onBeforeLoad})
   .get('#network')
   .click()
-  .get('.triggerhidedd > .ae-button')
+  .get('.manageAccounts')
   .click()
   .get('.dropdown-holder')
   .should('not.be.visible')

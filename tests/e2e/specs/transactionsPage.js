@@ -23,13 +23,15 @@ describe("Tets cases for Transactions Page", () => {
             let amount = data.tx.amount / 10 ** 18;
             let fee = data.tx.fee / 10 ** 18;
             cy.get('.allTransactions .list-item-transaction').eq(0).then(elem => {
-                cy.wrap(elem).should('have.class',data.hash);
-                cy.wrap(elem).find('.ae-address').should('have.attr','title',data.tx.sender_id);
-                cy.wrap(elem).find('.transactionDate').should('contain',new Date(data.time).toLocaleTimeString() );
-                cy.wrap(elem).find('div.balance').should('contain',amount);
-                cy.wrap(elem).find('small .balance').should('contain',fee);
-                if(data.tx.sender_id == account.publicKey) {
-                    cy.wrap(elem).find('.badgeTransactionType').should('be.visible').should('contain','outgoing');
+                if (data.tx.type != "NameClaimTx" && data.tx.type != 'NamePreclaimTx'){
+                    cy.wrap(elem).should('have.class',data.hash);
+                    cy.wrap(elem).find('.ae-address').should('have.attr','title',data.tx.account_id);
+                    cy.wrap(elem).find('.transactionDate').should('contain',new Date(data.time).toLocaleTimeString() );
+                    cy.wrap(elem).find('div.balance').should('contain',amount);
+                    cy.wrap(elem).find('small .balance').should('contain',fee);
+                    if(data.tx.account_id == account.publicKey) {
+                        cy.wrap(elem).find('.badgeTransactionType').should('be.visible').should('contain','outgoing');
+                    }
                 }
             })
         });
@@ -48,23 +50,19 @@ describe("Tets cases for Transactions Page", () => {
             let amount = data.tx.amount / 10 ** 18;
             let fee = data.tx.fee / 10 ** 18;
             let total = (parseFloat(amount) + parseFloat(fee)).toFixed(7);
-            cy.get('.allTransactions .list-item-transaction').eq(0).click()
-            .get('.transactionDate')
-            .should('contain',new Date(data.time).toLocaleString())
-            .get('.transactionType')
-            .should('contain',data.tx.type)
-            .get('.transactionAmount')
-            .should('contain',amount)
-            .get('.transactionFee')
-            .should('contain',fee)
-            .get('.balanceTotal')
-            .should('contain',total)
-            .get('.transationFrom')
-            .should('have.value',data.tx.sender_id)
-            .get('.transactionTo')
-            .should('have.value',data.tx.recipient_id)
-            .get('.transactionHash')
-            .should('have.value',data.hash)
+            cy.get('.allTransactions .list-item-transaction').eq(0).click().then(elem => {
+                if (data.tx.type != "NameClaimTx" && data.tx.type != 'NamePreclaimTx'){
+                    cy.wrap(elem).find('.transactionDate').should('contain',new Date(data.time).toLocaleTimeString() );
+                    cy.wrap(elem).find('.transactionType').should('contain',data.tx.type)
+                    cy.wrap(elem).find('.transactionAmount').should('contain',amount);
+                    cy.wrap(elem).find('.transactionFee').should('contain',fee);
+                    cy.wrap(elem).find('.balanceTotal').should('contain',total);
+                    cy.wrap(elem).find('.transationFrom').should('contain',data.tx.sender_id);
+                    cy.wrap(elem).find('.transactionTo').should('contain',data.tx.recipient_id);
+                    cy.wrap(elem).find('.transactionHash').should('contain',data.hash);
+                }
+            });
+            cy
             .get('.transactionExplorerBtn')
             .should('be.visible')
             .get('.backbutton')
@@ -76,6 +74,7 @@ describe("Tets cases for Transactions Page", () => {
             .should('be.visible')
         });
     });
+    
     it("check login page", () => {
         cy.
         visit('popup/popup.html',{onBeforeLoad});
