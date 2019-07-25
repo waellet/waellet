@@ -331,6 +331,9 @@ export default {
         })
       }
     },
+    init() {
+      let calculatedMaxValue = this.balance - this.maxFee
+    },
     clearForm () {
       setTimeout(() => {
         this.loading = false;

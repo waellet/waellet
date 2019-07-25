@@ -30,7 +30,9 @@ body {
 a {
   color: $main-color;
 }
-
+p {
+  word-break: break-word;
+}
 .ae-input-container.focus { 
   caret-color: $primary-color !important;
   border-left: 2px solid $primary-color !important;

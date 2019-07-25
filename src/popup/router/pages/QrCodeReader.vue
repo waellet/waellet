@@ -5,6 +5,8 @@
         </div>
         <h3 style='text-align:center;'>Qr Code Scanner</h3>
         <br>
+
+
         <div class="cameraMsg">
             <p v-if="successMessage != ''">
                 <b>{{ successMessage }}</b>
@@ -14,6 +16,7 @@
             </p>
         </div>
         <qrcode-stream @decode="onDecode" @init="onInit"></qrcode-stream>
+
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
     </div>
@@ -22,6 +25,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
+import { detectBrowser } from '../../utils/helper';
 import QrcodeVue from 'qrcode.vue';
 import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader';
 import {
@@ -43,6 +47,16 @@ export default {
     locales,
     computed: {
         ...mapGetters (['account', 'current', 'network','subaccounts','wallet', 'popup'])
+    },
+    created() {
+        // if (detectBrowser() == 'Chrome') {
+        //     let extensionUrl = 'chrome-extension://'+browser.runtime.id
+        //     browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
+        // }
+        // else if(detectBrowser() == 'Firefox') {
+        //     let extensionUrl = browser.extension.getURL ('./')
+        //     browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
+        // }
     },
     methods: {
         navigateAccount() {
@@ -100,27 +114,39 @@ export default {
                 }
             }
         },
-        onInit (promise) {
-            promise.then(() => {
-                this.successMessage = 'Camera successfully initilized! Ready for scanning now!';
-            })
-            .catch(error => {
-                browser.tabs.create({url: 'chrome-extension://'+browser.runtime.id+'/popup/CameraRequestPermission.html', active: true});
-                if (error.name === 'NotAllowedError') {
-                    this.errorMessage = 'Hey! I need access to your camera'
-                } else if (error.name === 'NotFoundError') {
-                    this.errorMessage = 'Do you even have a camera on your device?'
-                } else if (error.name === 'NotSupportedError') {
-                    this.errorMessage = 'Seems like this page is served in non-secure context (HTTPS, localhost or file://)'
-                } else if (error.name === 'NotReadableError') {
-                    this.errorMessage = 'Couldn\'t access your camera. Is it already in use?'
-                } else if (error.name === 'OverconstrainedError') {
-                    this.errorMessage = 'Constraints don\'t match any installed camera. Did you asked for the front camera although there is none?'
-                } else {
-                    this.errorMessage = 'UNKNOWN ERROR: ' + error.message
-                }
-            })
-        },
+        // onInit (promise) {
+        //         console.log('promise');
+        //         console.log(promise);
+        //     promise.then(() => {
+        //         console.log('then');
+        //         this.successMessage = 'Camera successfully initilized! Ready for scanning now!';
+        //     })
+        //     .catch(error => {
+        //         console.log('error');
+        //         console.log(error);
+        //         if (detectBrowser() == 'Chrome') {
+        //             let extensionUrl = 'chrome-extension://'+browser.runtime.id
+        //             browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
+        //         }
+        //         else if(detectBrowser() == 'Firefox') {
+        //             let extensionUrl = browser.extension.getURL ('./')
+        //             browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
+        //         }
+        //         if (error.name === 'NotAllowedError') {
+        //             this.errorMessage = 'Hey! I need access to your camera'
+        //         } else if (error.name === 'NotFoundError') {
+        //             this.errorMessage = 'Do you even have a camera on your device?'
+        //         } else if (error.name === 'NotSupportedError') {
+        //             this.errorMessage = 'Seems like this page is served in non-secure context (HTTPS, localhost or file://)'
+        //         } else if (error.name === 'NotReadableError') {
+        //             this.errorMessage = 'Couldn\'t access your camera. Is it already in use?'
+        //         } else if (error.name === 'OverconstrainedError') {
+        //             this.errorMessage = 'Constraints don\'t match any installed camera. Did you asked for the front camera although there is none?'
+        //         } else {
+        //             this.errorMessage = 'UNKNOWN ERROR: ' + error.message
+        //         }
+        //     })
+        // },
     }
 }
 </script>

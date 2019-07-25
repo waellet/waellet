@@ -18,7 +18,7 @@
         <ae-list class="allTransactions">
             <div v-for="(trans,index) in groupedTransactionsByDate">
                 <div class="date">{{index}}</div>
-                <TransactionItem v-for="transaction in trans" :transactionData="transaction"></TransactionItem>
+                <TransactionItem v-for="transaction in trans" v-bind:key="transaction.id" :transactionData="transaction"></TransactionItem>
             </div>
             <ae-button face="flat" v-if="showMoreBtn" @click="loadMore" fill="neutral"> <ae-icon name="reload" /> {{language.buttons.loadMore}}</ae-button>
             <p v-if="showMoreBtn == false">All transactions loaded! </p>

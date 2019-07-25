@@ -52,14 +52,22 @@
             <br>
             <select class="allowance-token-dropdown" @change="seeAll($event)" v-model="selected">
                 <option value="default" disabled>Choose a token</option>
-                <option v-for="(tok, key) in filteredTokens" :value="tok.key">
+                <option v-for="(tok, key) in filteredTokens" v-bind:key="key.id" :value="tok.key">
                 {{tok.name}}
                 </option>
             </select>
-            <ae-list v-for="(allowance, index) in allowances" face="primary">
-                <ae-list-item style="display: block;" fill="primary"><b style="word-break: normal; display: block;">From: </b>{{allowance.allowanceFrom}}</ae-list-item>
-                <ae-button face="round" fill="primary" @click="getAllowance(allowance.allowanceFrom)">Get it</ae-button>
-            </ae-list>
+            <div v-if="this.selected != 'default'" class="allAllowances">
+                <ae-list v-for="(allowance, index) in allowances" v-bind:key="index.id" face="primary">
+                    <ae-list-item style="display: block;" fill="primary"><b style="word-break: normal; display: block;">From: </b>{{allowance.allowanceFrom}} - <ae-badge>{{allowance.allowanceAmount}} {{allowance.allowanceToken}}</ae-badge></ae-list-item>
+                    <ae-button face="round" fill="primary" @click="getAllowance(allowance.allowanceFrom)">Get it</ae-button>
+                </ae-list>
+            </div>
+            <div v-if="this.selected == 'default'" class="allowanceMsg">
+                <p>Please choose a token to see all your allowances!</p>
+            </div>
+            <div v-if="this.selected == 'default' && this.allowances.length == 0" class="allowanceMsg">
+                <p>No allowances found!</p>
+            </div>
         </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <Loader size="big" :loading="loading" type="transparent" ></Loader>
@@ -103,10 +111,20 @@ export default {
         ...mapGetters(['account', 'balance', 'network', 'current', 'wallet', 'activeAccount', 'subaccounts', 'tokenSymbol', 'tokenBalance', 'sdk', 'tokens', 'popup']),
         filteredTokens() {
             return this.tokens.filter((t,index) => {
+                console.log('t');
+                console.log(t);
+                console.log('index');
+                console.log(index);
                 t.key = index;
                 return t.parent == this.account.publicKey && t.name != 'AE'
             });
         }
+    },
+    created() {
+        console.log('filteredTokens');
+        console.log(this.filteredTokens);
+        console.log('tokenbalance');
+        console.log(this.tokens)
     },
     methods: {
         onChange(event) {
@@ -181,17 +199,27 @@ export default {
                 console.log(FUNGIBLE_TOKEN_CONTRACT);
                     this.tokens.forEach(async element => {
                         if (element.key == this.selected) {
-                            // let allowance_accounts = {from_account: this.transferform.to_account, for_account:this.account.publicKey };
-                            let amountLeft = await this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,element.contract,'allowance', [['ak_29N1k3KjQ4EJUvjhxqAB5H4osiru7ZRTbtjBUXLTGHXCF9YQLQ', this.account.publicKey]] )
-                            console.log('amountLeft');
-                            console.log(amountLeft);
-                            let decodedamount = await amountLeft.decode();
-                            console.log('decodedamount');
-                            console.log(decodedamount); return;
-                            // let value = (this.transferform.value).toString();
-                            // let transfer = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, element.contract, 'transfer_allowance', [this.transferform.to_account,this.account.publicKey,value])
-                            // console.log('transfer');
-                            // console.log(transfer);
+
+                            let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
+                            let checkAmountLeft = await contract.call('allowance', [{from_account: this.transferform.to_account, for_account:this.account.publicKey }], { callStatic: true })
+                            let amountLeft = await checkAmountLeft.decode()
+                            if (amountLeft != 'None') {
+                                let value = (this.transferform.value).toString();
+                                let transfer = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, element.contract, 'transfer_allowance', [this.transferform.to_account,this.account.publicKey,value])
+                                let transferDec = await transfer.decode()
+                                console.log('value');
+                                console.log(value); 
+                                console.log('transfer');
+                                console.log(transfer);
+                                console.log('transferDec');
+                                console.log(transferDec);
+                            }
+
+
+                            // let allowance_accounts = {from_account: 'ak_29N1k3KjQ4EJUvjhxqAB5H4osiru7ZRTbtjBUXLTGHXCF9YQLQ', for_account:this.account.publicKey };
+                            // let amountLeft = await this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,element.contract,'allowance', [allowance_accounts] )
+                            
+                            // let decodedamount = await amountLeft.decode();
                             // let dec = await transfer.decode()
                             // console.log('dec');
                             // console.log(dec);
@@ -205,30 +233,27 @@ export default {
             this.allowances = [];
             this.selected = '';
             this.selected = event.target.value;
-            console.log(FUNGIBLE_TOKEN_CONTRACT)
             this.tokens.forEach(async element => {
                 if (element.key == this.selected) {
-                    let all = await this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,element.contract,'allowances')
-                    console.log('all');
-                    console.log(all);
-                    let dec = await all.decode()
-                    console.log('dec');
-                    console.log(dec);
-                    dec.forEach(d => {
-                        console.log(d[0]);
-                        if (d[0].for_account == this.account.publicKey) {
-                            this.allowances.push({
+                    console.log('contract =>');
+                    console.log(FUNGIBLE_TOKEN_CONTRACT);
+                    let checkAllAllowances = await this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,element.contract,'allowances')
+                    let all = await checkAllAllowances.decode()
+
+                    all.forEach(async singleAllowance => { //foreach all allowances
+                        if (singleAllowance[0].for_account == this.account.publicKey) { //get allowances for curr account
+                            let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
+                            let checkAmountLeft = await contract.call('allowance', [{from_account: singleAllowance[0].from_account, for_account:this.account.publicKey }], { callStatic: true })
+                            let amountLeft = await checkAmountLeft.decode()
+                            let tokensLefttoTransfer = amountLeft.Some[0];
+                            this.allowances.push({ 
                                 allowance: element.contract,
-                                allowanceFrom: d[0].from_account
+                                allowanceFrom: singleAllowance[0].from_account,
+                                allowanceAmount: tokensLefttoTransfer,
+                                allowanceToken: element.symbol
                             });
                         }
                     });
-
-
-            //     console.log(element);
-            //         let all = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, element.contract , 'allowance ', [ this.account.publicKey, 'ak_2dY7HSsxH3yGL5j7mNvYYjFGTZwqtLNyoLSSaymn1wLKFSneeQ' ])
-            //         console.log('create');
-            //         console.log(all);
                 }
             });
         },
