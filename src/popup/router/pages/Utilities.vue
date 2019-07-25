@@ -16,6 +16,11 @@
                 <i class="arrowright"></i>
                 <p class="tabinfo">Give an allowance to your people</p>
             </button>
+            <button class="fungible-tokens" @click="openFungibleTokensPage">
+                <span class="settings-li">{{language.buttons.fungibleTokens}}</span>
+                <i class="arrowright"></i>
+                <p class="tabinfo">Add new token, or deploy token contract</p>
+            </button>
         </ae-list>
 
         <div v-if="loading" class="loading">
@@ -57,6 +62,9 @@ export default {
     navigateAccount() {
       this.$router.push('/account')
     },
+    openFungibleTokensPage() {
+      this.$router.push('/fungible-tokens')
+    }
   }
 }
 </script>

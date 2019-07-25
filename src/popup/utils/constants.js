@@ -33,6 +33,7 @@ const MIN_SPEND_TX_FEE_STRING = TxBuilder.calculateMinFee(
 );
 
 export const calculateFee = (type,params) => {
+  console.log(type)
   let MIN_FEE = TxBuilder.calculateMinFee(type, {
     params: {
       senderId: STUB_ADDRESS,
