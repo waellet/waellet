@@ -10,6 +10,7 @@
         "namingSystem": "AE Naming System",
         "manageAccounts": "Manage accounts",
         "airGapVault": "Create a vault for AirGap",
+        "ledgerAccount": "Add Ledger Account",
         "manageNetworks": "Manage networks",
         "network": "Network",
         "networkName": "Node name",

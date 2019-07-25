@@ -5,6 +5,8 @@ import { convertToAE } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
 import { uniqBy, head, flatten } from 'lodash-es';
 import router from '../popup/router/index'
+import Ledger from '../popup/utils/ledger';
+
 
 export default {
   setAccount({ commit }, payload) {
@@ -293,5 +295,7 @@ export default {
         },1500)
       })
     })
-  }
+  },
+  
+  ...Ledger
 };

@@ -30,9 +30,9 @@
           <span class="token-symbol">{{tokenSymbol}}</span>
           <ae-dropdown v-if="tokens.length > 1">
             <ae-icon name="grid" size="20px" slot="button" />
-            <li v-for="(tkn,key) in myTokens" v-if="tkn.name != tokenSymbol" @click="setActiveToken(key)">
-              <img :src="ae_token" class="token-image" alt="" v-if="key == 0" >
-              <ae-identicon class="subAccountIcon" :address="tkn.contract" size="base" v-if="key != 0"/> {{tkn.name}}
+            <li v-for="(tkn,key) in myTokens" v-if="tkn.name != tokenSymbol" @click="setActiveToken(tkn.key)">
+              <img :src="ae_token" class="token-image" alt="" v-if="tkn.key == 0" >
+              <ae-identicon class="subAccountIcon" :address="tkn.contract" size="base" v-if="tkn.key != 0"/> {{tkn.name}}
             </li>
           </ae-dropdown>
         </ae-text>
@@ -133,7 +133,13 @@ export default {
       return this.current.token
     },
     myTokens() {
-      return this.tokens.filter(t => t.parent == this.account.publicKey)
+      return this.tokens.filter((t,index) =>  {
+        if(t.parent == this.account.publicKey) {
+          t.key = index
+          return t
+        }
+        
+      })
     }
   },
   async mounted() {

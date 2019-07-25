@@ -68,13 +68,13 @@ const onBeforeLoad = (win,mock = '') => {
         }else if(mock == 'sign') {
             chrome.storage.sync.set({
                 pendingTransaction:{
-                    data:transaction
+                    list: transaction 
                 }
             }, () => { });
         }else if(mock == 'sign2') {
             chrome.storage.sync.set({
                 pendingTransaction:{
-                    data:transaction2
+                    list: transaction2 
                 }
             }, () => { });
         }else if(mock == 'confirm-connection') {

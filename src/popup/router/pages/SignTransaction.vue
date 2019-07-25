@@ -90,7 +90,7 @@
 <script>
 import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK } from '../../utils/helper';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName  } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee } from '../../utils/constants';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
@@ -165,7 +165,10 @@ export default {
             return this.maxValue - this.amount <= 0
         },
         inccorectAddress() {
-            return this.receiver == null || this.receiver == ""
+            if(this.data.type != 'txSign') {
+                return this.receiver == null || this.receiver == ""
+            }
+            return  (!checkAddress(this.receiver) && !chekAensName(this.receiver) ) 
         },
         watchBalance() {
             return this.balance
@@ -311,7 +314,6 @@ export default {
                                 senderId:this.account.publicKey,
                                 recipientId:recipientId
                             }
-                            console.log(this.sdk)
                         }else if(this.data.type == 'namePreClaim') {
                             txParams = { 
                                 ...txParams,
@@ -396,10 +398,15 @@ export default {
         redirectInExtensionAfterAction() {
             browser.storage.sync.get('pendingTransaction').then((data) => {
                 if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('list') && Object.keys(data.pendingTransaction.list).length > 0) {
+                    console.log(data)
                     let tx = data.pendingTransaction.list[Object.keys(data.pendingTransaction.list)[0]];
                     tx.popup = false
                     tx.countTx =  Object.keys(data.pendingTransaction.list).length
-                    this.data = tx
+                    // this.data = tx
+                    this.$router.push({'name':'sign', params: {
+                        data:tx,
+                        type:tx.type
+                    }});
                 }else {
                     this.$store.commit('SET_AEPP_POPUP',false)
                     this.$router.push('/account')

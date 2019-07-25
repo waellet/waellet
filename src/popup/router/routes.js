@@ -22,9 +22,9 @@ import FungibleTokensComponent from './pages/AddFungibleToken';
 import FungibleTokensPageComponent from './pages/FungibleTokensPage';
 import AirGapSetup from './pages/AirGapSetup';
 import SignTransactionByQrCode from './pages/SignTransactionByQrCode';
-
 import QrCodeReader from './pages/QrCodeReader';
 import CreateFungibleTokenComponent from './pages/CreateFungibleToken';
+import LedgerSetupComponent from './pages/LedgerSetup';
 
 export default [
   {
@@ -143,5 +143,9 @@ export default [
   {
     path:'/create-token',
     component:CreateFungibleTokenComponent
+  },
+  {
+    path:'/ledger-setup',
+    component:LedgerSetupComponent
   }
 ];

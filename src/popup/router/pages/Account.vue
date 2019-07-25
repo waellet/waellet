@@ -78,7 +78,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk','tokens','tokenSymbol','tokenBalance', 'popup']),
+    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk','tokens','tokenSymbol','tokenBalance', 'popup','ledgerApi']),
     publicKey() { 
       return this.account.publicKey; 
     },
@@ -104,7 +104,6 @@ export default {
   created () {
     this.pollData();
     currencyConv(this);
-    
   },
   mounted(){
     this.updateTransactions();

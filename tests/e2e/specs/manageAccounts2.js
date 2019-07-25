@@ -18,6 +18,7 @@ const deriveAdress = (seed,index) => {
     return publicKey;
 };
 
+const accountName = "asdd.test"
 
 describe('Test cases for managing accounts and deriving multiple address from same private key part 2', () => {
     it("add account logout and login and check if present in menu", () => {
@@ -41,7 +42,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .click()
         .get('.dropdown-holder li').eq(0)
         .find('.subAccountName')
-        .should('contain','Main account')
+        .should('contain',accountName)
         .get('.dropdown-holder li').eq(1)
         .find('.subAccountName')
         .should('contain','Test 123')

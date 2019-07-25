@@ -56,7 +56,7 @@ export default new Vuex.Store({
         contract:''
       }
     ],
-    aeppPopup:false
+    aeppPopup:false,
   },
   getters,
   mutations,

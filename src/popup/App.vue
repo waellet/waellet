@@ -62,7 +62,7 @@
                     <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="subaccount.pending"/>
                     <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="activeAccount" /> 
                 </ae-list-item>
-                <ae-list-item fill="neutral" class="manageAccounts" v-if="!aeppPopup">
+                <ae-list-item fill="neutral" class="manageAccounts account-btn" v-if="!aeppPopup">
                   <ae-button @click="manageAccounts" class="triggerhidedd">
                     <ae-button face="icon" fill="primary" class="iconBtn">
                       <ae-icon name="plus" />
@@ -70,12 +70,20 @@
                     <span class="newSubaccount">{{ language.strings.manageAccounts }}</span>
                   </ae-button>
                 </ae-list-item>
-                <ae-list-item fill="neutral" class="airGapVault" v-if="!aeppPopup">
+                <ae-list-item fill="neutral" class="airGapVault manageAccounts account-btn" v-if="!aeppPopup">
                   <ae-button @click="airGapVault" class="triggerhidedd">
-                    <ae-button face="icon" fill="primary" class="iconBtn">
+                    <ae-button face="icon" fill="alternative" class="iconBtn">
                       <ae-icon name="plus" />
                     </ae-button>
                     <span class="newSubaccount">{{ language.strings.airGapVault }}</span>
+                  </ae-button>
+                </ae-list-item>
+                <ae-list-item fill="neutral" class="ledger manageAccounts account-btn" v-if="!aeppPopup">
+                  <ae-button @click="addLedgerAccount" class="triggerhidedd">
+                    <ae-button face="icon" class="iconBtn ledger">
+                      <ae-icon name="plus" />
+                    </ae-button>
+                    <span class="newSubaccount">{{ language.strings.ledgerAccount }}</span>
                   </ae-button>
                 </ae-list-item>
               </ae-list>
@@ -437,6 +445,9 @@ export default {
           }
         });
       },1000)
+    },
+    addLedgerAccount() {
+      this.$router.push('/ledger-setup')
     }
   },
   beforeDestroy() {
@@ -495,7 +506,8 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account ul { width:250px; margin-left: -125px;}
 #account .activeAccount { background: #f6f6f6; }
 #account .manageAccounts, #network .manageAccounts { padding:0; }
-#account .manageAccounts button, #network .manageAccounts button { padding: 0.5rem 1rem; height: auto; justify-content: center; }
+#account .manageAccounts button, #network .manageAccounts button { padding: 0.5rem 0.75rem; height: auto; justify-content: center; }
+#account .account-btn button { justify-content: unset; }
 #account .iconBtn, #network .iconBtn { padding: 0 !important; height: 30px !important; width: 30px; color: #fff; text-align: center; margin-right: 8px;}
 #account .iconBtn i, #network .iconBtn i { color: #fff !important; font-size: 1.2rem !important; margin: 0;float: none; text-align: center;}
 #account.dropdown ul li .ae-button > * { display: inline-block; vertical-align: middle; }

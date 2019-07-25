@@ -1,4 +1,6 @@
 // export const account = state => state.account;
+import TransportU2F from '@ledgerhq/hw-transport-u2f';
+import Ae from '@aeternity/ledger-app-api';
 
 export const getters = {
   account(state) {
@@ -54,5 +56,15 @@ export const getters = {
   },
   names(state) {
     return state.names
+  },
+  ledgerApi(){
+
+    TransportU2F.create().then(transport => {
+      console.log(transport)
+    })
+    return new Ae(new TransportU2F())
+  },
+  ledgerNextIdx (state) {
+    return state.subaccounts.filter(a => a.isLedger).length + 1
   }
 };
