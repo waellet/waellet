@@ -88,14 +88,14 @@ export default {
 .settingslist button:hover {
     border-left: 2px solid #ff0d6a;
     background: rgba(226, 226, 226, 0.5);
-    .arrowright {
-        right: 15px;
+    .arrowright, {
+        right: 20px;
     }
 }
 .settings-li {
-    color: #000;
+    color: #555;
     float: left;
-    font-size: 20px;
+    font-size: 18px;
 }
 .arrowright {
     transition: 0.4s;

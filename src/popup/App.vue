@@ -70,6 +70,14 @@
                     <span class="newSubaccount">{{ language.strings.manageAccounts }}</span>
                   </ae-button>
                 </ae-list-item>
+                <ae-list-item fill="neutral" class="airGapVault" v-if="!aeppPopup">
+                  <ae-button @click="airGapVault" class="triggerhidedd">
+                    <ae-button face="icon" fill="primary" class="iconBtn">
+                      <ae-icon name="plus" />
+                    </ae-button>
+                    <span class="newSubaccount">{{ language.strings.airGapVault }}</span>
+                  </ae-button>
+                </ae-list-item>
               </ae-list>
             </transition>
           </div>
@@ -86,12 +94,6 @@
                   <ae-button @click="navigateAccount" class="toAccount">
                     <ae-icon name="home" />
                     {{ language.strings.myAccount }}
-                  </ae-button>
-                </li>
-                <li>
-                  <ae-button @click="settings" class="settings">
-                    <ae-icon name="settings" />
-                    {{ language.strings.settings }}
                   </ae-button>
                 </li>
                 <li id="tokens" class="have-subDropdown" :class="dropdown.tokens ? 'show' : ''">
@@ -125,30 +127,19 @@
                     </li>
                   </ul>
                 </li>
-                <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
-                  <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
-                    <ae-icon name="globe" />
-                    {{ language.strings.switchLanguage }}
-                    <ae-icon name="left-more" />
-                  </ae-button>
-
-                  <!-- Language sub dropdown -->
-                  <ul class="sub-dropdown">
-                    <li v-for="(value, name) in locales" v-bind:key="name">
-                      <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd" :class="current.language == name ? 'current' : ''">
-                        <img :src="'../icons/flag_'+name+'.png'" />
-                        {{ name }}
-                      </ae-button>
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  <ae-button @click="exportKeypair('keystore')" id="exportKeystore">
-                    <ae-icon name="save" />
-                    {{ language.strings.exportKeystore }}
+                <li id="utilities">
+                  <ae-button @click="utilities" class="utilities">
+                    <ae-icon name="underline" />
+                    {{ language.strings.utilities }}
                   </ae-button>
                 </li>
-                <li>
+                <li id="settings">
+                  <ae-button @click="settings" class="settings">
+                    <ae-icon name="settings" />
+                    {{ language.strings.settings }}
+                  </ae-button>
+                </li>
+                <li id="toLogout">
                   <ae-button @click="logout" class="toLogout">
                     <ae-icon name="sign-out" />
                     {{ language.strings.logout }}
@@ -350,7 +341,6 @@ export default {
     },
     navigateNetworks () {
       this.$router.push('/manageNetworks');
-      this.dropdown.network = false;
     },
     myAccount () {
       this.dropdown.settings = false; this.dropdown.languages = false;
@@ -360,8 +350,16 @@ export default {
       this.dropdown.settings = false; this.dropdown.languages = false;
       this.$router.push('/settings');
     },
+    utilities () {
+      this.dropdown.settings = false; this.dropdown.languages = false;
+      this.$router.push('/utilities');
+    },
+    airGapVault() {
+        this.$router.push('/airGapSetup')
+    },
     manageAccounts () {
       this.$router.push('/manageAccounts');
+      this.dropdown.network = false;
     },
     exportKeypair (type) {
       if(type == 'keypair') {

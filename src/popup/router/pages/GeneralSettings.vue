@@ -12,13 +12,12 @@
                     <input v-model="name" class="addon-input" />
                     <label class="addon-lbl" >.test</label>
                 </div>
-                <ae-button class="regbtn" face="icon" fill="primary" @click="registerName">
+                <ae-button class="regbtn notround" face="icon" fill="primary" @click="registerName">
                     <ae-icon name="plus" />
                 </ae-button>
                 <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{language.pages.settings.generalSettings.registerNameRequirement}}</small>
             </div>
         </ae-panel>
-        
         <ae-panel>
             <div class="maindiv_input-group-addon">
                 <h4>{{language.pages.settings.generalSettings.registeredNames}}</h4><hr>
@@ -35,6 +34,33 @@
             </div>
         </ae-panel>
         <Loader size="big" :loading="loading" type="transparent" content="" ></Loader>
+        
+        <ae-panel>
+            <div class="maindiv_input-group-addon">
+                <h4>{{ language.strings.switchLanguage }}</h4><hr>
+                <small class="sett_info">Current language: {{this.current.language}}</small>
+                <div class="language-settings">
+                    <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
+                        <ae-button class="notround switchlanguageBtn" face="round" fill="primary" extend @click="toggleDropdown($event, '.have-subDropdown')">
+                            <ae-icon name="globe" />
+                            {{ language.strings.switchLanguage }}
+                            <ae-icon name="left-more" />
+                        </ae-button>
+
+                        <!-- Language sub dropdown -->
+                        <ul class="sub-dropdown">
+                            <li v-for="(value, name) in locales" v-bind:key="name">
+                            <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd" :class="current.language == name ? 'current' : ''">
+                                <img :src="'../icons/flag_'+name+'.png'" />
+                                {{ name }}
+                            </ae-button>
+                            </li>
+                        </ul>
+                    </li>
+                </div>
+            </div>
+        </ae-panel>
+
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
@@ -49,10 +75,14 @@ export default {
     data () {
         return {
             language: locales['en'],
+            locales: locales,
             loading: false,
             name: '',
             ak_address: '',
-            polling:null
+            polling:null,
+            dropdown: {
+                languages: false,
+            }
         }
     },
     computed: {
@@ -117,6 +147,20 @@ export default {
                 })
             }
         },
+        toggleDropdown(event, parentClass) {
+            if (typeof parentClass == 'undefined') {
+                parentClass = '.language-settings';
+            }
+            let dropdownParent = event.target.closest(parentClass);
+            this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
+        },
+        switchLanguage(languageChoose) {
+            browser.storage.sync.set({language: languageChoose}).then(() => {
+                let defLang = Object.assign({}, locales['en']);
+                this.language = Object.assign(defLang, locales[languageChoose]);
+                this.current.language = languageChoose;
+            });
+        },
         navigateToSettings() {
             this.$router.push('/settings')
         }
@@ -174,9 +218,49 @@ input:active,input:focus {
 .sett_info {
     text-align: left;
     width: 100%;
+    margin: 0 0px 10px;
     display: block;
     word-break: break-word;
 }
+
+.language-settings li {
+    list-style-type: none;
+    color: #717C87;
+    margin: 0;
+}
+.language-settings li .ae-icon {
+    font-size: 1.2rem;
+    margin-right: 10px;
+}
+.language-settings button {
+    font-size: 14px;
+    width: 100%;
+    color: #000;
+    text-align: left;
+    margin: 0;
+    padding: 0 1rem;
+    white-space: nowrap;
+    justify-content: unset;
+}
+.language-settings ul {
+    min-width: 250px;
+    box-shadow: none;
+    visibility: hidden;
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+    right: 0;
+}
+.language-settings .have-subDropdown.show ul.sub-dropdown {
+    visibility: visible;
+    max-height: 165px;
+}
+.language-settings .have-subDropdown.show .ae-button .ae-icon-left-more {
+    transform: rotate(90deg);
+}
+.notround { border-radius: 0 !important; }
+.notround:not(.regbtn) {width: 100% !important;}
 .ae-list .ae-list-item:first-child {
     border-top:none !important
 }

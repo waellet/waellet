@@ -85,7 +85,8 @@ export default {
                 msg:null
             },
             addStep:false,
-            loading:false
+            loading:false,
+            timer: ''
         }
     },
     locales,
@@ -105,16 +106,23 @@ export default {
             this.$router.push('/account')
         },
         validate(type) {
-            if(type == 'contract') {
-                this.token.precisionDisabled = false
-                if(this.token.contract.length == 53 || this.token.contract.length == 52) {
-                    this.searchTokenMetaInfo(this.token.contract)
-                }
+            if (this.timer) {
+                clearTimeout(this.timer);
+                this.timer = null;
             }
+            this.timer = setTimeout(() => {
+                if(type == 'contract') {
+                    this.token.precisionDisabled = false
+                    // if(this.token.contract.length == 53) {
+                        this.searchTokenMetaInfo(this.token.contract)
+                    // }
+                }
+            }, 3000);
         },
         async next() {
             let added = this.tokens.find(tkn => tkn.contract == this.token.contract && tkn.parent == this.account.publicKey)
-            if( (this.token.contract.length != 53 && this.token.contract.length != 52) ||
+            if( 
+                // this.token.contract.length != 53 || 
                 (this.token.symbol.length < 1 || this.token.symbol.length > 12) || 
                 isNaN(this.token.precision) ||
                 (!isNaN(this.token.precision) && (this.token.precision < 1 || this.token.precision > 36 ))
@@ -161,6 +169,8 @@ export default {
             try {
                 this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,address,'meta_info')
                 .then((res) => {
+                    console.log('res');
+                    console.log(res);
                     res.decode()
                     .then(data => {
                         if(typeof data.decimals != 'undefined' && typeof data.symbol != 'undefined') {

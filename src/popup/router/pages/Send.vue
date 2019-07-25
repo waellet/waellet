@@ -77,10 +77,11 @@ import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
-import { MAGNITUDE, calculateFee, TX_TYPES, FUNGIBLE_TOKEN_CONTRACT  } from '../../utils/constants';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_UINT256, calculateFee, TX_TYPES, FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from '../../utils/hdWallet';
+import { getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl } from '../../utils/airGap';
 import { contractEncodeCall, checkAddress, chekAensName } from '../../utils/helper';
 
 export default {
@@ -163,6 +164,8 @@ export default {
       }
     },
     send(){
+      let sender = this.subaccounts.filter(sender => sender.publicKey == this.account.publicKey);
+      let isAirGapAcc = sender[0].isAirGapAcc == true && sender[0].isAirGapAcc != undefined;
       let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
       let receiver = this.form.address;
       if(receiver == '' || (!checkAddress(receiver) && !chekAensName(receiver) ) )  {
@@ -210,18 +213,29 @@ export default {
         }});
       }
       else {
-        let tx = {
-          popup:false,
-          tx: {
-            amount:this.form.amount,
-            recipientId:receiver
-          },
-          type:'txSign'
+        if (isAirGapAcc) {
+          browser.storage.sync.get('airGapGeneratedKey').then(async publicKHex => {
+            const spendTx = await this.sdk.spendTx({senderId: this.account.publicKey, recipientId: receiver, amount: amount});
+            console.log('spendTx');
+            console.log(spendTx);
+            const generated = generateSignRequestUrl(this.network[this.current.network].networkId, spendTx, publicKHex.airGapGeneratedKey);
+            this.$router.push({'name': 'signTransactionByQrCode', params:{url:generated}})
+          });
         }
-        this.$store.commit('SET_AEPP_POPUP',true)
-        this.$router.push({'name':'sign', params: {
-          data:tx
-        }});
+        else {
+          let tx = {
+            popup:false,
+            tx: {
+              amount:this.form.amount,
+              recipientId:receiver
+            },
+            type:'txSign'
+          }
+          this.$store.commit('SET_AEPP_POPUP',true)
+          this.$router.push({'name':'sign', params: {
+            data:tx
+          }});
+        }
      } 
     },
     init() {

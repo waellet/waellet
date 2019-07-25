@@ -33,8 +33,6 @@
         <ae-button face="round" fill="primary" extend class="sendBtn" @click="navigateSend">{{language.buttons.send}}</ae-button>
         <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
       </ae-button-group>
-      <br>
-      <ae-button face="round" fill="alternative" class="toTipping" extend @click="openTipPage">{{language.buttons.tipWebsite}}</ae-button>
     </div>
     <h3>Latest transactions</h3>
     <div v-if="transactions.latest.length && !loading">
@@ -151,9 +149,6 @@ export default {
          browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {});
       });
     },
-    openTipPage() {
-      this.$router.push('/tip');
-    }
   },
   beforeDestroy () {
     clearInterval(this.polling)
