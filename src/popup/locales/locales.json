@@ -9,6 +9,7 @@
         "currentAccountName" : "My Account 1",
         "namingSystem": "AE Naming System",
         "manageAccounts": "Manage accounts",
+        "airGapVault": "Create a vault for AirGap",
         "manageNetworks": "Manage networks",
         "network": "Network",
         "networkName": "Node name",
@@ -28,6 +29,7 @@
         "accountName": "Account name",
         "switchLanguage" : "Language",
         "switchToken": "Tokens",
+        "utilities": "Utilities",
         "settings": "Settings",
         "menu": "Menu",
         "back": "Back",
@@ -132,9 +134,18 @@
             "incorrectPassword":"Incorrect Password",
             "decryptingPrivateKey":"Decrypting private key"
           },
+          "advancedSettings": {
+            "heading": "Advanced"
+          },
           "aboutSettings": {
             "heading": "About"
           }
+        },
+        "utilities":{
+          "heading" : "Utilities"
+        },
+        "allowances":{
+          "heading" : "Allowances"
         },
         "createFungibleToken" :{ 
           "heading": "Create Fungible Token",
@@ -153,11 +164,13 @@
         "send": "Send",
         "receive": "Receive",
         "tipWebsite": "Tip website",
+        "allowances": "Allowances",
         "generateWallet": "Generate wallet",
         "importPrivateKey": "Import secret key",
         "import": "Import",
         "backToAccount": "Back to account",
         "backToSettings": "Back to settings",
+        "backToUtilities": "Back to utilities",
         "wholeTransaction": "Whole transaction history",
         "loadMore":"Load More"
       },

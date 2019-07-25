@@ -16,7 +16,10 @@
     "activeTab",
     "webRequest",
     "notifications",
-    "videoCapture"
+    "videoCapture",
+    "contentSettings",
+    "webkitGetUserMedia",
+    "audioCapture"
   ],
   "icons": {
     "48": "icons/icon_48.png",
@@ -45,7 +48,8 @@
     "inject.js",
     "phishing/phishing.html",
     "phishing/phishing.js",
-    "aepp.js"
+    "aepp.js",
+    "popup/CameraRequestPermission.html"
   ],
   "options_ui": {
     "page": "options/options.html",

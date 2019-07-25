@@ -8,14 +8,14 @@
             <div class="maindiv_input-group-addon">
                 <h4>{{language.pages.settings.securitySettings.privacyDataHeading}}</h4><hr>
                 <small class="sett_info">{{language.pages.settings.securitySettings.privacyDataSmall}}</small>
-                <ae-button face="round" fill="primary" class="settingBtn" extend @click="clearPrivacyConfirm">{{language.pages.settings.securitySettings.privacyDataClearBtn}}</ae-button>
+                <ae-button face="round" fill="primary" class="notround settingBtn" extend @click="clearPrivacyConfirm">{{language.pages.settings.securitySettings.privacyDataClearBtn}}</ae-button>
             </div>
         </ae-panel>
         <ae-panel>
             <div class="maindiv_input-group-addon">
                 <h4>{{language.pages.settings.securitySettings.privateKeyHeading}}</h4><hr>
                 <small class="sett_info">{{language.pages.settings.securitySettings.privateKeySmall}}</small>
-                <ae-button face="round" fill="primary" class="settingBtn" extend @click="revealPrivateKey">{{language.pages.settings.securitySettings.privateKeyRevealBtn}}</ae-button>
+                <ae-button face="round" fill="primary" class="notround settingBtn" extend @click="revealPrivateKey">{{language.pages.settings.securitySettings.privateKeyRevealBtn}}</ae-button>
             </div>
         </ae-panel>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
@@ -41,7 +41,7 @@
                     <ae-input class="my-2" label="Password">
                         <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                     </ae-input>
-                    <ae-button extend face="round" fill="primary" @click="decryptKeystore">{{language.pages.settings.securitySettings.showPrivateKey}}</ae-button>
+                    <ae-button class="notround" extend face="round" fill="primary" @click="decryptKeystore">{{language.pages.settings.securitySettings.showPrivateKey}}</ae-button>
                 </div>
                 <Loader :loading="loading" size="small" :content="language.pages.settings.securitySettings.decryptingPrivateKey"></Loader>
             </div>
@@ -176,6 +176,7 @@ input:active,input:focus {
     border: none;
     outline: none;
 }
+.notround { border-radius: 0 !important; }
 .settingBtn {
     margin-top:2rem
 }

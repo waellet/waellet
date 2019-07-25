@@ -16,7 +16,7 @@ export const TX_TYPES = {
 }
 
 const STUB_ADDRESS = 'ak_enAPooFqpTQKkhJmU47J16QZu9HbPQQPwWBVeGnzDbDnv9dxp';
-const MAX_UINT256 = BigNumber(2).exponentiatedBy(256).minus(1);
+export const MAX_UINT256 = BigNumber(2).exponentiatedBy(256).minus(1);
 const MIN_SPEND_TX_FEE_STRING = TxBuilder.calculateMinFee(
     'spendTx', {
     params: {

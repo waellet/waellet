@@ -91,9 +91,9 @@ export default {
           case 'incorrect_amount':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_AMOUNT});
             break;
-          case 'transaction_failed':
-            commit(types.SHOW_POPUP,{show:true,...popupMessages.TRANSACTION_FAILED});
-            break;
+            case 'transaction_failed':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.TRANSACTION_FAILED});
+              break;
           default:
             break;
         }
@@ -119,11 +119,22 @@ export default {
             commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_ADDED});
           break;
           case 'token_invalid_address':
-              commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_INVALID_ADDRESS});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_INVALID_ADDRESS});
           break;
           case 'only_allowed_chars':
-              commit(types.SHOW_POPUP,{show:true,...popupMessages.CHARS_ALLOWED});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.CHARS_ALLOWED});
+          break;
+          case 'not_selected_val':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.NOT_SELECTED_VAL});
+          break;
+          case 'account_already_exist':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.ACCOUNT_ALREADY_EXIST});
             break;
+            case 'invalid_number':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_NUMBER});
+            break;
+          case 'airgap_created':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.AIRGAP_CREATED});
           case 'confirm_privacy_clear':
             commit(types.SHOW_POPUP, { show:true, secondBtn:true, secondBtnClick:'clearPrivacyData',...popupMessages.CONFIRM_PRIVACY_CLEAR})
           break;
