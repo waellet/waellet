@@ -8,12 +8,12 @@ const openCreateContractPage = () => {
     .visit('popup/popup.html',{ onBeforeLoad })
     .get('#settings')
     .click()
-    .get('.utilities')
+    .get('#tokens')
     .click()
-    .get('.fungible-tokens')
+    .get('.toCreateToken')
     .click()
-    .get('.create-token')
-    .click()
+    .get('.ae-panel')
+    .should('be.visible')
 }
 
 const createToken = () => {

@@ -3,9 +3,9 @@
     <div class="actions">
       <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
     </div>
-    <h3 class="">
+    <h3 class="flex flex-align-center">
       {{language.pages.send.heading}} 
-      <ae-identicon class="send-account-icon" :address="account.publicKey" size="s" /> 
+      <ae-identicon class="send-account-icon" :address="account.publicKey" size="base" /> 
       {{activeAccountName}}
     </h3>
     <div class="sendContent">
@@ -30,7 +30,7 @@
           <span class="token-symbol">{{tokenSymbol}}</span>
           <ae-dropdown v-if="tokens.length > 1">
             <ae-icon name="grid" size="20px" slot="button" />
-            <li v-for="(tkn,key) in myTokens" v-if="tkn.name != tokenSymbol" @click="setActiveToken(key)">
+            <li v-for="(tkn,key) in tokens" v-if="tkn.name != tokenSymbol" @click="setActiveToken(key)">
               <img :src="ae_token" class="token-image" alt="" v-if="key == 0" >
               <ae-identicon class="subAccountIcon" :address="tkn.contract" size="base" v-if="key != 0"/> {{tkn.name}}
             </li>
@@ -131,9 +131,6 @@ export default {
     },
     activeToken() {
       return this.current.token
-    },
-    myTokens() {
-      return this.tokens.filter(t => t.parent == this.account.publicKey)
     }
   },
   async mounted() {
@@ -334,9 +331,6 @@ export default {
   }
 }
 .send-account-icon {
-  margin:0 5px;
-  transform: translateY(5px);
-  -ms-transform: translateY(5px);
-  -webkit-transform: translateY(5px);
+  margin:0 10px;
 }
 </style>

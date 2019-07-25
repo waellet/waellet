@@ -77,6 +77,7 @@ import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+import FungibleTokensVue from './FungibleTokens.vue';
 import { isNumber } from 'util';
 
 export default {
