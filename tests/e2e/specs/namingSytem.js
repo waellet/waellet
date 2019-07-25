@@ -120,8 +120,6 @@ describe("tests cases for registering names ", () => {
         .should('be.visible')
     })
 
-
-
     it("claim tx confirm and check if name present in list", () => {
         claimName()
         cy

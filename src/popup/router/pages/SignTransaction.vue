@@ -83,6 +83,7 @@
             <ae-button face="round" fill="alternative" class="confirm" :class="signDisabled ? 'disabled' : '' " @click="signTransaction">{{language.pages.signTx.confirm}}</ae-button>
         </ae-button-group>
         <Loader size="big" :loading="loading" :type="loaderType" :content="loaderContent" ></Loader>
+        <input type="hidden" class="txHash" :value="hash" />
     </div>
 </template>
 
@@ -127,7 +128,8 @@ export default {
             usdRate:0,
             eurRate:0,
             checkSDKReady:null,
-            receiver:""
+            receiver:"",
+            hash:""
         };
     },
     props:['data'],
@@ -286,15 +288,23 @@ export default {
                             if(this.data.tx.recipientId.substring(0,3) == 'ak_') {
                                 recipientId = this.data.tx.recipientId
                             }else {
-                                let address = await this.sdk.api.getNameEntryByName(this.data.tx.recipientId)
-                                if(typeof address.pointers[0] != "undefined") {
-                                    recipientId = address.pointers[0].id
-                                    this.receiver = recipientId
-                                }else {
+                                
+                                try {
+                                    let address = await this.sdk.api.getNameEntryByName(this.data.tx.recipientId)
+                                    if(typeof address.pointers[0] != "undefined") {
+                                        recipientId = address.pointers[0].id
+                                        this.receiver = recipientId
+                                    }else {
+                                        this.receiver = ""
+                                        this.showAlert()
+                                        return
+                                    }
+                                }catch(err) {
                                     this.receiver = ""
                                     this.showAlert()
                                     return
                                 }
+                                
                             }
                             txParams = {
                                 ...txParams,
@@ -419,6 +429,7 @@ export default {
                 ae.spend(parseInt(amount), this.receiver, { fee: this.convertSelectedFee}).then(async result => {
                     if(typeof result == "object") {
                         this.loading = false
+                        this.hash = result.hash
                         let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
                         let msg = 'You send ' + this.amount + ' AE'
                         if(this.data.popup) {
