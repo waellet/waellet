@@ -121,6 +121,18 @@
                         <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="current.token" /> 
                       </ae-button>
                     </li>
+                    <li>
+                      <ae-button @click="toTokens" class="toTokens">
+                        <ae-icon name="plus" />
+                        {{ language.strings.addToken}}
+                      </ae-button>
+                    </li>
+                    <li>
+                      <ae-button @click="createToken" class="toCreateToken">
+                        <ae-icon name="plus" />
+                        Create Token
+                      </ae-button>
+                    </li>
                   </ul>
                 </li>
                 <li id="utilities">

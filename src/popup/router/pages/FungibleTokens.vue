@@ -2,7 +2,7 @@
     <div>
         <div class="popup">
             <div class="actions">
-                <button class="backbutton toAccount" @click="navigateFungibleTokens"><ae-icon name="back" /> {{language.buttons.backToFungibleTokens}}</button>
+                <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
             </div>
         
             <h3>{{language.pages.tokens.addHeading}}</h3>
@@ -105,9 +105,6 @@ export default {
         navigateAccount() {
             this.$router.push('/account')
         },
-        navigateFungibleTokens() {
-            this.$router.push('/fungible-tokens')
-        },
         validate(type) {
             if (this.timer) {
                 clearTimeout(this.timer);
@@ -206,7 +203,10 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../common/base';
-
+.actions {
+  width: 50%;
+  margin-top: 5px;
+}
 .tabs {
     margin-top:1rem;
 }

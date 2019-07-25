@@ -3,9 +3,9 @@
     <div class="actions">
       <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
     </div>
-    <h3 class="">
+    <h3 class="flex flex-align-center">
       {{language.pages.send.heading}} 
-      <ae-identicon class="send-account-icon" :address="account.publicKey" size="s" /> 
+      <ae-identicon class="send-account-icon" :address="account.publicKey" size="base" /> 
       {{activeAccountName}}
     </h3>
     <div class="sendContent">
@@ -340,9 +340,6 @@ export default {
   }
 }
 .send-account-icon {
-  margin:0 5px;
-  transform: translateY(5px);
-  -ms-transform: translateY(5px);
-  -webkit-transform: translateY(5px);
+  margin:0 10px;
 }
 </style>
