@@ -291,7 +291,6 @@ export default {
                             if(this.data.tx.recipientId.substring(0,3) == 'ak_') {
                                 recipientId = this.data.tx.recipientId
                             }else {
-                                
                                 try {
                                     let address = await this.sdk.api.getNameEntryByName(this.data.tx.recipientId)
                                     if(typeof address.pointers[0] != "undefined") {
@@ -309,6 +308,7 @@ export default {
                                 }
                                 
                             }
+
                             txParams = {
                                 ...txParams,
                                 senderId:this.account.publicKey,
@@ -476,6 +476,9 @@ export default {
                         this.port.postMessage(this.errorTx)
                         let list = await removeTxFromStorage(this.data.id)
                         browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                        setTimeout(() => {
+                            window.close()
+                        },1000)
                     }else {
                         this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
                     }

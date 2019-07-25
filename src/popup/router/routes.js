@@ -18,7 +18,8 @@ import TipComponent from './pages/TipPage';
 import AllowancesComponent from './pages/Allowances';
 import ConnectConfirmComponent from './pages/ConnectConfirm';
 import ManageNetworksComponent from './pages/ManageNetworks';
-import FungibleTokensComponent from './pages/FungibleTokens';
+import FungibleTokensComponent from './pages/AddFungibleToken';
+import FungibleTokensPageComponent from './pages/FungibleTokensPage';
 import AirGapSetup from './pages/AirGapSetup';
 import SignTransactionByQrCode from './pages/SignTransactionByQrCode';
 import QrCodeReader from './pages/QrCodeReader';
@@ -120,6 +121,10 @@ export default [
   {
     path:'/tokens',
     component:FungibleTokensComponent
+  },
+  {
+    path:'/fungible-tokens',
+    component:FungibleTokensPageComponent
   },
   {
     path:'/airGapSetup',

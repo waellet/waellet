@@ -1,5 +1,8 @@
 <template>
     <div class="popup">
+        <div class="actions">
+            <button class="backbutton toAccount" @click="navigateFungibleTokens"><ae-icon name="back" /> {{language.buttons.backToFungibleTokens}}</button>
+        </div>
         <h3>{{language.pages.createFungibleToken.heading}}</h3>
         <ae-panel>
             <h4>{{language.pages.createFungibleToken.heading}}</h4>
@@ -64,6 +67,9 @@ export default {
         
     },
     methods: {
+        navigateFungibleTokens() {
+            this.$router.push('/fungible-tokens')
+        },
         confirmTx() {
             this.resetErr()
             if(this.token.name == '') {

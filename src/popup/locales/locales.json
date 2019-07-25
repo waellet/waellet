@@ -176,7 +176,9 @@
         "backToSettings": "Back to settings",
         "backToUtilities": "Back to utilities",
         "wholeTransaction": "Whole transaction history",
-        "loadMore":"Load More"
+        "loadMore":"Load More",
+        "fungibleTokens":"Fungible Tokens",
+        "backToFungibleTokens":"Back to Fungible Tokens"
       },
       "placeholders": {
         "inputPrivateKey": "Input secret key"
