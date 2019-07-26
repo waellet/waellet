@@ -26,7 +26,7 @@ describe("Tets cases for Transactions Page", () => {
                     let address = ''
                     if(data.tx.type == 'SpendTx') {
                         address = data.tx.sender_id 
-                    } else if(this.transactionData.tx.type  == 'ContractCreateTx') {
+                    } else if(data.tx.type  == 'ContractCreateTx') {
                         address =  data.tx.owner_id
                     }else {
                         address = data.tx.account_id

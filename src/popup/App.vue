@@ -161,6 +161,7 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK } from './utils/helper';
+import LedgerBridge from './utils/ledger/ledger-bridge'
 
 export default {
   
@@ -185,7 +186,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'wallet', 'sdk','tokens','aeppPopup']),
+    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'wallet', 'sdk','tokens','aeppPopup','ledgerNextIdx']),
     extensionVersion() {
       return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
@@ -196,6 +197,7 @@ export default {
       //   this.language = locales['en'];
       //   this.current.language = 'en';
       // });
+      
       browser.storage.sync.get('activeLanguage').then((data) => {
         if (data.hasOwnProperty('activeLanguage')) {
           let defLang = locales['en'];
@@ -212,6 +214,7 @@ export default {
       //init SDK
       this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {
+          this.initLedger()
           this.initSDK()
           this.pollData()
           clearInterval(this.checkSDKReady)
@@ -446,8 +449,18 @@ export default {
         });
       },1000)
     },
-    addLedgerAccount() {
-      this.$router.push('/ledger-setup')
+    async addLedgerAccount() {
+      if(this.ledgerNextIdx != 0) {
+        let account = await this.$store.dispatch('ledgerCreate')
+        console.log(account)
+      }else {
+        this.$router.push('/ledger-setup')
+      }
+      
+    },
+    initLedger() {
+      let ledger = new LedgerBridge("https://waellet.com/ledger.html")
+      this.$store.commit('SET_LEDGER_API', { ledger })
     }
   },
   beforeDestroy() {

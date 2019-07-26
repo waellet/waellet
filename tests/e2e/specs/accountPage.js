@@ -96,7 +96,7 @@ describe("Test cases for Account Page" , () => {
         .click()
         .get('.dropdown-holder')
         .should('be.visible')
-        .get('.manageAccounts > .triggerhidedd > .newSubaccount')
+        .get('.manageAccounts > .triggerhidedd > .newSubaccount').eq(0)
         .click()
         .get('.dropdown-holder')
         .should('not.be.visible')

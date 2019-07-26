@@ -138,7 +138,7 @@ export default {
         await this.init()
     },
     computed: {
-        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance']),
+        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger']),
         maxValue() {
             let calculatedMaxValue = this.balance - this.fee
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -490,6 +490,27 @@ export default {
                 console.log(err);
             });
         },
+        async signSpendTxLedger(amount) {
+            const tx = await this.sdk.spendTx({ senderId: this.account.publicKey, recipientId: this.receiver, amount })
+            let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
+            this.loading = false
+            console.log(sign)
+            if(sign.success) {
+                let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + sign.res.hash
+                let msg = 'You send ' + this.amount + ' AE'
+                this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl})
+                .then(async () => {
+                    this.$store.commit('SET_AEPP_POPUP',false)
+                    this.redirectInExtensionAfterAction()
+                })
+            }else {
+                this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'}).then(() => {
+                    this.redirectInExtensionAfterAction()
+                })
+            }
+            
+            
+        },
         async contractCallStatic(tx) {
             try {
                 let call = await this.sdk.contractCallStatic(tx.source,tx.address,tx.method,tx.params)
@@ -607,7 +628,11 @@ export default {
                 let amount = BigNumber(this.amount).shiftedBy(MAGNITUDE);
                 try {
                     if(this.data.type == 'txSign') {
-                        this.signSpendTx(amount)
+                        if(this.isLedger) {
+                            this.signSpendTxLedger(amount)
+                        }else {
+                            this.signSpendTx(amount)
+                        }
                     }else if(this.data.type == 'contractCall') {
                         if(this.data.callType == 'pay') {
                             this.contractCall()

@@ -41,7 +41,7 @@
                     <ae-input class="my-2" label="Password">
                         <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                     </ae-input>
-                    <ae-button class="notround" extend face="round" fill="primary" @click="decryptKeystore">{{language.pages.settings.securitySettings.showPrivateKey}}</ae-button>
+                    <ae-button class="notround decrypt-btn" extend face="round" fill="primary" @click="decryptKeystore">{{language.pages.settings.securitySettings.showPrivateKey}}</ae-button>
                 </div>
                 <Loader :loading="loading" size="small" :content="language.pages.settings.securitySettings.decryptingPrivateKey"></Loader>
             </div>
@@ -119,12 +119,10 @@ export default {
             })
         },
         reset() {
-            setTimeout(() => {
-                this.privateKey = ''
-                this.alert.show = false
-                this.alert.content = ''
-                this.password = ''
-            },1000)
+            this.privateKey = ''
+            this.alert.show = false
+            this.alert.content = ''
+            this.password = ''
         },
         setAlertData(fill,show,content) {
             this.alert.fill = fill

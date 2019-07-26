@@ -100,5 +100,7 @@ export default {
   [types.SET_AEPP_POPUP] (state, payload) {
     state.aeppPopup = payload
   },
-  
+  [types.SET_LEDGER_API] (state, { ledger }) {
+    state.ledgerApi = ledger
+  }
 }; 

@@ -5,7 +5,7 @@ import { convertToAE } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
 import { uniqBy, head, flatten } from 'lodash-es';
 import router from '../popup/router/index'
-import Ledger from '../popup/utils/ledger';
+import Ledger from '../popup/utils/ledger/ledger';
 
 
 export default {

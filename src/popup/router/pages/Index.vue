@@ -109,7 +109,7 @@ export default {
       // browser.storage.sync.set({isLogged: ''}).then(() => {});
       // browser.storage.sync.set({confirmSeed: true}).then(() => {});
       // browser.storage.sync.set({mnemonic: ''}).then(() => {});
-      // browser.storage.sync.remove('pendingTransaction').then(() => {});
+      // browser.storage.sync.remove('subaccounts').then(() => {});
       var newTab = false;
       browser.storage.sync.get('allowTracking').then((result) => {
         if (result.hasOwnProperty('allowTracking')) {

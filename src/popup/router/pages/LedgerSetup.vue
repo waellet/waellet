@@ -1,8 +1,29 @@
 <template>
     <div class="popup">
-        <h3>Ledger Setup</h3>
-
-        <ae-button @click="addAccount" face="round" class="ledger">Add</ae-button>
+        <h3>How to connect from Ledger</h3>
+        <ae-panel>
+            <h4>Steps</h4>
+            <hr>
+            <ae-list class="text-left">
+                <ae-list-item fill="neutral">
+                    Connect your Ledger via USB and unlock it
+                </ae-list-item>
+                <ae-list-item fill="neutral">
+                    Open the aeternitya app on your Ledger
+                </ae-list-item>
+                <ae-list-item fill="neutral">
+                    Create a first account by pressing the button bellow
+                </ae-list-item>
+                <ae-list-item fill="neutral" class="ledger manageAccounts account-btn">
+                  <ae-button  class="triggerhidedd" @click="addAccount">
+                    <ae-button face="icon" class="iconBtn ledger">
+                      <ae-icon name="plus" />
+                    </ae-button>
+                    <span class="newSubaccount">{{ language.strings.ledgerAccount }}</span>
+                  </ae-button>
+                </ae-list-item>
+            </ae-list>
+        </ae-panel>
     </div>
 </template>
 
@@ -19,20 +40,35 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['ledgerApi','account','sdk','balance'])
+        ...mapGetters(['ledgerApi','account','sdk','balance','subaccounts'])
     },
     locales: locales,
     created() {
-        // this.$store.dispatch('ledgerRequest')
+        
     },
     methods: {
-        addAccount() {
-            this.$store.dispatch('ledgerCreate')
+        async addAccount() {
+            let account = await this.$store.dispatch('ledgerCreate')
+            
+            if(account.success) {
+                this.$router.push('/account')
+            }else {
+                console.log(account)
+            }
         }
     }   
 }
 </script>
 
-<style>
+<style lang="scss" scoped >
+@import '../../../common/base';
+.iconBtn {
+    padding: 0 !important;
+    height: 30px !important;
+    width: 30px !important;
+    color: #fff;
+    text-align: center;
+    margin-right: 8px;
+}
 
 </style>

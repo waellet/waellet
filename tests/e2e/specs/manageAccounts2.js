@@ -107,9 +107,9 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .click()
         .get('.dropdown-holder li').eq(0)
         .find('.subAccountName')
-        .should('contain','Main account')
+        .should('contain', accountName)
         .get('#account .dropdown-button-name')
-        .should('contain','Main account');
+        .should('contain', accountName);
     });
 
     it("login with subaccounts and check if they are present in menu", () => {
@@ -120,7 +120,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .click()
         .get('.dropdown-holder li').eq(0)
         .find('.subAccountName')
-        .should('contain','Main account')
+        .should('contain', accountName)
         .get('.dropdown-holder li').eq(1)
         .find('.subAccountName')
         .should('contain','Sub account 2')
@@ -128,7 +128,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .find('.subAccountName')
         .should('contain','Sub account 3')
         .get('#account .dropdown-button-name')
-        .should('contain','Main account');
+        .should('contain', accountName);
     });
 
     // Test fail because of mainnet middleware CORS
