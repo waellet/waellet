@@ -11,7 +11,11 @@
     <div class="sendContent">
       <ae-input :label="language.pages.send.recipient" class="address">
           <textarea class="ae-input textarea" v-model="form.address" placeholder="ak.. / name.test"  slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+          <ae-toolbar slot="footer" align="right">
+            <div class="paste" @click="scan"><ae-icon name="camera" /> Scan </div>
+          </ae-toolbar>
       </ae-input>
+      
       <div>
         <p v-if="sendSubaccounts">{{language.pages.send.sendSubaccount}}</p>
         <ae-list class="sendSubaccount">
@@ -108,6 +112,7 @@ export default {
     }
   },
   locales,
+  props:['address'],
   watch: {
     activeToken() {
       this.fetchFee()
@@ -142,13 +147,20 @@ export default {
       })
     }
   },
+  created() {
+    if(typeof this.address != 'undefined') {
+      this.form.address = this.address
+    }
+  },
   async mounted() {
     this.init()
     this.fetchFee()
   },
   methods: {
-    paste(){
-
+    scan(){
+      this.$router.push({name:'qrCodeReader' , params: {
+        type:'send'
+      }})
     },
     setActiveToken(token) {
       this.current.token = token

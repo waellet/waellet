@@ -37,6 +37,8 @@ export default [
   },
   {
     path: '/send',
+    name: 'send',
+    props:true,
     component: SendComponent,
   },
   {
@@ -132,6 +134,8 @@ export default [
   },
   {
     path:'/qrCodeReader',
+    name:'qrCodeReader',
+    props:true,
     component: QrCodeReader
   },
   {
