@@ -519,7 +519,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .dropdown > ul { min-width: 120px; position: absolute; top: 100%; padding: 0; background-color: #FFF; z-index: 1; }
 .dropdown ul { transition: all 0.2s; margin: 0; padding: 5px 0; overflow: hidden; border-radius: 4px; box-shadow: 0 0 16px rgba(0, 33, 87, 0.15); list-style: none; }
 .dropdown ul.sub-dropdown { box-shadow: none; visibility: hidden; max-height:0; padding: 0; overflow: hidden; transition: all 0.3s ease-in-out; }
-.dropdown .have-subDropdown.show ul.sub-dropdown { visibility: visible; max-height: 265px; }
+.dropdown .have-subDropdown.show ul.sub-dropdown { visibility: visible; max-height: 300px; }
 .dropdown ul.sub-dropdown .ae-button { padding: 0 2rem; }
 .dropdown ul li .ae-button { font-size: 14px; width: 100%; color: #000; text-align: left;  margin: 0; padding: 0 1rem; white-space: nowrap; justify-content: unset; }
 .dropdown ul li .ae-button .ae-icon-left-more { margin-top: 3px; transition: all 0.3s; }

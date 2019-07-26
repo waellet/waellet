@@ -134,10 +134,23 @@ export default {
               commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_NUMBER});
             break;
           case 'airgap_created':
-            commit(types.SHOW_POPUP,{show:true,...popupMessages.AIRGAP_CREATED});
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.AIRGAP_CREATED});
+            break;
           case 'confirm_privacy_clear':
             commit(types.SHOW_POPUP, { show:true, secondBtn:true, secondBtnClick:'clearPrivacyData',...popupMessages.CONFIRM_PRIVACY_CLEAR})
           break;
+          default:
+            break;
+        }
+        break;
+      case 'fungible_token':
+        switch (payload.type) {
+          case 'balance_account_not_existent':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.BALANCE_ACCOUNT_NOT_EXISTENT});
+            break;
+          case 'allowance_change_success':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.ALLOWANCE_CHANGE_SUCCESS});
+            break;
           default:
             break;
         }

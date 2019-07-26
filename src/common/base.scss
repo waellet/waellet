@@ -123,6 +123,9 @@ main {
 .ae-overlay .ae-modal-light main { 
   padding-bottom:1rem; 
 }
+.ae-modal-light > main > div {
+  word-break: break-word;
+}
 .ae-main {
   padding-bottom:0 !important;
 }

@@ -61,7 +61,6 @@ export default {
     state.subaccounts[state.activeAccount].name = payload;
   },
   [types.SET_ACCOUNT_AENS] (state, { account, name, pending }) {
-    console.log(pending)
     state.subaccounts[account].name = name
     state.subaccounts[account].pending = pending
   },

@@ -239,9 +239,9 @@ export default {
             }
             return (parseFloat(this.amount) + parseFloat(this.selectedFee)).toFixed(7)
         },
-        insufficientBalance() {
-            return this.maxValue - this.amount <= 0
-        },
+        // insufficientBalance() {
+        //     return this.maxValue - this.amount <= 0
+        // },
         inccorectAddress() {
             return this.receiver == null || this.receiver == ""
         },
@@ -417,19 +417,33 @@ export default {
         async contractCall(){
             let call
             try {
-                let byteCode = await this.checkSourceByteCode(this.data.tx.source)
-                let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
-                if(byteCode == deployedByteCode) {
+                if (this.data.popup) {
+                    console.log('popup')
+                    let byteCode = await this.checkSourceByteCode(this.data.tx.source)
+                    let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
+                    if(byteCode == deployedByteCode) {
+                        call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
+                        let decoded = await call.decode()
+                        call.decoded = decoded
+                        this.port.postMessage(call)
+                    }else {
+                        this.errorTx.error.message = "Invalid contract interface"
+                        this.port.postMessage(this.errorTx)
+                    }
+                }
+                else {
+                    console.log('nepopup')
+                    console.log(this.data.tx)
                     call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
                     let decoded = await call.decode()
-                    call.decoded = decoded
-                    this.port.postMessage(call)
-                }else {
-                    this.errorTx.error.message = "Invalid contract interface"
-                    this.port.postMessage(this.errorTx)
+                    console.log('call');
+                    console.log(call);
+                    console.log('decoded');
+                    console.log(decoded);
                 }
-                
             }catch(err) {
+                    console.log("catch");
+                    console.log(err);
                 this.errorTx.error.message = err.message
                 this.port.postMessage(this.errorTx)
             }

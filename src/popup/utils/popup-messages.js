@@ -28,6 +28,8 @@ export const CHARS_ALLOWED =  { type:'error', title:'Oops! Something went wrong'
 export const NOT_SELECTED_VAL =  { type:'error', title:'Oops! Something went wrong', msg:'Please, select token!'}
 export const REQUIRED_NUMBER = {type:'error', title:'Oops! Something went wrong', msg:'Please, enter valid and positive number!'}
 export const ACCOUNT_ALREADY_EXIST = {type:'error', title:'Oops! Something went wrong', msg:'This account already exist!'}
+export const BALANCE_ACCOUNT_NOT_EXISTENT = {type:'error', title:'Oops! Something went wrong', msg:'Insufficient balance of the sender'}
+export const ACCOUNT_INSUFFICIENT_ALLOWANCE = {type:'error', title:'Oops! Something went wrong', msg:''}
 //success messages
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};
 export const SUCCESS_TRANSFER = { type:'success', title:'Transfer completed', msg:''}
@@ -35,5 +37,6 @@ export const SUCCESS_DEPLOY = { type:'success', title:'Contract deployed', msg:'
 export const SUCCESS_ADDED = { type:'success', title:'Successfully added!', msg:''}
 export const REMOVE_USER_NETWORK = {type:'success', title:'Are you sure?', msg:'', buttonsTextPrimary: 'No', buttonsTextSecondary: 'Yes', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}
 export const CONFIRM_TRANSACTION = {type:'success', title:'Confirm transaction?', msg:'You are about to send some tokens to somebody. This transaction is irreversible! ', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Confirm', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}
+export const ALLOWANCE_CHANGE_SUCCESS = {type:'success', title:'Transfer completed', msg:'Allowance for this account was successfuly changed!'}
 export const AIRGAP_CREATED = {type:'success', title:'Vault sync completed!', msg:'Find your AirGap Vault under your accounts.'}
 export const CONFIRM_PRIVACY_CLEAR = {type:'success', title:'Confirm clear', msg:'You are about to clear all connected Aepps! After this all Aepps must be granted access again ', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Confirm', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}

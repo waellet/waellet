@@ -61,6 +61,7 @@ export const MAX_REASONABLE_FEE_MICRO = toMicro(MAX_REASONABLE_FEE);
 
 export const FUNGIBLE_TOKEN_CONTRACT = 
 `contract FungibleToken =
+  
   record state =
     { owner        : address      // the smart contract's owner address
     , total_supply : int          // total token supply
@@ -86,11 +87,8 @@ export const FUNGIBLE_TOKEN_CONTRACT =
     | Mint(indexed address, indexed int)
 
   entrypoint init(name: string, decimals : int, symbol : string) =
-
     require(String.length(name) >= 1, "STRING_TOO_SHORT_NAME")
-
     require(String.length(symbol) >= 1, "STRING_TOO_SHORT_SYMBOL")
-
     require_non_negative_value(decimals)
     { owner        = Call.caller,
       total_supply = 0,
@@ -98,19 +96,23 @@ export const FUNGIBLE_TOKEN_CONTRACT =
       allowances   = {},
       meta_info    = { name = name, symbol = symbol, decimals = decimals } }
 
-
+  // Get the token meta info
   entrypoint meta_info() : meta_info =
     state.meta_info
 
+  // Get the token total supply
   entrypoint total_supply() : int =
     state.total_supply
 
+  // Get the token owner address
   entrypoint owner() : address =
     state.owner
 
+  // Get the balances state
   entrypoint balances() : balances =
     state.balances
 
+  // Get the allowances state
   entrypoint allowances() : allowances =
     state.allowances
 
@@ -156,38 +158,38 @@ export const FUNGIBLE_TOKEN_CONTRACT =
 
   // INTERNAL FUNCTIONS
 
-  private function require_owner() =
+  function require_owner() =
     require(Call.caller == state.owner, "ONLY_OWNER_CALL_ALLOWED")
 
-  private function require_allowance_not_existent(allowance_accounts : allowance_accounts) =
+  function require_allowance_not_existent(allowance_accounts : allowance_accounts) =
     switch(allowance(allowance_accounts))
       None => None
       Some(_) => abort("ALLOWANCE_ALREADY_EXISTENT")
 
-  private function require_non_negative_value(value : int) =
+  function require_non_negative_value(value : int) =
     require(value >= 0, "NON_NEGATIVE_VALUE_REQUIRED")
 
-  private function require_allowance(allowance_accounts : allowance_accounts, value : int) : int =
+  function require_allowance(allowance_accounts : allowance_accounts, value : int) : int =
     switch(allowance(allowance_accounts))
       Some(allowance) =>
-        require(allowance >= value, "ACCOUNT_INSUFFICIENT_ALLOWANCE")
+        require_non_negative_value(allowance + value)
         allowance
       None => abort("ALLOWANCE_NOT_EXISTENT")
 
-  private function require_balance(account : address, value : int) =
+  function require_balance(account : address, value : int) =
     switch(balance(account))
       Some(balance) =>
         require(balance >= value, "ACCOUNT_INSUFFICIENT_BALANCE")
       None => abort("BALANCE_ACCOUNT_NOT_EXISTENT")
 
-  private stateful function internal_transfer(from_account: address, to_account: address, value: int) =
+  stateful function internal_transfer(from_account: address, to_account: address, value: int) =
     require_non_negative_value(value)
     require_balance(from_account, value)
     put(state{ balances[from_account] @ b = b - value })
     put(state{ balances[to_account = 0] @ b = b + value })
     Chain.event(Transfer(from_account, to_account, value))
 
-  private stateful function internal_change_allowance(allowance_accounts : allowance_accounts, value_change : int) =
+  stateful function internal_change_allowance(allowance_accounts : allowance_accounts, value_change : int) =
     let allowance = require_allowance(allowance_accounts, value_change)
     let new_allowance = allowance + value_change
     require_non_negative_value(new_allowance)
