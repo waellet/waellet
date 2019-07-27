@@ -7,15 +7,23 @@ import SeedPhraseComponent from './pages/SeedPhrase';
 import TransactionsComponent from './pages/Transactions';
 import TransactionDetailsComponent from './pages/TransactionDetails';
 import SignTransactionComponent from './pages/SignTransaction';
-import ManageAccount from './pages/ManageAccounts';
-import Settings from './pages/Settings';
-import GeneralSettings from './pages/GeneralSettings';
-import SecuritySettings from './pages/SecuritySettings';
-import AboutSettings from './pages/AboutSettings';
-import ConnectConfirmComponent from './pages/ConnectConfirm';
+import ManageAccountComponent from './pages/ManageAccounts';
+import SettingsComponent from './pages/Settings';
+import GeneralSettingsComponent from './pages/GeneralSettings';
+import SecuritySettingsComponent from './pages/SecuritySettings';
+import AdvancedSettingsComponent from './pages/AdvancedSettings';
+import AboutSettingsComponent from './pages/AboutSettings';
+import UtilitiesComponent from './pages/Utilities';
 import TipComponent from './pages/TipPage';
-import ManageNetworks from './pages/ManageNetworks';
+import AllowancesComponent from './pages/Allowances';
+import ConnectConfirmComponent from './pages/ConnectConfirm';
+import ManageNetworksComponent from './pages/ManageNetworks';
 import FungibleTokensComponent from './pages/FungibleTokens';
+import AirGapSetup from './pages/AirGapSetup';
+import SignTransactionByQrCode from './pages/SignTransactionByQrCode';
+
+import QrCodeReader from './pages/QrCodeReader';
+import CreateFungibleTokenComponent from './pages/CreateFungibleToken';
 
 export default [
   {
@@ -71,34 +79,64 @@ export default [
   },
   {
     path:'/manageAccounts',
-    component:ManageAccount,
+    component:ManageAccountComponent,
   },
   {
     path:'/settings',
-    component:Settings,
+    component:SettingsComponent,
   },
   {
     path:'/generalSettings',
-    component:GeneralSettings,
+    component:GeneralSettingsComponent,
   },
   {
     path:'/securitySettings',
-    component:SecuritySettings,
+    component:SecuritySettingsComponent,
+  },
+  {
+    path:'/advancedSettings',
+    component:AdvancedSettingsComponent,
   },
   {
     path:'/aboutSettings',
-    component:AboutSettings,
+    component:AboutSettingsComponent,
+  },
+  {
+    path:'/utilities',
+    component:UtilitiesComponent,
   },
   {
     path:'/tip',
     component:TipComponent
   },
   {
+    path:'/allowances',
+    component:AllowancesComponent
+  },
+  {
     path:'/manageNetworks',
-    component:ManageNetworks
+    component:ManageNetworksComponent
   },
   {
     path:'/tokens',
     component:FungibleTokensComponent
+  },
+  {
+    path:'/airGapSetup',
+    component:AirGapSetup
+  },
+  {
+    path:'/qrCodeReader',
+    component: QrCodeReader
+  },
+  {
+    path:'/signTransactionByQrCode',
+    component: SignTransactionByQrCode,
+    props: true,
+    name: 'signTransactionByQrCode'
+  },
+  {
+    path:'/create-token',
+    component:CreateFungibleTokenComponent
   }
 ];

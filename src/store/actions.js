@@ -65,7 +65,6 @@ export default {
     .then((res) => {
       res.decode()
       .then(balance => {
-        console.log(balance)
         commit(types.UPDATE_TOKENS_BALANCE, { token:state.current.token, balance: balance == 'None' ? 0 : balance.Some[0] } );
       })
     })
@@ -83,15 +82,18 @@ export default {
           case 'success_transfer':
             commit(types.SHOW_POPUP,{show:true,secondBtn:true,secondBtnClick:'showTransaction',...popupMessages.SUCCESS_TRANSFER,msg:payload.msg,data:payload.data})
             break;
+          case 'success_deploy':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.SUCCESS_DEPLOY,msg:payload.msg})
+            break;
           case 'incorrect_address':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_ADDRESS});
             break;
           case 'incorrect_amount':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.INCORRECT_AMOUNT});
             break;
-          case 'transaction_failed':
-            commit(types.SHOW_POPUP,{show:true,...popupMessages.TRANSACTION_FAILED});
-            break;
+            case 'transaction_failed':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.TRANSACTION_FAILED});
+              break;
           default:
             break;
         }
@@ -117,11 +119,25 @@ export default {
             commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_ADDED});
           break;
           case 'token_invalid_address':
-              commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_INVALID_ADDRESS});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.TOKEN_INVALID_ADDRESS});
           break;
           case 'only_allowed_chars':
-              commit(types.SHOW_POPUP,{show:true,...popupMessages.CHARS_ALLOWED});
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.CHARS_ALLOWED});
+          break;
+          case 'not_selected_val':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.NOT_SELECTED_VAL});
+          break;
+          case 'account_already_exist':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.ACCOUNT_ALREADY_EXIST});
             break;
+            case 'invalid_number':
+              commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_NUMBER});
+            break;
+          case 'airgap_created':
+            commit(types.SHOW_POPUP,{show:true,...popupMessages.AIRGAP_CREATED});
+          case 'confirm_privacy_clear':
+            commit(types.SHOW_POPUP, { show:true, secondBtn:true, secondBtnClick:'clearPrivacyData',...popupMessages.CONFIRM_PRIVACY_CLEAR})
+          break;
           default:
             break;
         }
@@ -183,5 +199,33 @@ export default {
   },
   setTokens({ commit }, payload) {
     commit(types.SET_TOKENS, payload)
+  },
+  getRegisteredNames({commit, state}) {
+    const middlewareUrl = state.network[state.current.network].middlewareUrl;
+    let names = []
+
+    state.subaccounts.forEach( async ({ publicKey }, index) => {
+      let res = fetch(`${middlewareUrl}/middleware/names/reverse/${publicKey}`, {
+        method:'GET',
+        mode:'cors'
+      })
+      .then(n => n.json())
+      let pendingName = []
+      try {
+        pendingName = (await state.sdk.api.getPendingAccountTransactionsByPubkey(publicKey)).transactions.filter(({tx: {type}}) => type == 'NameClaimTx')
+      }catch(err) {
+        pendingName = []
+      }
+      res = await res
+      if(pendingName.length) {
+        pendingName.forEach(({ tx: { name, accountId } }) => {
+          res.push({name, pending:true, owner:accountId })
+        })
+      }
+      if(res.length) commit(types.SET_ACCOUNT_AENS, { account:index, name: res[0].name, pending: res[0].pending ? true : false })
+      names.push(res)
+      if(index == state.subaccounts.length - 1 ) commit(types.SET_NAMES, { names: Array.prototype.concat.apply([], names) })
+    })
+
   }
 };

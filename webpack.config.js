@@ -16,7 +16,8 @@ const config = {
     'options/options': './options/options.js',
     'main':'./main.js',
     'phishing/phishing':'./phishing/phishing.js',
-    "aepp":'./aepp.js'
+    "aepp":'./aepp.js',
+    "cameraRequestPermission":'./popup/CameraRequestPermission.html'
   },
   node: {
     fs: 'empty', net: 'empty', tls: 'empty'
@@ -52,7 +53,7 @@ const config = {
         use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader?indentedSyntax'],
       },
       {
-        test: /\.(png|jpg|gif|svg|ico)$/,
+        test: /\.(html|png|jpg|gif|svg|ico)$/,
         loader: 'file-loader',
         options: {
           name: '[name].[ext]?emitFile=false',
@@ -74,6 +75,7 @@ const config = {
       { from: 'popup/popup.html', to: 'popup/popup.html', transform: transformHtml },
       { from: 'options/options.html', to: 'options/options.html', transform: transformHtml },
       { from: 'phishing/phishing.html', to: 'phishing/phishing.html', transform:transformHtml },
+      { from: 'popup/CameraRequestPermission.html', to: 'popup/CameraRequestPermission.html', transform:transformHtml },
       {
         from: 'manifest.json',
         to: 'manifest.json',

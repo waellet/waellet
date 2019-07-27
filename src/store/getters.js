@@ -51,5 +51,8 @@ export const getters = {
   },
   aeppPopup(state) {
     return state.aeppPopup
+  },
+  names(state) {
+    return state.names
   }
 };

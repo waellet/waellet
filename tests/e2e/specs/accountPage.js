@@ -31,8 +31,13 @@ describe("Test cases for Account Page" , () => {
         .should('have.class','activeAccount')
         .get('.dropdown-holder li').eq(1)
         .click()
+        .wait(1000)
+        .get('.dropdown-holder')
+        .should('not.be.visible')
         .get('#network')
         .click()
+        .get('.dropdown-holder')
+        .should('be.visible')
         .get('.dropdown-holder li').eq(1)
         .should('have.class','activeAccount')
         .get('#network')
@@ -82,19 +87,24 @@ describe("Test cases for Account Page" , () => {
         .should('be.visible')
     }); 
 
+    
     it("open manage accounts page", () => {
         login();
         cy
         .visit('popup/popup.html',{onBeforeLoad})
         .get('#account')
         .click()
-        .get('.newSubaccount')
+        .get('.dropdown-holder')
+        .should('be.visible')
+        .get('.manageAccounts > .triggerhidedd > .newSubaccount')
         .click()
         .get('.dropdown-holder')
         .should('not.be.visible')
+        .get('#manageAccounts')
+        .should('be.visible')
     }); 
-
-    it("open language submenu", () => {
+    
+    it("open Utilities page", () => {
         login();
         cy
         .visit('popup/popup.html',{onBeforeLoad})
@@ -102,26 +112,15 @@ describe("Test cases for Account Page" , () => {
         .click()
         .get('.dropdown-holder')
         .should('be.visible')
-        .get('#languages')
+        .get('#utilities')
         .should('be.visible')
         .click()
-        .get('.sub-dropdown')
-        .should('be.visible')
-        .get('.have-subDropdown')
-        .should('have.class','show')
-        .get('#languages > button')
-        .click()
-        .get('.sub-dropdown')
-        .should('not.be.visible')
-        .get('.have-subDropdown')
-        .should('not.have.class','show')
-        .get('#languages')
-        .click()
-        .get('#languages > .sub-dropdown > :nth-child(1) > .ae-button')
-        .click()
+        .wait(1000)
         .get('.dropdown-holder')
         .should('not.be.visible')
-    }); 
+        .get('#utilitiesPage')
+        .should('be.visible')
+    });
 
 
     it('check latests 3 transactions', () => {

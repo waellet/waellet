@@ -49,6 +49,7 @@
                         <ae-badge :class="filter.spendType == 'namePreclaimTx' ? 'selected' : ''" @click.native="setFilter('spendType','namePreclaimTx')">name preclaim tx</ae-badge>
                         <ae-badge :class="filter.spendType == 'nameClaimTx' ? 'selected' : ''" @click.native="setFilter('spendType','nameClaimTx')">name claim tx</ae-badge>
                         <ae-badge :class="filter.spendType == 'nameUpdateTx' ? 'selected' : ''" @click.native="setFilter('spendType','nameUpdateTx')">name update tx</ae-badge>
+                        <ae-badge :class="filter.spendType == 'contractCreateTx' ? 'selected' : ''" @click.native="setFilter('spendType','contractCreateTx')">contract create tx</ae-badge>
                     </div>
                 </ae-list-item>
                 <!--<ae-list-item fill="neutral" class="flex-direction-column">
@@ -120,6 +121,8 @@ export default {
                 txs = txs.filter(tx => tx.tx.type == 'NameClaimTx') 
             }else if(this.filter.spendType == 'nameUpdateTx') {
                 txs = txs.filter(tx => tx.tx.type == 'NameUpdateTx') 
+            }else if(this.filter.spendType == 'contractCreateTx') {
+                txs = txs.filter(tx => tx.tx.type == 'ContractCreateTx')
             }
             
             return groupBy(

@@ -1,6 +1,6 @@
 <template>
   <ae-main @click.native="hideMenu">
-      <ae-header :class="account.publicKey && isLoggedIn ? 'logged' : ''">
+      <ae-header :class="account.publicKey && isLoggedIn ? 'logged' + (aeppPopup ? ' aeppPopup' : '') : ''">
 
         <!-- login screen header -->
         <div class="logo_top" :slot="menuSlot" v-if="!isLoggedIn">
@@ -59,6 +59,7 @@
                       <div class="subAccountName">{{subaccount.name}}</div>
                       <div class="subAccountBalance">{{subaccount.balance}} AE</div>
                     </div>
+                    <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="subaccount.pending"/>
                     <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="activeAccount" /> 
                 </ae-list-item>
                 <ae-list-item fill="neutral" class="manageAccounts" v-if="!aeppPopup">
@@ -67,6 +68,14 @@
                       <ae-icon name="plus" />
                     </ae-button>
                     <span class="newSubaccount">{{ language.strings.manageAccounts }}</span>
+                  </ae-button>
+                </ae-list-item>
+                <ae-list-item fill="neutral" class="airGapVault" v-if="!aeppPopup">
+                  <ae-button @click="airGapVault" class="triggerhidedd">
+                    <ae-button face="icon" fill="primary" class="iconBtn">
+                      <ae-icon name="plus" />
+                    </ae-button>
+                    <span class="newSubaccount">{{ language.strings.airGapVault }}</span>
                   </ae-button>
                 </ae-list-item>
               </ae-list>
@@ -85,12 +94,6 @@
                   <ae-button @click="navigateAccount" class="toAccount">
                     <ae-icon name="home" />
                     {{ language.strings.myAccount }}
-                  </ae-button>
-                </li>
-                <li>
-                  <ae-button @click="settings" class="settings">
-                    <ae-icon name="settings" />
-                    {{ language.strings.settings }}
                   </ae-button>
                 </li>
                 <li id="tokens" class="have-subDropdown" :class="dropdown.tokens ? 'show' : ''">
@@ -116,32 +119,27 @@
                         {{ language.strings.addToken}}
                       </ae-button>
                     </li>
-                  </ul>
-                </li>
-                <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
-                  <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
-                    <ae-icon name="globe" />
-                    {{ language.strings.switchLanguage }}
-                    <ae-icon name="left-more" />
-                  </ae-button>
-
-                  <!-- Language sub dropdown -->
-                  <ul class="sub-dropdown">
-                    <li v-for="(value, name) in locales" v-bind:key="name">
-                      <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd" :class="current.language == name ? 'current' : ''">
-                        <img :src="'../icons/flag_'+name+'.png'" />
-                        {{ name }}
+                    <li>
+                      <ae-button @click="createToken">
+                        <ae-icon name="plus" />
+                        Create Token
                       </ae-button>
                     </li>
                   </ul>
                 </li>
-                <li>
-                  <ae-button @click="exportKeypair('keystore')" id="exportKeystore">
-                    <ae-icon name="save" />
-                    {{ language.strings.exportKeystore }}
+                <li id="utilities">
+                  <ae-button @click="utilities" class="utilities">
+                    <ae-icon name="underline" />
+                    {{ language.strings.utilities }}
                   </ae-button>
                 </li>
-                <li>
+                <li id="settings">
+                  <ae-button @click="settings" class="settings">
+                    <ae-icon name="settings" />
+                    {{ language.strings.settings }}
+                  </ae-button>
+                </li>
+                <li id="toLogout">
                   <ae-button @click="logout" class="toLogout">
                     <ae-icon name="sign-out" />
                     {{ language.strings.logout }}
@@ -165,8 +163,7 @@ import store from '../store';
 import locales from './locales/locales.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
-import { setTimeout } from 'timers';
-
+import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK } from './utils/helper';
 
 export default {
@@ -187,7 +184,8 @@ export default {
       mainLoading: true,
       checkPendingTxInterval:null,
       menuSlot:"mobile-left",
-      mobileRight: "mobile-right"
+      mobileRight: "mobile-right",
+      checkSDKReady:null
     }
   },
   computed: {
@@ -216,16 +214,22 @@ export default {
       });
 
       //init SDK
-      setTimeout(() => {
+      this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {
           this.initSDK()
+          this.pollData()
+          clearInterval(this.checkSDKReady)
         }
+      },500)
+
+      setTimeout(() => {
         if(this.isLoggedIn) {
           this.pollData()
         }else {
           this.hideLoader()
         }
       },500)
+
       this.checkPendingTx()
       window.addEventListener('resize', () => {
         
@@ -256,15 +260,15 @@ export default {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
       browser.storage.sync.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
+        this.initSDK();
         this.dropdown.account = false;
         this.$store.commit('RESET_TRANSACTIONS',[]);
       });
     },
     hideMenu (event) {
       let target = event.target
-      
       // Hide dropdown menu on click of the element with class triggerhidedd
-      if (typeof target != 'undefined' && (target.className.indexOf('triggerhidedd') > -1 || target.parentElement.className.indexOf('triggerhidedd') > -1)) {
+      if (typeof target != 'undefined' && (target.className.indexOf('triggerhidedd') > -1 || (target.parentElement != null && target.parentElement.className.indexOf('triggerhidedd') > -1 ))) {
         let dropdownParent = event.target.closest('.dropdown');
         this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id];
         if (event.target.closest('.have-subDropdown') != null) {
@@ -280,11 +284,14 @@ export default {
       }
     },
     toggleDropdown(event, parentClass) {
-      if (typeof parentClass == 'undefined') {
-        parentClass = '.dropdown';
+      if(!this.aeppPopup) {
+        if (typeof parentClass == 'undefined') {
+          parentClass = '.dropdown';
+        }
+        let dropdownParent = event.target.closest(parentClass);
+        this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
       }
-      let dropdownParent = event.target.closest(parentClass);
-      this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
+      
     },
     switchLanguage(languageChoose) {
       browser.storage.sync.set({language: languageChoose}).then(() => {
@@ -334,7 +341,6 @@ export default {
     },
     navigateNetworks () {
       this.$router.push('/manageNetworks');
-      this.dropdown.network = false;
     },
     myAccount () {
       this.dropdown.settings = false; this.dropdown.languages = false;
@@ -344,8 +350,16 @@ export default {
       this.dropdown.settings = false; this.dropdown.languages = false;
       this.$router.push('/settings');
     },
+    utilities () {
+      this.dropdown.settings = false; this.dropdown.languages = false;
+      this.$router.push('/utilities');
+    },
+    airGapVault() {
+        this.$router.push('/airGapSetup')
+    },
     manageAccounts () {
       this.$router.push('/manageAccounts');
+      this.dropdown.network = false;
     },
     exportKeypair (type) {
       if(type == 'keypair') {
@@ -367,8 +381,9 @@ export default {
     },
     pollData() {
       let triggerOnce = false
+      
       this.polling = setInterval(() => {
-        if(this.sdk != null) {
+        if(this.sdk != null && this.isLoggedIn) {
             //Todo update token if is not AE
             if(this.current.token != 0) {
               this.$store.dispatch('updateBalanceToken')
@@ -381,6 +396,7 @@ export default {
               this.$store.dispatch('updateBalanceTokens');
             }
             if(!triggerOnce) {
+              this.$store.dispatch('getRegisteredNames',{address:this.account.publicKey})
               this.$store.dispatch('updateBalanceSubaccounts');
               triggerOnce = true
             }
@@ -410,13 +426,19 @@ export default {
       this.dropdown.settings = false
       this.$router.push('/tokens')
     },
+    createToken() {
+      this.dropdown.settings = false
+      this.$router.push('/create-token')
+    },
     checkPendingTx() {
       this.checkPendingTxInterval = setInterval(() => {
         browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
-          if(!pendingTx.hasOwnProperty('pendingTransaction')) {
+          if(!pendingTx.hasOwnProperty('pendingTransaction') || ( pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length <= 0 )) {
             clearInterval(this.checkPendingTxInterval)
-            // this.$store.commit('SET_AEPP_POPUP',false)
-            // this.$router.push('/account')
+            if(this.$router.currentRoute.path == "/sign-transaction") {
+              this.$store.commit('SET_AEPP_POPUP',false)
+              this.$router.push('/account')
+            }
           }
         });
       },1000)
@@ -453,6 +475,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .pageTitle { margin: 0 0 10px; }
 .ae-header { border-bottom: 1px solid #EEE; margin-bottom: 10px; }
 .ae-header.logged { background: #001833; }
+.ae-header.logged.aeppPopup { margin-bottom:0 !important; }
 .ae-header.logged > * { color: #717C87; }
 .logo_top { display: flex; flex-flow: row wrap; justify-content: center; vertical-align: center; }
 .logo_top p { color: #FF0D6A; font-size: 20px; line-height: 12px; }
@@ -469,8 +492,9 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .subAccountInfo { margin-right:auto; margin-bottom:0 !important; max-width: 155px; }
 #network .subAccountInfo { max-width: 195px; }
 .subAccountIcon { margin-right: 10px; }
-.subAccountName { /*width: 110px; line-height: 28px;*/ color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
+.subAccountName { /*width: 110px; line-height: 28px;*/text-align: left; color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
 .subAccountBalance { font-family: monospace; margin-bottom:0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;}
+.name-pending { width:28px !important; height:28px !important; margin-right:5px; }
 #account .subAccountCheckbox { float: right; }
 #account li, #network li { padding:0.75rem; cursor:pointer !important; }
 #account ul { width:250px; margin-left: -125px;}
@@ -495,7 +519,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .dropdown > ul { min-width: 120px; position: absolute; top: 100%; padding: 0; background-color: #FFF; z-index: 1; }
 .dropdown ul { transition: all 0.2s; margin: 0; padding: 5px 0; overflow: hidden; border-radius: 4px; box-shadow: 0 0 16px rgba(0, 33, 87, 0.15); list-style: none; }
 .dropdown ul.sub-dropdown { box-shadow: none; visibility: hidden; max-height:0; padding: 0; overflow: hidden; transition: all 0.3s ease-in-out; }
-.dropdown .have-subDropdown.show ul.sub-dropdown { visibility: visible; max-height: 165px; }
+.dropdown .have-subDropdown.show ul.sub-dropdown { visibility: visible; max-height: 265px; }
 .dropdown ul.sub-dropdown .ae-button { padding: 0 2rem; }
 .dropdown ul li .ae-button { font-size: 14px; width: 100%; color: #000; text-align: left;  margin: 0; padding: 0 1rem; white-space: nowrap; justify-content: unset; }
 .dropdown ul li .ae-button .ae-icon-left-more { margin-top: 3px; transition: all 0.3s; }

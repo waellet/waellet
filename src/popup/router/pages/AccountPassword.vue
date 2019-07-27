@@ -110,7 +110,7 @@ export default {
             
             if(match !== false) {
                 let wallet = generateHdWallet(match);
-                let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),secretKey:match,publicKey:encryptedPrivateKey.public_key};
+                let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),publicKey:encryptedPrivateKey.public_key};
                 this.setLogin(keyPair,wallet,true);
             }else {
                 this.loginError = true;

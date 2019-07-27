@@ -23,9 +23,8 @@ async function generateKeyPair (passphrase, privateKey, wallet) {
   keystore.public_key = account.address;
   return {
     publicKey: keystore.public_key,
-    secretKey: privateKey.trim(), // NOT SECURE
-    encryptedPrivateKey: JSON.stringify(keystore),
-  };
+    encryptedPrivateKey: JSON.stringify(keystore)
+  };//secretKey: privateKey.trim(), 
 }
 
 async function importPrivateKey (passphrase, secretKey, wallet) {
@@ -37,7 +36,6 @@ async function importPrivateKey (passphrase, secretKey, wallet) {
   keystore.public_key = account.address;
   return {
     publicKey: keystore.public_key,
-    secretKey: secretKey.trim(), // NOT SECURE
     encryptedPrivateKey: JSON.stringify(keystore),
-  };
+  };//secretKey: secretKey.trim(), // NOT SECURE
 }

@@ -1,7 +1,7 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+            <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{language.buttons.backToUtilities}}</button>
         </div>
         <div>
             <div class="tipWebsiteHeader flex flex-align-center ">
@@ -118,8 +118,8 @@ export default {
         this.setSliderBackground(elem);
     },  
     methods: {
-        navigateAccount() {
-            this.$router.push('/account')
+        navigateUtilities() {
+            this.$router.push('/utilities')
         },
         checkDomain() {
             this.domainVerified = true;
@@ -257,110 +257,7 @@ export default {
     top:0;
 }
 
-$shade-10: #2c3e50 !default;
-$shade-1: #d7dcdf !default;
-$shade-0: #fff !default;
-$teal: #1abc9c !default;
 
-$range-handle-color: $shade-10 !default;
-$range-handle-color-hover: $teal !default;
-$range-handle-size: 20px !default;
-
-$range-track-color: $shade-1 !default;
-$range-track-height: 10px !default;
-
-$range-label-color: $shade-10 !default;
-$range-label-width: 60px !default;
-
-.range-slider {
-    width: 100%;
-    position:relative;
-    .tipAmount {
-        position:absolute;
-        color: #909090;
-        font-size: 0.9rem;
-    }
-    .tipMin {
-        left:0;
-    }
-    .tipMax {
-        right:0;
-    }
-}
-
-.range-slider__range {
-  -webkit-appearance: none;
-  width: 100%;
-  height: $range-track-height;
-  border-radius: 5px;
-  background: $range-track-color;
-  outline: none;
-  padding: 0;
-  margin: 25px 0;
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: $range-handle-size;
-    height: $range-handle-size;
-    border-radius: 50%;
-    background: $primary-color;
-    cursor: pointer;
-    transition: background .15s ease-in-out;
-    // box-shadow: 0 0 0 3px $shade-0,
-    //             0 0 0 6px $primary-color;
-  }
-  &:active::-webkit-slider-thumb {
-    background: $primary-color;
-  }
-  &::-moz-range-thumb {
-    width: $range-handle-size;
-    height: $range-handle-size;
-    border: 0;
-    border-radius: 50%;
-    background: $primary-color;
-    cursor: pointer;
-    transition: background .15s ease-in-out;
-  }
-  &:active::-moz-range-thumb {
-    background: $primary-color;
-  }
-}
-
-.range-slider__value {
-  display: inline-block;
-  position: relative;
-  width: $range-label-width;
-  color: $shade-0;
-  line-height: 20px;
-  text-align: center;
-  border-radius: 3px;
-  background: $range-label-color;
-  padding: 5px 10px;
-  margin-left: 8px;
-
-  &:after {
-    position: absolute;
-    top: 8px;
-    left: -7px;
-    width: 0;
-    height: 0;
-    border-top: 7px solid transparent;
-    border-right: 7px solid $range-label-color;
-    border-bottom: 7px solid transparent;
-    content: '';
-  }
-}
-
-::-moz-range-track {
-    background: $range-track-color;
-    border: 0;
-}
-
-input::-moz-focus-inner,
-input::-moz-focus-outer { 
-  border: 0; 
-}
 .balanceInfo {
     margin-top:15px;
     .balance {

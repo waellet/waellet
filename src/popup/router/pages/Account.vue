@@ -33,8 +33,6 @@
         <ae-button face="round" fill="primary" extend class="sendBtn" @click="navigateSend">{{language.buttons.send}}</ae-button>
         <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
       </ae-button-group>
-      <br>
-      <ae-button face="round" fill="alternative" class="toTipping" extend @click="openTipPage">{{language.buttons.tipWebsite}}</ae-button>
     </div>
     <h3>Latest transactions</h3>
     <div v-if="transactions.latest.length && !loading">
@@ -47,8 +45,7 @@
         <p class="paragraph noTransactions">No transactions found!</p> 
     </div>
     <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
-    <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
-    
+    <Loader size="small" :loading="loading" ></Loader>
   </div> 
 </template>
 
@@ -60,8 +57,9 @@ import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
 import { getTranscationByPublicAddress }  from '../../utils/transactions';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { request } from 'http';
-import { fetchData } from '../../utils/helper';
+import { fetchData, currencyConv } from '../../utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+
 
 export default {
   name: 'Account',
@@ -105,7 +103,8 @@ export default {
   },
   created () {
     this.pollData();
-    this.currencyConv();
+    currencyConv(this);
+    
   },
   mounted(){
     this.updateTransactions();
@@ -125,26 +124,6 @@ export default {
               this.toEur = this.balance * this.eurRate;
           }
         }, 2500);
-    },
-    async currencyConv () {
-      browser.storage.sync.get('convertTimer').then(async result => {
-        var time = new Date().getTime();
-        if ( !result.hasOwnProperty('convertTimer') || (result.hasOwnProperty('convertTimer') && (result.convertTimer == '' || result.convertTimer == 'undefined' || result.convertTimer <= time)) ) {
-          const fetched = await fetchData('https://api.coingecko.com/api/v3/simple/price?ids=aeternity&vs_currencies=usd,eur','get','');
-          console.log('fetched');
-          browser.storage.sync.set({ rateUsd : fetched.aeternity.usd}).then(() => { });
-          browser.storage.sync.set({ rateEur : fetched.aeternity.eur}).then(() => { });
-          browser.storage.sync.set({ convertTimer : time+3600000}).then(() => { });
-        }
-        browser.storage.sync.get('rateUsd').then(resusd => {
-          this.usdRate = resusd.rateUsd;
-          this.toUsd = resusd.rateUsd * this.balance;
-        });
-        browser.storage.sync.get('rateEur').then(reseur => {
-          this.eurRate = reseur.rateEur;
-          this.toEur = reseur.rateEur * this.balance;
-        });
-      });
     },
     navigateSend () {
       this.$router.push('/send');
@@ -170,9 +149,6 @@ export default {
          browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {});
       });
     },
-    openTipPage() {
-      this.$router.push('/tip');
-    }
   },
   beforeDestroy () {
     clearInterval(this.polling)

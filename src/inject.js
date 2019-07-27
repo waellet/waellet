@@ -21,7 +21,6 @@ window.addEventListener("message", ({data}) => {
     // Handle message from page and redirect to background script
     if(!data.hasOwnProperty("resolve")) {
         sendToBackground(method,data).then(res => {
-            
             if (method == 'aeppMessage') {
                 res.resolve = true
                 res.method = method
@@ -75,7 +74,7 @@ function sendToBackground(method, params) {
     return new Promise((resolve,reject) => {
         browser.runtime.sendMessage({
             jsonrpc: "2.0",
-            id: null,
+            id: params.id || null,
             method,
             params
         }).then((res) => {

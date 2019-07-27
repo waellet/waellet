@@ -1,6 +1,6 @@
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from './hdWallet';
-
+import { Crypto } from '@aeternity/aepp-sdk/es';
 
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -128,14 +128,21 @@ const redirectAfterLogin = (ctx) => {
             ctx.$router.push({'name':'sign', params: {
               data:aepp.showAeppPopup.data
             }});
+          }else if(aepp.showAeppPopup.type == 'contractCall') {
+            aepp.showAeppPopup.data.popup = true
+            ctx.$router.push({'name':'sign', params: {
+                data:aepp.showAeppPopup.data
+            }});
           }
           return;
         });
-      }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('data')) {
+      }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length > 0) {
         ctx.$store.commit('SET_AEPP_POPUP',true)
-        pendingTx.pendingTransaction.data.popup = false
+        let tx = pendingTx.pendingTransaction.list[Object.keys(pendingTx.pendingTransaction.list)[0]];
+        tx.popup = false
+        tx.countTx =  Object.keys(pendingTx.pendingTransaction.list).length
         ctx.$router.push({'name':'sign', params: {
-          data:pendingTx.pendingTransaction.data
+          data:tx
         }});
       }else {
         ctx.$router.push('/account');
@@ -170,5 +177,78 @@ const initializeSDK = (ctx, {network, current, account, wallet, activeAccount},b
     })
 }
 
-export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin, initializeSDK }
+const  currencyConv = async (ctx) => {
+    browser.storage.sync.get('convertTimer').then(async result => {
+      var time = new Date().getTime();
+      if ( !result.hasOwnProperty('convertTimer') || (result.hasOwnProperty('convertTimer') && (result.convertTimer == '' || result.convertTimer == 'undefined' || result.convertTimer <= time)) ) {
+        const fetched = await fetchData('https://api.coingecko.com/api/v3/simple/price?ids=aeternity&vs_currencies=usd,eur','get','');
+        browser.storage.sync.set({ rateUsd : fetched.aeternity.usd}).then(() => { });
+        browser.storage.sync.set({ rateEur : fetched.aeternity.eur}).then(() => { });
+        browser.storage.sync.set({ convertTimer : time+3600000}).then(() => { });
+      }
+      browser.storage.sync.get('rateUsd').then(resusd => {
+        ctx.usdRate = resusd.rateUsd;
+        ctx.toUsd = resusd.rateUsd * ctx.balance;
+      });
+      browser.storage.sync.get('rateEur').then(reseur => {
+        ctx.eurRate = reseur.rateEur;
+        ctx.toEur = reseur.rateEur * ctx.balance;
+      });
+    });
+}
+
+const convertAmountToCurrency = (currency, amount) => {
+    return currency * amount
+}
+
+const contractEncodeCall = async (sdk,source, name, args = []) => {
+    return await sdk.contractEncodeCall(source,name,args)
+}
+
+const contractDecodeData = async (sdk,source, fn, callValue, callResults, options = {}) => {
+    return await sdk.contractDecodeData(source, fn, callValue, callResults, options)
+}
+
+const removeTxFromStorage = (id) => {
+    return new Promise((resolve,reject) => {
+        browser.storage.sync.get('pendingTransaction').then((data) => {
+            browser.storage.sync.remove('showAeppPopup').then(() => {
+                let list = {}
+                if(data.hasOwnProperty("pendingTransaction") && data.pendingTransaction.hasOwnProperty("list")) {
+                    list = data.pendingTransaction.list
+                    delete list[id]
+                }
+                resolve(list)
+            }); 
+        });
+    }) 
+}
+
+const checkAddress = (value) => {
+    return Crypto.isAddressValid(value);
+}
+
+const chekAensName = (value) => {
+    return value.endsWith('.test');
+}
+
+export { 
+    shuffleArray, 
+    convertToAE, 
+    extractHostName, 
+    fetchData, 
+    detectBrowser, 
+    setConnectedAepp, 
+    checkAeppConnected, 
+    redirectAfterLogin, 
+    initializeSDK, 
+    currencyConv, 
+    convertAmountToCurrency, 
+    contractEncodeCall, 
+    contractDecodeData, 
+    removeTxFromStorage,
+    checkAddress,
+    chekAensName
+}
+
 
