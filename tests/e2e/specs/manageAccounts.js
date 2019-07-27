@@ -28,7 +28,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .get('#account')
         .should('be.visible')
         .get('#account .dropdown-button-name')
-        .should('contain','Main account')
+        .should('contain','asdd.test')
         .get('#account')
         .click()
         .get('.dropdown-holder')
@@ -37,7 +37,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .should('be.visible')
         .should('have.class','activeAccount')
         .get('.dropdown-holder li').eq(0).find('.subAccountName')
-        .should('contain','Main account')
+        .should('contain','asdd.test')
         .get('.newSubaccount')
         .should('be.visible')
         .get('.iconBtn')
@@ -243,7 +243,6 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .click()
         .get('.dropdown-holder li').eq(0)
         .find('.subAccountName')
-        .should('contain','Account 1')
         .get('.dropdown-holder li').eq(1)
         .find('.subAccountName')
         .should('contain','Account 2')
@@ -306,7 +305,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .find('.ae-input-plain')
         .should('not.be.visible')
         .get('#account .dropdown-button-name')
-        .should('contain','Main account');
+        .should('contain','asdd.test');
     });
 
     it("check login page", () => {

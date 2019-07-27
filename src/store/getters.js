@@ -54,5 +54,25 @@ export const getters = {
   },
   names(state) {
     return state.names
+  },
+  ledgerApi(state){
+    return state.ledgerApi
+  },
+  ledgerNextIdx (state) {
+    // if(state.subaccounts.filter(a => a.isLedger).length == 0) {
+    //   return 0
+    // }
+    // return state.subaccounts.filter(a => a.isLedger).length + 1
+
+    return Math.max(
+      ...state.subaccounts.filter(a => a.isLedger).map(( { idx } ) => idx),
+      -1,
+    ) + 1
+  },
+  isLedger(state) {
+    return state.subaccounts.find(s => s.publicKey == state.account.publicKey).isLedger
+  },
+  getActiveAccount(state) {
+    return state.subaccounts.find(s => s.publicKey == state.account.publicKey)
   }
 };

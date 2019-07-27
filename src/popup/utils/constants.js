@@ -12,7 +12,10 @@ export const MINPASSWORDLENGTH = 8;
 export const TX_TYPES = {
   'txSign':TX_TYPE.spend,
   'contractCall':TX_TYPE.contractCall,
-  'contractCreate':TX_TYPE.contractCreate
+  'contractCreate':TX_TYPE.contractCreate,
+  'namePreClaim': TX_TYPE.namePreClaim,
+  'nameClaim': TX_TYPE.nameClaim,
+  'nameUpdate': TX_TYPE.nameUpdate
 }
 
 const STUB_ADDRESS = 'ak_enAPooFqpTQKkhJmU47J16QZu9HbPQQPwWBVeGnzDbDnv9dxp';
@@ -30,6 +33,7 @@ const MIN_SPEND_TX_FEE_STRING = TxBuilder.calculateMinFee(
 );
 
 export const calculateFee = (type,params) => {
+  console.log(type)
   let MIN_FEE = TxBuilder.calculateMinFee(type, {
     params: {
       senderId: STUB_ADDRESS,

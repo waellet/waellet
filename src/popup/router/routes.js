@@ -18,12 +18,13 @@ import TipComponent from './pages/TipPage';
 import AllowancesComponent from './pages/Allowances';
 import ConnectConfirmComponent from './pages/ConnectConfirm';
 import ManageNetworksComponent from './pages/ManageNetworks';
-import FungibleTokensComponent from './pages/FungibleTokens';
+import FungibleTokensComponent from './pages/AddFungibleToken';
+import FungibleTokensPageComponent from './pages/FungibleTokensPage';
 import AirGapSetup from './pages/AirGapSetup';
 import SignTransactionByQrCode from './pages/SignTransactionByQrCode';
-
 import QrCodeReader from './pages/QrCodeReader';
 import CreateFungibleTokenComponent from './pages/CreateFungibleToken';
+import LedgerSetupComponent from './pages/LedgerSetup';
 
 export default [
   {
@@ -36,6 +37,8 @@ export default [
   },
   {
     path: '/send',
+    name: 'send',
+    props:true,
     component: SendComponent,
   },
   {
@@ -66,7 +69,7 @@ export default [
   },
   {
     name:'sign',
-    path:'/sign-transaction',
+    path:'/sign-transaction/:type?',
     component:SignTransactionComponent,
     props:true
 
@@ -122,11 +125,17 @@ export default [
     component:FungibleTokensComponent
   },
   {
+    path:'/fungible-tokens',
+    component:FungibleTokensPageComponent
+  },
+  {
     path:'/airGapSetup',
     component:AirGapSetup
   },
   {
     path:'/qrCodeReader',
+    name:'qrCodeReader',
+    props:true,
     component: QrCodeReader
   },
   {
@@ -138,5 +147,9 @@ export default [
   {
     path:'/create-token',
     component:CreateFungibleTokenComponent
+  },
+  {
+    path:'/ledger-setup',
+    component:LedgerSetupComponent
   }
 ];

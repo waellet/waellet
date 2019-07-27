@@ -62,7 +62,7 @@
                     <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="subaccount.pending"/>
                     <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="activeAccount" /> 
                 </ae-list-item>
-                <ae-list-item fill="neutral" class="manageAccounts" v-if="!aeppPopup">
+                <ae-list-item fill="neutral" class="manageAccounts account-btn" v-if="!aeppPopup">
                   <ae-button @click="manageAccounts" class="triggerhidedd">
                     <ae-button face="icon" fill="primary" class="iconBtn">
                       <ae-icon name="plus" />
@@ -70,12 +70,20 @@
                     <span class="newSubaccount">{{ language.strings.manageAccounts }}</span>
                   </ae-button>
                 </ae-list-item>
-                <ae-list-item fill="neutral" class="airGapVault" v-if="!aeppPopup">
+                <ae-list-item fill="neutral" class="airGapVault manageAccounts account-btn" v-if="!aeppPopup">
                   <ae-button @click="airGapVault" class="triggerhidedd">
-                    <ae-button face="icon" fill="primary" class="iconBtn">
+                    <ae-button face="icon" fill="alternative" class="iconBtn">
                       <ae-icon name="plus" />
                     </ae-button>
                     <span class="newSubaccount">{{ language.strings.airGapVault }}</span>
+                  </ae-button>
+                </ae-list-item>
+                <ae-list-item fill="neutral" class="ledger manageAccounts account-btn" v-if="!aeppPopup">
+                  <ae-button @click="addLedgerAccount" class="triggerhidedd">
+                    <ae-button face="icon" class="iconBtn ledger">
+                      <ae-icon name="plus" />
+                    </ae-button>
+                    <span class="newSubaccount">{{ language.strings.ledgerAccount }}</span>
                   </ae-button>
                 </ae-list-item>
               </ae-list>
@@ -113,18 +121,6 @@
                         <ae-check class="subAccountCheckbox"  type="radio" :value="index" v-model="current.token" /> 
                       </ae-button>
                     </li>
-                    <li>
-                      <ae-button @click="toTokens" class="toTokens">
-                        <ae-icon name="plus" />
-                        {{ language.strings.addToken}}
-                      </ae-button>
-                    </li>
-                    <li>
-                      <ae-button @click="createToken">
-                        <ae-icon name="plus" />
-                        Create Token
-                      </ae-button>
-                    </li>
                   </ul>
                 </li>
                 <li id="utilities">
@@ -150,7 +146,7 @@
           </div>
         <!-- logged in header END -->
       </ae-header>
-    <router-view></router-view>
+    <router-view :key="$route.fullPath"></router-view>
     <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
     <Loader size="big" :loading="mainLoading"></Loader>
   </ae-main>
@@ -165,6 +161,7 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK } from './utils/helper';
+import LedgerBridge from './utils/ledger/ledger-bridge'
 
 export default {
   
@@ -189,7 +186,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'wallet', 'sdk','tokens','aeppPopup']),
+    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'wallet', 'sdk','tokens','aeppPopup','ledgerNextIdx']),
     extensionVersion() {
       return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
@@ -200,6 +197,7 @@ export default {
       //   this.language = locales['en'];
       //   this.current.language = 'en';
       // });
+      
       browser.storage.sync.get('activeLanguage').then((data) => {
         if (data.hasOwnProperty('activeLanguage')) {
           let defLang = locales['en'];
@@ -216,6 +214,7 @@ export default {
       //init SDK
       this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {
+          this.initLedger()
           this.initSDK()
           this.pollData()
           clearInterval(this.checkSDKReady)
@@ -381,10 +380,9 @@ export default {
     },
     pollData() {
       let triggerOnce = false
-      
-      this.polling = setInterval(() => {
+      let running = false
+      this.polling = setInterval(async () => {
         if(this.sdk != null && this.isLoggedIn) {
-            //Todo update token if is not AE
             if(this.current.token != 0) {
               this.$store.dispatch('updateBalanceToken')
             }
@@ -395,8 +393,16 @@ export default {
             if(this.dropdown.settings) {
               this.$store.dispatch('updateBalanceTokens');
             }
+            if(!this.$router.currentRoute.path.includes("/sign-transaction")) {
+              if(!running) {
+                running = true
+                this.$store.dispatch('updateRegisteredName').then(res => {
+                  running = false
+                })
+              }
+            }
             if(!triggerOnce) {
-              this.$store.dispatch('getRegisteredNames',{address:this.account.publicKey})
+              this.$store.dispatch('getRegisteredNames')
               this.$store.dispatch('updateBalanceSubaccounts');
               triggerOnce = true
             }
@@ -435,13 +441,26 @@ export default {
         browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
           if(!pendingTx.hasOwnProperty('pendingTransaction') || ( pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length <= 0 )) {
             clearInterval(this.checkPendingTxInterval)
-            if(this.$router.currentRoute.path == "/sign-transaction") {
+            if(this.$router.currentRoute.path.includes("/sign-transaction") &&  this.$router.currentRoute.params.data.popup == false) {
               this.$store.commit('SET_AEPP_POPUP',false)
               this.$router.push('/account')
             }
           }
         });
       },1000)
+    },
+    async addLedgerAccount() {
+      if(this.ledgerNextIdx != 0) {
+        let account = await this.$store.dispatch('ledgerCreate')
+        console.log(account)
+      }else {
+        this.$router.push('/ledger-setup')
+      }
+      
+    },
+    initLedger() {
+      let ledger = new LedgerBridge("https://waellet.com/ledger.html")
+      this.$store.commit('SET_LEDGER_API', { ledger })
     }
   },
   beforeDestroy() {
@@ -485,7 +504,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #network li .status::before { content: ''; display: inline-block; width: 8px; height: 8px; -moz-border-radius: 7.5px; -webkit-border-radius: 7.5px; border-radius: 7.5px; margin-right: 5px;
                 border: 1px solid #DDD; background-color: #EFEFEF; }
 #network li .status.current::before { border-color: green; background-color: greenyellow; }
-#account { position: absolute; left: 50%; margin-left: -60px; top: 50%; margin-top: -27px; }
+#account { position: absolute; left: 50%; margin-left: -60px; top: 50%; margin-top: -24px; }
 #account  > button { width: 120px; }
 #account .dropdown-button-icon.ae-identicon.base { height: 1.8rem; margin-bottom: 3px; vertical-align: top; }
 #account .ae-dropdown-button .dropdown-button-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -494,13 +513,14 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .subAccountIcon { margin-right: 10px; }
 .subAccountName { /*width: 110px; line-height: 28px;*/text-align: left; color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
 .subAccountBalance { font-family: monospace; margin-bottom:0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;}
-.name-pending { width:28px !important; height:28px !important; margin-right:5px; }
+.name-pending { width:24px !important; height:24px !important; margin-right:5px; font-size:.8rem; }
 #account .subAccountCheckbox { float: right; }
 #account li, #network li { padding:0.75rem; cursor:pointer !important; }
 #account ul { width:250px; margin-left: -125px;}
 #account .activeAccount { background: #f6f6f6; }
 #account .manageAccounts, #network .manageAccounts { padding:0; }
-#account .manageAccounts button, #network .manageAccounts button { padding: 0.5rem 1rem; height: auto; justify-content: center; }
+#account .manageAccounts button, #network .manageAccounts button { padding: 0.5rem 0.75rem; height: auto; justify-content: center; }
+#account .account-btn button { justify-content: unset; }
 #account .iconBtn, #network .iconBtn { padding: 0 !important; height: 30px !important; width: 30px; color: #fff; text-align: center; margin-right: 8px;}
 #account .iconBtn i, #network .iconBtn i { color: #fff !important; font-size: 1.2rem !important; margin: 0;float: none; text-align: center;}
 #account.dropdown ul li .ae-button > * { display: inline-block; vertical-align: middle; }

@@ -1,11 +1,14 @@
 <template>
     <div class="popup">
+        <div class="actions">
+            <button class="backbutton toAccount" @click="navigateFungibleTokens"><ae-icon name="back" /> {{language.buttons.backToFungibleTokens}}</button>
+        </div>
         <h3>{{language.pages.createFungibleToken.heading}}</h3>
         <ae-panel>
             <h4>{{language.pages.createFungibleToken.heading}}</h4>
             <hr>
             <div>
-                <div class="input-container">
+                <div class="input-container token-name-holder">
                     <ae-input :label="language.pages.tokens.tokenName" >
                         <input type="text" class="ae-input token-name" v-model="token.name" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar slot="footer" v-if="err.name">
@@ -13,7 +16,7 @@
                         </ae-toolbar>
                     </ae-input>
                 </div>
-                <div class="input-container">
+                <div class="input-container token-symbol-holder">
                     <ae-input :label="language.pages.tokens.tokenSymbolLabel">
                         <input type="text" class="ae-input token-symbol" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar slot="footer" v-if="err.symbol">
@@ -21,7 +24,7 @@
                         </ae-toolbar>
                     </ae-input>
                 </div>
-                <div class="input-container">
+                <div class="input-container token-precision-holder">
                     <ae-input :label="language.pages.tokens.tokenPrecision" >
                         <input type="number" min="0" max="36" step="1" class="ae-input token-precision" v-model.number="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar slot="footer" v-if="err.precision">
@@ -60,9 +63,13 @@ export default {
     computed: {
         ...mapGetters(['sdk','account','balance','wallet'])
     },
-    created() {
+    async created() {
+        
     },
     methods: {
+        navigateFungibleTokens() {
+            this.$router.push('/fungible-tokens')
+        },
         confirmTx() {
             this.resetErr()
             if(this.token.name == '') {
@@ -81,6 +88,7 @@ export default {
             for(let param in this.token) {
                 contractInitArgs.push(this.token[param])
             }
+            console.log("here")
             let tx = {
                 popup:false,
                 tx: {
