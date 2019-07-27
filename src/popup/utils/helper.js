@@ -114,39 +114,39 @@ const checkAeppConnected = (host) => {
 const redirectAfterLogin = (ctx) => {
   browser.storage.sync.get('showAeppPopup').then((aepp) => {
     browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
-      if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
-        browser.storage.sync.remove('showAeppPopup').then(() => {
+        if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
+            browser.storage.sync.remove('showAeppPopup').then(() => {
+                ctx.$store.commit('SET_AEPP_POPUP',true)
+                
+                if(aepp.showAeppPopup.type == 'connectConfirm') {
+                    aepp.showAeppPopup.data.popup = true
+                    ctx.$router.push({'name':'connect-confirm', params: {
+                    data:aepp.showAeppPopup.data
+                    }});
+                }else if(aepp.showAeppPopup.type == 'txSign') {
+                    aepp.showAeppPopup.data.popup = true
+                    ctx.$router.push({'name':'sign', params: {
+                    data:aepp.showAeppPopup.data
+                    }});
+                }else if(aepp.showAeppPopup.type == 'contractCall') {
+                    aepp.showAeppPopup.data.popup = true
+                    ctx.$router.push({'name':'sign', params: {
+                        data:aepp.showAeppPopup.data
+                    }});
+                }
+            return;
+            });
+        }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length > 0) {
             ctx.$store.commit('SET_AEPP_POPUP',true)
-          
-          if(aepp.showAeppPopup.type == 'connectConfirm') {
-            aepp.showAeppPopup.data.popup = true
-            ctx.$router.push({'name':'connect-confirm', params: {
-              data:aepp.showAeppPopup.data
-            }});
-          }else if(aepp.showAeppPopup.type == 'txSign') {
-            aepp.showAeppPopup.data.popup = true
+            let tx = pendingTx.pendingTransaction.list[Object.keys(pendingTx.pendingTransaction.list)[0]];
+            tx.popup = false
+            tx.countTx =  Object.keys(pendingTx.pendingTransaction.list).length
             ctx.$router.push({'name':'sign', params: {
-              data:aepp.showAeppPopup.data
+                data:tx
             }});
-          }else if(aepp.showAeppPopup.type == 'contractCall') {
-            aepp.showAeppPopup.data.popup = true
-            ctx.$router.push({'name':'sign', params: {
-                data:aepp.showAeppPopup.data
-            }});
-          }
-          return;
-        });
-      }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length > 0) {
-        ctx.$store.commit('SET_AEPP_POPUP',true)
-        let tx = pendingTx.pendingTransaction.list[Object.keys(pendingTx.pendingTransaction.list)[0]];
-        tx.popup = false
-        tx.countTx =  Object.keys(pendingTx.pendingTransaction.list).length
-        ctx.$router.push({'name':'sign', params: {
-          data:tx
-        }});
-      }else {
-        ctx.$router.push('/account');
-      }
+        }else {
+            ctx.$router.push('/account');
+        }
     })
   })
 }
