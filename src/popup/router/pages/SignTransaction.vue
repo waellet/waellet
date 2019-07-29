@@ -662,7 +662,7 @@ export default {
             }
         },
         convertCurrency(currency, amount) {
-            return parseFloat(convertAmountToCurrency(currency,amount)).toFixed(7)
+            return Math.round(parseFloat(convertAmountToCurrency(currency,amount)), 3)
         },
         async checkSourceByteCode(source) {
             let byteCode = await this.sdk.contractCompile(source)

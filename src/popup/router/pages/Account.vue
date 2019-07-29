@@ -122,8 +122,8 @@ export default {
         this.polling = setInterval(() => {
           if(this.sdk != null) {
               this.updateTransactions();
-              this.toUsd = this.balance * this.usdRate;
-              this.toEur = this.balance * this.eurRate;
+              this.toUsd = (this.balance * this.usdRate).toFixed(3);
+              this.toEur = (this.balance * this.eurRate).toFixed(3);
           }
         }, 2500);
     },

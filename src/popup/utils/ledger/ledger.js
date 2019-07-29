@@ -23,8 +23,6 @@ export default  {
     async ledgerCreate({ commit, state, getters: { ledgerApi, ledgerNextIdx }, dispatch } ) {
         return new Promise(async (resolve, reject) => {
             try {
-                console.log(ledgerNextIdx)
-
                 let address = await ledgerApi.getAddress(ledgerNextIdx)
                 let idx = ledgerNextIdx
                 
@@ -59,13 +57,11 @@ export default  {
     async ledgerSignTransaction ({ commit, state:{ sdk }, getters: { ledgerApi, getActiveAccount } }, { tx } ) {
         return new Promise(async (resolve, reject) => {
             try {
-                console.log(getActiveAccount)
                 tx = Crypto.decodeBase64Check(Crypto.assertedType(tx, 'tx'))
-                let sign = Buffer.from(await ledgerApi.signTransaction( getActiveAccount , tx, sdk.networkId ),'hex')
+                let sign = Buffer.from(await ledgerApi.signTransaction( getActiveAccount.idx , tx, sdk.networkId ),'hex')
                 let encodeTx = Crypto.encodeTx(Crypto.prepareTx(sign, tx))
                 let transaction = await sdk.sendTransaction(encodeTx)
                 resolve({ success:true, res:transaction })
-                
             }catch(e) {
                 resolve({ success:false, error: e })
             }finally {
