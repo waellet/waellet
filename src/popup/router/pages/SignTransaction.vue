@@ -216,6 +216,18 @@ export default {
     methods: {
         async init() {
             this.setReceiver()
+            if(this.isLedger && this.data.type != 'txSign') {
+                this.$store.dispatch('popupAlert', { name: 'account', type: 'ledger_support'})
+                .then(() => {
+                    if(this.data.popup) {
+                        setTimeout(() => {
+                            window.close()
+                        })
+                    }else {
+                        this.redirectInExtensionAfterAction()
+                    }
+                })
+            }
             if(typeof this.data.callType != "undefined" && this.data.callType == 'static') {
                 this.loaderType = ''
                 this.loading = true

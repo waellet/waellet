@@ -145,6 +145,9 @@ export default {
           case 'name_exist':
               commit(types.SHOW_POPUP, { show:true, ...popupMessages.AENS_NAME_EXIST})
           break;
+          case 'ledger_support':
+              commit(types.SHOW_POPUP, { show:true, ...popupMessages.LEDGER_SUPPORT})
+          break
           default:
             break;
         }
