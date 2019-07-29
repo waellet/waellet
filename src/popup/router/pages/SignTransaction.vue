@@ -10,14 +10,14 @@
                 <div class="arrowSeprator">
                     <ae-icon name="left-more" />
                 </div>
-                <div class="flex flex-align-center accountTo" v-if="data.type != 'contractCreate'">
+                <div class="flex flex-align-center accountTo" v-if="isAddressShow">
                     <ae-identicon :address="receiver"  />
                     <ae-address :value="receiver" v-if="receiver" length="short" class="spendAccountAddr" />
                     <span v-if="!receiver" class="spendAccountAddr">{{language.strings.unknownAccount}}</span>
                 </div>
                 <div v-else class="flex flex-align-center accountTo">
                     <ae-icon name="square" />
-                    <span class="spendAccountAddr">New contract</span>
+                    <span class="spendAccountAddr">{{ data.type == 'contractCreate' ? 'New contract' : 'AENS' }}</span>
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between flex-align-start flex-direction-column">
@@ -25,8 +25,32 @@
                     <ae-badge v-if="data.type=='contractCall'">Contract Call</ae-badge>
                     <ae-badge>{{txType}}</ae-badge>
                 </div>
-                <div class="balance balanceSpend no-sign">{{amount}} {{token}}</div>
-                <div class="fiat-rate" v-if="!data.tx.token">${{convertCurrency(usdRate,amount)}}</div>
+                <div class="balance balanceSpend no-sign" v-if="!isNameTx">{{amount}} {{token}}</div>
+                <div class="fiat-rate" v-if="!data.tx.token && !isNameTx">${{convertCurrency(usdRate,amount)}}</div>
+            </ae-list-item>
+            <ae-list-item v-if="data.type == 'nameClaim' || data.type == 'nameUpdate' " fill="neutral" class="flex-justify-between whiteBg  flex-align-center " >
+                <div class="tx-label">
+                    {{language.pages.transactionDetails.name}}
+                </div>
+                <div>
+                    <strong>{{data.tx.name}}</strong>
+                </div>
+            </ae-list-item>
+            <ae-list-item v-if="data.type == 'nameClaim'" fill="neutral" class="flex-justify-between whiteBg flex-align-center " >
+                <div class="tx-label ">
+                    {{language.pages.transactionDetails.nameSalt}}
+                </div>
+                <div>
+                    <strong>{{data.tx.preclaim.salt}}</strong>
+                </div>
+            </ae-list-item>
+            <ae-list-item v-if="data.type == 'nameUpdate'" fill="neutral" class="flex-justify-between whiteBg  flex-align-center flex-direction-column" >
+                <div class="tx-label extend text-left">
+                    {{language.pages.transactionDetails.nameId}}
+                </div>
+                <div class="text-left">
+                    <strong>{{data.tx.claim.id}}</strong>
+                </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg flex-direction-column flex-align-center " v-if="alertMsg == ''">
                 <div class="flex extend flex-justify-between ">
@@ -41,7 +65,7 @@
                     <input class="range-slider__range" type="range"  :min="fee" :max="maxFee" step="0.000001" v-model="selectedFee">
                 </div>
             </ae-list-item>
-            <ae-list-item fill="neutral" class="flex-justify-between whiteBg" v-if="alertMsg == ''">
+            <ae-list-item fill="neutral" class="flex-justify-between whiteBg" v-if="alertMsg == '' && !isNameTx">
                 <div class="tx-label">{{language.pages.transactionDetails.total}}</div>
                 <div class="text-right">
                     <div class="balance balanceBig balanceTotalSpend no-sign">{{totalSpend}} {{token}}</div>
@@ -59,13 +83,14 @@
             <ae-button face="round" fill="alternative" class="confirm" :class="signDisabled ? 'disabled' : '' " @click="signTransaction">{{language.pages.signTx.confirm}}</ae-button>
         </ae-button-group>
         <Loader size="big" :loading="loading" :type="loaderType" :content="loaderContent" ></Loader>
+        <input type="hidden" class="txHash" :value="hash" />
     </div>
 </template>
 
 <script>
 import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall } from '../../utils/helper';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName  } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee } from '../../utils/constants';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
@@ -103,123 +128,17 @@ export default {
             usdRate:0,
             eurRate:0,
             checkSDKReady:null,
-            receiver:""
+            receiver:"",
+            hash:""
         };
     },
     props:['data'],
     locales,
     async created(){
-        this.setReceiver()
-        if(typeof this.data.callType != "undefined" && this.data.callType == 'static') {
-            this.loaderType = ''
-            this.loading = true
-            this.loaderContent = this.language.pages.signTx.contractCall
-            this.checkSDKReady = setInterval(async () => {
-                if(this.sdk != null) {
-                    window.clearTimeout(this.checkSDKReady)
-                    let byteCode = await this.checkSourceByteCode(this.data.tx.source)
-                    let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
-                    
-                    
-                    if(byteCode.bytecode == deployedByteCode.tx.code) {
-                        //Contract call static should be moved here after fixing differences between source of contract and the source compiled with
-                        let call = await this.contractCallStatic(this.data.tx)
-                        this.port.postMessage(call)
-                    }else {
-                        this.errorTx.error.message = "Invalid contract interface"
-                        this.port.postMessage(this.errorTx)
-                    }
-                    let list = await removeTxFromStorage(this.data.id)
-                    browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
-                    setTimeout(() => {
-                        window.close()
-                    },1000)
-                }
-            },500)
-        }else {
-            if(this.data.popup) {
-                browser.storage.sync.get('pendingTransaction').then((tx) => {
-                    let list = {}
-                    if(tx.hasOwnProperty('pendingTransaction') && tx.pendingTransaction.hasOwnProperty("list")) { 
-                        list = tx.pendingTransaction.list
-                    }
-                    list[this.data.id] = this.data
-                    browser.storage.sync.set({pendingTransaction:{ list }}).then(() => { })
-                })
-            }   
-            this.checkSDKReady = setInterval(async () => {
-                if( this.sdk != null ) {
-                    window.clearTimeout(this.checkSDKReady)
-                    let txParams = {
-                        ...this.sdk.Ae.defaults
-                    }
-                    
-                    if(this.data.type == 'contractCreate') {
-                        this.data.tx.contract = {}
-                        this.data.tx.contract.params = this.data.tx.init.map(p => {
-                            if(typeof p == 'string') {
-                                return `"${p}"`
-                            }else {
-                                return p.toString()
-                            }
-                        })
-                        this.data.tx.contract.bytecode = (await this.sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
-                        let callData = await contractEncodeCall(this.sdk,FUNGIBLE_TOKEN_CONTRACT,'init',[...this.data.tx.contract.params])
-                        txParams = {
-                            ...txParams,
-                            ownerId:this.account.publicKey,
-                            code:this.data.tx.contract.bytecode,
-                            callData,
-                        } 
-                    }else if(this.data.type == 'contractCall') {
-                        this.data.tx.call = {}
-                        let callData = await contractEncodeCall(this.sdk,this.data.tx.source,this.data.tx.method,[...this.data.tx.params])
-                        txParams = {
-                            ...txParams,
-                            callData,
-                            contractId:this.data.tx.address,
-                            callerId:this.account.publicKey
-                        }
-                        
-                    }else if(this.data.type == 'txSign') {
-                        let recipientId 
-                        if(this.data.tx.recipientId.substring(0,3) == 'ak_') {
-                            recipientId = this.data.tx.recipientId
-                        }else {
-                            let address = await this.sdk.api.getNameEntryByName(this.data.tx.recipientId)
-                            if(typeof address.pointers[0] != "undefined") {
-                                recipientId = address.pointers[0].id
-                                this.receiver = recipientId
-                            }else {
-                                this.receiver = ""
-                                this.showAlert()
-                                return
-                            }
-                        }
-                        txParams = {
-                            ...txParams,
-                            senderId:this.account.publicKey,
-                            recipientId:recipientId
-                        }
-                    }
-                    let fee = calculateFee(TX_TYPES[this.data.type],txParams)
-                    this.txFee = fee
-                    this.selectedFee = this.fee.toFixed(7)
-                }
-            }, 500)
-        }
-        currencyConv(this)
-        if(this.data.popup) {
-            this.port = browser.runtime.connect({ name: this.data.id })
-            this.port.onMessage.addListener((msg, sender,sendResponse) => {})
-        }
-        
-        setTimeout(() => {
-            this.showAlert()
-        },3500)
+        await this.init()
     },
     computed: {
-        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens']),
+        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger']),
         maxValue() {
             let calculatedMaxValue = this.balance - this.fee
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -239,11 +158,17 @@ export default {
             }
             return (parseFloat(this.amount) + parseFloat(this.selectedFee)).toFixed(7)
         },
-        // insufficientBalance() {
-        //     return this.maxValue - this.amount <= 0
-        // },
+        insufficientBalance() {
+            if(typeof this.data.tx.token != 'undefined') {
+                return this.tokenBalance - this.amount <= 0
+            }
+            return this.maxValue - this.amount <= 0
+        },
         inccorectAddress() {
-            return this.receiver == null || this.receiver == ""
+            if(this.data.type != 'txSign') {
+                return this.receiver == null || this.receiver == ""
+            }
+            return  (!checkAddress(this.receiver) && !chekAensName(this.receiver) ) 
         },
         watchBalance() {
             return this.balance
@@ -258,7 +183,22 @@ export default {
                 return "Contract Call"
             }else if(this.data.type == "contractCreate") {
                 return "Contract Create"
+            }else if(this.data.type == 'namePreClaim') {
+                return "Name Preclaim"
+            }else if(this.data.type == 'nameClaim') {
+                return 'Name Claim'
+            }else if(this.data.type == 'nameUpdate') {
+                return 'Name Update'
             }
+        },
+        isAddressShow() {
+            if(this.data.type == 'contractCreate' || this.data.type == 'namePreClaim' || this.data.type == 'nameClaim' || this.data.type == 'nameUpdate') {
+                return false
+            }
+            return true
+        },
+        isNameTx() {
+            return this.data.type == 'namePreClaim' || this.data.type == 'nameClaim' || this.data.type == 'nameUpdate'
         },
         convertSelectedFee() {
             return BigNumber(this.selectedFee).shiftedBy(MAGNITUDE)
@@ -273,6 +213,144 @@ export default {
         }
     },
     methods: {
+        async init() {
+            this.setReceiver()
+            if(typeof this.data.callType != "undefined" && this.data.callType == 'static') {
+                this.loaderType = ''
+                this.loading = true
+                this.loaderContent = this.language.pages.signTx.contractCall
+                
+                this.checkSDKReady = setInterval(async () => {
+                    if(this.sdk != null) {
+                        window.clearTimeout(this.checkSDKReady)
+                        let byteCode = await this.checkSourceByteCode(this.data.tx.source)
+                        let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
+                        
+                        if(byteCode.bytecode == deployedByteCode.tx.code) {
+                            //Contract call static should be moved here after fixing differences between source of contract and the source compiled with
+                            let call = await this.contractCallStatic(this.data.tx)
+                            this.port.postMessage(call)
+                        }else {
+                            this.errorTx.error.message = "Invalid contract interface"
+                            this.port.postMessage(this.errorTx)
+                        }
+                        let list = await removeTxFromStorage(this.data.id)
+                        browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                        setTimeout(() => {
+                            window.close()
+                        },1000)
+                    }
+                },500)
+            }else {
+                if(this.data.popup) {
+                    browser.storage.sync.get('pendingTransaction').then((tx) => {
+                        let list = {}
+                        if(tx.hasOwnProperty('pendingTransaction') && tx.pendingTransaction.hasOwnProperty("list")) { 
+                            list = tx.pendingTransaction.list
+                        }
+                        list[this.data.id] = this.data
+                        browser.storage.sync.set({pendingTransaction:{ list }}).then(() => { })
+                    })
+                }   
+                this.checkSDKReady = setInterval(async () => {
+                    if( this.sdk != null ) {
+                        window.clearTimeout(this.checkSDKReady)
+                        let txParams = {
+                            ...this.sdk.Ae.defaults
+                        }
+                        
+                        if(this.data.type == 'contractCreate') {
+                            this.data.tx.contract = {}
+                            this.data.tx.contract.params = this.data.tx.init.map(p => {
+                                if(typeof p == 'string') {
+                                    return `"${p}"`
+                                }else {
+                                    return p.toString()
+                                }
+                            })
+                            this.data.tx.contract.bytecode = (await this.sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
+                            let callData = await contractEncodeCall(this.sdk,FUNGIBLE_TOKEN_CONTRACT,'init',[...this.data.tx.contract.params])
+                            txParams = {
+                                ...txParams,
+                                ownerId:this.account.publicKey,
+                                code:this.data.tx.contract.bytecode,
+                                callData,
+                            } 
+                        }else if(this.data.type == 'contractCall') {
+                            this.data.tx.call = {}
+                            let callData = await contractEncodeCall(this.sdk,this.data.tx.source,this.data.tx.method,[...this.data.tx.params])
+                            txParams = {
+                                ...txParams,
+                                callData,
+                                contractId:this.data.tx.address,
+                                callerId:this.account.publicKey
+                            }
+                            
+                        }else if(this.data.type == 'txSign') {
+                            let recipientId 
+                            if(this.data.tx.recipientId.substring(0,3) == 'ak_') {
+                                recipientId = this.data.tx.recipientId
+                            }else {
+                                try {
+                                    let address = await this.sdk.api.getNameEntryByName(this.data.tx.recipientId)
+                                    if(typeof address.pointers[0] != "undefined") {
+                                        recipientId = address.pointers[0].id
+                                        this.receiver = recipientId
+                                    }else {
+                                        this.receiver = ""
+                                        this.showAlert()
+                                        return
+                                    }
+                                }catch(err) {
+                                    this.receiver = ""
+                                    this.showAlert()
+                                    return
+                                }
+                                
+                            }
+
+                            txParams = {
+                                ...txParams,
+                                senderId:this.account.publicKey,
+                                recipientId:recipientId
+                            }
+                        }else if(this.data.type == 'namePreClaim') {
+                            txParams = { 
+                                ...txParams,
+                                accountId:this.account.publicKey,
+                                commitmentId:"cm_PtSWNMMNJ187NzGgivLFpYKptevuFQx1rKdqsDFAKVkXtyjPJ"
+                            }
+                        }else if(this.data.type == 'nameClaim') {
+                            txParams = { 
+                                ...txParams,
+                                accountId:this.account.publicKey,
+                                name:"nm_2Wb2xdC9WMSnExyHd8aoDu2Ee8qHD94nvsFQsyiy1iEyUGPQp9",
+                                nameSalt:this.data.tx.preclaim.salt
+                            }
+                        }else if(this.data.type == 'nameUpdate') {
+                            txParams = {
+                                ...txParams,
+                                accountId:this.account.publicKey,
+                                nameId:this.data.tx.claim.id,
+                                pointers:this.data.tx.claim.pointers
+                            }
+                        }
+                        let fee = calculateFee(TX_TYPES[this.data.type],txParams)
+                        this.txFee = fee
+                        this.selectedFee = this.fee.toFixed(7)
+                    }
+                }, 500)
+            }
+            currencyConv(this)
+            if(this.data.popup) {
+                this.port = browser.runtime.connect({ name: this.data.id })
+                this.port.onMessage.addListener((msg, sender,sendResponse) => {})
+            }
+            
+            setTimeout(() => {
+                this.showAlert()
+            },3500)
+        },
         setReceiver() {
             if(this.data.type == 'txSign') {
                 this.receiver = this.data.tx.recipientId
@@ -281,10 +359,9 @@ export default {
             }
         },
         showAlert() {
-            console.log(this.inccorectAddress)
             if(this.insufficientBalance) {
                 this.alertMsg = this.language.pages.signTx.insufficientBalance
-            }else if(this.inccorectAddress) {
+            }else if(this.inccorectAddress && this.isAddressShow) {
                 this.alertMsg = this.language.pages.signTx.inccorectAddress
             }else{
                 this.alertMsg = ''
@@ -299,8 +376,16 @@ export default {
         async cancelTransaction() {
             let list = await removeTxFromStorage(this.data.id)
             if(!this.data.popup) {
-                browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
-                this.redirectInExtensionAfterAction()
+                if(this.data.type == 'nameUpdate') {
+                    this.$store.dispatch('removePendingName', { hash: this.data.tx.hash }).then(() => {
+                        browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                        this.redirectInExtensionAfterAction()
+                    })
+                }else {
+                    browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                    this.redirectInExtensionAfterAction()
+                }   
+                
             }else {
                 browser.storage.sync.set({pendingTransaction: { list } }).then(() => {
                     this.port.postMessage(this.errorTx)
@@ -313,10 +398,15 @@ export default {
         redirectInExtensionAfterAction() {
             browser.storage.sync.get('pendingTransaction').then((data) => {
                 if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('list') && Object.keys(data.pendingTransaction.list).length > 0) {
+                    console.log(data)
                     let tx = data.pendingTransaction.list[Object.keys(data.pendingTransaction.list)[0]];
                     tx.popup = false
                     tx.countTx =  Object.keys(data.pendingTransaction.list).length
-                    this.data = tx
+                    // this.data = tx
+                    this.$router.push({'name':'sign', params: {
+                        data:tx,
+                        type:tx.type
+                    }});
                 }else {
                     this.$store.commit('SET_AEPP_POPUP',false)
                     this.$router.push('/account')
@@ -330,8 +420,8 @@ export default {
                 accounts: [
                 MemoryAccount({
                     keypair: {
-                    secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey,
-                    publicKey: this.account.publicKey
+                        secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey,
+                        publicKey: this.account.publicKey
                     },
                     networkId: this.network[this.current.network].networkId
                 })
@@ -345,9 +435,9 @@ export default {
             })
             .then(ae => {
                 ae.spend(parseInt(amount), this.receiver, { fee: this.convertSelectedFee}).then(async result => {
-                    console.log(result)
                     if(typeof result == "object") {
                         this.loading = false
+                        this.hash = result.hash
                         let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
                         let msg = 'You send ' + this.amount + ' AE'
                         if(this.data.popup) {
@@ -386,6 +476,9 @@ export default {
                         this.port.postMessage(this.errorTx)
                         let list = await removeTxFromStorage(this.data.id)
                         browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                        setTimeout(() => {
+                            window.close()
+                        },1000)
                     }else {
                         this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
                     }
@@ -396,6 +489,27 @@ export default {
             .catch(err => {
                 console.log(err);
             });
+        },
+        async signSpendTxLedger(amount) {
+            const tx = await this.sdk.spendTx({ senderId: this.account.publicKey, recipientId: this.receiver, amount })
+            let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
+            this.loading = false
+            console.log(sign)
+            if(sign.success) {
+                let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + sign.res.hash
+                let msg = 'You send ' + this.amount + ' AE'
+                this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl})
+                .then(async () => {
+                    this.$store.commit('SET_AEPP_POPUP',false)
+                    this.redirectInExtensionAfterAction()
+                })
+            }else {
+                this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'}).then(() => {
+                    this.redirectInExtensionAfterAction()
+                })
+            }
+            
+            
         },
         async contractCallStatic(tx) {
             try {
@@ -485,13 +599,54 @@ export default {
                 })
             }
         },
+        async namePreclaim(){
+            const preclaim = await this.sdk.aensPreclaim(this.data.tx.name)
+            let tx = {
+                popup:false,
+                tx: {
+                    name:this.data.tx.name,
+                    recipientId:'',
+                    preclaim
+                },
+                type:'nameClaim'
+            }
+            this.$store.commit('SET_AEPP_POPUP',true)
+            
+            this.$router.push({'name':'sign', params: {
+                data:tx,
+                type:tx.type
+            }});
+        },  
+        async nameClaim() {
+            const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false })
+            setTimeout(() => {
+                this.$store.commit('SET_AEPP_POPUP',false)
+                this.$router.push('/generalSettings')
+            },1000)
+        },
+        async nameUpdate(){
+            const update = await this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
+            this.$store.dispatch('popupAlert', {
+                name: 'account',
+                type: 'added_success'
+            }).then(() => {
+                this.$store.dispatch('removePendingName',{ hash: this.data.tx.hash }).then(() => {
+                    this.$store.commit('SET_AEPP_POPUP',false)
+                    this.$router.push('/generalSettings')
+                })  
+            })
+        },
         async signTransaction() {
             if(!this.signDisabled) {
                 this.loading = true
                 let amount = BigNumber(this.amount).shiftedBy(MAGNITUDE);
                 try {
                     if(this.data.type == 'txSign') {
-                        this.signSpendTx(amount)
+                        if(this.isLedger) {
+                            this.signSpendTxLedger(amount)
+                        }else {
+                            this.signSpendTx(amount)
+                        }
                     }else if(this.data.type == 'contractCall') {
                         if(this.data.callType == 'pay') {
                             this.contractCall()
@@ -508,6 +663,12 @@ export default {
                         }
                     }else if(this.data.type == 'contractCreate') {
                         this.contractDeploy()
+                    }else if(this.data.type == 'namePreClaim') {
+                        this.namePreclaim()
+                    }else if(this.data.type == 'nameClaim') {
+                        this.nameClaim()
+                    }else if(this.data.type == 'nameUpdate') {
+                        this.nameUpdate()
                     }
                 }catch(err) {
                     console.log(err);
@@ -534,6 +695,11 @@ export default {
         }
         let list = await removeTxFromStorage(this.data.id)
         browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+    },
+    beforeRouteUpdate (to, from, next) {
+        next()
+        // react to route changes...
+        // don't forget to call next()
     }
 }
 </script>

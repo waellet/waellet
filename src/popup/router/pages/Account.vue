@@ -11,7 +11,7 @@
         <div class="input-group-area"><input disabled type="text" :value=toEur></div>
       </div>
     </div>
-    <ae-card fill="primary">
+    <ae-card :fill="cardColor">
       <template slot="avatar">
         <ae-identicon :address="account.publicKey" />
         <ae-input-plain fill="white" :placeholder="language.strings.accountName" @keyup.native="setAccountName" :value="activeAccountName"  />
@@ -20,7 +20,7 @@
         <ae-text fill="white" face="mono-base">{{tokenBalance}} {{tokenSymbol}}</ae-text>
       </template>
       <ae-address class="accountAddress" :value="account.publicKey" copyOnClick enableCopyToClipboard length="medium" gap=0 />
-      <ae-toolbar fill="primary" align="right" slot="footer">
+      <ae-toolbar :fill="cardColor" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="copy">
           <ae-icon name="copy" />
           {{language.buttons.copy}}
@@ -78,7 +78,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk','tokens','tokenSymbol','tokenBalance', 'popup']),
+    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk','tokens','tokenSymbol','tokenBalance', 'popup','isLedger']),
     publicKey() { 
       return this.account.publicKey; 
     },
@@ -87,6 +87,9 @@ export default {
     },
     watchToken() {
       return this.current.token
+    },
+    cardColor() {
+      return this.isLedger ? 'neutral' : 'primary'
     }
   },
   watch:{
@@ -104,7 +107,6 @@ export default {
   created () {
     this.pollData();
     currencyConv(this);
-    
   },
   mounted(){
     this.updateTransactions();

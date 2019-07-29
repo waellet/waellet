@@ -11,6 +11,8 @@ $color-neutral-negative-1: #76818C;
 $color-neutral-negative-2: #203040;
 $color-alternative: #14CCB7;
 $color-secondary:#6948A1;
+$ledger-color:#203040;
+
 * {
   box-sizing: border-box;
 }
@@ -128,6 +130,9 @@ main {
 }
 .ae-main {
   padding-bottom:0 !important;
+}
+.ae-button.ledger {
+  background:$ledger-color !important;
 }
 .btnFixed {
   position: fixed !important;

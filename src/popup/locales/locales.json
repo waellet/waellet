@@ -10,6 +10,7 @@
         "namingSystem": "AE Naming System",
         "manageAccounts": "Manage accounts",
         "airGapVault": "Create a vault for AirGap",
+        "ledgerAccount": "Add Ledger Account",
         "manageNetworks": "Manage networks",
         "network": "Network",
         "networkName": "Node name",
@@ -54,9 +55,9 @@
           "heading": "Receive AE tokens"
         },
         "send": {
-          "heading": "Send AE tokens",
+          "heading": "New Transfer from",
           "recipient":"Recipient",
-          "sendSubaccount":"or send to subaacount"
+          "sendSubaccount":"or choose subaccount"
         },
         "transactions": {
           "heading": "Transactions history"
@@ -75,7 +76,10 @@
           "backToTransactions":"back to Transactions",
           "explorer":"View in explorer",
           "txName":"Name",
-          "txAccount":"Account"
+          "txAccount":"Account",
+          "name":"Name",
+          "nameSalt": "Name Salt",
+          "nameId": "Name Id"
         },
         "tip":{
           "domainVerified":"Verified",
@@ -172,7 +176,9 @@
         "backToSettings": "Back to settings",
         "backToUtilities": "Back to utilities",
         "wholeTransaction": "Whole transaction history",
-        "loadMore":"Load More"
+        "loadMore":"Load More",
+        "fungibleTokens":"Fungible Tokens",
+        "backToFungibleTokens":"Back to Fungible Tokens"
       },
       "placeholders": {
         "inputPrivateKey": "Input secret key"

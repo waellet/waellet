@@ -3,11 +3,19 @@
     <div class="actions">
       <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
     </div>
-    <p>{{language.pages.send.heading}}</p>
+    <h3 class="">
+      {{language.pages.send.heading}} 
+      <ae-identicon class="send-account-icon" :address="account.publicKey" size="s" /> 
+      {{activeAccountName}}
+    </h3>
     <div class="sendContent">
       <ae-input :label="language.pages.send.recipient" class="address">
           <textarea class="ae-input textarea" v-model="form.address" placeholder="ak.. / name.test"  slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+          <ae-toolbar slot="footer" align="right">
+            <div class="paste" @click="scan"><ae-icon name="camera" /> Scan </div>
+          </ae-toolbar>
       </ae-input>
+      
       <div>
         <p v-if="sendSubaccounts">{{language.pages.send.sendSubaccount}}</p>
         <ae-list class="sendSubaccount">
@@ -26,9 +34,9 @@
           <span class="token-symbol">{{tokenSymbol}}</span>
           <ae-dropdown v-if="tokens.length > 1">
             <ae-icon name="grid" size="20px" slot="button" />
-            <li v-for="(tkn,key) in tokens" v-if="tkn.name != tokenSymbol" @click="setActiveToken(key)">
-              <img :src="ae_token" class="token-image" alt="" v-if="key == 0" >
-              <ae-identicon class="subAccountIcon" :address="tkn.contract" size="base" v-if="key != 0"/> {{tkn.name}}
+            <li v-for="(tkn,key) in myTokens" v-if="tkn.name != tokenSymbol" @click="setActiveToken(tkn.key)">
+              <img :src="ae_token" class="token-image" alt="" v-if="tkn.key == 0" >
+              <ae-identicon class="subAccountIcon" :address="tkn.contract" size="base" v-if="tkn.key != 0"/> {{tkn.name}}
             </li>
           </ae-dropdown>
         </ae-text>
@@ -104,13 +112,14 @@ export default {
     }
   },
   locales,
+  props:['address'],
   watch: {
     activeToken() {
       this.fetchFee()
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current', 'wallet', 'activeAccount', 'subaccounts', 'tokenSymbol', 'tokenBalance', 'sdk', 'tokens', 'popup']),
+    ...mapGetters(['account', 'balance', 'network', 'current', 'wallet', 'activeAccount', 'subaccounts', 'tokenSymbol', 'tokenBalance', 'sdk', 'tokens', 'popup','activeAccountName']),
     maxValue() {
       let calculatedMaxValue = this.balance - this.maxFee
       return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -127,6 +136,20 @@ export default {
     },
     activeToken() {
       return this.current.token
+    },
+    myTokens() {
+      return this.tokens.filter((t,index) =>  {
+        if(t.parent == this.account.publicKey) {
+          t.key = index
+          return t
+        }
+        
+      })
+    }
+  },
+  created() {
+    if(typeof this.address != 'undefined') {
+      this.form.address = this.address
     }
   },
   async mounted() {
@@ -134,8 +157,10 @@ export default {
     this.fetchFee()
   },
   methods: {
-    paste(){
-
+    scan(){
+      this.$router.push({name:'qrCodeReader' , params: {
+        type:'send'
+      }})
     },
     setActiveToken(token) {
       this.current.token = token
@@ -232,102 +257,8 @@ export default {
         }
      } 
     },
-    confirmTransaction () {
-      this.loading = true;
-      let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
-      let receiver = this.form.address;
-      if(receiver == '') {
-        this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address'});
-        this.loading = false;
-        return;
-      }
-      if(this.form.amount <= 0) {
-        this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_amount'});
-        this.loading = false;
-        return;
-      }
-      //is the amount correct
-      if (this.maxValue - this.form.amount <= 0 && this.current.token == 0) {
-        this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
-        this.loading = false;
-        return;
-      } 
-      if(this.current.token != 0 ) {
-        if(this.maxValue - this.txFee <= 0) {
-          this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
-          this.loading = false;
-          return;
-        }
-        if(this.tokenBalance - this.form.amount <= 0) {
-          this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
-          this.loading = false;
-          return;
-        }
-      }
-      if(this.current.token == 0) {
-        try {
-          Wallet({
-            url: this.network[this.current.network].url,
-            internalUrl: this.network[this.current.network].internalUrl,
-            accounts: [
-              MemoryAccount({
-                keypair: {
-                  secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey,
-                  publicKey: this.account.publicKey
-                },
-                networkId: this.network[this.current.network].networkId
-              })
-            ],
-            address: this.account.publicKey,
-            onTx: confirm, // guard returning boolean
-            onChain: confirm, // guard returning boolean
-            onAccount: confirm, // guard returning boolean
-            onContract: confirm, // guard returning boolean
-            networkId: this.network[this.current.network].networkId
-          })
-          .then(ae => {
-            ae.spend(parseInt(amount), receiver).then(result => {
-              if(typeof result == "object") {
-                let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash;
-                // this.tx.status = true;
-                this.tx.hash = result.hash;
-                this.tx.block = result.blockNumber;
-                this.tx.url = txUrl;
-              
-                let msg = 'You send ' + this.form.amount + ' AE';
-                this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl});
-                this.clearForm();
-              }
-              else {
-                alert("error");
-              }
-            })
-            .catch(err => {
-              console.log(err);
-              this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'});
-              this.loading = false;
-              return;
-            });
-          })
-          .catch(err => {
-            console.log(err);
-          });
-        }catch(err) {
-          console.log(err);
-        }
-      }else {
-        this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT,this.tokens[this.current.token].contract,'transfer',[receiver,this.form.amount.toString()])
-        .then(res => {
-          res.decode()
-          .then(transfer => {
-            this.loading = false
-            let msg = 'You send ' + this.form.amount + ' ' + this.tokenSymbol
-            this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg})
-            this.clearForm();
-            this.$store.dispatch('updateBalanceTokens');
-          })
-        })
-      }
+    init() {
+      let calculatedMaxValue = this.balance - this.maxFee
     },
     init() {
       let calculatedMaxValue = this.balance - this.maxFee
@@ -420,5 +351,11 @@ export default {
     margin-right:2px;
     display: inline-block;
   }
+}
+.send-account-icon {
+  margin:0 5px;
+  transform: translateY(5px);
+  -ms-transform: translateY(5px);
+  -webkit-transform: translateY(5px);
 }
 </style>

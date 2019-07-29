@@ -64,6 +64,9 @@ export default {
     state.subaccounts[account].name = name
     state.subaccounts[account].pending = pending
   },
+  [types.SET_PENDING_NAMES] (state, { names }) {
+    state.pendingNames = names
+  },
   [types.SET_NAMES] (state, { names }){
     state.names = names
   },
@@ -97,5 +100,7 @@ export default {
   [types.SET_AEPP_POPUP] (state, payload) {
     state.aeppPopup = payload
   },
-  
+  [types.SET_LEDGER_API] (state, { ledger }) {
+    state.ledgerApi = ledger
+  }
 }; 

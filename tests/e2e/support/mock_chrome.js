@@ -57,7 +57,7 @@ const onBeforeLoad = (win,mock = '') => {
             const account = {
                 publicKey:"ak_d45oN2qzS1vqdiWVYCfDeWLVb3EepWxAJrsDbCSmnYiZguerw",
                 secretKey:"ef07a269ce62e81dbd507d2d677e06654765984aa4650bcf2ed68bbfc783f8e4301ba902bf2b2c176ac934eb41181866ae25f19dcbdd42c4aa448c0f82c913f9",
-                encryptedPrivateKey:{"name":"keystore","version":1,"public_key":"ak_d45oN2qzS1vqdiWVYCfDeWLVb3EepWxAJrsDbCSmnYiZguerw","id":"298c2d6e-79fd-4df6-aea9-4258fde7a1d3","crypto":{"secret_type":"ed25519","symmetric_alg":"xsalsa20-poly1305","ciphertext":"74d4706bba362e7cda0effd66ff1da27e5766d6d7d4e630be9763179270d708154d24d1c0fd5f2075d154e1bd2c49699ccfb09b6af2bbf1c51c782a9b555584a447c9dd3082fe6abaffcd31ed4c4f2d7","cipher_params":{"nonce":"de66538f7981040a79876ed85e73e9ae16946887a9baab07"},"kdf":"argon2id","kdf_params":{"memlimit_kib":65536,"opslimit":3,"parallelism":1,"salt":"67eae2f3ff0becc34ca3b2bf9cec414c"}}}
+                encryptedPrivateKey:JSON.stringify({"name":"keystore","version":1,"public_key":"ak_d45oN2qzS1vqdiWVYCfDeWLVb3EepWxAJrsDbCSmnYiZguerw","id":"298c2d6e-79fd-4df6-aea9-4258fde7a1d3","crypto":{"secret_type":"ed25519","symmetric_alg":"xsalsa20-poly1305","ciphertext":"74d4706bba362e7cda0effd66ff1da27e5766d6d7d4e630be9763179270d708154d24d1c0fd5f2075d154e1bd2c49699ccfb09b6af2bbf1c51c782a9b555584a447c9dd3082fe6abaffcd31ed4c4f2d7","cipher_params":{"nonce":"de66538f7981040a79876ed85e73e9ae16946887a9baab07"},"kdf":"argon2id","kdf_params":{"memlimit_kib":65536,"opslimit":3,"parallelism":1,"salt":"67eae2f3ff0becc34ca3b2bf9cec414c"}}})
             }
             win.chrome.storage.sync.set({userAccount: account},()=>{});
         }else if(mock == 'seed') {
@@ -68,13 +68,13 @@ const onBeforeLoad = (win,mock = '') => {
         }else if(mock == 'sign') {
             chrome.storage.sync.set({
                 pendingTransaction:{
-                    data:transaction
+                    list: transaction 
                 }
             }, () => { });
         }else if(mock == 'sign2') {
             chrome.storage.sync.set({
                 pendingTransaction:{
-                    data:transaction2
+                    list: transaction2 
                 }
             }, () => { });
         }else if(mock == 'confirm-connection') {

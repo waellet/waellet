@@ -18,15 +18,24 @@ export const tabs = [
   {url:"aeternity.com", favIconUrl: undefined }
 ];
 export const transaction = {
-  tx: {
-    recipientId:"ak_FxYhMbVDTquNu38PHWoMCoiw7CNq2sSQFbhK9zgyi1U1wH6Mv",
-    amount:0.000001
+  abc: {
+    id:"abc",
+    tx: {
+      recipientId:"ak_FxYhMbVDTquNu38PHWoMCoiw7CNq2sSQFbhK9zgyi1U1wH6Mv",
+      amount:0.000001
+    },
+    type:'txSign'
   }
+  
 };
 export const transaction2 = {
-  tx: {
-    recipientId:"ak_FxYhMbVDTquNu38PHWoMCoiw7CNq2sSQFbhK9zgyi1U1wH6Mv",
-    amount:200
+  abc: {
+    id:"abc",
+    tx: {
+      recipientId:"ak_FxYhMbVDTquNu38PHWoMCoiw7CNq2sSQFbhK9zgyi1U1wH6Mv",
+      amount:200
+    },
+    type:'txSign'
   }
 };
 export const connectObj = {
@@ -287,6 +296,8 @@ export const renameAccounts = () => {
   .get('.dropdown-holder li').eq(1)
   .click()
   .get('#account')
+  .click()
+  .get('body')
   .click()
   .get('.ae-card-header-avatar .ae-input-plain')
   .clear()
