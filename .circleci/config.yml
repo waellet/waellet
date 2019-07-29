@@ -15,4 +15,5 @@ workflows:
           parallel: true
           parallelism: 4
           group: 'all tests'
+          record: true
           
