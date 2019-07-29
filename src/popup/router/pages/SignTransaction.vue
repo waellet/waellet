@@ -129,7 +129,8 @@ export default {
             eurRate:0,
             checkSDKReady:null,
             receiver:"",
-            hash:""
+            hash:"",
+            txParams:{}
         };
     },
     props:['data'],
@@ -255,7 +256,7 @@ export default {
                 this.checkSDKReady = setInterval(async () => {
                     if( this.sdk != null ) {
                         window.clearTimeout(this.checkSDKReady)
-                        let txParams = {
+                        this.txParams = {
                             ...this.sdk.Ae.defaults
                         }
                         
@@ -270,8 +271,8 @@ export default {
                             })
                             this.data.tx.contract.bytecode = (await this.sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
                             let callData = await contractEncodeCall(this.sdk,FUNGIBLE_TOKEN_CONTRACT,'init',[...this.data.tx.contract.params])
-                            txParams = {
-                                ...txParams,
+                            this.txParams = {
+                                ...this.txParams,
                                 ownerId:this.account.publicKey,
                                 code:this.data.tx.contract.bytecode,
                                 callData,
@@ -279,8 +280,8 @@ export default {
                         }else if(this.data.type == 'contractCall') {
                             this.data.tx.call = {}
                             let callData = await contractEncodeCall(this.sdk,this.data.tx.source,this.data.tx.method,[...this.data.tx.params])
-                            txParams = {
-                                ...txParams,
+                            this.txParams = {
+                                ...this.txParams,
                                 callData,
                                 contractId:this.data.tx.address,
                                 callerId:this.account.publicKey
@@ -309,33 +310,33 @@ export default {
                                 
                             }
 
-                            txParams = {
-                                ...txParams,
+                            this.txParams = {
+                                ...this.txParams,
                                 senderId:this.account.publicKey,
                                 recipientId:recipientId
                             }
                         }else if(this.data.type == 'namePreClaim') {
-                            txParams = { 
-                                ...txParams,
+                            this.txParams = { 
+                                ...this.txParams,
                                 accountId:this.account.publicKey,
                                 commitmentId:"cm_PtSWNMMNJ187NzGgivLFpYKptevuFQx1rKdqsDFAKVkXtyjPJ"
                             }
                         }else if(this.data.type == 'nameClaim') {
-                            txParams = { 
-                                ...txParams,
+                            this.txParams = { 
+                                ...this.txParams,
                                 accountId:this.account.publicKey,
                                 name:"nm_2Wb2xdC9WMSnExyHd8aoDu2Ee8qHD94nvsFQsyiy1iEyUGPQp9",
                                 nameSalt:this.data.tx.preclaim.salt
                             }
                         }else if(this.data.type == 'nameUpdate') {
-                            txParams = {
-                                ...txParams,
+                            this.txParams = {
+                                ...this.txParams,
                                 accountId:this.account.publicKey,
                                 nameId:this.data.tx.claim.id,
                                 pointers:this.data.tx.claim.pointers
                             }
                         }
-                        let fee = calculateFee(TX_TYPES[this.data.type],txParams)
+                        let fee = calculateFee(TX_TYPES[this.data.type],this.txParams)
                         this.txFee = fee
                         this.selectedFee = this.fee.toFixed(7)
                     }
@@ -491,10 +492,9 @@ export default {
             });
         },
         async signSpendTxLedger(amount) {
-            const tx = await this.sdk.spendTx({ senderId: this.account.publicKey, recipientId: this.receiver, amount })
+            const tx = await this.sdk.spendTx({ senderId: this.account.publicKey, recipientId: this.receiver, amount, fee: this.convertSelectedFee })
             let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
             this.loading = false
-            console.log(sign)
             if(sign.success) {
                 let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + sign.res.hash
                 let msg = 'You send ' + this.amount + ' AE'
@@ -508,8 +508,6 @@ export default {
                     this.redirectInExtensionAfterAction()
                 })
             }
-            
-            
         },
         async contractCallStatic(tx) {
             try {
@@ -558,7 +556,22 @@ export default {
             }
         },
         async contractDeploy() {
-            let deployed = await this.sdk.contractDeploy(this.data.tx.contract.bytecode, FUNGIBLE_TOKEN_CONTRACT, [...this.data.tx.contract.params ], { fee: this.convertSelectedFee })
+            let deployed
+            if(this.isLedger) {
+                // console.log(this.txParams)
+                // let params = Object.assign({ foo: 'foo', bar: 'bar' }, this.txParams)
+                let { ownerId, amount, gas, code, callData, deposit } = this.txParams 
+                // console.log(params)
+                let tx = (await this.sdk[TX_TYPES[this.data.type]]({ownerId, amount, gas, code, callData, deposit})).tx
+                // console.log(tx)
+                let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
+                // console.log(sign)
+                
+            }else {
+                deployed = await this.sdk.contractDeploy(this.data.tx.contract.bytecode, FUNGIBLE_TOKEN_CONTRACT, [...this.data.tx.contract.params ], { fee: this.convertSelectedFee })
+            }
+            
+            
             this.loading = false
             if(this.data.popup) {
                 setTimeout(() => {

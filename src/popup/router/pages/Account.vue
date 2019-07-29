@@ -151,6 +151,9 @@ export default {
          browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {});
       });
     },
+    showTransaction() {
+      browser.tabs.create({url:this.popup.data,active:false});
+    }
   },
   beforeDestroy () {
     clearInterval(this.polling)
