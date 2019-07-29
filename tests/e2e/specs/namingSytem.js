@@ -63,62 +63,62 @@ const name = makeid(5)
 
 describe("tests cases for registering names ", () => {
 
-    // it("open create name page", () => {
-    //     openNamesPage()
-    //     cy
-    //     .get('.checkName')
-    //     .should('be.visible')
-    //     .get('.maindiv_input-group-addon')
-    //     .should('be.visible')
-    // })
+    it("open create name page", () => {
+        openNamesPage()
+        cy
+        .get('.checkName')
+        .should('be.visible')
+        .get('.maindiv_input-group-addon')
+        .should('be.visible')
+    })
 
-    // it("validate name exist", () => {
-    //     openNamesPage()
-    //     cy
-    //     .get('.checkName input')
-    //     .type("testw123.test")
-    //     .get('.regbtn')
-    //     .click()
-    //     .get('.ae-modal-light')
-    //     .should('be.visible')
-    // })
+    it("validate name exist", () => {
+        openNamesPage()
+        cy
+        .get('.checkName input')
+        .type("testw123.test")
+        .get('.regbtn')
+        .click()
+        .get('.ae-modal-light')
+        .should('be.visible')
+    })
 
-    // it("check if registered name is present in list", () => {
-    //     openNamesPage()
-    //     cy
-    //     .get('.subAccountName')
-    //     .should('contain','testw123.test')
-    // })
+    it("check if registered name is present in list", () => {
+        openNamesPage()
+        cy
+        .get('.subAccountName')
+        .should('contain','testw123.test')
+    })
 
-    // it("show preclaim confirm tx", () => {
-    //     preclaimName()
-    // })
+    it("show preclaim confirm tx", () => {
+        preclaimName()
+    })
 
-    // it("preclaim name tx reject", () => {
-    //     preclaimName()
-    //     cy
-    //     .get('.reject')
-    //     .click()
-    //     .get('.spendTxDetailsList')
-    //     .should('not.be.visible')
-    //     .get('.ae-card.primary')
-    //     .should('be.visible')
-    // })
+    it("preclaim name tx reject", () => {
+        preclaimName()
+        cy
+        .get('.reject')
+        .click()
+        .get('.spendTxDetailsList')
+        .should('not.be.visible')
+        .get('.ae-card.primary')
+        .should('be.visible')
+    })
 
-    // it("preclaim name tx confirm and show claim tx", () => {
-    //     claimName()
-    // })
+    it("preclaim name tx confirm and show claim tx", () => {
+        claimName()
+    })
 
-    // it("claim tx reject", () => {
-    //     claimName()
-    //     cy
-    //     .get('.reject')
-    //     .click()
-    //     .get('.spendTxDetailsList')
-    //     .should('not.be.visible')
-    //     .get('.ae-card.primary')
-    //     .should('be.visible')
-    // })
+    it("claim tx reject", () => {
+        claimName()
+        cy
+        .get('.reject')
+        .click()
+        .get('.spendTxDetailsList')
+        .should('not.be.visible')
+        .get('.ae-card.primary')
+        .should('be.visible')
+    })
 
     it("claim tx confirm and check if name present in list", () => {
         claimName()
