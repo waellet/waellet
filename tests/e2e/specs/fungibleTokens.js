@@ -72,6 +72,8 @@ describe("Test cases for adding fungible tokens functionality", () => {
         .click()
         .get('.backbutton')
         .click()
+        .get('.toAccount')
+        .click()
         .get('.ae-card.primary')
         .should('be.visible')
     })
