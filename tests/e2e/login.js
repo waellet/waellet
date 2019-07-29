@@ -1,13 +1,15 @@
 import {onBeforeLoad} from './support/mock_chrome.js';
-import { prepare,prepareEncryptedPrivateKey,ACCOUNT_PASSWORD } from './utils';
+import { prepare,prepareEncryptedPrivateKey,ACCOUNT_PASSWORD, ACCOUNT_PASSWORD2 } from './utils';
 
-export const login = (customState) => {
+
+export const login = (customState, account = 'account') => {
     prepare();
     const state = prepareEncryptedPrivateKey(customState);
+    const pass = account == 'account' ? ACCOUNT_PASSWORD : ACCOUNT_PASSWORD2
     cy
-      .visit('/popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'account') }})
+      .visit('/popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,account) }})
       .wait(4000)
-      .get('input[type=password]').type(ACCOUNT_PASSWORD)
+      .get('input[type=password]').type(pass)
       .get('button')
       .contains('Login')
       .click()
