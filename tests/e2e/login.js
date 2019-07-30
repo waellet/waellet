@@ -18,7 +18,9 @@ export const login = (customState, account = 'account') => {
       .get('.ae-card')
       .should('be.visible')
       .get('.ae-header')
-      .should('have.class','logged');
+      .should('have.class','logged')
+      .get('.mainLoader')
+      .should('not.be.visible')
     return state;
 };
 

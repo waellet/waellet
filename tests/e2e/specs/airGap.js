@@ -21,28 +21,28 @@ const deriveAdress = (seed,index) => {
 
 describe('Test cases for managing accounts and deriving multiple address from same private key', () => {
 
-    it("have account menu", () => {
-        login();
-        cy
-        .visit('popup/popup.html',{onBeforeLoad})
-        .get('#account')
-        .should('be.visible')
-        .get('#account .dropdown-button-name')
-        .should('contain','Main account')
-        .get('#account')
-        .click()
-        .get('.dropdown-holder')
-        .should('be.visible')
-        .get('.dropdown-holder li').eq(0)
-        .should('be.visible')
-        .should('have.class','activeAccount')
-        .get('.dropdown-holder li').eq(0).find('.subAccountName')
-        .should('contain','Main account')
-        .get('.newSubaccount')
-        .should('be.visible')
-        .get('.iconBtn')
-        .should('be.visible')
-    });
+    // it("have account menu", () => {
+    //     login();
+    //     cy
+    //     .visit('popup/popup.html',{onBeforeLoad})
+    //     .get('#account')
+    //     .should('be.visible')
+    //     .get('#account .dropdown-button-name')
+    //     .should('contain','Main account')
+    //     .get('#account')
+    //     .click()
+    //     .get('.dropdown-holder')
+    //     .should('be.visible')
+    //     .get('.dropdown-holder li').eq(0)
+    //     .should('be.visible')
+    //     .should('have.class','activeAccount')
+    //     .get('.dropdown-holder li').eq(0).find('.subAccountName')
+    //     .should('contain','Main account')
+    //     .get('.newSubaccount')
+    //     .should('be.visible')
+    //     .get('.iconBtn')
+    //     .should('be.visible')
+    // });
 
     it("open Create AirGap Vault Account page all steps", () => {
         login();

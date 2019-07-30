@@ -384,6 +384,13 @@ export default {
                 this.signDisabled = false
             }else {
                 this.signDisabled = true
+                if(this.data.popup) {
+                    this.errorTx.error.message = this.alertMsg
+                    this.port.postMessage(this.errorTx)
+                    setTimeout(() => {
+                        window.close()
+                    },1000)
+                }
             }
         },
         async cancelTransaction() {
@@ -401,6 +408,7 @@ export default {
                 
             }else {
                 browser.storage.sync.set({pendingTransaction: { list } }).then(() => {
+                    this.errorTx.error.message = "Transaction rejected by user"
                     this.port.postMessage(this.errorTx)
                     setTimeout(() => {
                         window.close()
@@ -687,7 +695,7 @@ export default {
             }
         },
         convertCurrency(currency, amount) {
-            return Math.round(parseFloat(convertAmountToCurrency(currency,amount)), 3)
+            return parseFloat(convertAmountToCurrency(currency,amount))
         },
         async checkSourceByteCode(source) {
             let byteCode = await this.sdk.contractCompile(source)

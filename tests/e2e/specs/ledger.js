@@ -2,7 +2,7 @@ import { onBeforeLoad } from '../support/mock_chrome.js';
 import { login } from '../login';
 
 
-describe("Test cases for Send Page", () => {
+describe("Test cases for Ledger", () => {
 
     it("show ledger setup page", () => {
         login()

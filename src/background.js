@@ -254,11 +254,13 @@ const connectToPopup = (cb,type, id) => {
             error.id = event.name
             if(event.name == id) {
                 if(type == 'txSign') {
+                    error.error.message = "Transaction rejected by user"
                     cb(error)
                 }else if(type == 'connectConfirm') {
                     error.error.message = "Connection canceled"
                     cb(error)
                 }else if(type == 'contractCall') {
+                    error.error.message = "Transaction rejected by user"
                     cb(error)
                 }else {
                     cb()

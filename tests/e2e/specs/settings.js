@@ -29,7 +29,7 @@ describe("Test cases for Settings Page", () => {
     });
 
     it("open General Settings page and test all the components and then back button to settings", () => {
-        login();
+        login({}, 'account2');
         cy
         .visit("popup/popup.html",{onBeforeLoad})
         .get('#settings')
