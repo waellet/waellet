@@ -47,6 +47,9 @@ Currently, Waellet is still in beta and under heavy development. Last week we on
 
 `npm run test`
 
+## Security
+If you discover a security vulnerability within this application, please send an e-mail to hello@waellet.com. All security vulnerabilities will be promptly addressed.
+
 ## Contribution
 
 Contributions are more than welcome.
