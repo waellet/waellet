@@ -210,7 +210,7 @@ export default {
     },
     watch:{ 
         watchBalance() {
-            this.showAlert()
+            this.showAlert(true)
         }
     },
     methods: {
@@ -371,7 +371,7 @@ export default {
                 this.receiver = this.data.tx.address
             }
         },
-        showAlert() {
+        showAlert(balance = false) {
             if(this.insufficientBalance) {
                 this.alertMsg = this.language.pages.signTx.insufficientBalance
             }else if(this.inccorectAddress && this.isAddressShow) {
@@ -384,12 +384,17 @@ export default {
                 this.signDisabled = false
             }else {
                 this.signDisabled = true
-                if(this.data.popup) {
-                    this.errorTx.error.message = this.alertMsg
-                    this.port.postMessage(this.errorTx)
+                if(balance) {
                     setTimeout(() => {
-                        window.close()
-                    },1000)
+                        if(this.data.popup) {
+                            console.log(this.alertMsg)
+                            this.errorTx.error.message = this.alertMsg
+                            this.port.postMessage(this.errorTx)
+                            // setTimeout(() => {
+                            //     window.close()
+                            // },1000)
+                        }
+                    },2000)  
                 }
             }
         },

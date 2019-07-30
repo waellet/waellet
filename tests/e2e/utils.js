@@ -245,6 +245,8 @@ export const createAccount = () => {
   .should('contain','Test 123')
   .get('#account')
   .click()
+  .get('.dropdown-holder')
+  .should('be.visible')
   .get('.dropdown-holder li').eq(1).find('.subAccountName')
   .should('contain','Test 123')
   .get('.dropdown-holder li').eq(0)

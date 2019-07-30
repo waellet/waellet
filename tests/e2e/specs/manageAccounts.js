@@ -137,6 +137,8 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         login();
         createAccount();
         cy
+        .get('.dropdown-holder')
+        .should('be.visible')
         .get('.dropdown-holder li').eq(1).find('input[type="radio"]')
         .should('be.checked')
         .get('.dropdown-holder li').eq(0).find('input[type="radio"]')
@@ -253,6 +255,8 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .should('be.visible')
         .get('#account')
         .click()
+        .get('.dropdown-holde')
+        .should('be.visible')
         .get('.dropdown-holder li').eq(0)
         .find('.subAccountName')
         .get('.dropdown-holder li').eq(1)
