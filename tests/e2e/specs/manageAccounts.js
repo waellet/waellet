@@ -255,7 +255,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .should('be.visible')
         .get('#account')
         .click()
-        .get('.dropdown-holde')
+        .get('.dropdown-holder')
         .should('be.visible')
         .get('.dropdown-holder li').eq(0)
         .find('.subAccountName')

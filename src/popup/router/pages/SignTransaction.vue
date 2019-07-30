@@ -440,27 +440,7 @@ export default {
             });
         },
         signSpendTx(amount) {
-            Wallet({
-                url: this.network[this.current.network].url,
-                internalUrl: this.network[this.current.network].internalUrl,
-                accounts: [
-                MemoryAccount({
-                    keypair: {
-                        secretKey: getHdWalletAccount(this.wallet,this.activeAccount).secretKey,
-                        publicKey: this.account.publicKey
-                    },
-                    networkId: this.network[this.current.network].networkId
-                })
-                ],
-                address: this.account.publicKey,
-                onTx: confirm, // guard returning boolean
-                onChain: confirm, // guard returning boolean
-                onAccount: confirm, // guard returning boolean
-                onContract: confirm, // guard returning boolean
-                networkId: this.network[this.current.network].networkId
-            })
-            .then(ae => {
-                ae.spend(parseInt(amount), this.receiver, { fee: this.convertSelectedFee}).then(async result => {
+                this.sdk.spend(parseInt(amount), this.receiver, { fee: this.convertSelectedFee}).then(async result => {
                     if(typeof result == "object") {
                         this.loading = false
                         this.hash = result.hash
@@ -511,10 +491,6 @@ export default {
                     this.loading = false;
                     return;
                 });
-            })
-            .catch(err => {
-                console.log(err);
-            });
         },
         async signSpendTxLedger(amount) {
             const tx = await this.sdk.spendTx({ senderId: this.account.publicKey, recipientId: this.receiver, amount, fee: this.convertSelectedFee })
