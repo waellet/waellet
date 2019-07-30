@@ -133,10 +133,10 @@ export default {
           break;
           case 'account_already_exist':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.ACCOUNT_ALREADY_EXIST});
-            break;
-            case 'invalid_number':
+          break;
+          case 'invalid_number':
               commit(types.SHOW_POPUP,{show:true,...popupMessages.REQUIRED_NUMBER});
-            break;
+          break;
           case 'airgap_created':
             commit(types.SHOW_POPUP,{show:true,...popupMessages.AIRGAP_CREATED});
           case 'confirm_privacy_clear':
@@ -148,8 +148,11 @@ export default {
           case 'ledger_support':
               commit(types.SHOW_POPUP, { show:true, ...popupMessages.LEDGER_SUPPORT})
           break
+          case 'ledger_account_error':
+              commit(types.SHOW_POPUP, { show:true, ...popupMessages.LEDGER_ACCOUNT_ERROR})
+          break
           default:
-            break;
+          break;
         }
         break;
       case 'network':

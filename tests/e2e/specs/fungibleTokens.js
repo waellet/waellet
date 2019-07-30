@@ -359,6 +359,28 @@ describe("Test cases for adding fungible tokens functionality", () => {
         .should('be.visible')
     })
 
+
+    it("change token from page", () => {
+        openTokensPage()
+        addToken()
+        cy
+        .visit("popup/popup.html",{onBeforeLoad})
+        .wait(5000)
+        .get('.sendBtn')
+        .click()
+        .get('.sendAmount .ae-dropdown-button')
+        .click()
+        .get('.sendAmount .ae-dropdown-menu li').eq(0)
+        .should('contain', 'HACK')
+        .click()
+        .get('.balance')
+        .should('contain','HACK')
+        .get('.backbutton')
+        .click()
+        .get('.ae-card-header p')
+        .should('contain','HACK')
+    })
+
     it("open login", () => {
         cy.visit('popup/popup.html',{onBeforeLoad})
     })

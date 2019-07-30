@@ -452,7 +452,9 @@ export default {
     async addLedgerAccount() {
       if(this.ledgerNextIdx != 0) {
         let account = await this.$store.dispatch('ledgerCreate')
-        console.log(account)
+        if(!account.success) {
+          this.$store.dispatch('popupAlert', { name: 'account', type: 'ledger_account_error'})
+        }
       }else {
         this.$router.push('/ledger-setup')
       }

@@ -30,6 +30,7 @@ export const NOT_SELECTED_VAL =  { type:'error', title:'Oops! Something went wro
 export const REQUIRED_NUMBER = {type:'error', title:'Oops! Something went wrong', msg:'Please, enter valid and positive number!'}
 export const ACCOUNT_ALREADY_EXIST = {type:'error', title:'Oops! Something went wrong', msg:'This account already exist!'}
 export const LEDGER_SUPPORT = {type:'error', title:'Oops! Something went wrong', msg:'Ledger currently cannot sign this type of transaction! '}
+export const LEDGER_ACCOUNT_ERROR = { type:'error', title:'Oops! Something went wrong', msg:'Account cannot be added! ' }
 //success messages
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};
 export const SUCCESS_TRANSFER = { type:'success', title:'Transfer completed', msg:''}
