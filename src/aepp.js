@@ -1,4 +1,6 @@
 import uuid from 'uuid';
+import { checkAddress, chekAensName } from './popup/utils/helper';
+
 const Aepp = {
     request: {
         sign({ recipientId, amount }){
@@ -11,6 +13,15 @@ const Aepp = {
                     }
                 },
                 error: {}
+            }
+            if((!checkAddress(recipientId) && !chekAensName(recipientId) ) ) {
+                error.error = {
+                    code:1,
+                    message: "Enter correct recipient"
+                }
+                return new Promise((resolve,reject) => {
+                  resolve(error)
+                });
             }
             if(amount <= 0) {
                 error.error = {

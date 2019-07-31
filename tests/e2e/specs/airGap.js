@@ -44,36 +44,36 @@ describe('Test cases for managing accounts and deriving multiple address from sa
     //     .should('be.visible')
     // });
 
-    // it("open Create AirGap Vault Account page all steps", () => {
-    //     login();
-    //     cy
-    //     .visit('popup/popup.html',{onBeforeLoad})
-    //     .get('#account')
-    //     .click()
-    //     .get('.airGapVault')
-    //     .click()
-    //     .get('.dropdown-holder')
-    //     .should('not.be.visible')
-    //     .get('.airgap-setup-definitions')
-    //     .should('be.visible')
-    //     .get('.qr-wrapper')
-    //     .should('be.visible')
-    //     .get('.ae-button')
-    //     .should('have.class','step-button')
-    //     .should('be.visible')
-    //     .should('contain','Next')
-    //     .click()
-    //     .wait(500)
-    //     .get('div.step2')
-    //     .should('be.visible')
-    //     .get('.ae-button')
-    //     .should('have.class','step-button')
-    //     .should('be.visible')
-    //     .should('contain','Link vault ')
-    //     .click()
-    //     .wait(3000)
-    //     .get('.cameraMsg p b')
-    //     .should('contain','Camera successfully initilized! Ready for scanning now!')
-    // });
+    it("open Create AirGap Vault Account page all steps", () => {
+        login();
+        cy
+        .visit('popup/popup.html',{onBeforeLoad})
+        .get('#account')
+        .click()
+        .get('.airGapVault')
+        .click()
+        .get('.dropdown-holder')
+        .should('not.be.visible')
+        .get('.airgap-setup-definitions')
+        .should('be.visible')
+        .get('.qr-wrapper')
+        .should('be.visible')
+        .get('.ae-button')
+        .should('have.class','step-button')
+        .should('be.visible')
+        .should('contain','Next')
+        .click()
+        .wait(500)
+        .get('div.step2')
+        .should('be.visible')
+        .get('.ae-button')
+        .should('have.class','step-button')
+        .should('be.visible')
+        .should('contain','Link vault ')
+        .click()
+        .wait(3000)
+        .get('.cameraMsg p b')
+        .should('contain','Camera successfully initilized! Ready for scanning now!')
+    });
 
 });

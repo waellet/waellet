@@ -247,11 +247,11 @@ describe("Test cases for Utilities Page", () => {
         .type("0.0001")
         .get('.sendTip')
         .click()
-        .get('.ae-modal-light')
-        .get('.buttons > .ae-button')
-        .click()
-        .get('.ae-modal-light')
-        .should('not.be.visible')
+        // .get('.ae-modal-light')
+        // .get('.buttons > .ae-button')
+        // .click()
+        // .get('.ae-modal-light')
+        // .should('not.be.visible')
     });
 
     // it("open Allowance Page" , () => {

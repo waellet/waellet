@@ -17,7 +17,7 @@ export const INSUFFICIENT_BALANCE = { type:'error', title:'Insufficient balance'
 export const SEED_FAST_COPY = { type:'error', title:'That was too fast!', msg:'Please make sure you write down the recovery phrase on paper and keep it in a safe place.'}
 export const INCORRECT_ADDRESS = { type:'error', title:'Incorrect address', msg:'Please make sure you entered valid public address! '}
 export const INCORRECT_AMOUNT = { type:'error', title:'Enter amount', msg:'Please make sure you entered valid amount to send! '}
-export const TRANSACTION_FAILED = { type:'error', title:'Oops! Something went wrong', msg:'We cannot process this transaction! Plesse, try again!'}
+export const TRANSACTION_FAILED = { type:'error', title:'Oops! Something went wrong', msg:'We cannot process this transaction! Please, try again!'}
 export const REQUIRED_FIELD = { type:'error', title:'Required fields!', msg:'Please fill in all fields.'}
 export const REMOVE_USER_NETWORK_ACTIVE_ERROR = {type:'error',title:'Can not be removed!', msg: 'This network is active right now. Please, select other active network and try again.'}
 export const USER_NETWORK_EXISTS_ERROR = {type:'error',title:'Network name exists!', msg: 'This name already exists in networks. Please, choose another name for your new network.'}
@@ -29,6 +29,8 @@ export const AENS_NAME_EXIST =  { type:'error', title:'Oops! Something went wron
 export const NOT_SELECTED_VAL =  { type:'error', title:'Oops! Something went wrong', msg:'Please, select token!'}
 export const REQUIRED_NUMBER = {type:'error', title:'Oops! Something went wrong', msg:'Please, enter valid and positive number!'}
 export const ACCOUNT_ALREADY_EXIST = {type:'error', title:'Oops! Something went wrong', msg:'This account already exist!'}
+export const LEDGER_SUPPORT = {type:'error', title:'Oops! Something went wrong', msg:'Ledger currently cannot sign this type of transaction! '}
+export const LEDGER_ACCOUNT_ERROR = { type:'error', title:'Oops! Something went wrong', msg:'Account cannot be added! ' }
 //success messages
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};
 export const SUCCESS_TRANSFER = { type:'success', title:'Transfer completed', msg:''}

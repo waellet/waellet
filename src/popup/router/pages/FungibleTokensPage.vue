@@ -1,7 +1,7 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToUtilities}}</button>
+            <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{language.buttons.backToUtilities}}</button>
         </div>
         <h3>Fungible Tokens</h3>
         <ae-panel>
@@ -30,8 +30,8 @@ export default {
     },
     locales,
     methods:{
-        navigateAccount(){
-            this.$router.push('/account')
+        navigateUtilities(){
+            this.$router.push('/utilities')
         },
         navigateAddToken() {
             this.$router.push('/tokens')

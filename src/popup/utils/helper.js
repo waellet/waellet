@@ -153,16 +153,16 @@ const redirectAfterLogin = (ctx) => {
 
 
 
-const initializeSDK = (ctx, {network, current, account, wallet, activeAccount},background = false) => {
+const initializeSDK = (ctx, { network, current, account, wallet, activeAccount = 0 },background = false) => {
     return new Promise ((resolve,reject) => {
         Universal({
-            url: network[current.network].url, 
-            internalUrl: network[current.network].internalUrl,
+            url: (typeof network != 'undefined' ? network[current.network].url : "https://sdk-testnet.aepps.com" ) , 
+            internalUrl:(typeof network != 'undefined' ? network[current.network].internalUrl : "https://sdk-testnet.aepps.com" ),
             keypair: {
                 publicKey: account.publicKey,
                 secretKey: getHdWalletAccount(wallet,activeAccount).secretKey
             },
-            networkId: network[current.network].networkId, 
+            networkId: (typeof network != 'undefined' ? network[current.network].networkId : "ae_uat" ), 
             nativeMode: true,
             compilerUrl: 'https://compiler.aepps.com'
         }).then((sdk) => {

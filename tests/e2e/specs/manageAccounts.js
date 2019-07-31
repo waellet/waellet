@@ -28,7 +28,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .get('#account')
         .should('be.visible')
         .get('#account .dropdown-button-name')
-        .should('contain','asdd.test')
+        .should('contain','Main account')
         .get('#account')
         .click()
         .get('.dropdown-holder')
@@ -37,7 +37,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .should('be.visible')
         .should('have.class','activeAccount')
         .get('.dropdown-holder li').eq(0).find('.subAccountName')
-        .should('contain','asdd.test')
+        .should('contain','Main account')
         .get('.newSubaccount')
         .should('be.visible')
         .get('.iconBtn')
@@ -137,6 +137,8 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         login();
         createAccount();
         cy
+        .get('.dropdown-holder')
+        .should('be.visible')
         .get('.dropdown-holder li').eq(1).find('input[type="radio"]')
         .should('be.checked')
         .get('.dropdown-holder li').eq(0).find('input[type="radio"]')
@@ -160,12 +162,22 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         login();
         cy
         .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'subaccounts') }})
+        .get('.mainLoader')
+        .should('not.be.visible')
         .get('#account')
         .click()
         .get('.dropdown-holder li').eq(0)
         .click()
+        .get('.dropdown-holder')
+        .should('not.be.visible')
+        .get('#account')
+        .click()
         .get('.dropdown-holder li').eq(0).find('input[type="radio"]')
         .should('be.checked')
+        .get('.dropdown-holder li').eq(0)
+        .click()
+        .get('.dropdown-holder')
+        .should('not.be.visible')
         .get('.ae-card.primary ul')
         .invoke('attr', 'title')
         .should('eq',deriveAdress(PRIVATE_KEY,0))
@@ -173,6 +185,8 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .click()
         .get('.dropdown-holder li').eq(1)
         .click()
+        .get('.dropdown-holde')
+        .should('not.be.visible')
         .get('.ae-card.primary ul')
         .invoke('attr', 'title')
         .should('eq',deriveAdress(PRIVATE_KEY,1))
@@ -241,6 +255,8 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .should('be.visible')
         .get('#account')
         .click()
+        .get('.dropdown-holder')
+        .should('be.visible')
         .get('.dropdown-holder li').eq(0)
         .find('.subAccountName')
         .get('.dropdown-holder li').eq(1)
@@ -305,7 +321,7 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .find('.ae-input-plain')
         .should('not.be.visible')
         .get('#account .dropdown-button-name')
-        .should('contain','asdd.test');
+        .should('contain','Main account');
     });
 
     it("check login page", () => {

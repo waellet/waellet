@@ -43,10 +43,10 @@ describe("Test cases for Account Page" , () => {
         .get('#network')
         .click()
         .get('.dropdown-holder')
-        .should('not.be.visible')
+        .should('not.be.visible') 
         .get('.ae-card-header p')
         .should((elem) => {
-            expect(elem.text()).not.to.equal('0 AE')
+            expect(elem.text()).to.equal('0 AE')
         });
     });
 

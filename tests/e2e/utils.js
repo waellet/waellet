@@ -68,6 +68,7 @@ export const current = {
 };
 export const ACCOUNT_PASSWORD = "qwerty";
 export const ACCOUNT_PASSWORD_STRONG = "qwerty#@!123ABCD";
+export const ACCOUNT_PASSWORD2 = 'Parola.123';
 export const PRIVATE_KEY = "ef07a269ce62e81dbd507d2d677e06654765984aa4650bcf2ed68bbfc783f8e4301ba902bf2b2c176ac934eb41181866ae25f19dcbdd42c4aa448c0f82c913f9";
 export const PRIVATE_KEY_IMPORT = "82e8a6103b5fd09b82d71e0ef18686b66f798428312ef84adfb51f1c7ca794a0e4197f13b860b0f18b960d83e230e50752dc9f77ec2ea568300dcf728c1a8acd";
 export const PUBLIC_KEY_SEND = "ak_2uhfvqH1NhiTcZ6F8QmDRvZQdoYGN3agdZi9AZyY4pP3A9zdFZ";
@@ -244,6 +245,8 @@ export const createAccount = () => {
   .should('contain','Test 123')
   .get('#account')
   .click()
+  .get('.dropdown-holder')
+  .should('be.visible')
   .get('.dropdown-holder li').eq(1).find('.subAccountName')
   .should('contain','Test 123')
   .get('.dropdown-holder li').eq(0)
@@ -283,6 +286,8 @@ export const createSubAccount = () => {
 export const renameAccounts = () => {
   cy
   .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'subaccounts') }})
+  .get('.ae-loader')
+  .should('not.be.visible')
   .get('.ae-card-header-avatar .ae-input-plain')
   .clear()
   .type("Account 1")
@@ -295,8 +300,8 @@ export const renameAccounts = () => {
   .should('contain','Account 1')
   .get('.dropdown-holder li').eq(1)
   .click()
-  .get('#account')
-  .click()
+  .get('.dropdown-holder')
+  .should('not.be.visible')
   .get('body')
   .click()
   .get('.ae-card-header-avatar .ae-input-plain')

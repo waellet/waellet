@@ -2,7 +2,7 @@ import { onBeforeLoad } from '../support/mock_chrome.js';
 import { login,loginAndLogout } from '../login';
 
 const openNamesPage = () => {
-    login()
+    login({}, 'account2')
     cy
     .get('#settings')
     .click()
@@ -51,7 +51,7 @@ const claimName = () => {
 
 const makeid = (length) => {
     var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var characters       = 'BCDEFGHIJKLMNOPQRSTUVWXYZbcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
     for ( var i = 0; i < length; i++ ) {
        result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -76,7 +76,7 @@ describe("tests cases for registering names ", () => {
         openNamesPage()
         cy
         .get('.checkName input')
-        .type("asdd.test")
+        .type("testw123.test")
         .get('.regbtn')
         .click()
         .get('.ae-modal-light')
@@ -87,7 +87,7 @@ describe("tests cases for registering names ", () => {
         openNamesPage()
         cy
         .get('.subAccountName')
-        .should('contain','asdd.test')
+        .should('contain','testw123.test')
     })
 
     it("show preclaim confirm tx", () => {
@@ -145,7 +145,7 @@ describe("tests cases for registering names ", () => {
     })
 
     it("check name is set to account", () => {
-        login()
+        login({}, 'account2')
         cy
         .get('.dropdown-button-name')
         .should('contain',name)
