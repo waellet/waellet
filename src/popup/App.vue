@@ -149,6 +149,7 @@
     <router-view :key="$route.fullPath"></router-view>
     <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
     <Loader size="big" :loading="mainLoading"></Loader>
+    <div class="connect-error" v-if="connectError" >Unable to connect to choosen node</div>
   </ae-main>
 </template>
 
@@ -182,7 +183,8 @@ export default {
       checkPendingTxInterval:null,
       menuSlot:"mobile-left",
       mobileRight: "mobile-right",
-      checkSDKReady:null
+      checkSDKReady:null,
+      connectError:false
     }
   },
   computed: {
@@ -463,6 +465,12 @@ export default {
     initLedger() {
       let ledger = new LedgerBridge("https://waellet.com/ledger.html")
       this.$store.commit('SET_LEDGER_API', { ledger })
+    },
+    hideConnectError() {
+      this.connectError = false
+    },
+    showConnectError() {
+      this.connectError = true
     }
   },
   beforeDestroy() {
@@ -574,4 +582,5 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .tokenBalance { margin-right: auto; }
 #tokens .ae-check-button:before { width: 20px !important; height: 20px !important; }
 #tokens .ae-check-button:after { width: 26px !important; height: 25px !important; }
+.connect-error { position:fixed; bottom: 0; left:0; right:0; background:$primary-color; color:#fff; padding: .5rem; text-align:center; font-weight:bold; }
 </style>
