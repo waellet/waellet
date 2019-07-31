@@ -526,7 +526,11 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .name-pending { width:24px !important; height:24px !important; margin-right:5px; font-size:.8rem; }
 #account .subAccountCheckbox { float: right; }
 #account li, #network li { padding:0.75rem; cursor:pointer !important; }
-#account ul { width:250px; margin-left: -125px;}
+#account ul { width:250px; margin-left: -125px; max-height: 350px; height: auto; overflow-y: scroll;}
+#account ul::-webkit-scrollbar { width: 10px; }
+#account ul::-webkit-scrollbar-track { background: #f1f1f1; }
+#account ul::-webkit-scrollbar-thumb {background: #888; }
+#account ul::-webkit-scrollbar-thumb:hover {background: #555; }
 #account .activeAccount { background: #f6f6f6; }
 #account .manageAccounts, #network .manageAccounts { padding:0; }
 #account .manageAccounts button, #network .manageAccounts button { padding: 0.5rem 0.75rem; height: auto; justify-content: center; }
@@ -566,7 +570,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .slide-fade-leave-active { transition: all .2s ease; }
 .slide-fade-enter { transform: translateY(-50px); }
 .slide-fade-leave-to { transform: translateY(-50px); opacity: 0; }
-.extensionVersion { color: #909090; display:block;text-align:center; padding:1.5rem 1rem; }
+.extensionVersion { color: #909090; display:block;text-align:center; padding:1.5rem 1rem; padding-bottom:2.5rem }
 .extensionVersionTop { padding: 0; display: inline-block; font-size: 1rem; line-height: 12px; font-weight: normal; }
 .Password .passwordStrengthMeter { position: relative; height: 5px; }
 .Password + .ae-input-container { margin-top: 0 !important; }
@@ -582,5 +586,5 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .tokenBalance { margin-right: auto; }
 #tokens .ae-check-button:before { width: 20px !important; height: 20px !important; }
 #tokens .ae-check-button:after { width: 26px !important; height: 25px !important; }
-.connect-error { position:fixed; bottom: 0; left:0; right:0; background:$primary-color; color:#fff; padding: .5rem; text-align:center; font-weight:bold; }
+.connect-error { position:fixed; bottom: 0; left:0; right:0; background:$primary-color; color:#fff; padding: .3rem; text-align:center; font-weight:bold; }
 </style>
