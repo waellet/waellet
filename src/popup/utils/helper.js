@@ -174,6 +174,9 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
                 resolve(sdk)
             }
         })
+        .catch(err => {
+            ctx.hideLoader()
+        })
     })
 }
 
