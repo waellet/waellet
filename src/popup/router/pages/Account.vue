@@ -54,7 +54,6 @@
 import { mapGetters } from 'vuex';
 import locales from '../../locales/locales.json';
 import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
-import { getTranscationByPublicAddress }  from '../../utils/transactions';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { request } from 'http';
 import { fetchData, currencyConv } from '../../utils/helper';
@@ -122,8 +121,8 @@ export default {
         this.polling = setInterval(() => {
           if(this.sdk != null) {
               this.updateTransactions();
-              this.toUsd = this.balance * this.usdRate;
-              this.toEur = this.balance * this.eurRate;
+              this.toUsd = (this.balance * this.usdRate).toFixed(3);
+              this.toEur = (this.balance * this.eurRate).toFixed(3);
           }
         }, 2500);
     },
@@ -151,6 +150,9 @@ export default {
          browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {});
       });
     },
+    showTransaction() {
+      browser.tabs.create({url:this.popup.data,active:false});
+    }
   },
   beforeDestroy () {
     clearInterval(this.polling)

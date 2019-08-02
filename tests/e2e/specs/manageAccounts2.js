@@ -18,7 +18,7 @@ const deriveAdress = (seed,index) => {
     return publicKey;
 };
 
-const accountName = "asdd.test"
+const accountName = "Main account"
 
 describe('Test cases for managing accounts and deriving multiple address from same private key part 2', () => {
     it("add account logout and login and check if present in menu", () => {
