@@ -120,13 +120,17 @@ export default {
             }, 3000);
         },
         async next() {
+            console.log(this.token.contract.length);
+            console.log(this.token.symbol.length);
+            console.log(this.token.precision);
             let added = this.tokens.find(tkn => tkn.contract == this.token.contract && tkn.parent == this.account.publicKey)
             if( 
-                // this.token.contract.length != 53 || 
+                (this.token.contract.length != 53 && this.token.contract.length != 54 &&  this.token.contract.length != 52) ||
                 (this.token.symbol.length < 1 || this.token.symbol.length > 12) || 
                 isNaN(this.token.precision) ||
                 (!isNaN(this.token.precision) && (this.token.precision < 1 || this.token.precision > 36 ))
             ) {
+                console.log("err")
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'})
             }else if(typeof added != 'undefined'){
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_exists'})

@@ -11,7 +11,7 @@
                 <i class="arrowright"></i>
                 <p class="tabinfo">Make a donation for any website you want</p>
             </button>
-            <button class="generalsett" @click="openAllowencesPage">
+            <button class="allowances" @click="openAllowencesPage">
                 <span class="settings-li">{{language.buttons.allowances}}</span>
                 <i class="arrowright"></i>
                 <p class="tabinfo">Give an allowance to your people</p>

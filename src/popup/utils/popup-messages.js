@@ -38,6 +38,6 @@ export const SUCCESS_DEPLOY = { type:'success', title:'Contract deployed', msg:'
 export const SUCCESS_ADDED = { type:'success', title:'Successfully added!', msg:''}
 export const REMOVE_USER_NETWORK = {type:'success', title:'Are you sure?', msg:'', buttonsTextPrimary: 'No', buttonsTextSecondary: 'Yes', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}
 export const CONFIRM_TRANSACTION = {type:'success', title:'Confirm transaction?', msg:'You are about to send some tokens to somebody. This transaction is irreversible! ', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Confirm', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}
-export const ALLOWANCE_CHANGE_SUCCESS = {type:'success', title:'Transfer completed', msg:'Allowance for this account was successfuly changed!'}
+export const ALLOWANCE_CHANGE_SUCCESS = {type:'success', title:'Change completed', msg:'Allowance for this account was successfuly changed!'}
 export const AIRGAP_CREATED = {type:'success', title:'Vault sync completed!', msg:'Find your AirGap Vault under your accounts.'}
 export const CONFIRM_PRIVACY_CLEAR = {type:'success', title:'Confirm clear', msg:'You are about to clear all connected Aepps! After this all Aepps must be granted access again ', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Confirm', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}

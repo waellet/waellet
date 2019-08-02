@@ -159,16 +159,18 @@ export default {
             return (parseFloat(this.amount) + parseFloat(this.selectedFee)).toFixed(7)
         },
         insufficientBalance() {
-            if(typeof this.data.tx.token != 'undefined') {
-                return this.tokenBalance - this.amount <= 0
+            if (this.data.tx.token == 'AE') {
+                if(typeof this.data.tx.token != 'undefined') {
+                    return this.tokenBalance - this.amount <= 0
+                }
+                return this.maxValue - this.amount <= 0
             }
-            return this.maxValue - this.amount <= 0
         },
         inccorectAddress() {
-            if(this.data.type != 'txSign') {
-                return this.receiver == null || this.receiver == ""
-            }
-            return  (!checkAddress(this.receiver) && !chekAensName(this.receiver) ) 
+                if(this.data.type != 'txSign') {
+                    return this.receiver == null || this.receiver == ""
+                }
+                return  (!checkAddress(this.receiver) && !chekAensName(this.receiver) ) 
         },
         watchBalance() {
             return this.balance
@@ -550,14 +552,10 @@ export default {
                     console.log(this.data.tx)
                     call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
                     let decoded = await call.decode()
-                    console.log('call');
-                    console.log(call);
-                    console.log('decoded');
-                    console.log(decoded);
                 }
             }catch(err) {
-                    console.log("catch");
-                    console.log(err);
+                console.log("err");
+                console.log(err);
                 this.errorTx.error.message = err.message
                 this.port.postMessage(this.errorTx)
             }
@@ -572,7 +570,14 @@ export default {
             }
         },
         async contractDeploy() {
+            console.log('bytecode')
+            console.log(this.data.tx.contract.bytecode)
+            console.log(typeof this.data.tx.contract.bytecode)
+            console.log('params')
+            console.log(...this.data.tx.contract.params)
             let deployed = await this.sdk.contractDeploy(this.data.tx.contract.bytecode, FUNGIBLE_TOKEN_CONTRACT, [...this.data.tx.contract.params ], { fee: this.convertSelectedFee })
+            console.log('deployed')
+            console.log(deployed)
             this.loading = false
             if(this.data.popup) {
                 setTimeout(() => {

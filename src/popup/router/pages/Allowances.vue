@@ -7,9 +7,9 @@
             <h3 style='text-align:center;'>{{language.pages.allowances.heading}}</h3>
             <br>
             <div>
-                <ae-button @click="allowancePage = 'create'; allowances = []; selected = 'default';" face="flat" fill="alternative">Create</ae-button>
-                <ae-button @click="allowancePage = 'transfer'; allowances = []; selected = 'default';" face="flat" fill="alternative">Transfer</ae-button>
-                <ae-button @click="allowancePage = 'seeAll'; allowances = []; selected = 'default';" face="flat" fill="alternative">See all</ae-button>
+                <ae-button class="createAllowance" @click="allowancePage = 'create'; allowances = []; selected = 'default'; createform.value = ''; createform.to_account = '';" face="flat" fill="alternative">Create</ae-button>
+                <ae-button class="transferAllowance" @click="allowancePage = 'transfer'; disableAfterSeeAll = false; allowances = []; selected = 'default'; transferform.to_account = ''; transferform.value = '';" face="flat" fill="alternative">Transfer</ae-button>
+                <ae-button class="seeAllAllowance" @click="allowancePage = 'seeAll'; allowances = []; selected = 'default';" face="flat" fill="alternative">See all</ae-button>
             </div>
         </div>
         <div v-if="allowancePage == 'create'" class="create-allowance allowance-form">
@@ -20,14 +20,14 @@
             <br>
             <select class="allowance-token-dropdown" @change="onChange($event)" v-model="selected">
                 <option value="default" disabled>Choose a token</option>
-                <option v-for="(tok, key) in filteredTokens" :value="tok.key">
+                <option v-for="(tok, key) in filteredTokens" v-bind:key="key" :value="tok.key">
                 {{tok.name}}
                 </option>
             </select>
             <ae-input class="allowance-address" v-model="createform.to_account" label="Address"></ae-input>
             <ae-input class="allowance-value" v-model.number="createform.value" type="number" label="Value"></ae-input>
-            <div class="allowanceExistError" v-if="allowanceExistError != ''">
-                <p>This Allowance already exist. If you want to change it click <a style="color: #c0c0c0" @click="toChangeAllowanceForm(allowances)">here</a></p>
+            <div class="allowanceExistError" v-if="allowanceExistError != '' && allowancePage == 'create' && createform.value != '' && createform.to_account != ''">
+                <p>This Allowance already exist. If you want to change it click <a class="anchor-here-btn" style="color: #c0c0c0" @click="toChangeAllowanceForm(allowances)">here</a></p>
             </div>
             <ae-button class="createAllowance" @click="makeAllowance" face="round" fill="primary" extend>Create</ae-button>
         </div>
@@ -37,14 +37,18 @@
             </div>
             <h3 style='text-align:center;'>Transfer Allowance</h3>
             <br>
-            <select class="allowance-token-dropdown" @change="onChange($event)" v-model="selected">
+            <select :disabled="disableAfterSeeAll ? true : false" class="allowance-token-dropdown" @change="onChange($event)" v-model="selected">
                 <option value="default" disabled>Choose a token</option>
-                <option v-for="(tok, key) in filteredTokens" :value="tok.key">
+                <option  v-for="(tok, key) in filteredTokens" v-bind:key="key" :value="tok.key">
                 {{tok.name}}
                 </option>
             </select>
-            <ae-input class="allowance-address" v-model="transferform.to_account" label="Address"></ae-input>
-            <ae-input class="allowance-value" v-model.number="transferform.value" type="number" label="Value"></ae-input>
+            <ae-input label="Address">
+                <input type="text" :disabled="disableAfterSeeAll ? true : false" class="ae-input allowance-address" v-model="transferform.to_account" />
+            </ae-input>
+            <ae-input label="Value">
+                <input type="text" class="ae-input allowance-value" v-model="transferform.value" />
+            </ae-input>
             <ae-button class="transferAllowance" @click="transferAllowance" face="round" fill="primary" extend>Transfer</ae-button>
         </div>
         <div v-if="allowancePage == 'seeAll'" @load="seeAll" class="seeAll-allowance allowance-form">
@@ -81,9 +85,11 @@
             <ae-input label="Symbol">
                 <input type="text" :disabled="true" class="ae-input allowance-symbol" v-model="changeform.symbol" />
             </ae-input>
-            <ae-input class="allowance-address" v-model="changeform.to_account" label="Address"></ae-input>
+            <ae-input label="Address">
+                <input type="text" :disabled="true" class="ae-input allowance-address" v-model="changeform.to_account"  />
+            </ae-input>
             <ae-input class="allowance-value" v-model.number="changeform.value" type="number" label="Value"></ae-input>
-            <small>Current allowed allowance is {{currentAllowedAllowance}}</small>
+            <small class="allowanceExistError"> Current allowed allowance is {{saveAllowedAllowance}} </small>
             <ae-button class="changeAllowanceFormBtn" @click="changeAllowanceFormBtn" face="round" fill="primary" extend>Change</ae-button>
         </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
@@ -127,7 +133,8 @@ export default {
             allowancePage: '',
             allowances: [],
             allowanceExistError: '',
-            currentAllowedAllowance: ''
+            saveAllowedAllowance: '',
+            disableAfterSeeAll: false
         }
     },
     locales,
@@ -141,7 +148,6 @@ export default {
         }
     },
     created() {
-        // console.log(FUNGIBLE_TOKEN_CONTRACT)
     },
     methods: {
         onChange(event) {
@@ -155,52 +161,70 @@ export default {
                 })
             }
             else {
-                if (this.createform.value == '' && ((this.createform.value).toString()).length == 0) {
-                    this.$store.dispatch('popupAlert', { name: 'account', type: 'invalid_number' })
-                }
-                else {
+                // if (this.createform.value == '' && ((this.createform.value).toString()).length == 0) {
+                //     this.$store.dispatch('popupAlert', { name: 'account', type: 'invalid_number' })
+                // }
+                // else {
                     this.tokens.forEach(async element => {
                         if (element.key == this.selected) {
-                            console.log(element.balance);
-                            if (this.createform.value > element.balance) {
-                                this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
-                                this.loading = false;
-                            }
-                            else {
-                                this.loading = true
-                                try {
-                                    this.allowances.push({ 
-                                        allowance: element.contract,
-                                        allowanceTo: this.createform.to_account,
-                                        allowanceAmount: this.createform.value,
-                                        allowanceToken: element.symbol,
-                                        accountCurrentBalance: element.balance
-                                    });
-                                    let value = (this.createform.value).toString();
-                                    let create = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, element.contract , 'create_allowance', [this.createform.to_account,value])
-                                    let dec = await create.decode()
-                                    this.$store.dispatch('popupAlert', { name: 'account', type: 'added_success'});
+                            this.loading = true
+                            let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
+                            let checkAmountLeft = await contract.call('allowance', [{from_account: this.account.publicKey, for_account: this.createform.to_account}], { callStatic: true })
+                            let amountLeft = await checkAmountLeft.decode()
+                            .then (async amount => {
+                                if (amount != "None") {
+                                    let tokensLefttoTransfer = element.balance - amount.Some[0]
+                                    this.saveAllowedAllowance = (tokensLefttoTransfer+' '+element.symbol).toString()
+                                }
+                                if (this.createform.value > element.balance) {
+                                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
                                     this.loading = false;
-                                    this.createform = ''
-                                    this.selected = 'default'
                                 }
-                                catch (createAllowanceError) {
-                                    console.log(createAllowanceError.toString())
-                                    if (createAllowanceError.toString().includes('ALLOWANCE_ALREADY_EXISTENT')) {
-                                        this.allowanceExistError = 'Allowance alredy exist!'
+                                else {
+                                    try {
+                                        this.allowances.push({ 
+                                            allowance: element.contract,
+                                            allowanceTo: this.createform.to_account,
+                                            allowanceAmount: this.createform.value,
+                                            allowanceToken: element.symbol,
+                                            accountCurrentBalance: element.balance
+                                        });
+                                        let value = (this.createform.value).toString();
+                                        let create = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, element.contract , 'create_allowance', [this.createform.to_account,value])
+                                        let dec = await create.decode()
+                                        this.$store.dispatch('popupAlert', { name: 'account', type: 'added_success'});
                                         this.loading = false;
+                                        this.createform.to_account = ''
+                                        this.createform.value = ''
+                                        this.selected = 'default'
                                     }
-                                    else if (createAllowanceError.toString().includes('fails to match the required pattern: /^(ak_|ct_|ok_|oq_)/]]') || createAllowanceError.toString().includes('Parse errors') || createAllowanceError.toString().includes('Unbound variable')) {
-                                        this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address' })
-                                        this.loading = false; 
-                                        console.log('createAllowanceError')
-                                        console.log(createAllowanceError)
+                                    catch (createAllowanceError) {
+                                        console.log('createAllowanceError.toString()')
+                                        console.log(createAllowanceError.toString())
+                                        if (createAllowanceError.toString().includes('ALLOWANCE_ALREADY_EXISTENT')) {
+                                            this.allowanceExistError = 'Allowance alredy exist!'
+                                            this.loading = false;
+                                        }
+                                        else if (createAllowanceError.toString().includes('fails to match the required pattern: /^(ak_|ct_|ok_|oq_)/]]') ||  
+                                                createAllowanceError.toString().includes('Cannot unify address') ||
+                                                createAllowanceError.toString().includes('Unbound variable')) {
+                                            this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address' })
+                                            this.loading = false; 
+                                        }
+                                        else if ( createAllowanceError.toString().includes('NON_NEGATIVE_VALUE_REQUIRED')) {
+                                            this.loading = false;
+                                            this.$store.dispatch('popupAlert', { name: 'account', type: 'invalid_number' })
+                                        }
+                                        else if (createAllowanceError.toString().includes('Parse errors')) {
+                                            this.loading = false;
+                                            this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'})
+                                        }
                                     }
                                 }
-                            }
+                            })
                         }
                     })
-                }
+                // }
             }
         },
         transferAllowance() {
@@ -269,27 +293,40 @@ export default {
             this.selected = '';
             this.selected = event.target.value;
             this.tokens.forEach(async element => {
+                console.log(element)
                 if (element.key == this.selected) {
                     let checkAllAllowances = await this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,element.contract,'allowances')
                     let all = await checkAllAllowances.decode()
-                    all.forEach(async singleAllowance => { //foreach all allowances
-                        if (singleAllowance[0].for_account == this.account.publicKey) { //get allowances for curr account
-                            let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
-                            let checkAmountLeft = await contract.call('allowance', [{from_account: singleAllowance[0].from_account, for_account:this.account.publicKey }], { callStatic: true })
-                            let amountLeft = await checkAmountLeft.decode()
-                            let tokensLefttoTransfer = amountLeft.Some[0];
-                            // if (tokensLefttoTransfer > 0) {
-                                this.allowances.push({ 
-                                    allowance: element.contract,
-                                    allowanceFrom: singleAllowance[0].from_account,
-                                    allowanceAmount: tokensLefttoTransfer,
-                                    allowanceToken: element.symbol,
-                                    accountCurrentBalance: element.balance
-                                });
-                            // }
-                        }
+                    if (all.length != 0) {
+                        all.forEach(async singleAllowance => { //foreach all allowances
+                            console.log('singleAllowance')
+                            console.log(singleAllowance)
+                            if (singleAllowance[0].for_account == this.account.publicKey) { //get allowances for curr account
+                                let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
+                                let checkAmountLeft = await contract.call('allowance', [{from_account: singleAllowance[0].from_account, for_account:this.account.publicKey }], { callStatic: true })
+                                .then(async amount => {
+                                    let amountLeft = await amount.decode()
+                                    let tokensLefttoTransfer = amountLeft.Some[0]
+                                    this.allowances.push({ 
+                                        allowance: element.contract,
+                                        allowanceFrom: singleAllowance[0].from_account,
+                                        allowanceAmount: tokensLefttoTransfer,
+                                        allowanceToken: element.symbol,
+                                        accountCurrentBalance: element.balance
+                                    });
+                                    this.loading = false
+                                })
+                            }
+                            else {
+                                this.allowances.length = 0;
+                                this.loading = false
+                            }
+                        });
+                    }
+                    else {
+                        this.allowances.length = 0;
                         this.loading = false
-                    });
+                    }
                 }
             });
         },
@@ -313,11 +350,13 @@ export default {
                     let checkAmountLeft = await contract.call('allowance', [{from_account: this.account.publicKey, for_account:this.changeform.to_account }], { callStatic: true })
                     let amountLeft = await checkAmountLeft.decode()
                     let tokensLefttoTransfer = amountLeft.Some[0];
-                    this.currentAllowedAllowance = (tokensLefttoTransfer+' '+this.allowances[0].allowanceToken).toString()
+                    console.log(tokensLefttoTransfer)
+                    console.log(value)
+                    console.log(this.allowances[0].accountCurrentBalance)
                     if (value < 0) {
                         this.$store.dispatch('popupAlert', { name: 'account', type: 'invalid_number'});
                     }
-                    else if ( (this.allowances[0].accountCurrentBalance <= 0) || ((value + tokensLefttoTransfer) > this.allowances[0].accountCurrentBalance) ) {
+                    else if ( (Number(value) + tokensLefttoTransfer) > this.allowances[0].accountCurrentBalance ) {
                         this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
                         this.loading = false;
                     }
@@ -325,6 +364,9 @@ export default {
                         let change = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, contractId , 'change_allowance', [this.changeform.to_account,value])
                         let changeDec = await change.decode()
                         this.$store.dispatch('popupAlert', { name: 'fungible_token', type: 'allowance_change_success' })
+                        .then(res => {
+                            this.$router.push('/account')
+                        })
                     }
                     this.loading = false
                 } catch (changeallowanceError) {
@@ -341,6 +383,7 @@ export default {
             this.allowancePage = 'transfer';
             this.transferform.to_account = address;
             this.transferform.value = amount
+            this.disableAfterSeeAll = true;
         },
         openAllowencesPage() {
             this.$router.push('/allowances');
@@ -356,7 +399,6 @@ export default {
 @import '../../../common/base';
 .allowanceExistError {
     color: #9d3fc0;
-    border: 1px solid;
     margin-bottom: 20px;
 }
 

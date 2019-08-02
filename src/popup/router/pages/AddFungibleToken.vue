@@ -124,8 +124,12 @@ export default {
         },
         async next() {
             let added = this.tokens.find(tkn => tkn.contract == this.token.contract && tkn.parent == this.account.publicKey)
+            
+            console.log(this.token.contract.length);
+            console.log(this.token.symbol.length);
+            console.log(this.token.precision);
             if( 
-                (this.token.contract.length != 53 || this.token.contract.length != 54 ||  this.token.contract.length != 52) || 
+                (this.token.contract.length != 53 && this.token.contract.length != 54 &&  this.token.contract.length != 52) || 
                 (this.token.symbol.length < 1 || this.token.symbol.length > 12) || 
                 isNaN(this.token.precision) ||
                 (!isNaN(this.token.precision) && (this.token.precision < 1 || this.token.precision > 36 ))

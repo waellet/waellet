@@ -223,18 +223,18 @@ describe("Test cases for Send Page", () => {
         .get('.ae-loader')
         .should('be.visible')
         .get('.ae-loader')
-        // .should('not.be.visible')
-        // .get('.txHash')
-        // .then(elem => {
-        //     cy
-        //     .get('.ae-modal-light')
-        //     .should('be.visible')
-        //     .get('.ae-modal-light .buttons > .primary')
-        //     .click()
-        //     .get('.transactionList')
-        //     .should('be.visible')
-        //     .get('.transactionList .list-item-transaction').eq(0)
-        //     .should('have.class',elem.val())
-        // })
+        .should('not.be.visible')
+        .get('.txHash')
+        .then(elem => {
+            cy
+            .get('.ae-modal-light')
+            .should('be.visible')
+            .get('.ae-modal-light .buttons > .primary')
+            .click()
+            .get('.transactionList')
+            .should('be.visible')
+            .get('.transactionList .list-item-transaction').eq(0)
+            .should('have.class',elem.val())
+        })
     });
 });

@@ -45,115 +45,105 @@ export default {
         }
     },
     locales,
-    props:['type'],
     computed: {
         ...mapGetters (['account', 'current', 'network','subaccounts','wallet', 'popup'])
     },
     created() {
-        // if (detectBrowser() == 'Chrome') {
-        //     let extensionUrl = 'chrome-extension://'+browser.runtime.id
-        //     browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
-        // }
-        // else if(detectBrowser() == 'Firefox') {
-        //     let extensionUrl = browser.extension.getURL ('./')
-        //     browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
-        // }
     },
     methods: {
         navigateAccount() {
             this.$router.push('/account')
         },
         onDecode (content) {
+            console.log('content')
             this.loading = true;
             this.decodedContent = content;
-            if(typeof this.type == 'undefined') {
-                try {
-                    const publicKey = getPublicKeyByResponseUrl(content);
-                    browser.storage.sync.set({ airGapGeneratedKey: publicKey}).then(() => {});
-                    const address = Crypto.aeEncodeKey(publicKey);
-                    if (address.includes('ak_')) {
-                        this.subaccounts.forEach(element => {
-                            this.accountspublicKeys.push(element.publicKey);
-                        });
-                        if (this.accountspublicKeys.includes(address)) {
-                            this.$store.dispatch('popupAlert', {
-                                name: 'account',
-                                type: 'account_already_exist'
-                            })
+            try {
+                const publicKey = getPublicKeyByResponseUrl(content);
+                browser.storage.sync.set({ airGapGeneratedKey: publicKey}).then(() => {});
+                const address = Crypto.aeEncodeKey(publicKey);
+                if (address.includes('ak_')) {
+                    this.subaccounts.forEach(element => {
+                        this.accountspublicKeys.push(element.publicKey);
+                    });
+                    if (this.accountspublicKeys.includes(address)) {
+                        this.$store.dispatch('popupAlert', {
+                            name: 'account',
+                            type: 'account_already_exist'
+                        })
+                        this.loading = false;
+                    }
+                    else {
+                        let public_K = address;
+                        let nameCounter =  this.subaccounts.length;
+                        let name = 'AirGap Vault Account #'+nameCounter;
+                        this.$store.dispatch('setSubAccount', {
+                            isAirGapAcc: true,
+                            name: name,
+                            publicKey: public_K,
+                            root:false,
+                            balance:0
+                        }).then(() => {
                             this.loading = false;
-                        }
-                        else {
-                            let public_K = address;
-                            let nameCounter =  this.subaccounts.length;
-                            let name = 'AirGap Vault Account #'+nameCounter;
-                            this.$store.dispatch('setSubAccount', {
-                                isAirGapAcc: true,
-                                name: name,
-                                publicKey: public_K,
-                                root:false,
-                                balance:0
-                            }).then(() => {
-                                this.loading = false;
-                                browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {
-                                    this.$store.dispatch('popupAlert', {
-                                        name: 'account',
-                                        type: 'airgap_created'
-                                    }).then(() => {
-                                        let index =  this.subaccounts.length - 1;
-                                        browser.storage.sync.set({activeAccount: index }).then(() => {
-                                            this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:public_K,index:index});
-                                        });
-                                        this.$router.push('/account')
+                            browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {
+                                this.$store.dispatch('popupAlert', {
+                                    name: 'account',
+                                    type: 'airgap_created'
+                                }).then(() => {
+                                    let index =  this.subaccounts.length - 1;
+                                    browser.storage.sync.set({activeAccount: index }).then(() => {
+                                        this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:public_K,index:index});
                                     });
+                                    this.$router.push('/account')
                                 });
                             });
-                        }
-                    }
-                } catch (error) {
-                    error = error.toString();
-                    if (error.includes('Invalid URL')) {
-                        this.$router.push('/airGapSetup')
+                        });
                     }
                 }
-            }else if(this.type == 'send') {
-                this.$router.push({name: 'send', params: {
-                    address:content
-                }})
-            }
-            
-        },
-        onInit (promise) {
-                console.log('promise');
-                console.log(promise);
-            promise.then(() => {
-                console.log('then');
-                this.successMessage = 'Camera successfully initilized! Ready for scanning now!';
-            })
-            .catch(error => {
+            } catch (error) {
+                error = error.toString();
                 console.log('error');
                 console.log(error);
-                if (detectBrowser() == 'Chrome') {
+                if (error.includes('Invalid URL')) {
+                    this.$router.push('/airGapSetup')
+                }
+            }
+        },
+        onInit (promise) {
+            if (detectBrowser() == 'Chrome') {
+                promise.then(() => {
+                    this.successMessage = 'Camera successfully initilized! Ready for scanning now!';
+                })
+                .catch(error => {
+                    console.log('error');
+                    console.log(error);
                     let extensionUrl = 'chrome-extension://'+browser.runtime.id
                     browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
-                }
-                else if(detectBrowser() == 'Firefox') {
-                    let extensionUrl = browser.extension.getURL ('./')
-                    browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
-                }
-                if (error.name === 'NotAllowedError') {
-                    this.errorMessage = 'Hey! I need access to your camera'
-                } else if (error.name === 'NotFoundError') {
-                    this.errorMessage = 'Do you even have a camera on your device?'
-                } else if (error.name === 'NotSupportedError') {
-                    this.errorMessage = 'Seems like this page is served in non-secure context (HTTPS, localhost or file://)'
-                } else if (error.name === 'NotReadableError') {
-                    this.errorMessage = 'Couldn\'t access your camera. Is it already in use?'
-                } else if (error.name === 'OverconstrainedError') {
-                    this.errorMessage = 'Constraints don\'t match any installed camera. Did you asked for the front camera although there is none?'
-                } else {
-                    this.errorMessage = 'UNKNOWN ERROR: ' + error.message
-                }
-            })
+                    if (error.name === 'NotAllowedError') {
+                        this.errorMessage = 'Hey! I need access to your camera'
+                    } else if (error.name === 'NotFoundError') {
+                        this.errorMessage = 'Do you even have a camera on your device?'
+                    } else if (error.name === 'NotSupportedError') {
+                        this.errorMessage = 'Seems like this page is served in non-secure context (HTTPS, localhost or file://)'
+                    } else if (error.name === 'NotReadableError') {
+                        this.errorMessage = 'Couldn\'t access your camera. Is it already in use?'
+                    } else if (error.name === 'OverconstrainedError') {
+                        this.errorMessage = 'Constraints don\'t match any installed camera. Did you asked for the front camera although there is none?'
+                    } else {
+                        this.errorMessage = 'UNKNOWN ERROR: ' + error.message
+                    }
+                })
+            }
+            else if(detectBrowser() == 'Firefox') {
+        // browser.storage.sync.remove('firefoxCameraAllowed')
+                browser.storage.sync.get('firefoxCameraAllowed').then(allowed => {
+                    console.log(allowed)
+                    if ((allowed.hasOwnProperty('firefoxCameraAllowed') && !allowed.firefoxCameraAllowed) || !allowed.hasOwnProperty('firefoxCameraAllowed')) {
+                        let extensionUrl = browser.extension.getURL ('./')
+                        browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
+                    }
+                });
+            }
         },
     }
 }
