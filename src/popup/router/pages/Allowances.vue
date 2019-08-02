@@ -7,7 +7,7 @@
             <h3 style='text-align:center;'>{{language.pages.allowances.heading}}</h3>
             <br>
             <div>
-                <ae-button class="createAllowance" @click="allowancePage = 'create'; allowances = []; selected = 'default'; createform.value = ''; createform.to_account = '';" face="flat" fill="alternative">Create</ae-button>
+                <ae-button class="createAllowance" @click="allowancePage = 'create'; allowances = []; selected = 'default'; createform.value = '0'; createform.to_account = '';" face="flat" fill="alternative">Create</ae-button>
                 <ae-button class="transferAllowance" @click="allowancePage = 'transfer'; disableAfterSeeAll = false; allowances = []; selected = 'default'; transferform.to_account = ''; transferform.value = '';" face="flat" fill="alternative">Transfer</ae-button>
                 <ae-button class="seeAllAllowance" @click="allowancePage = 'seeAll'; allowances = []; selected = 'default';" face="flat" fill="alternative">See all</ae-button>
             </div>
@@ -109,6 +109,7 @@ import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
 import { isNumber } from 'util';
+import { truncateSync } from 'fs';
 
 export default {
     data() {
@@ -161,12 +162,10 @@ export default {
                 })
             }
             else {
-                // if (this.createform.value == '' && ((this.createform.value).toString()).length == 0) {
-                //     this.$store.dispatch('popupAlert', { name: 'account', type: 'invalid_number' })
-                // }
-                // else {
-                    this.tokens.forEach(async element => {
-                        if (element.key == this.selected) {
+                console.log('else');
+                this.tokens.forEach(async element => {
+                    if (element.key == this.selected) {
+                        try {
                             this.loading = true
                             let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
                             let checkAmountLeft = await contract.call('allowance', [{from_account: this.account.publicKey, for_account: this.createform.to_account}], { callStatic: true })
@@ -198,33 +197,53 @@ export default {
                                         this.createform.value = ''
                                         this.selected = 'default'
                                     }
-                                    catch (createAllowanceError) {
-                                        console.log('createAllowanceError.toString()')
-                                        console.log(createAllowanceError.toString())
-                                        if (createAllowanceError.toString().includes('ALLOWANCE_ALREADY_EXISTENT')) {
+                                    catch (error) {
+                                        if (error.toString().includes('ALLOWANCE_ALREADY_EXISTENT')) {
                                             this.allowanceExistError = 'Allowance alredy exist!'
                                             this.loading = false;
                                         }
-                                        else if (createAllowanceError.toString().includes('fails to match the required pattern: /^(ak_|ct_|ok_|oq_)/]]') ||  
-                                                createAllowanceError.toString().includes('Cannot unify address') ||
-                                                createAllowanceError.toString().includes('Unbound variable')) {
+                                        else if (error.toString().includes('fails to match the required pattern: /^(ak_|ct_|ok_|oq_)/]]') ||  
+                                                error.toString().includes('Cannot unify address') ||
+                                                error.toString().includes('Unbound variable')) {
                                             this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address' })
                                             this.loading = false; 
                                         }
-                                        else if ( createAllowanceError.toString().includes('NON_NEGATIVE_VALUE_REQUIRED')) {
+                                        else if ( error.toString().includes('NON_NEGATIVE_VALUE_REQUIRED')) {
                                             this.loading = false;
                                             this.$store.dispatch('popupAlert', { name: 'account', type: 'invalid_number' })
                                         }
-                                        else if (createAllowanceError.toString().includes('Parse errors')) {
+                                        else if (error.toString().includes('Parse errors')) {
                                             this.loading = false;
                                             this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'})
                                         }
                                     }
                                 }
                             })
+                        } catch (createAllowanceError) {
+                            console.log('createAllowanceError.toString()')
+                            console.log(createAllowanceError.toString())
+                            if (createAllowanceError.toString().includes('ALLOWANCE_ALREADY_EXISTENT')) {
+                                this.allowanceExistError = 'Allowance alredy exist!'
+                                this.loading = false;
+                            }
+                            else if (createAllowanceError.toString().includes('fails to match the required pattern: /^(ak_|ct_|ok_|oq_)/]]') ||  
+                                    createAllowanceError.toString().includes('Cannot unify address') ||
+                                    createAllowanceError.toString().includes('Unbound variable')) {
+                                this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address' })
+                                this.loading = false; 
+                            }
+                            else if ( createAllowanceError.toString().includes('NON_NEGATIVE_VALUE_REQUIRED')) {
+                                this.loading = false;
+                                this.$store.dispatch('popupAlert', { name: 'account', type: 'invalid_number' })
+                            }
+                            else if (createAllowanceError.toString().includes('Parse errors')) {
+                                this.loading = false;
+                                this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'})
+                            }
                         }
-                    })
-                // }
+                        
+                    }
+                })
             }
         },
         transferAllowance() {
