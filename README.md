@@ -71,8 +71,9 @@ $ npm run test
 
 - Firefox
 
-
-
+1. Open the Firefox menu and select `Add-ons` section.
+2. Click the `Tools for  all add-ons` button and select `Debug Add-ons`
+3. Click `Load a temorary add-on` navigate to the generated `dist` folder in the cloned repo and select the `manifest.json` file.
 
 ## Security
 If you discover a security vulnerability within this application, please send an e-mail to hello@waellet.com. All security vulnerabilities will be promptly addressed.
