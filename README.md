@@ -31,20 +31,48 @@ Currently, Waellet is still in beta and under heavy development. Last week we on
 or see instructions below how to build it from source.
 
 
-## Build and run
+## Build
 
-### Steps to build and run locally:
+Clone the master branch of this repo.
 
-1. Clone the develop branch of this repo.
-2. `npm install`
-3. `npm run watch:dev`
-4. Open chrome/brave browser Preferences -> More tools > Extensions
-5. Make sure `Developer mode` is On in the right corner.
-6. Click `Load unpacked` button and select the generated `dist` folder in the cloned repo.
+```
+$ git clone https://github.com/waellet/waellet.git
+$ cd waellet
+```
+
+### Build locally
+
+```
+$ npm install
+$ npm run build
+```
+
+### Develop locally
+
+```
+$ npm install
+$ npm run watch:dev
+```
 
 ### Running tests
 
-`npm run test`
+```
+$ npm install
+$ npm run test
+```
+
+### Adding to browser via local build
+
+- Chromium based (Chrome, Brave, Opera)
+
+1. Open chrome/brave browser `Preferences -> More tools > Extensions`
+2. Make sure `Developer mode` is `On` in the right corner.
+3. Click `Load unpacked` button and select the generated `dist` folder in the cloned repo.
+
+- Firefox
+
+
+
 
 ## Security
 If you discover a security vulnerability within this application, please send an e-mail to hello@waellet.com. All security vulnerabilities will be promptly addressed.
