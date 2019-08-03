@@ -237,4 +237,6 @@ describe("Test cases for Send Page", () => {
         //     .should('have.class',elem.val())
         // })
     });
+
+    
 });

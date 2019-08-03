@@ -129,7 +129,8 @@ export default {
         },
         addbtn() {
             if (this.newSubAcc != '') {
-                let public_K = getHdWalletAccount(this.wallet, this.subaccounts.length).address;
+                let idx = this.subaccounts.filter(s => !s.isLedger && !s.isAirGapAcc).length
+                let public_K = getHdWalletAccount(this.wallet, idx).address;
                 this.$store.dispatch('setSubAccount', {
                     name: this.newSubAcc,
                     publicKey: public_K,

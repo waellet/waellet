@@ -53,7 +53,7 @@ export default {
             if(account.success) {
                 this.$router.push('/account')
             }else {
-                console.log(account)
+                this.$store.dispatch('popupAlert', { name: 'account', type: 'ledger_account_error'})
             }
         }
     }   
