@@ -21,6 +21,11 @@
                 <i class="arrowright"></i>
                 <p class="tabinfo">Add new token, or deploy token contract</p>
             </button>
+            <button class="fungible-tokens" @click="openSignVerifyMsgPage">
+                <span class="settings-li">{{language.buttons.signAndVerifyMsg}}</span>
+                <i class="arrowright"></i>
+                <p class="tabinfo">Sign a message with your private key or verify a signed message</p>
+            </button>
         </ae-list>
 
         <div v-if="loading" class="loading">
@@ -60,10 +65,13 @@ export default {
       this.$router.push('/allowances');
     },
     navigateAccount() {
-      this.$router.push('/account')
+      this.$router.push('/account');
     },
     openFungibleTokensPage() {
-      this.$router.push('/fungible-tokens')
+      this.$router.push('/fungible-tokens');
+    },
+    openSignVerifyMsgPage() {
+      this.$router.push('/signAndVerifyMsg');
     }
   }
 }

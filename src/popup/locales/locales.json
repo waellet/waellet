@@ -175,10 +175,12 @@
         "backToAccount": "Back to account",
         "backToSettings": "Back to settings",
         "backToUtilities": "Back to utilities",
+        "backToSignVerifyMsg": "Back to Sign/Verify Message",
         "wholeTransaction": "Whole transaction history",
         "loadMore":"Load More",
         "fungibleTokens":"Fungible Tokens",
-        "backToFungibleTokens":"Back to Fungible Tokens"
+        "backToFungibleTokens":"Back to Fungible Tokens",
+        "signAndVerifyMsg": "Sign / Verify message"
       },
       "placeholders": {
         "inputPrivateKey": "Input secret key"
