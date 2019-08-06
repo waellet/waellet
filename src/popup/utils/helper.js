@@ -154,6 +154,7 @@ const redirectAfterLogin = (ctx) => {
 
 
 const initializeSDK = (ctx, { network, current, account, wallet, activeAccount = 0 },background = false) => {
+    ctx.hideConnectError()
     return new Promise ((resolve,reject) => {
         Universal({
             url: (typeof network != 'undefined' ? network[current.network].url : "https://sdk-testnet.aepps.com" ) , 
@@ -173,6 +174,10 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
             }else {
                 resolve(sdk)
             }
+        })
+        .catch(err => {
+            ctx.hideLoader()
+            ctx.showConnectError()
         })
     })
 }
