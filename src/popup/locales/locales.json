@@ -110,9 +110,9 @@
         "settings":{
           "heading" : "Settings",
           "tabGeneral" : "General",
-          "tabGeneralsmall" : "Add name instead address, change your password",
+          "tabGeneralsmall" : "Add name instead address, change your language",
           "tabAdvanced": "Advanced",
-          "tabAdvancedsmall" : "Advanced settings",
+          "tabAdvancedsmall" : "Download your keystore or keypair",
           "tabSecurity" : "Security & Privacy",
           "tabSecuritysmall" : "Privacy data, Reveal private key",
           "tabAbout" : "About",

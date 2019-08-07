@@ -17,27 +17,27 @@
     <div v-if="step == 2" class="step2">
         <h5 class="airgap-setup-titles">Open AirGap on the 2nd device</h5>
         <p class="airgap-setup-definitions">
-            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold">1.</span> Turn off the internet connection before opening AirGap</ae-badge>
+            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold; display: contents;">1</span> Turn off the internet connection before opening AirGap</ae-badge>
         </p>
         <ae-divider />
         <h5 class="airgap-setup-titles">Create secret key</h5>
         <p class="airgap-setup-definitions">
-            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold">2.</span> No internet connection means maximum security for the key</ae-badge>
+            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold; display: contents;">2</span> No internet connection means maximum security for the key</ae-badge>
         </p>
         <ae-divider />
         <h5 class="airgap-setup-titles">Write it down in the right order</h5>
         <p class="airgap-setup-definitions">
-            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold">3.</span> You will need it for recovery</ae-badge>
+            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold; display: contents;">3</span> You will need it for recovery</ae-badge>
         </p>
         <ae-divider />
         <h5 class="airgap-setup-titles">Add an aeternity wallet</h5>
         <p class="airgap-setup-definitions">
-            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold">4.</span> Tap wallet, add wallet and choose aeternity</ae-badge>
+            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold; display: contents;">4</span> Tap wallet, add wallet and choose aeternity</ae-badge>
         </p>
         <ae-divider />
         <h5 class="airgap-setup-titles">Link your aeternity wallet</h5>
         <p class="airgap-setup-definitions">
-            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold">5.</span> Finish by linking your vault to your aeternity address</ae-badge>
+            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold; display: contents;">5</span> Finish by linking your vault to your aeternity address</ae-badge>
         </p>
         <br>
         <ae-button class="step-button" face="flat" fill="alternative" @click="linkVault">Link vault <ae-icon name="left-more" /></ae-button>

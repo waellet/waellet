@@ -50,7 +50,7 @@
                         <!-- Language sub dropdown -->
                         <ul class="sub-dropdown">
                             <li v-for="(value, name) in locales" v-bind:key="name">
-                            <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd" :class="current.language == name ? 'current' : ''">
+                            <ae-button v-on:click="switchLanguage(name)" class="" :class="current.language == name ? 'current' : ''">
                                 <img :src="'../icons/flag_'+name+'.png'" />
                                 {{ name }}
                             </ae-button>
@@ -159,6 +159,7 @@ export default {
                 let defLang = Object.assign({}, locales['en']);
                 this.language = Object.assign(defLang, locales[languageChoose]);
                 this.current.language = languageChoose;
+                this.dropdown.languages = false;
             });
         },
         navigateToSettings() {
@@ -216,6 +217,7 @@ input:active,input:focus {
     outline: none;
 }
 .sett_info {
+    color: #9c9c9c;
     text-align: left;
     width: 100%;
     margin: 0 0px 10px;

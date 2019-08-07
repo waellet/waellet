@@ -32,11 +32,11 @@
                     </div>
                 </Alert>
                 <ae-toolbar fill="alternative" v-if="privateKey != ''" align="right">
-                    <ae-button face="toolbar" v-clipboard:copy="privateKey" @click="reset">
+                    <ae-button face="toolbar" v-clipboard:copy="privateKey" @click="reset(privateKey)">
                         <ae-icon name="copy" />
                         {{language.buttons.copy}}
                     </ae-button>
-                </ae-toolbar>
+                </ae-toolbar>`
                 <div v-if="privateKey == '' && !loading">
                     <ae-input class="my-2" label="Password">
                         <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
@@ -118,11 +118,13 @@ export default {
                 }
             })
         },
-        reset() {
-            this.privateKey = ''
-            this.alert.show = false
-            this.alert.content = ''
-            this.password = ''
+        reset(privateKey) {
+            this.$copyText(privateKey).then(e => {
+                this.privateKey = ''
+                this.alert.show = false
+                this.alert.content = ''
+                this.password = ''
+            });
         },
         setAlertData(fill,show,content) {
             this.alert.fill = fill

@@ -152,6 +152,9 @@ export default {
           case 'ledger_account_error':
               commit(types.SHOW_POPUP, { show:true, ...popupMessages.LEDGER_ACCOUNT_ERROR})
           break
+          case 'signedMessage':
+              commit(types.SHOW_POPUP,{show:true,secondBtn:true,secondBtnClick:'copyText',...popupMessages.SIGNED_MESSAGE,msg:payload.msg,data:payload.data})
+          break
           default:
           break;
         }

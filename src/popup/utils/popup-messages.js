@@ -34,6 +34,7 @@ export const ACCOUNT_INSUFFICIENT_ALLOWANCE = {type:'error', title:'Oops! Someth
 export const LEDGER_SUPPORT = {type:'error', title:'Oops! Something went wrong', msg:'Ledger currently cannot sign this type of transaction! '}
 export const LEDGER_ACCOUNT_ERROR = { type:'error', title:'Oops! Something went wrong', msg:'Account cannot be added! ' }
 //success messages
+export const SIGNED_MESSAGE = {type:'success', title:'Signed message:', msg:'', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Copy', buttonsFillPrimary: 'neutral', buttonsFillSecondary: 'primary'};
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};
 export const SUCCESS_TRANSFER = { type:'success', title:'Transfer completed', msg:''}
 export const SUCCESS_DEPLOY = { type:'success', title:'Contract deployed', msg:''}

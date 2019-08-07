@@ -5,11 +5,28 @@
                 <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{language.buttons.backToUtilities}}</button>
             </div>
             <h3 style='text-align:center;'>{{language.pages.allowances.heading}}</h3>
-            <br>
             <div>
-                <ae-button class="createAllowance" @click="allowancePage = 'create'; allowances = []; selected = 'default'; createform.value = '0'; createform.to_account = '';" face="flat" fill="alternative">Create</ae-button>
-                <ae-button class="transferAllowance" @click="allowancePage = 'transfer'; disableAfterSeeAll = false; allowances = []; selected = 'default'; transferform.to_account = ''; transferform.value = '';" face="flat" fill="alternative">Transfer</ae-button>
-                <ae-button class="seeAllAllowance" @click="allowancePage = 'seeAll'; allowances = []; selected = 'default';" face="flat" fill="alternative">See all</ae-button>
+                <ae-panel>
+                    <h4>Create allowance</h4>
+                    <hr>
+                    <small class="sett_info">This allows you to create allowance with your new fungible tokens for anyone you want</small>
+                    <ae-button class="createAllowance" @click="allowancePage = 'create'; allowances = []; selected = 'default'; createform.value = '0'; createform.to_account = '';" face="round" fill="primary" extend>Create</ae-button>
+                </ae-panel>
+                <ae-panel>
+                    <h4>Transfer allowance</h4>
+                    <hr>
+                    <small class="sett_info">This allows you to take your whole allowance or part of it from someone</small>
+                    <ae-button class="transferAllowance" @click="allowancePage = 'transfer'; disableAfterSeeAll = false; allowances = []; selected = 'default'; transferform.to_account = ''; transferform.value = '';" face="round" fill="primary" extend>Transfer</ae-button>
+                </ae-panel>
+                <ae-panel>
+                    <h4>All allowances</h4>
+                    <hr>
+                    <small class="sett_info">See all your allowances and take them</small>
+                    <ae-button class="seeAllAllowance" @click="allowancePage = 'seeAll'; allowances = []; selected = 'default';" face="round" fill="primary" extend>See all</ae-button>
+                </ae-panel>
+                <!-- <ae-button class="createAllowance" @click="allowancePage = 'create'; allowances = []; selected = 'default'; createform.value = '0'; createform.to_account = '';" face="flat" fill="alternative">Create</ae-button> -->
+                <!-- <ae-button class="transferAllowance" @click="allowancePage = 'transfer'; disableAfterSeeAll = false; allowances = []; selected = 'default'; transferform.to_account = ''; transferform.value = '';" face="flat" fill="alternative">Transfer</ae-button> -->
+                <!-- <ae-button class="seeAllAllowance" @click="allowancePage = 'seeAll'; allowances = []; selected = 'default';" face="flat" fill="alternative">See all</ae-button> -->
             </div>
         </div>
         <div v-if="allowancePage == 'create'" class="create-allowance allowance-form">

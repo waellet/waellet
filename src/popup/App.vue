@@ -28,7 +28,7 @@
                     <ae-check class="subAccountCheckbox"  type="radio" :value="name" v-model="current.network" /> 
                 </ae-list-item>
                 <ae-list-item fill="neutral" class="manageAccounts" v-if="!aeppPopup">
-                  <ae-button @click="navigateNetworks" class="triggerhidedd">
+                  <ae-button @click="navigateNetworks" class="">
                     <ae-button face="icon" fill="primary" class="iconBtn">
                       <ae-icon name="plus" />
                     </ae-button>
@@ -340,6 +340,7 @@ export default {
     },
     navigateNetworks () {
       this.$router.push('/manageNetworks');
+      this.dropdown.network = false;
     },
     myAccount () {
       this.dropdown.settings = false; this.dropdown.languages = false;
