@@ -96,7 +96,7 @@ export default {
                         let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                         let privKey = await decrypt(encryptedPrivateKey.crypto.ciphertext,'123123123',encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
                         let privKey64 = str2buf(privKey);
-                        console.log(privKey64);
+                        // console.log(privKey64);
                         try {
                             let sign = Crypto.signPersonalMessage(this.signMessage, privKey64)
                             this.signature = JSON.stringify(
