@@ -314,7 +314,6 @@ export default {
                         }
                         }
                         catch (err) {
-                            //validation address input
                             if (err.toString().includes('fails to match the required pattern: /^(ak_|ct_|ok_|oq_)/]]')) {
                                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address' })
                             }
@@ -334,10 +333,10 @@ export default {
                     let checkAllAllowances = await this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,element.contract,'allowances')
                     let all = await checkAllAllowances.decode()
                     if (all.length != 0) {
-                        all.forEach(async singleAllowance => { //foreach all allowances
+                        all.forEach(async singleAllowance => {
                             console.log('singleAllowance')
                             console.log(singleAllowance)
-                            if (singleAllowance[0].for_account == this.account.publicKey) { //get allowances for curr account
+                            if (singleAllowance[0].for_account == this.account.publicKey) {
                                 let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
                                 let checkAmountLeft = await contract.call('allowance', [{from_account: singleAllowance[0].from_account, for_account:this.account.publicKey }], { callStatic: true })
                                 .then(async amount => {

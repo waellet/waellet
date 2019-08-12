@@ -199,7 +199,6 @@ export default {
         this.loading = false;
         return;
       }
-      //is the amount correct
       if (this.maxValue - this.form.amount <= 0 && this.current.token == 0) {
         this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
         this.loading = false;
@@ -312,7 +311,6 @@ export default {
 }
 .address {
   position: relative;
-  // background: #ececec;
 }
 .address:focus-within { border-left: #FF0D6A 2px solid; }
 .address:focus-within {

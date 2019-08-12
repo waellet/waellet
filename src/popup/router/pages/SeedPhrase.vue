@@ -210,7 +210,6 @@ export default {
         },
         removeSeed(parent,index) {
             this.seeds.find(s => s.id == parent).selected = false;
-            // this.seeds[parent].selected = false;
             this.selectedSeed.splice(index,1);
             if(this.selectedSeed.length == 12) {
                 this.buttonFill = "primary";

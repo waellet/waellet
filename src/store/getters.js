@@ -55,17 +55,12 @@ export const getters = {
   names(state) {
     return state.names
   },
-  ledgerApi(state){
+  ledgerApi(state) {
     return state.ledgerApi
   },
-  ledgerNextIdx (state) {
-    // if(state.subaccounts.filter(a => a.isLedger).length == 0) {
-    //   return 0
-    // }
-    // return state.subaccounts.filter(a => a.isLedger).length + 1
-
+  ledgerNextIdx(state) {
     return Math.max(
-      ...state.subaccounts.filter(a => a.isLedger).map(( { idx } ) => idx),
+      ...state.subaccounts.filter(a => a.isLedger).map(({ idx }) => idx),
       -1,
     ) + 1
   },

@@ -32,10 +32,6 @@ export default  {
         transactionTypeClass() {
             return "transaction" + (this.transactionData.tx.sender_id == this.account.publicKey || this.transactionData.tx.account_id == this.account.publicKey || this.transactionData.tx.owner_id == this.account.publicKey ? 'Outgoing' : 'Incoming');
         },
-        // transactionType() {
-            
-        //     return this.transactionData.tx.sender_id == this.account.publicKey || this.transactionData.tx.account_id == this.account.publicKey || this.transactionData.tx.owner_id == this.account.publicKey ? 'outgoing' : 'incoming'
-        // },
         transactionType() {
             if(this.transactionData.tx.type == "SpendTx") {
                 if(this.transactionData.tx.sender_id == this.account.publicKey) {

@@ -133,17 +133,6 @@ export default {
                         data:tx,
                         type:tx.type
                     }});
-
-                    // const preclaim = await this.sdk.aensPreclaim(name);
-                    // const claim = await this.sdk.aensClaim(name, preclaim.salt, preclaim.height);
-                    // const update = await this.sdk.aensUpdate(claim.id, this.account.publicKey);
-
-                    // this.$store.dispatch('popupAlert', {
-                    //     name: 'account',
-                    //     type: 'added_success'
-                    // })
-
-                    // this.loading = false;
                 })
             }
         },

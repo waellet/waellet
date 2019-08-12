@@ -133,12 +133,6 @@ export default {
             }
             else if(detectBrowser() == 'Firefox') {
                 this.errorMessage = 'Please enable access to your camera for the mobile browser that you are using to open the Waellet.';
-                // browser.storage.sync.get('firefoxCameraAllowed').then(allowed => {
-                //     if ((allowed.hasOwnProperty('firefoxCameraAllowed') && !allowed.firefoxCameraAllowed) || !allowed.hasOwnProperty('firefoxCameraAllowed')) {
-                //         let extensionUrl = browser.extension.getURL ('./')
-                //         browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
-                //     }
-                // });
             }
         },
     }

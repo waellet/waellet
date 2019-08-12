@@ -113,9 +113,7 @@ export default {
             this.timer = setTimeout(() => {
                 if(type == 'contract') {
                     this.token.precisionDisabled = false
-                    // if(this.token.contract.length == 53) {
-                        this.searchTokenMetaInfo(this.token.contract)
-                    // }
+                    this.searchTokenMetaInfo(this.token.contract)
                 }
             }, 3000);
         },

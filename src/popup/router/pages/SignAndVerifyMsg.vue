@@ -94,7 +94,8 @@ export default {
                         }
                         let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                         let privKey = await decrypt(encryptedPrivateKey.crypto.ciphertext,'123123123',encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
-                        let privKey64 = str2buf(privKey);
+                        let privKey64 = Buffer.from(privKey, 'hex')
+                        // let privKey64 = str2buf(privKey);
                         try {
                             let sign = Crypto.signPersonalMessage(this.signMessage, privKey64)
                             this.signature = JSON.stringify(
@@ -118,6 +119,7 @@ export default {
         verifyMessageAction() {
             let verifyMessage = JSON.parse(this.verifyMessage);
             let verify = Crypto.verifyPersonalMessage (verifyMessage.text, new Uint8Array(verifyMessage.sig.data), Crypto.hash(verifyMessage.address));
+            console.log(verify);
         },
         doCopy() {
             this.$copyText(this.signature).then(e => {

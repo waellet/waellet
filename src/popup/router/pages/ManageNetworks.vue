@@ -70,7 +70,6 @@ export default {
     methods: {
         removeUserNetwork () {
             let networkName = this.popup.data;
-                // deleteIndex = null;
             if (networkName != '') {
                 let un = this.userNetworks.filter(d => {
                     return d.name != networkName

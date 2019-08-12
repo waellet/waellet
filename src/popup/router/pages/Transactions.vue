@@ -263,8 +263,6 @@ export default {
         }
     },
     beforeDestroy () {
-    //   clearInterval(this.polling)
-    //   clearInterval(this.updateInterval)
       window.clearTimeout(this.polling)
       window.clearTimeout(this.upadateInterval)
     }
