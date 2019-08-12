@@ -55,7 +55,6 @@ export default {
             this.$router.push('/account')
         },
         onDecode (content) {
-            console.log('content')
             this.loading = true;
             this.decodedContent = content;
             try {
@@ -102,7 +101,6 @@ export default {
                 }
             } catch (error) {
                 error = error.toString();
-                console.log('error');
                 console.log(error);
                 if (error.includes('Invalid URL')) {
                     this.$router.push('/airGapSetup')
@@ -115,7 +113,6 @@ export default {
                     this.successMessage = 'Camera successfully initilized! Ready for scanning now!';
                 })
                 .catch(error => {
-                    console.log('error');
                     console.log(error);
                     let extensionUrl = 'chrome-extension://'+browser.runtime.id
                     browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});
@@ -137,7 +134,6 @@ export default {
             else if(detectBrowser() == 'Firefox') {
                 this.errorMessage = 'Please enable access to your camera for the mobile browser that you are using to open the Waellet.';
                 // browser.storage.sync.get('firefoxCameraAllowed').then(allowed => {
-                //     console.log(allowed)
                 //     if ((allowed.hasOwnProperty('firefoxCameraAllowed') && !allowed.firefoxCameraAllowed) || !allowed.hasOwnProperty('firefoxCameraAllowed')) {
                 //         let extensionUrl = browser.extension.getURL ('./')
                 //         browser.tabs.create({url: extensionUrl+'/popup/CameraRequestPermission.html', active: true});

@@ -120,9 +120,6 @@ export default {
             }, 3000);
         },
         async next() {
-            console.log(this.token.contract.length);
-            console.log(this.token.symbol.length);
-            console.log(this.token.precision);
             let added = this.tokens.find(tkn => tkn.contract == this.token.contract && tkn.parent == this.account.publicKey)
             if( 
                 (this.token.contract.length != 53 && this.token.contract.length != 54 &&  this.token.contract.length != 52) ||
@@ -130,7 +127,6 @@ export default {
                 isNaN(this.token.precision) ||
                 (!isNaN(this.token.precision) && (this.token.precision < 1 || this.token.precision > 36 ))
             ) {
-                console.log("err")
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'})
             }else if(typeof added != 'undefined'){
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_exists'})
@@ -173,8 +169,6 @@ export default {
             try {
                 this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,address,'meta_info')
                 .then((res) => {
-                    console.log('res');
-                    console.log(res);
                     res.decode()
                     .then(data => {
                         if(typeof data.decimals != 'undefined' && typeof data.symbol != 'undefined') {

@@ -60,9 +60,7 @@ export default {
         },
         async onDecode (content) {
             this.loading = true;
-            console.log(content)
             const signed = getSignedTransactionByResponseUrl(content);
-            console.log(signed)
             let transaction = await this.sdk.sendTransaction(signed);
             let amount = transaction.tx['amount'] / 1000000000000000000;
             let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + transaction.hash;

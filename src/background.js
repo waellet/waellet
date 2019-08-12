@@ -93,7 +93,6 @@ function getAccount() {
 //                         height: 600,
 //                         width:420
 //                       },() => {
-//                         console.log("created");
                         
 //                     });
 //                 });
@@ -103,7 +102,6 @@ function getAccount() {
 //                 // sendDataToPopup(this.getSdks())
 //                 // if (confirm('Do you want to sign ' + JSON.stringify(txObject) + ' ?')) sign() // SIGN TX
 //                 // sign();
-//                 console.log(sign);
 //                 chrome.storage.sync.set({showAeppPopup:{ data: txObject, type:'sign',callback:'asd'  } } , () => {
 //                     chrome.windows.create({
 //                         url: chrome.runtime.getURL('./popup/popup.html'),
@@ -111,7 +109,6 @@ function getAccount() {
 //                         height: 600,
 //                         width:420
 //                       },() => {
-//                         console.log("created");
 //                     });
 //                 });
 //             }
@@ -120,7 +117,6 @@ function getAccount() {
 //             chrome.runtime.onMessage.addListener((msg, sender) => {
 //                 switch (msg.method) {
 //                     case 'pageMessage':
-//                         console.log(msg);
 //                         provider.processMessage(msg);
 //                         break 
 //                 }
