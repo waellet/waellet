@@ -626,7 +626,7 @@ export default {
             },1000)
         },
         async nameUpdate(){
-            const update = await this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
+            const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
             this.$store.dispatch('popupAlert', {
                 name: 'account',
                 type: 'added_success'

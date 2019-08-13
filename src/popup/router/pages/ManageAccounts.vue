@@ -178,7 +178,7 @@ export default {
 .editaccount div button, .addaccount div button { float: right; }
 .editaccount div input { width: 58% !important; }
 
-.slideform { position: relative; width: 100%; overflow: hidden; height:0; padding: 0; top: 10px; list-style-type: none; margin:0;
+.slideform { position: relative; width: 100%; overflow: hidden; height:0; padding: 0; top: 10px; list-style-type: none; margin:0; }
 .slideform.open { height:150px}
 .slide-enter, .slide-leave-to{ transform: scaleY(0); }
 .add-form { text-align: center; /*padding: 15px; margin: 10px;*/ }

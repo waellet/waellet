@@ -72,6 +72,9 @@ export default {
                 msg: '',
                 class: '',
             },
+            signtext: '',
+            signsig: '',
+            signaddress: '',
         }
     },
     locales,
@@ -82,43 +85,40 @@ export default {
     },
     methods:{
         signMessageAction() {
-                this.loading = true;
-                browser.storage.sync.get('userAccount').then(async (user) => {
-                    if(user.userAccount && user.hasOwnProperty('userAccount')) {
-                        let encPrivateKey = user.userAccount.encryptedPrivateKey;
-                        try {
-                            JSON.parse(user.userAccount.encryptedPrivateKey);
-                        }catch(e) {
-                            user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
-                            encPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
-                        }
-                        let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-                        let privKey = await decrypt(encryptedPrivateKey.crypto.ciphertext,'123123123',encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
-                        let privKey64 = Buffer.from(privKey, 'hex')
-                        // let privKey64 = str2buf(privKey);
-                        try {
-                            let sign = Crypto.signPersonalMessage(this.signMessage, privKey64)
-                            this.signature = JSON.stringify(
-                                {
-                                    // msg: Crypto.hash(this.signMessage),
-                                    text: this.signMessage,
-                                    sig: Buffer.from(sign),
-                                    address: this.account.publicKey,
-                                },
-                                null,
-                                2
-                            );
-                            this.loading = false;
-                            this.modalVisible = true;
-                        } catch (error) {
-                            console.log(error);
-                        }
+            this.loading = true;
+            browser.storage.sync.get('userAccount').then(async (user) => {
+                if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                    let encPrivateKey = user.userAccount.encryptedPrivateKey;
+                    try {
+                        JSON.parse(user.userAccount.encryptedPrivateKey);
+                    }catch(e) {
+                        user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
+                        encPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
                     }
-                });
+                    let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                    let privKeyasHex = await decrypt(encryptedPrivateKey.crypto.ciphertext,'123123123',encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                    let privKey = Buffer.from(privKeyasHex, 'hex')
+                    let publicKey = Buffer.from(Crypto.decodeBase58Check(this.account.publicKey.split('_')[1]))
+                    try {
+                        const sign = Crypto.signPersonalMessage(this.signMessage, privKey)
+                        this.signtext = this.signMessage
+                        this.signsig = sign
+                        this.signaddress = publicKey
+                        this.signature = JSON.stringify(
+                            { text: this.signMessage, sig: s, address: publicKey, },
+                            null,
+                            2
+                        );
+                        this.loading = false;
+                        this.modalVisible = true;
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+            });
         },
         verifyMessageAction() {
-            let verifyMessage = JSON.parse(this.verifyMessage);
-            let verify = Crypto.verifyPersonalMessage (verifyMessage.text, new Uint8Array(verifyMessage.sig.data), Crypto.hash(verifyMessage.address));
+            const verify = Crypto.verifyPersonalMessage(this.signtext, this.signsig, this.signaddress)
             console.log(verify);
         },
         doCopy() {
