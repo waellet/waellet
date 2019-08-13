@@ -156,6 +156,8 @@ describe("tests for creating fungible token contract", () => {
         .get('.confirm')
         .should('not.have.class','disabled')
         .click()
+        .get('.ae-modal-light')
+        .should('be.visible')
         .get('.ae-modal-light .buttons button')
         .click()
         .get('.ae-modal-light')
