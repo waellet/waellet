@@ -13,6 +13,6 @@ workflows:
           executor: cypress/base-8
           start: 'npm start'
           parallel: true
-          parallelism: 4
           group: 'all tests'
+    parallelism: 4
           
