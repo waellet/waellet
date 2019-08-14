@@ -88,7 +88,6 @@ export default {
             for(let param in this.token) {
                 contractInitArgs.push(this.token[param])
             }
-            console.log("here")
             let tx = {
                 popup:false,
                 tx: {

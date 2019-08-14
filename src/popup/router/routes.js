@@ -19,6 +19,7 @@ import AllowancesComponent from './pages/Allowances';
 import ConnectConfirmComponent from './pages/ConnectConfirm';
 import ManageNetworksComponent from './pages/ManageNetworks';
 import FungibleTokensComponent from './pages/AddFungibleToken';
+import SignAndVerifyMsg from './pages/SignAndVerifyMsg';
 import FungibleTokensPageComponent from './pages/FungibleTokensPage';
 import AirGapSetup from './pages/AirGapSetup';
 import SignTransactionByQrCode from './pages/SignTransactionByQrCode';
@@ -127,6 +128,10 @@ export default [
   {
     path:'/fungible-tokens',
     component:FungibleTokensPageComponent
+  },
+  {
+    path:'/signAndVerifyMsg',
+    component:SignAndVerifyMsg
   },
   {
     path:'/airGapSetup',

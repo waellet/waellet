@@ -152,7 +152,6 @@ const redirectAfterLogin = (ctx) => {
 }
 
 
-
 const initializeSDK = (ctx, { network, current, account, wallet, activeAccount = 0 },background = false) => {
     ctx.hideConnectError()
     return new Promise ((resolve,reject) => {

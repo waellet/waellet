@@ -70,5 +70,7 @@ export default {
     text-align: center;
     margin-right: 8px;
 }
-
+.text-left li {
+    word-break: break-word;
+}
 </style>

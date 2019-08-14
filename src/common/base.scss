@@ -32,7 +32,9 @@ body {
 a {
   color: $main-color;
 }
-
+p {
+  word-break: break-word;
+}
 .ae-input-container.focus { 
   caret-color: $primary-color !important;
   border-left: 2px solid $primary-color !important;
@@ -116,13 +118,19 @@ main {
   word-break: break-word
 }
 .ae-overlay .ae-modal-light .buttons { 
-  margin-top:5px !important;  
+  margin-top:5px !important;
+}
+.signature-modal .buttons {
+  display: none !important;
 }
 .ae-overlay .ae-modal-light h1 {
   word-break: break-word;
 }
 .ae-overlay .ae-modal-light main { 
   padding-bottom:1rem; 
+}
+.ae-modal-light > main > div {
+  word-break: break-word;
 }
 .ae-main {
   padding-bottom:0 !important;

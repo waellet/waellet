@@ -17,8 +17,8 @@
                 <div v-if="step == 2">
                     <h3  class="phraseTitle">Carefully keep this phrase safe! Write these 12 words down and keep them in safe place. You need them to recover your account in the future. </h3>
                     <div class="seeds-container">
-                        <div class="col" v-for="column in columns">
-                            <ae-badge v-for="seed in column">{{seed.id + 1}} {{seed.name}}</ae-badge>
+                        <div class="col" v-for="column in columns" v-bind:key="column.id">
+                            <ae-badge v-for="seed in column" v-bind:key="seed.id">{{seed.id + 1}} {{seed.name}}</ae-badge>
                         </div>
                     </div>
                     <progress class="seedProgress" :value="progress" max="100"></progress>
@@ -26,7 +26,7 @@
                 <div v-if="step == 3">
                     <h3  class="phraseTitle">Confirm your phrase. Tap the words below to compose your phrase, note correct order! </h3>
                     <ae-phraser>
-                        <ae-badge class="seedBadge" :class="{'selected':seed.selected}" v-for="(seed,index) in shiffledSeed" @click.native="selectSeed(seed.name,index,seed.id)">{{seed.name}}</ae-badge>
+                        <ae-badge class="seedBadge" :class="{'selected':seed.selected}" v-for="(seed,index) in shiffledSeed" v-bind:key="seed.id" @click.native="selectSeed(seed.name,index,seed.id)">{{seed.name}}</ae-badge>
                     </ae-phraser>
                     <div class="phraseSubTitle">Your recovery phrase</div>
                     <ae-phraser v-if="selectedSeed.length == 0">
@@ -36,7 +36,7 @@
                         <ae-badge class="seedBadge selected">...</ae-badge>
                     </ae-phraser>
                     <ae-phraser v-bind="seedError" class="mb-5">
-                        <ae-badge class="seedBadge" v-for="(seed,index) in selectedSeed" @click.native="removeSeed(seed.parent,index)">{{seed.name}} <ae-icon name="close" class="seedClose" /></ae-badge>
+                        <ae-badge class="seedBadge" v-for="(seed,index) in selectedSeed" v-bind:key="seed.id" @click.native="removeSeed(seed.parent,index)">{{seed.name}} <ae-icon name="close" class="seedClose" /></ae-badge>
                     </ae-phraser>
                 </div>
                 <ae-button extend face="round" :fill="buttonFill" class="mt-3 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
@@ -210,7 +210,6 @@ export default {
         },
         removeSeed(parent,index) {
             this.seeds.find(s => s.id == parent).selected = false;
-            // this.seeds[parent].selected = false;
             this.selectedSeed.splice(index,1);
             if(this.selectedSeed.length == 12) {
                 this.buttonFill = "primary";

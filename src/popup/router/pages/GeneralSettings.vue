@@ -50,7 +50,7 @@
                         <!-- Language sub dropdown -->
                         <ul class="sub-dropdown">
                             <li v-for="(value, name) in locales" v-bind:key="name">
-                            <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd" :class="current.language == name ? 'current' : ''">
+                            <ae-button v-on:click="switchLanguage(name)" class="" :class="current.language == name ? 'current' : ''">
                                 <img :src="'../icons/flag_'+name+'.png'" />
                                 {{ name }}
                             </ae-button>
@@ -133,17 +133,6 @@ export default {
                         data:tx,
                         type:tx.type
                     }});
-
-                    // const preclaim = await this.sdk.aensPreclaim(name);
-                    // const claim = await this.sdk.aensClaim(name, preclaim.salt, preclaim.height);
-                    // const update = await this.sdk.aensUpdate(claim.id, this.account.publicKey);
-
-                    // this.$store.dispatch('popupAlert', {
-                    //     name: 'account',
-                    //     type: 'added_success'
-                    // })
-
-                    // this.loading = false;
                 })
             }
         },
@@ -159,6 +148,7 @@ export default {
                 let defLang = Object.assign({}, locales['en']);
                 this.language = Object.assign(defLang, locales[languageChoose]);
                 this.current.language = languageChoose;
+                this.dropdown.languages = false;
             });
         },
         navigateToSettings() {
@@ -216,6 +206,7 @@ input:active,input:focus {
     outline: none;
 }
 .sett_info {
+    color: #9c9c9c;
     text-align: left;
     width: 100%;
     margin: 0 0px 10px;

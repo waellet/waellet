@@ -85,7 +85,7 @@ function isBase64(str) {
   return !!(index === -1 || str.slice(index).match(/={1,2}/));
 }
 
-function str2buf(str, enc) {
+export function str2buf(str, enc) {
   if (!str || str.constructor !== String) return str;
   if (!enc && isHex(str)) enc = 'hex';
   if (!enc && isBase64(str)) enc = 'base64';
