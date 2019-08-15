@@ -5,8 +5,8 @@
                 <div class="attentionHolder" v-if="step == 1" >
 
                     <h1><div>!</div></h1>
-                    <h3>Please make sure to keep your seedphrase safe! Waellet does not store and cannot recover your seedphrase! It is your responsibility to keep it safe. If you loose access to your waellet, you will loose all your funds.</h3>
-                    <h4>Tips on how to protect your funds</h4>
+                    <h4>Please make sure to keep your seedphrase safe! Waellet does not store and cannot recover your seedphrase! It is your responsibility to keep it safe. If you loose access to your waellet, you will loose all your funds.</h4>
+                    <h4 class="mt-3">Tips on how to protect your funds</h4>
                     <ul>
                         <li>Safe a backup on multiple places</li>
                         <li>Remember your password to decrypt your waellet</li>
@@ -39,7 +39,7 @@
                         <ae-badge class="seedBadge" v-for="(seed,index) in selectedSeed" v-bind:key="seed.id" @click.native="removeSeed(seed.parent,index)">{{seed.name}} <ae-icon name="close" class="seedClose" /></ae-badge>
                     </ae-phraser>
                 </div>
-                <ae-button extend face="round" :fill="buttonFill" class="mt-3 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
+                <ae-button extend face="round" :fill="buttonFill" class="mt-1 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
                 
             </div>
             <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
@@ -240,9 +240,6 @@ export default {
     word-break: break-word;
     margin: 1.5rem 0 1.5rem;
 }
-.attentionHolder h4, .attentionHolder ul {
-    margin: 0;
-}
 .attentionHolder ul li {
     text-align: left;
 }
@@ -255,7 +252,7 @@ export default {
   display: flex;
   flex-direction: column;
 }
-.mt-3 { margin-top:3rem;}
+.mt-1 { margin-top:1rem;}
 .seedBadge { 
     user-select: unset;
     cursor:pointer;
@@ -277,11 +274,11 @@ export default {
     color:#929ca6;
 }
 .phraseTitle {
-    margin:10px;
-    padding-left:1rem;
-    font-size:1.5rem;
-    font-weight:500; 
-    word-break:break-word; 
+    margin: 0 0 3rem 0;
+    padding-left: 1rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    word-break: break-word;
 }
 .seedProgress {
     background:#fff;

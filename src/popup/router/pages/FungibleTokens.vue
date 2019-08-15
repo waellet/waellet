@@ -67,6 +67,8 @@
 import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+import { isInt } from '../../utils/helper'
+
 export default {
     data() {
         return {
@@ -122,7 +124,7 @@ export default {
             if( 
                 (this.token.contract.length != 53 && this.token.contract.length != 54 &&  this.token.contract.length != 52) ||
                 (this.token.symbol.length < 1 || this.token.symbol.length > 12) || 
-                isNaN(this.token.precision) ||
+                isNaN(this.token.precision) || !isInt(this.token.precision) ||
                 (!isNaN(this.token.precision) && (this.token.precision < 1 || this.token.precision > 36 ))
             ) {
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'})
