@@ -67,10 +67,9 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { getHdWalletAccount } from '../../utils/hdWallet';
 import locales from '../../locales/locales.json';
-import { Universal } from '@aeternity/aepp-sdk';
-import { clearInterval, clearTimeout  } from 'timers';
+import { clearTimeout  } from 'timers';
+
 export default {
     data () {
         return {
@@ -86,7 +85,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount', 'popup', 'names', 'sdk']),
+        ...mapGetters(['current', 'popup', 'names', 'sdk']),
     },
     created() {
         this.polling = setInterval(() => {

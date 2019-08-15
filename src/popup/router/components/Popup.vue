@@ -6,7 +6,7 @@
         :title="popup.title"
         :class="(popup.secondBtn ? 'modal-two-buttons ' : '') + (popup.class ? popup.class : '')"
     >
-        <div v-html="popup.msg"></div>
+        <div class="popup-message" v-html="popup.msg"></div>
         <ae-button
             size="small"
             type="exciting"
