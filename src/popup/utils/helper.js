@@ -152,7 +152,6 @@ const redirectAfterLogin = (ctx) => {
 }
 
 
-
 const initializeSDK = (ctx, { network, current, account, wallet, activeAccount = 0 },background = false) => {
     ctx.hideConnectError()
     return new Promise ((resolve,reject) => {
@@ -233,6 +232,10 @@ const checkAddress = (value) => {
     return Crypto.isAddressValid(value);
 }
 
+const isInt = (n) => {
+    return n % 1 === 0;
+}
+
 const chekAensName = (value) => {
     return value.endsWith('.test');
 }
@@ -253,7 +256,8 @@ export {
     contractDecodeData, 
     removeTxFromStorage,
     checkAddress,
-    chekAensName
+    chekAensName,
+    isInt
 }
 
 

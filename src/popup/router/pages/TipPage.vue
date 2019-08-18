@@ -154,8 +154,6 @@ export default {
         },
         setSliderBackground(slider) {
             const percentage = 100*(slider.value-slider.min)/(slider.max-slider.min);
-            // now we'll create a linear gradient that separates at the above point
-            // Our background color will change here
             const bg = `linear-gradient(90deg, #FF0D6A ${percentage}%, #d7dcdf ${percentage+0.1}%)`;
             slider.style.background = bg;
         }

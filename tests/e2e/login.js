@@ -44,8 +44,6 @@ export const loginAndLogout = () => {
     .get('button')
     .contains('Login')
     .click()
-    // .get('.ae-loader')
-    // .should('be.visible')
     .get('.ae-toolbar')
     .should('be.visible')
     .get('input[type="password"]')

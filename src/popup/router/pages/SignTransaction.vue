@@ -160,16 +160,18 @@ export default {
             return (parseFloat(this.amount) + parseFloat(this.selectedFee)).toFixed(7)
         },
         insufficientBalance() {
-            if(typeof this.data.tx.token != 'undefined') {
-                return this.tokenBalance - this.amount <= 0
+            if (this.data.tx.token == 'AE') {
+                if(typeof this.data.tx.token != 'undefined') {
+                    return this.tokenBalance - this.amount <= 0
+                }
+                return this.maxValue - this.amount <= 0
             }
-            return this.maxValue - this.amount <= 0
         },
         inccorectAddress() {
-            if(this.data.type != 'txSign') {
-                return this.receiver == null || this.receiver == ""
-            }
-            return  (!checkAddress(this.receiver) && !chekAensName(this.receiver) ) 
+                if(this.data.type != 'txSign') {
+                    return this.receiver == null || this.receiver == ""
+                }
+                return  (!checkAddress(this.receiver) && !chekAensName(this.receiver) ) 
         },
         watchBalance() {
             return this.balance
@@ -387,7 +389,6 @@ export default {
                 if(balance) {
                     setTimeout(() => {
                         if(this.data.popup) {
-                            console.log(this.alertMsg)
                             this.errorTx.error.message = this.alertMsg
                             this.port.postMessage(this.errorTx)
                             // setTimeout(() => {
@@ -424,11 +425,9 @@ export default {
         redirectInExtensionAfterAction() {
             browser.storage.sync.get('pendingTransaction').then((data) => {
                 if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('list') && Object.keys(data.pendingTransaction.list).length > 0) {
-                    console.log(data)
                     let tx = data.pendingTransaction.list[Object.keys(data.pendingTransaction.list)[0]];
                     tx.popup = false
                     tx.countTx =  Object.keys(data.pendingTransaction.list).length
-                    // this.data = tx
                     this.$router.push({'name':'sign', params: {
                         data:tx,
                         type:tx.type
@@ -445,7 +444,7 @@ export default {
                         this.loading = false
                         this.hash = result.hash
                         let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
-                        let msg = 'You send ' + this.amount + ' AE'
+                        let msg = 'You have sent ' + this.amount + ' AE'
                         if(this.data.popup) {
                             let res = {
                                 "id": null,
@@ -498,7 +497,7 @@ export default {
             this.loading = false
             if(sign.success) {
                 let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + sign.res.hash
-                let msg = 'You send ' + this.amount + ' AE'
+                let msg = 'You have sent ' + this.amount + ' AE'
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl})
                 .then(async () => {
                     this.$store.commit('SET_AEPP_POPUP',false)
@@ -530,19 +529,25 @@ export default {
         async contractCall(){
             let call
             try {
-                let byteCode = await this.checkSourceByteCode(this.data.tx.source)
-                let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
-                if(byteCode == deployedByteCode) {
+                if (this.data.popup) {
+                    let byteCode = await this.checkSourceByteCode(this.data.tx.source)
+                    let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
+                    if(byteCode == deployedByteCode) {
+                        call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
+                        let decoded = await call.decode()
+                        call.decoded = decoded
+                        this.port.postMessage(call)
+                    }else {
+                        this.errorTx.error.message = "Invalid contract interface"
+                        this.port.postMessage(this.errorTx)
+                    }
+                }
+                else {
                     call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
                     let decoded = await call.decode()
-                    call.decoded = decoded
-                    this.port.postMessage(call)
-                }else {
-                    this.errorTx.error.message = "Invalid contract interface"
-                    this.port.postMessage(this.errorTx)
                 }
-                
             }catch(err) {
+                console.log(err);
                 this.errorTx.error.message = err.message
                 this.port.postMessage(this.errorTx)
             }
@@ -559,14 +564,10 @@ export default {
         async contractDeploy() {
             let deployed
             if(this.isLedger) {
-                // console.log(this.txParams)
                 // let params = Object.assign({ foo: 'foo', bar: 'bar' }, this.txParams)
                 let { ownerId, amount, gas, code, callData, deposit } = this.txParams 
-                // console.log(params)
                 let tx = (await this.sdk[TX_TYPES[this.data.type]]({ownerId, amount, gas, code, callData, deposit})).tx
-                // console.log(tx)
                 let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
-                // console.log(sign)
                 
             }else {
                 deployed = await this.sdk.contractDeploy(this.data.tx.contract.bytecode, FUNGIBLE_TOKEN_CONTRACT, [...this.data.tx.contract.params ], { fee: this.convertSelectedFee })
@@ -625,7 +626,7 @@ export default {
             },1000)
         },
         async nameUpdate(){
-            const update = await this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
+            const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
             this.$store.dispatch('popupAlert', {
                 name: 'account',
                 type: 'added_success'
@@ -653,7 +654,7 @@ export default {
                         }else {
                             let call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
                             let decoded = await call.decode()
-                            let msg = `You send ${this.data.tx.amount} ${this.data.tx.token}` 
+                            let msg = `You have sent ${this.data.tx.amount} ${this.data.tx.token}` 
                             let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + call.hash
                             this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg, data:txUrl})
                             .then(() => {

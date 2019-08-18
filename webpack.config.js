@@ -17,7 +17,7 @@ const config = {
     'main':'./main.js',
     'phishing/phishing':'./phishing/phishing.js',
     "aepp":'./aepp.js',
-    "cameraRequestPermission":'./popup/CameraRequestPermission.html'
+    "popup/cameraPermission":'./popup/cameraPermission.js'
   },
   node: {
     fs: 'empty', net: 'empty', tls: 'empty'

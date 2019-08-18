@@ -41,6 +41,7 @@
 <script>
 import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
+import { isInt } from '../../utils/helper'
 import { FUNGIBLE_TOKEN_CONTRACT, MIN_SPEND_TX_FEE, MAX_REASONABLE_FEE, TX_TYPES } from '../../utils/constants';
 
 
@@ -80,7 +81,7 @@ export default {
                 this.err.symbol = true 
                 return
             }
-            if(this.token.precision < 1 || this.token .precision > 36) {
+            if(this.token.precision < 1 || this.token.precision > 36 || !isInt(this.token.precision)) {
                 this.err.precision = true
                 return
             }
@@ -88,7 +89,6 @@ export default {
             for(let param in this.token) {
                 contractInitArgs.push(this.token[param])
             }
-            console.log("here")
             let tx = {
                 popup:false,
                 tx: {

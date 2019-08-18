@@ -37,7 +37,7 @@
     <h3>Latest transactions</h3>
     <div v-if="transactions.latest.length && !loading">
       <ae-list class="transactionList">
-        <TransactionItem v-for="transaction in transactions.latest" :transactionData="transaction"></TransactionItem>
+        <TransactionItem v-for="transaction in transactions.latest" v-bind:key="transaction.id" :transactionData="transaction"></TransactionItem>
       </ae-list>
       <ae-button face="round" fill="primary" class="transactionHistory" @click="showAllTranactions">{{language.buttons.wholeTransaction}}</ae-button>
     </div>

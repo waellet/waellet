@@ -34,7 +34,7 @@
                             </ae-toolbar>
                         </ae-input>
                     </div>
-                    <ae-button face="round" fill="primary" @click="next" class="to-confirm-add" extend >{{language.pages.tokens.next}}</ae-button>
+                    <ae-button face="round" fill="primary" @click="next" id="to-confirm-add" class="to-confirm-add" extend >{{language.pages.tokens.next}}</ae-button>
                 </ae-panel>
             </div>
             <div v-if="addStep" >

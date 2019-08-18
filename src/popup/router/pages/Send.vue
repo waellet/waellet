@@ -199,7 +199,6 @@ export default {
         this.loading = false;
         return;
       }
-      //is the amount correct
       if (this.maxValue - this.form.amount <= 0 && this.current.token == 0) {
         this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
         this.loading = false;
@@ -237,8 +236,6 @@ export default {
         if (isAirGapAcc) {
           browser.storage.sync.get('airGapGeneratedKey').then(async publicKHex => {
             const spendTx = await this.sdk.spendTx({senderId: this.account.publicKey, recipientId: receiver, amount: amount});
-            console.log('spendTx');
-            console.log(spendTx);
             const generated = generateSignRequestUrl(this.network[this.current.network].networkId, spendTx, publicKHex.airGapGeneratedKey);
             this.$router.push({'name': 'signTransactionByQrCode', params:{url:generated}})
           });
@@ -258,6 +255,9 @@ export default {
           }});
         }
      } 
+    },
+    init() {
+      let calculatedMaxValue = this.balance - this.maxFee
     },
     init() {
       let calculatedMaxValue = this.balance - this.maxFee
@@ -311,7 +311,6 @@ export default {
 }
 .address {
   position: relative;
-  // background: #ececec;
 }
 .address:focus-within { border-left: #FF0D6A 2px solid; }
 .address:focus-within {

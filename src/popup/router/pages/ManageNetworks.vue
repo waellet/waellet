@@ -69,18 +69,17 @@ export default {
     },
     methods: {
         removeUserNetwork () {
-        let networkName = this.popup.data;
-            // deleteIndex = null;
-        if (networkName != '') {
-            let un = this.userNetworks.filter(d => {
-                return d.name != networkName
-            });
-            this.$store.dispatch('setUserNetworks', un).then(() => {
-                browser.storage.sync.set({ userNetworks: un}).then(() => {
-                delete this.$store.state.network[networkName];
+            let networkName = this.popup.data;
+            if (networkName != '') {
+                let un = this.userNetworks.filter(d => {
+                    return d.name != networkName
                 });
-            });
-        }
+                this.$store.dispatch('setUserNetworks', un).then(() => {
+                    browser.storage.sync.set({ userNetworks: un}).then(() => {
+                    delete this.$store.state.network[networkName];
+                    });
+                });
+            }
         },
         removeUserNetworkCheck (name) {
             if (this.$store.state.current.network == name) {

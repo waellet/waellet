@@ -110,9 +110,9 @@
         "settings":{
           "heading" : "Settings",
           "tabGeneral" : "General",
-          "tabGeneralsmall" : "Add name instead address, change your password",
+          "tabGeneralsmall" : "Add name instead address, change your language",
           "tabAdvanced": "Advanced",
-          "tabAdvancedsmall" : "Advanced settings",
+          "tabAdvancedsmall" : "Download your keystore or keypair",
           "tabSecurity" : "Security & Privacy",
           "tabSecuritysmall" : "Privacy data, Reveal private key",
           "tabAbout" : "About",
@@ -175,10 +175,12 @@
         "backToAccount": "Back to account",
         "backToSettings": "Back to settings",
         "backToUtilities": "Back to utilities",
+        "backToSignVerifyMsg": "Back to Sign/Verify Message",
         "wholeTransaction": "Whole transaction history",
         "loadMore":"Load More",
         "fungibleTokens":"Fungible Tokens",
-        "backToFungibleTokens":"Back to Fungible Tokens"
+        "backToFungibleTokens":"Back to Fungible Tokens",
+        "signAndVerifyMsg": "Sign / Verify message"
       },
       "placeholders": {
         "inputPrivateKey": "Input secret key"
