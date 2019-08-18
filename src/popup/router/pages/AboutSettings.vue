@@ -17,8 +17,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import { getHdWalletAccount } from '../../utils/hdWallet';
 import locales from '../../locales/locales.json';
 
 export default {
@@ -28,9 +26,6 @@ export default {
             language: locales['en'],
             loading: false,
         }
-    },
-    computed: {
-        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount']),
     },
     methods: {
         navigateToSettings() {

@@ -15,7 +15,7 @@ export const POPUP_PROPS = {
 //error messages
 export const INSUFFICIENT_BALANCE = { type:'error', title:'Insufficient balance', msg:'The requested amount cannot be spent.'};
 export const SEED_FAST_COPY = { type:'error', title:'That was too fast!', msg:'Please make sure you write down the recovery phrase on paper and keep it in a safe place.'}
-export const INCORRECT_ADDRESS = { type:'error', title:'Incorrect address', msg:'Please make sure you entered valid public address! '}
+export const INCORRECT_ADDRESS = { type:'error', title:'Incorrect address', msg:'Please make sure that you have entered a valid public address!'}
 export const INCORRECT_AMOUNT = { type:'error', title:'Enter amount', msg:'Please make sure you entered valid amount to send! '}
 export const TRANSACTION_FAILED = { type:'error', title:'Oops! Something went wrong', msg:'We cannot process this transaction! Please, try again!'}
 export const REQUIRED_FIELD = { type:'error', title:'Required fields!', msg:'Please fill in all fields.'}

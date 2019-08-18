@@ -444,7 +444,7 @@ export default {
                         this.loading = false
                         this.hash = result.hash
                         let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
-                        let msg = 'You send ' + this.amount + ' AE'
+                        let msg = 'You have sent ' + this.amount + ' AE'
                         if(this.data.popup) {
                             let res = {
                                 "id": null,
@@ -497,7 +497,7 @@ export default {
             this.loading = false
             if(sign.success) {
                 let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + sign.res.hash
-                let msg = 'You send ' + this.amount + ' AE'
+                let msg = 'You have sent ' + this.amount + ' AE'
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl})
                 .then(async () => {
                     this.$store.commit('SET_AEPP_POPUP',false)
@@ -654,7 +654,7 @@ export default {
                         }else {
                             let call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
                             let decoded = await call.decode()
-                            let msg = `You send ${this.data.tx.amount} ${this.data.tx.token}` 
+                            let msg = `You have sent ${this.data.tx.amount} ${this.data.tx.token}` 
                             let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + call.hash
                             this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg, data:txUrl})
                             .then(() => {

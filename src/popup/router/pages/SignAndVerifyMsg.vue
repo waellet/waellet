@@ -1,11 +1,23 @@
 <template>
     <div class="popup">
-        <ae-modal-light class="signature-modal" v-if="modalVisible" @close="modalVisible = false" title="Signature" >
+        <ae-modal-light class="signature-modal" v-if="modalVisible && !requirePass" @close="modalVisible = false" title="Signature" >
             <h3 class="h3-signature">Signed message:</h3>
             <p class="signedmsg-modal">{{signature}}</p>
             <div class="signature-modal-buttons">
                 <button class="signMsg-copy" @click="doCopy">COPY</button>
                 <button class="signMsg-cancel" @click="modalVisible = false" >Cancel</button>
+            </div>
+        </ae-modal-light>
+        <ae-modal-light class="signature-modal" v-if="requirePass" @close="requirePass = false" title="" >
+            <h3 class="h3-signature">Enter your password</h3>
+            <p class="error">{{passwordAlert}}</p>
+            <ae-input class="my-2" label="Password">
+                <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+            </ae-input>
+            <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
+            <div class="signature-modal-buttons">
+                <button class="signMsg-copy" @click="openSignPage">Sign message</button>
+                <button class="signMsg-cancel" @click="requirePass = false" >Cancel</button>
             </div>
         </ae-modal-light>
         <div v-if="page == ''">
@@ -17,13 +29,13 @@
                 <h4>Sign message</h4>
                 <hr>
                 <small class="sett_info">This allows you to sign message with your private key</small>
-                <ae-button face="round" extend fill="primary" @click="page='sign'">Sign</ae-button>
+                <ae-button face="round" extend fill="primary" @click="requirePasswordModal">Sign</ae-button>
             </ae-panel>
             <ae-panel>
                 <h4>Verify message</h4>
                 <hr>
                 <small class="sett_info">This allows you to verify signed messages</small>
-                <ae-button face="round" extend fill="primary" class="create-token" @click="page='verify'">Verify</ae-button>
+                <ae-button face="round" extend fill="primary" class="create-token" @click="page='verify'; verifyMessage=''">Verify</ae-button>
             </ae-panel>
         </div>
         <div v-if="page=='sign'">
@@ -68,13 +80,13 @@ export default {
             verifyMessage: '',
             modalVisible: '',
             signature: '',
+            password:'',
+            passwordAlert: '',
             alert: {
                 msg: '',
                 class: '',
             },
-            signtext: '',
-            signsig: '',
-            signaddress: '',
+            requirePass: false
         }
     },
     locales,
@@ -84,10 +96,42 @@ export default {
     created() {
     },
     methods:{
+        requirePasswordModal() {
+            this.password = '';
+            this.requirePass = true;
+        },
+        openSignPage() {
+            this.loading = true;
+            if (this.password != '') {
+                browser.storage.sync.get('userAccount').then(async (user) => {
+                    if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                        let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                        let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                        this.loading = false
+                        if(match) {
+                            this.requirePass = false;
+                            this.page = 'sign';
+                        }else {
+                            this.passwordAlert = 'Incorrect password!';
+                            setTimeout(() => {
+                                this.passwordAlert = '';
+                            }, 2800);
+                        }
+                    }
+                })
+            }
+            else {
+                this.loading = false;
+                this.passwordAlert = 'Please enter valid password!';
+                setTimeout(() => {
+                    this.passwordAlert = '';
+                }, 2800);
+            }
+        },
         signMessageAction() {
             this.loading = true;
             browser.storage.sync.get('userAccount').then(async (user) => {
-                if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                if(user.userAccount && user.hasOwnProperty('userAccount') && this.password != '') {
                     let encPrivateKey = user.userAccount.encryptedPrivateKey;
                     try {
                         JSON.parse(user.userAccount.encryptedPrivateKey);
@@ -96,16 +140,17 @@ export default {
                         encPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
                     }
                     let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-                    let privKeyasHex = await decrypt(encryptedPrivateKey.crypto.ciphertext,'123123123',encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                    let privKeyasHex = await decrypt(encryptedPrivateKey.crypto.ciphertext, this.password, encryptedPrivateKey.crypto.cipher_params.nonce, encryptedPrivateKey.crypto.kdf_params.salt);
                     let privKey = Buffer.from(privKeyasHex, 'hex')
                     let publicKey = Buffer.from(Crypto.decodeBase58Check(this.account.publicKey.split('_')[1]))
                     try {
                         const sign = Crypto.signPersonalMessage(this.signMessage, privKey)
-                        this.signtext = this.signMessage
-                        this.signsig = sign
-                        this.signaddress = publicKey
                         this.signature = JSON.stringify(
-                            { text: this.signMessage, sig: s, address: publicKey, },
+                            { 
+                                text: this.signMessage, 
+                                sig: sign, 
+                                address: publicKey,
+                            },
                             null,
                             2
                         );
@@ -118,8 +163,18 @@ export default {
             });
         },
         verifyMessageAction() {
-            const verify = Crypto.verifyPersonalMessage(this.signtext, this.signsig, this.signaddress)
-            console.log(verify);
+            try {
+                let verObj = JSON.parse(this.verifyMessage);
+                console.log(verObj);
+                const verify = Crypto.verifyPersonalMessage(verObj.text, new Uint8Array(verObj.sig.data), new Uint8Array(verObj.address.data));
+                console.log(verify);
+            } catch (error) {
+                console.log(error);
+                error = error.toString();
+                if (error.includes('unexpected type') || error.includes('Unexpected token') || error.includes('argument must be')) {
+                    this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'});
+                }
+            }
         },
         doCopy() {
             this.$copyText(this.signature).then(e => {
@@ -130,7 +185,7 @@ export default {
                 setTimeout(() => {
                     this.alert.msg = "";
                     this.alert.class = "";
-                }, 4000);
+                }, 2800);
             });
         },
         navigateUtilities(){
@@ -171,7 +226,6 @@ export default {
 }
 .error {
     color: #ff0000;
-    border: 1px solid #b70000;
     font-weight: 500;
     font-size: 20px;
     padding: 5px;

@@ -29,6 +29,7 @@
     "@ledgerhq/hw-transport-u2f": "^4.68.2",
     "@vue/cli-plugin-e2e-cypress": "^3.8.0",
     "@vue/cli-service": "^3.8.0",
+    "@zxing/library": "^0.15.1",
     "argon2-browser": "^1.5.2",
     "axios": "^0.19.0",
     "bignumber.js": "^8.1.1",
