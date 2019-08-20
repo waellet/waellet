@@ -35,9 +35,13 @@
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txTo}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.recipient_id" @click="copy" class="copyBtn">COPY</button></div>
                 <input disabled :value="transaction.tx.recipient_id" length="flat" class="transactionTo transactionDetailsInputs"/>
             </ae-list-item>
-            <ae-list-item fill="neutral" class="flex-direction-column"  v-if="!isSpendTx">
+            <ae-list-item fill="neutral" class="flex-direction-column"  v-if="!isSpendTx && transactionType.fill != ''">
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txAccount}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.account_id" @click="copy" class="copyBtn">COPY</button></div>
                 <input disabled :value="txAccount" length="flat" class="transactionTo transactionDetailsInputs"/>
+            </ae-list-item>
+            <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isContractCallTx">
+                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.contractId}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.contract_id" @click="copy" class="copyBtn">COPY</button></div>
+                <input disabled :value="transaction.tx.contract_id" length="flat" class="transactionTo transactionDetailsInputs"/>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column" v-if="isNameClaimTx">
                 <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txName}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.name" @click="copy" class="copyBtn">COPY</button></div>
@@ -49,7 +53,7 @@
             </ae-list-item>
         </ae-list>
         <ae-button-group  class="btnFixed">
-            <ae-button face="round" class=" transactionExplorerBtn" :fill="transactionType.fill" @click="transactionInExplorer">    <ae-icon name="search" />  {{language.pages.transactionDetails.explorer}} </ae-button>
+            <ae-button face="round" class=" transactionExplorerBtn" :fill="transactionType.fill != '' ? transactionType.fill : null" @click="transactionInExplorer">    <ae-icon name="search" />  {{language.pages.transactionDetails.explorer}} </ae-button>
         </ae-button-group>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
@@ -63,7 +67,7 @@ export default {
     data() {
         return {
             language: locales['en']
-        }
+        } 
     },
     props: ['transaction'],
     locales,
@@ -81,15 +85,19 @@ export default {
         transactionType() {
             if(this.transaction.tx.type == "SpendTx") {
                 if(this.transaction.tx.sender_id == this.account.publicKey) {
-                    return {fill:"primary", type: "Spend Tx Out"}
+                    return { fill:"primary", type: "Spend Tx Out" }
                 }else {
-                    return {fill:"alternative", type: "Spend Tx In"}
+                    return { fill:"alternative", type: "Spend Tx In" }
                 }
             }else if(this.transaction.tx.type == "ContractCreateTx") {
-                return {fill:"secondary", type: "Contract Create Tx"}
+                return { fill:"secondary", type: "Contract Create Tx" }
             }else if(this.transaction.tx.type == "NamePreclaimTx" || this.transaction.tx.type == "NameUpdateTx" || this.transaction.tx.type == "NameClaimTx") {
-                return {fill:"", type:this.transaction.tx.type}
+                return { fill:"", type:this.transaction.tx.type }
+            }else if(this.transaction.tx.type == 'ContractCallTx') {
+                return { fill:"secondary", type: "Contract Call Tx" }
             }
+
+            return { fill:"", type:this.transaction.tx.type }
         },
         transactionThemeColor () {
             return this.transaction.tx.sender_id == this.account.publicKey ? 'secondary' : 'alternative';
@@ -103,11 +111,19 @@ export default {
         isConractCreateTx() {
             return this.transaction.tx.type == 'ContractCreateTx';
         },
+        isContractCallTx() {
+            return this.transaction.tx.type == 'ContractCallTx'
+        },
         txTotal() {
             return (this.txAmount + this.txFee).toFixed(7)
         },
         txAccount() {
-            return this.isConractCreateTx ? this.transaction.tx.owner_id : this.transaction.tx.account_id
+            if(this.isConractCreateTx) {
+                return this.transaction.tx.owner_id
+            }else if(this.isContractCallTx) {
+                return this.transaction.tx.caller_id
+            }
+            return this.transaction.tx.account_id
         }
     },
     methods: {

@@ -79,7 +79,8 @@
           "txAccount":"Account",
           "name":"Name",
           "nameSalt": "Name Salt",
-          "nameId": "Name Id"
+          "nameId": "Name Id",
+          "contractId": "Contract Id"
         },
         "tip":{
           "domainVerified":"Verified",

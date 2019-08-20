@@ -3,7 +3,7 @@
         <ae-list-item fill="neutral" class="list-item-transaction" :class="transactionData.hash">
             <ae-identicon :address="transactionAccount" />
             <div class="transaction-address">
-                <ae-address :value="transactionAccount" length="short" />
+                <ae-address :value="transactionAccount" length="short" v-if="transactionAccount != ''"/>
                 <ae-text face="mono-xs" class="transactionDate">{{ new Date(transactionData.time).toLocaleTimeString() }}</ae-text>
             </div>
             <div class="text-right balance-change">
@@ -35,18 +35,31 @@ export default  {
         transactionType() {
             if(this.transactionData.tx.type == "SpendTx") {
                 if(this.transactionData.tx.sender_id == this.account.publicKey) {
-                    return {fill:"primary", type: "Spend Tx Out"}
+                    return { fill:"primary", type: "Spend Tx Out" }
                 }else {
-                    return {fill:"alternative", type: "Spend Tx In"}
+                    return { fill:"alternative", type: "Spend Tx In" }
                 }
             }else if(this.transactionData.tx.type == "ContractCreateTx") {
-                return {fill:"secondary", type: "Contract Create Tx"}
+                return { fill:"secondary", type: "Contract Create Tx "}
             }else if(this.transactionData.tx.type == "NamePreclaimTx" || this.transactionData.tx.type == "NameUpdateTx" || this.transactionData.tx.type == "NameClaimTx") {
-                return {fill:"", type:this.transactionData.tx.type}
+                return { fill:"", type:this.transactionData.tx.type }
+            }else if(this.transactionData.tx.type == "ContractCallTx") {
+                return { fill: "secondary", type: "Contract Call Tx" }
             }
+            
+            return { fill: "", type:this.transactionData.tx.type }
         },
         transactionAccount() {
-            return this.transactionData.tx.type == 'SpendTx' ? this.transactionData.tx.sender_id : (this.transactionData.tx.type  == 'ContractCreateTx' ? this.transactionData.tx.owner_id : this.transactionData.tx.account_id)
+            if(this.transactionData.tx.type == 'SpendTx' ) {
+                return this.transactionData.tx.sender_id
+            }else if(this.transactionData.tx.type == 'ContractCreateTx') {
+                return  this.transactionData.tx.owner_id
+            }else if(this.transactionData.tx.type == 'ContractCallTx') {
+                return this.transactionData.tx.caller_id
+            }
+
+            return typeof this.transactionData.tx.account_id != "undefined" ? this.transactionData.tx.account_id : "";
+            
         }
     },
     locales,

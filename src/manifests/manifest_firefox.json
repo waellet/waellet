@@ -12,7 +12,8 @@
     "permissions": [
       "storage",
       "unlimitedStorage",
-      "videoCapture"
+      "videoCapture",
+      "activeTab"
     ],
     "icons": {
       "48": "icons/icon_48.png",
