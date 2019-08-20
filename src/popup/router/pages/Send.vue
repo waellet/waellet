@@ -1,23 +1,23 @@
 <template>
   <div class="popup">
     <div class="actions">
-      <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+      <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.send.backToAccount')}}</button>
     </div>
     <h3 class="">
-      {{language.pages.send.heading}} 
+      {{$t('pages.send.heading')}} 
       <ae-identicon class="send-account-icon" :address="account.publicKey" size="s" /> 
       {{activeAccountName}}
     </h3>
     <div class="sendContent">
-      <ae-input :label="language.pages.send.recipient" class="address">
+      <ae-input :label="$t('pages.send.recipient')" class="address">
           <textarea class="ae-input textarea" v-model="form.address" placeholder="ak.. / name.test"  slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
           <ae-toolbar slot="footer" align="right">
-            <div class="paste" @click="scan"><ae-icon name="camera" /> Scan </div>
+            <div class="paste" @click="scan"><ae-icon name="camera" /> {{ $t('pages.send.scan') }}</div>
           </ae-toolbar>
       </ae-input>
       
       <div>
-        <p v-if="sendSubaccounts">{{language.pages.send.sendSubaccount}}</p>
+        <p v-if="sendSubaccounts">{{$t('pages.send.sendSubaccount')}}</p>
         <ae-list class="sendSubaccount">
           <ae-list-item v-for="(account,index) in sendSubaccounts" @click="selectSendSubaccount(account)" fill="neutral" :key="index" class=" flex-align-center">
             <ae-identicon class="subAccountIcon" v-bind:address="account.publicKey" size="base" />
@@ -29,12 +29,12 @@
         </ae-list>
       </div>
       
-      <ae-input :label="language.strings.amount" placeholder="0.0" aemount v-model="form.amount" class="sendAmount">
+      <ae-input :label="$t('pages.send.amount')" placeholder="0.0" aemount v-model="form.amount" class="sendAmount">
         <ae-text slot="header" fill="black">
           <span class="token-symbol">{{tokenSymbol}}</span>
           <ae-dropdown v-if="tokens.length > 1">
             <ae-icon name="grid" size="20px" slot="button" />
-            <li v-for="(tkn,key) in myTokens" v-if="tkn.name != tokenSymbol" @click="setActiveToken(tkn.key)">
+            <li v-for="(tkn,key) in myTokens" v-bind:key="key" v-if="tkn.name != tokenSymbol" @click="setActiveToken(tkn.key)">
               <img :src="ae_token" class="token-image" alt="" v-if="tkn.key == 0" >
               <ae-identicon class="subAccountIcon" :address="tkn.contract" size="base" v-if="tkn.key != 0"/> {{tkn.name}}
             </li>
@@ -42,7 +42,7 @@
         </ae-text>
         <ae-toolbar slot="footer" class="flex-justify-between">
           <span>
-            {{language.strings.txFee}}
+            {{$t('pages.send.txFee')}}
           </span>
           <span>
             {{txFee}} AE
@@ -51,7 +51,7 @@
       </ae-input>
       <div class="flex flex-justify-between balanceInfo">
           <div>
-            {{language.strings.maxSpendableValue}}
+            {{$t('pages.send.maxSpendableValue')}}
           </div>
           <div class="balance no-sign">
             {{tokenBalance}} {{tokenSymbol}}
@@ -59,16 +59,13 @@
       </div>
       
       <div>
-        <ae-button face="round" fill="primary" class="sendBtn extend" @click="send">{{language.buttons.send}}</ae-button>
+        <ae-button face="round" fill="primary" class="sendBtn extend" @click="send">{{$t('pages.send.send')}}</ae-button>
       </div>
     </div>
-    <!-- <div v-if="loading" class="loading">
-      <ae-loader />
-    </div> -->
     <input type="hidden" class="txHash" :value="tx.hash" />
     <div class="result" v-if="tx.status">
-      <p>{{language.strings.success}}</p>
-      <a :href="tx.url">{{language.strings.seeTransactionExplorer}}</a>
+      <p>{{$t('pages.send.success')}}</p>
+      <a :href="tx.url">{{$t('pages.send.seeTransactionExplorer')}}</a>
     </div>
     <Loader size="big" :loading="loading" type="transparent" ></Loader>
     <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
@@ -77,7 +74,6 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
@@ -93,7 +89,6 @@ export default {
   data() {
     return {
       ae_token: browser.runtime.getURL('../../../icons/ae.png'),
-      language: locales['en'],
       form: {
         address: '',
         amount: '',
@@ -111,7 +106,6 @@ export default {
       }
     }
   },
-  locales,
   props:['address'],
   watch: {
     activeToken() {

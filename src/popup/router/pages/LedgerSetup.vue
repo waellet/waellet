@@ -1,25 +1,25 @@
 <template>
     <div class="popup">
-        <h3>How to connect from Ledger</h3>
+        <h3>{{ $t('pages.ledgerSetup.ledgerConnectSetup') }}</h3>
         <ae-panel>
-            <h4>Steps</h4>
+            <h4>{{ $t('pages.ledgerSetup.ledgerSteps') }}</h4>
             <hr>
             <ae-list class="text-left">
                 <ae-list-item fill="neutral">
-                    Connect your Ledger via USB and unlock it
+                    {{ $t('pages.ledgerSetup.ledgerUsb') }}
                 </ae-list-item>
                 <ae-list-item fill="neutral">
-                    Open the aeternitya app on your Ledger
+                    {{ $t('pages.ledgerSetup.ledgerLedger') }}
                 </ae-list-item>
                 <ae-list-item fill="neutral">
-                    Create a first account by pressing the button bellow
+                    {{ $t('pages.ledgerSetup.ledgerAccountCreate') }}
                 </ae-list-item>
                 <ae-list-item fill="neutral" class="ledger manageAccounts account-btn">
                   <ae-button  class="triggerhidedd" @click="addAccount">
                     <ae-button face="icon" class="iconBtn ledger">
                       <ae-icon name="plus" />
                     </ae-button>
-                    <span class="newSubaccount">{{ language.strings.ledgerAccount }}</span>
+                    <span class="newSubaccount">{{ $t('pages.ledgerSetup.ledgerAccount') }}</span>
                   </ae-button>
                 </ae-list-item>
             </ae-list>
@@ -28,28 +28,22 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 
 
 export default {
     data () {
         return {
-            language: locales['en'],
-            
         }
     },
     computed: {
         ...mapGetters(['ledgerApi','account','sdk','balance','subaccounts'])
     },
-    locales: locales,
     created() {
-        
     },
     methods: {
         async addAccount() {
             let account = await this.$store.dispatch('ledgerCreate')
-            
             if(account.success) {
                 this.$router.push('/account')
             }else {

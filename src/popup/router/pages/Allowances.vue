@@ -2,41 +2,38 @@
     <div class="popup">
         <div v-if="allowancePage == ''">
             <div class="actions">
-                <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{language.buttons.backToUtilities}}</button>
+                <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{$t('pages.allowances.backToUtilities') }}</button>
             </div>
-            <h3 style='text-align:center;'>{{language.pages.allowances.heading}}</h3>
+            <h3 style='text-align:center;'>{{$t('pages.allowances.heading') }}</h3>
             <div>
                 <ae-panel>
-                    <h4>Create allowance</h4>
+                    <h4>{{$t('pages.allowances.createAllowance') }}</h4>
                     <hr>
-                    <small class="sett_info">This allows you to create allowance with your new fungible tokens for anyone you want</small>
-                    <ae-button class="createAllowance" @click="allowancePage = 'create'; allowances = []; selected = 'default'; createform.value = '0'; createform.to_account = '';" face="round" fill="primary" extend>Create</ae-button>
+                    <small class="sett_info">{{$t('pages.allowances.createAllowanceInfo') }}</small>
+                    <ae-button class="createAllowance" @click="allowancePage = 'create'; allowances = []; selected = 'default'; createform.value = '0'; createform.to_account = '';" face="round" fill="primary" extend>{{$t('pages.allowances.createButton') }}</ae-button>
                 </ae-panel>
                 <ae-panel>
-                    <h4>Transfer allowance</h4>
+                    <h4>{{$t('pages.allowances.transferAllowance') }}</h4>
                     <hr>
-                    <small class="sett_info">This allows you to take your whole allowance or part of it from someone</small>
-                    <ae-button class="transferAllowance" @click="allowancePage = 'transfer'; disableAfterSeeAll = false; allowances = []; selected = 'default'; transferform.to_account = ''; transferform.value = '';" face="round" fill="primary" extend>Transfer</ae-button>
+                    <small class="sett_info">{{$t('pages.allowances.transferAllowanceInfo') }}</small>
+                    <ae-button class="transferAllowance" @click="allowancePage = 'transfer'; disableAfterSeeAll = false; allowances = []; selected = 'default'; transferform.to_account = ''; transferform.value = '';" face="round" fill="primary" extend>{{$t('pages.allowances.transferButton') }}</ae-button>
                 </ae-panel>
                 <ae-panel>
-                    <h4>All allowances</h4>
+                    <h4>{{$t('pages.allowances.allAllowances') }}</h4>
                     <hr>
-                    <small class="sett_info">See all your allowances and take them</small>
-                    <ae-button class="seeAllAllowance" @click="allowancePage = 'seeAll'; allowances = []; selected = 'default';" face="round" fill="primary" extend>See all</ae-button>
+                    <small class="sett_info">{{$t('pages.allowances.allAllowancesInfo') }}</small>
+                    <ae-button class="seeAllAllowance" @click="allowancePage = 'seeAll'; allowances = []; selected = 'default';" face="round" fill="primary" extend>{{$t('pages.allowances.seeAllButton') }}</ae-button>
                 </ae-panel>
-                <!-- <ae-button class="createAllowance" @click="allowancePage = 'create'; allowances = []; selected = 'default'; createform.value = '0'; createform.to_account = '';" face="flat" fill="alternative">Create</ae-button> -->
-                <!-- <ae-button class="transferAllowance" @click="allowancePage = 'transfer'; disableAfterSeeAll = false; allowances = []; selected = 'default'; transferform.to_account = ''; transferform.value = '';" face="flat" fill="alternative">Transfer</ae-button> -->
-                <!-- <ae-button class="seeAllAllowance" @click="allowancePage = 'seeAll'; allowances = []; selected = 'default';" face="flat" fill="alternative">See all</ae-button> -->
             </div>
         </div>
         <div v-if="allowancePage == 'create'" class="create-allowance allowance-form">
             <div class="actions">
-                <button id="toAllowances" class="backbutton toAccount" @click="allowancePage = ''"><ae-icon name="back" />Back to Allowances</button>
+                <button id="toAllowances" class="backbutton toAccount" @click="allowancePage = ''"><ae-icon name="back" />{{$t('pages.allowances.backToAllowances') }}</button>
             </div>
-            <h3 style='text-align:center;'>Create Allowance</h3>
+            <h3 style='text-align:center;'>{{$t('pages.allowances.createAllowance') }}</h3>
             <br>
             <select class="allowance-token-dropdown" @change="onChange($event)" v-model="selected">
-                <option value="default" disabled>Choose a token</option>
+                <option value="default" disabled>{{$t('pages.allowances.chooseToken') }}</option>
                 <option v-for="(tok, key) in filteredTokens" v-bind:key="key" :value="tok.key">
                 {{tok.name}}
                 </option>
@@ -44,18 +41,18 @@
             <ae-input class="allowance-address" v-model="createform.to_account" label="Address"></ae-input>
             <ae-input class="allowance-value" v-model.number="createform.value" type="number" label="Value"></ae-input>
             <div class="allowanceExistError" v-if="allowanceExistError != '' && allowancePage == 'create' && createform.value != '' && createform.to_account != ''">
-                <p>This Allowance already exist. If you want to change it click <a class="anchor-here-btn" style="color: #c0c0c0" @click="toChangeAllowanceForm(allowances)">here</a></p>
+                <p>{{$t('pages.allowances.allowanceExistMsg') }} <a class="anchor-here-btn" style="color: #c0c0c0" @click="toChangeAllowanceForm(allowances)">{{$t('pages.allowances.allowanceExistHere')}}</a></p>
             </div>
-            <ae-button class="createAllowance" @click="makeAllowance" face="round" fill="primary" extend>Create</ae-button>
+            <ae-button class="createAllowance" @click="makeAllowance" face="round" fill="primary" extend>{{$t('pages.allowances.createButton')}}</ae-button>
         </div>
         <div v-if="allowancePage == 'transfer'" class="transfer-allowance allowance-form">
             <div class="actions">
-                <button id="toAllowances" class="backbutton toAccount" @click="allowancePage = ''"><ae-icon name="back" />Back to Allowances</button>
+                <button id="toAllowances" class="backbutton toAccount" @click="allowancePage = ''"><ae-icon name="back" />{{$t('pages.allowances.backToAllowances')}}</button>
             </div>
-            <h3 style='text-align:center;'>Transfer Allowance</h3>
+            <h3 style='text-align:center;'>{{$t('pages.allowances.transferAllowance')}}</h3>
             <br>
             <select :disabled="disableAfterSeeAll ? true : false" class="allowance-token-dropdown" @change="onChange($event)" v-model="selected">
-                <option value="default" disabled>Choose a token</option>
+                <option value="default" disabled>{{$t('pages.allowances.chooseToken')}}</option>
                 <option  v-for="(tok, key) in filteredTokens" v-bind:key="key" :value="tok.key">
                 {{tok.name}}
                 </option>
@@ -66,38 +63,38 @@
             <ae-input label="Value">
                 <input type="text" class="ae-input allowance-value" v-model="transferform.value" />
             </ae-input>
-            <ae-button class="transferAllowance" @click="transferAllowance" face="round" fill="primary" extend>Transfer</ae-button>
+            <ae-button class="transferAllowance" @click="transferAllowance" face="round" fill="primary" extend>{{$t('pages.allowances.transferButton')}}</ae-button>
         </div>
         <div v-if="allowancePage == 'seeAll'" @load="seeAll" class="seeAll-allowance allowance-form">
             <div class="actions">
-                <button id="toAllowances" class="backbutton toAccount" @click="allowancePage = ''"><ae-icon name="back" />Back to Allowances</button>
+                <button id="toAllowances" class="backbutton toAccount" @click="allowancePage = ''"><ae-icon name="back" />{{$t('pages.allowances.backToAllowances')}}</button>
             </div>
-            <h3 style='text-align:center;'>See all</h3>
+            <h3 style='text-align:center;'>{{$t('pages.allowances.allAllowances')}}</h3>
             <br>
             <select class="allowance-token-dropdown" @change="seeAll($event)" v-model="selected">
-                <option value="default" disabled>Choose a token</option>
+                <option value="default" disabled>{{$t('pages.allowances.chooseToken')}}</option>
                 <option v-for="(tok, key) in filteredTokens" v-bind:key="key.id" :value="tok.key">
                 {{tok.name}}
                 </option>
             </select>
             <div v-if="this.selected != 'default'" class="allAllowances">
                 <ae-list v-for="(allowance, index) in allowances" v-bind:key="index.id" face="primary">
-                    <ae-list-item style="display: block;" fill="primary"><b style="word-break: normal; display: block;">From: </b>{{allowance.allowanceFrom}} - <ae-badge>{{allowance.allowanceAmount}} {{allowance.allowanceToken}}</ae-badge></ae-list-item>
-                    <ae-button face="round" fill="primary" @click="getAllowance(allowance.allowanceFrom, allowance.allowanceAmount)">Get it</ae-button>
+                    <ae-list-item style="display: block;" fill="primary"><b style="word-break: normal; display: block;">{{$t('pages.allowances.allowanceFrom')}}: </b>{{allowance.allowanceFrom}} - <ae-badge>{{allowance.allowanceAmount}} {{allowance.allowanceToken}}</ae-badge></ae-list-item>
+                    <ae-button face="round" fill="primary" @click="getAllowance(allowance.allowanceFrom, allowance.allowanceAmount)">{{$t('pages.allowances.getAllowance')}}</ae-button>
                 </ae-list>
             </div>
             <div v-if="this.selected == 'default'" class="allowanceMsg">
-                <p>Please choose a token to see all your allowances!</p>
+                <p>{{$t('pages.allowances.tokenChoiceRequired')}}</p>
             </div>
             <div v-if="this.allowances.length == 0" class="allowanceMsg">
-                <p>No allowances found!</p>
+                <p>{{$t('pages.allowances.noAllowancesFound')}}</p>
             </div>
         </div>
         <div v-if="allowancePage == 'change'" class="change-allowance allowance-form">
             <div class="actions">
-                <button id="toAllowances" class="backbutton toAccount" @click="allowancePage = ''"><ae-icon name="back" />Back to Allowances</button>
+                <button id="toAllowances" class="backbutton toAccount" @click="allowancePage = ''"><ae-icon name="back" />{{$t('pages.allowances.backToAllowances')}}</button>
             </div>
-            <h3 style='text-align:center;'>Change Allowance</h3>
+            <h3 style='text-align:center;'>{{$t('pages.allowances.changeAllowance')}}</h3>
             <br>
             <ae-input label="Symbol">
                 <input type="text" :disabled="true" class="ae-input allowance-symbol" v-model="changeform.symbol" />
@@ -106,8 +103,8 @@
                 <input type="text" :disabled="true" class="ae-input allowance-address" v-model="changeform.to_account"  />
             </ae-input>
             <ae-input class="allowance-value" v-model.number="changeform.value" type="number" label="Value"></ae-input>
-            <small class="allowanceExistError"> Current allowed allowance is {{saveAllowedAllowance}} </small>
-            <ae-button class="changeAllowanceFormBtn" @click="changeAllowanceFormBtn" face="round" fill="primary" extend>Change</ae-button>
+            <small class="allowanceExistError"> {{$t('pages.allowances.allowedAllowanceAmount')}} {{saveAllowedAllowance}} </small>
+            <ae-button class="changeAllowanceFormBtn" @click="changeAllowanceFormBtn" face="round" fill="primary" extend>{{$t('pages.allowances.changeButton') }}</ae-button>
         </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <Loader size="big" :loading="loading" type="transparent" ></Loader>
@@ -116,7 +113,6 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
@@ -131,7 +127,6 @@ import { truncateSync } from 'fs';
 export default {
     data() {
         return {
-            language: locales['en'],
             loading: false,
             createform: {
                 to_account: '',
@@ -155,7 +150,6 @@ export default {
             disableAfterSeeAll: false
         }
     },
-    locales,
     computed: {
         ...mapGetters(['account', 'balance', 'network', 'current', 'wallet', 'activeAccount', 'subaccounts', 'tokenSymbol', 'tokenBalance', 'sdk', 'tokens', 'popup']),
         filteredTokens() {
@@ -179,7 +173,6 @@ export default {
                 })
             }
             else {
-                console.log('else');
                 this.tokens.forEach(async element => {
                     if (element.key == this.selected) {
                         try {
@@ -237,8 +230,6 @@ export default {
                                 }
                             })
                         } catch (createAllowanceError) {
-                            console.log('createAllowanceError.toString()')
-                            console.log(createAllowanceError.toString())
                             if (createAllowanceError.toString().includes('ALLOWANCE_ALREADY_EXISTENT')) {
                                 this.allowanceExistError = 'Allowance alredy exist!'
                                 this.loading = false;
@@ -328,14 +319,11 @@ export default {
             this.selected = '';
             this.selected = event.target.value;
             this.tokens.forEach(async element => {
-                console.log(element)
                 if (element.key == this.selected) {
                     let checkAllAllowances = await this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,element.contract,'allowances')
                     let all = await checkAllAllowances.decode()
                     if (all.length != 0) {
                         all.forEach(async singleAllowance => {
-                            console.log('singleAllowance')
-                            console.log(singleAllowance)
                             if (singleAllowance[0].for_account == this.account.publicKey) {
                                 let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
                                 let checkAmountLeft = await contract.call('allowance', [{from_account: singleAllowance[0].from_account, for_account:this.account.publicKey }], { callStatic: true })
@@ -385,9 +373,6 @@ export default {
                     let checkAmountLeft = await contract.call('allowance', [{from_account: this.account.publicKey, for_account:this.changeform.to_account }], { callStatic: true })
                     let amountLeft = await checkAmountLeft.decode()
                     let tokensLefttoTransfer = amountLeft.Some[0];
-                    console.log(tokensLefttoTransfer)
-                    console.log(value)
-                    console.log(this.allowances[0].accountCurrentBalance)
                     if (value < 0) {
                         this.$store.dispatch('popupAlert', { name: 'account', type: 'invalid_number'});
                     }
@@ -405,8 +390,6 @@ export default {
                     }
                     this.loading = false
                 } catch (changeallowanceError) {
-                    console.log('changeallowanceError')
-                    console.log(changeallowanceError)
                     if (changeallowanceError.toString().includes('fails to match the required pattern: /^(ak_|ct_|ok_|oq_)/]]') || changeallowanceError.toString().includes('Parse errors') || changeallowanceError.toString().includes('Unbound variable')) {
                         this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address' })
                         this.loading = false; 

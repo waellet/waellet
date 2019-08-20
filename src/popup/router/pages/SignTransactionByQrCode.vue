@@ -1,16 +1,16 @@
 <template>
 <div class="popup">
     <div class="actions">
-        <button v-if="step == 1" class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
-        <button v-if="step == 2" class="backbutton toAccount" @click="step = 1"><ae-icon name="back" />Back to scan transaction</button>
+        <button v-if="step == 1" class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.signTransactionByQrCode.backToAccount')}}</button>
+        <button v-if="step == 2" class="backbutton toAccount" @click="step = 1"><ae-icon name="back" />{{$t('pages.signTransactionByQrCode.backToScan')}}</button>
     </div>
-    <h3 class="breakword">Scan with AirGap Vault to sign the transaction</h3>
+    <h3 class="breakword">{{$t('pages.signTransactionByQrCode.heading')}}</h3>
     <div>
         <div v-if="step == 1">
             <div class="qr-wrapper">
                 <qrcode-vue :value="url" foreground="#000" :size="200" level="H"></qrcode-vue>
             </div>
-                <ae-button class="step-button" face="flat" fill="alternative" @click="step = 2">Done <ae-icon name="left-more" /></ae-button>
+                <ae-button class="step-button" face="flat" fill="alternative" @click="step = 2">{{$t('pages.signTransactionByQrCode.doneBtn')}} <ae-icon name="left-more" /></ae-button>
         </div>
         <div v-if="step == 2" class="qr-wrapper">
             <qrcode-stream @decode="onDecode" @init="onInit"></qrcode-stream>
@@ -25,7 +25,6 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 import QrcodeVue from 'qrcode.vue';
 import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader';
@@ -43,8 +42,6 @@ export default {
     },
     data () {
         return {
-            language: locales['en'],
-            locales: locales,
             loading: false,
             successMessage: '',
             errorMessage: '',

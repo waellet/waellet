@@ -41,6 +41,7 @@ p {
 }
 .ae-input-container.focus .ae-input-label {
   color: $primary-color !important;
+  white-space: nowrap;
 }
 .invisible {
   opacity: 0;
