@@ -11,7 +11,7 @@ workflows:
           requires:
             - cypress/install
           executor: cypress/base-8
-          start: 'circleci tests split test_filenames.txt'
+          start: 'circleci tests split < /tests/e2e/specs/'
           parallel: true
           parallelism: 4
           group: 'all tests'
