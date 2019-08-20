@@ -1,0 +1,2 @@
+tests/e2e/specs/accountPage.js
+tests/e2e/specs/airGap.js

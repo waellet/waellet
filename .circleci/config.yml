@@ -41,10 +41,10 @@ jobs:
         background: true
     - run:
         name: Split tests
-        command: "ls "
+        command: TESTFILES=$(circleci tests glob "/tests/specs/**/*.js" | circleci tests split --split-by=timings) 
     - run:
         name: Run Cypress tests
-        command: "npx cypress run  "
+        command: "npx cypress run --spec ${TESTFILES}  "
 workflows:
   build:
     jobs:
