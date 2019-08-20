@@ -12,14 +12,8 @@
   "permissions": [
     "storage",
     "unlimitedStorage",
-    "clipboardWrite",
-    "activeTab",
-    "webRequest",
-    "notifications",
     "videoCapture",
-    "contentSettings",
-    "webkitGetUserMedia",
-    "audioCapture"
+    "activeTab"
   ],
   "icons": {
     "48": "icons/icon_48.png",
