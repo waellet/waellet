@@ -19,7 +19,7 @@ export default new Vuex.Store({
     balance: 0,
     current: {
       network: 'Testnet',
-      language: 'en',
+      language: '',
       token: 0
     },
     network: {

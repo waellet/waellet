@@ -1,11 +1,11 @@
 <template>
     <div id="manageNetworks" class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.manageNetworks.backToAccount')}}</button>
         </div>
-        <h3>{{ language.strings.manageNetworks }}</h3>
+        <h3>{{$t('pages.manageNetworks.manageNetworks') }}</h3>
         <ae-panel>
-            <h4>{{ language.strings.networks }}</h4>
+            <h4>{{$t('pages.manageNetworks.networks') }}</h4>
             <hr>
             <ae-list >
                 <ae-list-item class="editaccount" fill="neutral" v-for="(userNetowrk, index) in userNetworks" v-bind:key="index">
@@ -19,7 +19,7 @@
         </ae-panel>
         <ae-panel>
             <h4 class="addaccount">
-                {{ language.strings.addNewNetwork }}
+                {{$t('pages.manageNetworks.addNewNetwork') }}
                 <button class="icon-btn" v-if="!аddNewUserNetwork" @click="AddNewUserNetwork"><ae-icon name="plus" /></button>
                 <button class="icon-btn" v-if="аddNewUserNetwork" @click="closeNewUserNetworkForm"><ae-icon name="close" /></button>
             </h4>
@@ -27,14 +27,9 @@
             <transition name="slide">
                 <ul class="slideform" :class="dropdown ? 'open' : ''">
                     <div class="add-form">
-                        <!-- <h4 class="pageTitle">{{ language.strings.addNewNetwork }}</h4> -->
-                        <!-- <label style="float:left;"> {{ language.strings.networkName }}<span class="required_fields">*</span></label> -->
-                        <ae-input class="node-name" :label="language.strings.networkName" v-model="newUserNetwork" placeholder="Add Node name"></ae-input>
-                        <!-- <label style="float:left; margin-top: 10px;"> {{ language.strings.networkURL }}<span class="required_fields">*</span></label> -->
-                        <ae-input class="node-url" :label="language.strings.networkURL" v-model="newUserNetworkURL" placeholder="Add Node URL"></ae-input>
-                        <!-- <hr>
-                        <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small> -->
-                        <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
+                        <ae-input class="node-name" :label="$t('pages.manageNetworks.networkName')" v-model="newUserNetwork" :placeholder="$t('pages.manageNetworks.addnetworkName')"></ae-input>
+                        <ae-input class="node-url" :label="$t('pages.manageNetworks.networkURL')" v-model="newUserNetworkURL" :placeholder="$t('pages.manageNetworks.addnetworkURL')"></ae-input>
+                        <ae-button @click="addbtn" face="round" fill="primary" extend>{{ $t('pages.manageNetworks.add') }}</ae-button>
                     </div>
                 </ul>
             </transition>
@@ -45,15 +40,12 @@
 
 <script>
 import store from '../../../store';
-import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 
 export default {
     data () {
         return {
             logo_top: browser.runtime.getURL('../../../icons/icon_48.png'),
-            language: locales['en'],
-            locales: locales,
             editNetworkName: false,
             аddNewUserNetwork: false,
             dropdown: false,

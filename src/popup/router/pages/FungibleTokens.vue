@@ -2,59 +2,58 @@
     <div>
         <div class="popup">
             <div class="actions">
-                <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+                <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.fungibleTokens.backToAccount') }}</button>
             </div>
-        
-            <h3>{{language.pages.tokens.addHeading}}</h3>
+            <h3>{{$t('pages.fungibleTokens.addHeading') }}</h3>
             <div v-if="addStep == false" class="token-add-form">
                 <ae-panel>
-                    <h4>{{language.pages.tokens.addToken}}</h4>
+                    <h4>{{$t('pages.fungibleTokens.addToken') }}</h4>
                     <hr>
                     <div class="input-container">
-                        <ae-input :label="language.pages.tokens.tokenContractLabel" >
+                        <ae-input :label="$t('pages.fungibleTokens.tokenContractLabel') " >
                             <input type="text" class="ae-input token-contract" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                             <ae-toolbar slot="footer">
-                                Valid token contract address
+                                {{$t('pages.fungibleTokens.validContractAddressError') }}
                             </ae-toolbar>
                         </ae-input>
                     </div>
                     <div class="input-container">
-                        <ae-input :label="language.pages.tokens.tokenSymbolLabel">
+                        <ae-input :label="$t('pages.fungibleTokens.tokenSymbolLabel') ">
                             <input type="text" :disabled="token.precisionDisabled" class="ae-input token-symbol" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                             <ae-toolbar slot="footer">
-                                Symbol between 1 and 12 characters
+                                {{$t('pages.fungibleTokens.symbolBetween1and12') }}
                             </ae-toolbar>
                         </ae-input>
                     </div>
                     <div class="input-container">
-                        <ae-input :label="language.pages.tokens.tokenPrecision" >
+                        <ae-input :label="$t('pages.fungibleTokens.tokenPrecision') " >
                             <input type="text" :disabled="token.precisionDisabled" class="ae-input token-precision" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                             <ae-toolbar slot="footer" >
-                                Number between 0 and 36
+                                {{$t('pages.fungibleTokens.numberBetween0and36') }}
                             </ae-toolbar>
                         </ae-input>
                     </div>
-                    <ae-button face="round" fill="primary" @click="next" class="to-confirm-add" extend >{{language.pages.tokens.next}}</ae-button>
+                    <ae-button face="round" fill="primary" @click="next" class="to-confirm-add" extend >{{$t('pages.fungibleTokens.next') }}</ae-button>
                 </ae-panel>
             </div>
             <div v-if="addStep" >
                 <ae-panel>
-                    <h4>{{language.pages.tokens.addToken}}</h4>
+                    <h4>{{$t('pages.fungibleTokens.addToken') }}</h4>
                     <hr>
                     <div class="flex  flex-justify-between token-add-holder">
                         <div>
-                            <div class="token-title">Token</div>
+                            <div class="token-title">{{$t('pages.fungibleTokens.token') }}</div>
                             <div class="flex ">
                                 <ae-identicon :address="token.contract" />
                                 <div class="balanceBig balance no-sign">{{token.symbol}}</div>
                             </div>
                         </div>
                         <div>
-                            <div class="token-title">Balance</div>
+                            <div class="token-title">{{$t('pages.fungibleTokens.balance') }}</div>
                             <div class="balanceBig balance no-sign">{{token.balance}} {{token.symbol}}</div>
                         </div>
                     </div>
-                    <ae-button face="round" fill="primary" @click="addCustomToken" class="add-token" extend >{{language.pages.tokens.addToken}}</ae-button>
+                    <ae-button face="round" fill="primary" @click="addCustomToken" class="add-token" extend >{{$t('pages.fungibleTokens.addToken') }}</ae-button>
                 </ae-panel>
             </div>
         </div>
@@ -64,7 +63,6 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
 import { isInt } from '../../utils/helper'
@@ -73,7 +71,6 @@ export default {
     data() {
         return {
             activeTab:'add',
-            language: locales['en'],
             token: {
                 contract:'',
                 symbol:'',
@@ -91,7 +88,6 @@ export default {
             timer: ''
         }
     },
-    locales,
     computed: {
         ...mapGetters(['sdk','account','tokens','popup'])
     },

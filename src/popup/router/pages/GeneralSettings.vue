@@ -1,12 +1,12 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{language.buttons.backToSettings}}</button>
+            <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{$t('pages.generalSettings.backToSettings') }}</button>
         </div>
-        <h3 style='text-align:center;'>{{language.pages.settings.generalSettings.heading}}</h3>
+        <h3 style='text-align:center;'>{{$t('pages.generalSettings.heading') }}</h3>
         <ae-modal-light class="seeAllRegisteredNames" v-if="seeAllRegisteredNames" @close="seeAllRegisteredNames = false">
             <div class="maindiv_input-group-addon">
-                <h4>{{language.pages.settings.generalSettings.registeredNames}}</h4><hr>
+                <h4>{{$t('pages.generalSettings.registeredNames') }}</h4><hr>
                 <ae-list>
                     <ae-list-item fill="neutral" v-for="(name, key) in names" :key="key" >
                         <ae-identicon class="subAccountIcon" v-bind:address="name.owner" size="base" />
@@ -17,13 +17,13 @@
                         <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="name.pending"/>
                     </ae-list-item>
                 </ae-list>
-                <ae-button face="round" fill="primary" @click="seeAllRegisteredNames = false" extend>Ok</ae-button>
+                <ae-button face="round" fill="primary" @click="seeAllRegisteredNames = false" extend>{{ $t('pages.generalSettings.OkButton') }}</ae-button>
             </div>
         </ae-modal-light>
         <ae-panel>
             <div class="maindiv_input-group-addon">
-                <h4>{{language.pages.settings.generalSettings.registerName}}</h4><hr>
-                <small class="sett_info">{{language.pages.settings.generalSettings.registerNameInfo}}</small>
+                <h4>{{$t('pages.generalSettings.registerName') }}</h4><hr>
+                <small class="sett_info">{{$t('pages.generalSettings.registerNameInfo') }}</small>
                 <div class="checkName input-group-addon">
                     <input v-model="name" class="addon-input" />
                     <label class="addon-lbl" >.test</label>
@@ -31,21 +31,21 @@
                 <ae-button class="regbtn notround" face="icon" fill="primary" @click="registerName">
                     <ae-icon name="plus" />
                 </ae-button>
-                <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{language.pages.settings.generalSettings.registerNameRequirement}}</small>
-                <ae-button face="flat" fill="primary" @click="seeAllRegisteredNames = true">See all registered names</ae-button>
+                <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{$t('pages.generalSettings.registerNameRequirement') }}</small>
+                <ae-button face="flat" fill="primary" @click="seeAllRegisteredNames = true">{{$t('pages.generalSettings.seeAllRegisteredNames') }}</ae-button>
             </div>
         </ae-panel>
         <Loader size="big" :loading="loading" type="transparent" content="" ></Loader>
         
         <ae-panel>
             <div class="maindiv_input-group-addon">
-                <h4>{{ language.strings.switchLanguage }}</h4><hr>
-                <small class="sett_info">Current language: {{this.current.language}}</small>
+                <h4>{{$t('pages.generalSettings.switchLanguage') }}</h4><hr>
+                <small class="sett_info">{{$t('pages.generalSettings.currentLanguage') }}: {{this.current.language}}</small>
                 <div class="language-settings">
                     <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
                         <ae-button class="notround switchlanguageBtn" face="round" fill="primary" extend @click="toggleDropdown($event, '.have-subDropdown')">
                             <ae-icon name="globe" />
-                            {{ language.strings.switchLanguage }}
+                            {{$t('pages.generalSettings.switchLanguage') }}
                             <ae-icon name="left-more" />
                         </ae-button>
 
@@ -69,14 +69,13 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import locales from '../../locales/locales.json';
 import { clearTimeout  } from 'timers';
+import {langs, fetchAndSetLocale} from '../../utils/i18nHelper'
 
 export default {
     data () {
         return {
-            language: locales['en'],
-            locales: locales,
+            locales: langs,
             loading: false,
             name: '',
             ak_address: '',
@@ -145,12 +144,12 @@ export default {
             let dropdownParent = event.target.closest(parentClass);
             this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
         },
-        switchLanguage(languageChoose) {
+        async switchLanguage(languageChoose) {
+            fetchAndSetLocale(languageChoose);
             browser.storage.sync.set({language: languageChoose}).then(() => {
-                let defLang = Object.assign({}, locales['en']);
-                this.language = Object.assign(defLang, locales[languageChoose]);
                 this.current.language = languageChoose;
                 this.dropdown.languages = false;
+                this.$store.state.current.language = languageChoose;
             });
         },
         navigateToSettings() {

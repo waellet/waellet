@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 export default {
     data() {
         return {
@@ -18,7 +17,6 @@ export default {
         };
     },
     props: ['onoff','onChange'],
-    locales,
     methods: {
 
     }

@@ -17,12 +17,13 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 import {mapGetters} from 'vuex';
 export default  {
     props: ['transactionData'],
     data() {
         return {}
+    },
+    created() {
     },
     computed: {
         ...mapGetters(['account','popup']),
@@ -46,8 +47,9 @@ export default  {
             }else if(this.transactionData.tx.type == "ContractCallTx") {
                 return { fill: "secondary", type: "Contract Call Tx" }
             }
-            
-            return { fill: "", type:this.transactionData.tx.type }
+            else {
+                return { fill: "", type: this.transactionData.tx.type }
+            }
         },
         transactionAccount() {
             if(this.transactionData.tx.type == 'SpendTx' ) {
@@ -62,7 +64,6 @@ export default  {
             
         }
     },
-    locales,
     methods: {
         showTransactionDetails() {
             this.$router.push({'name':'transaction-details',params: { transaction: this.transactionData }});

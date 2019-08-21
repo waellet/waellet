@@ -5,17 +5,17 @@
                 <div class="attentionHolder" v-if="step == 1" >
 
                     <h1><div>!</div></h1>
-                    <h4>Please make sure to keep your seedphrase safe! Waellet does not store and cannot recover your seedphrase! It is your responsibility to keep it safe. If you loose access to your waellet, you will loose all your funds.</h4>
-                    <h4 class="mt-3">Tips on how to protect your funds</h4>
+                    <h4>{{$t('pages.seedPhrase.attentionMsg') }}</h4>
+                    <h4 class="mt-3">{{$t('pages.seedPhrase.tips') }}</h4>
                     <ul>
-                        <li>Safe a backup on multiple places</li>
-                        <li>Remember your password to decrypt your waellet</li>
-                        <li>Never share the phrase with anyone</li>
+                        <li>{{$t('pages.seedPhrase.tip1') }}</li>
+                        <li>{{$t('pages.seedPhrase.tip2') }}</li>
+                        <li>{{$t('pages.seedPhrase.tip3') }}</li>
                     </ul>
 
                 </div>
                 <div v-if="step == 2">
-                    <h3  class="phraseTitle">Carefully keep this phrase safe! Write these 12 words down and keep them in safe place. You need them to recover your account in the future. </h3>
+                    <h3  class="phraseTitle">{{$t('pages.seedPhrase.keepCarefully') }}</h3>
                     <div class="seeds-container">
                         <div class="col" v-for="column in columns" v-bind:key="column.id">
                             <ae-badge v-for="seed in column" v-bind:key="seed.id">{{seed.id + 1}} {{seed.name}}</ae-badge>
@@ -24,15 +24,15 @@
                     <progress class="seedProgress" :value="progress" max="100"></progress>
                 </div>
                 <div v-if="step == 3">
-                    <h3  class="phraseTitle">Confirm your phrase. Tap the words below to compose your phrase, note correct order! </h3>
+                    <h3  class="phraseTitle">{{$t('pages.seedPhrase.confirmSeedPhrase') }}</h3>
                     <ae-phraser>
                         <ae-badge class="seedBadge" :class="{'selected':seed.selected}" v-for="(seed,index) in shiffledSeed" v-bind:key="seed.id" @click.native="selectSeed(seed.name,index,seed.id)">{{seed.name}}</ae-badge>
                     </ae-phraser>
-                    <div class="phraseSubTitle">Your recovery phrase</div>
+                    <div class="phraseSubTitle">{{$t('pages.seedPhrase.recoveryPhrase') }}</div>
                     <ae-phraser v-if="selectedSeed.length == 0">
-                        <ae-badge class="seedBadge selected">first</ae-badge>
-                        <ae-badge class="seedBadge selected">second</ae-badge>
-                        <ae-badge class="seedBadge selected">third</ae-badge>
+                        <ae-badge class="seedBadge selected">{{$t('pages.seedPhrase.first') }}</ae-badge>
+                        <ae-badge class="seedBadge selected">{{$t('pages.seedPhrase.second') }}</ae-badge>
+                        <ae-badge class="seedBadge selected">{{$t('pages.seedPhrase.third') }}</ae-badge>
                         <ae-badge class="seedBadge selected">...</ae-badge>
                     </ae-phraser>
                     <ae-phraser v-bind="seedError" class="mb-5">
@@ -42,14 +42,13 @@
                 <ae-button extend face="round" :fill="buttonFill" class="mt-1 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
                 
             </div>
-            <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
+            <Loader size="small" :loading="loading" v-bind="{'content':$t('strings.securingAccount')}"></Loader>
             <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         </main>
     </div>
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
 
 import {shuffleArray, fetchData} from '../../utils/helper';
@@ -81,7 +80,6 @@ export default {
             seedError:{},
             progress:0,
             loading: false,
-            language: locales['en'],
             generated: false
         };
     },
@@ -103,7 +101,6 @@ export default {
             return columns
         }
     },
-    locales,
     methods: { 
         generateSeeds() {
             let mnemonic;

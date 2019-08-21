@@ -2,13 +2,13 @@
   <div>
     <main>
       <div class="wrapper">
-        <p>{{ language.pages.index.heading }}</p>
+        <p>{{ $t('pages.index.heading') }}</p>
         <div class="logo-center">
           <img :src="logo" alt="Waellet logo" />
         </div>
       </div>
     </main>
-    <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
+    <Loader size="small" :loading="loading" v-bind="{'content':$t('pages.index.securingAccount')}"></Loader>
     <footer v-if="!loading">
       <div class="wrapper">
         <div v-if="account.encryptedPrivateKey">
@@ -25,8 +25,8 @@
             <ae-toolbar
               v-if="errorMsg == 'length'"
               slot="footer"
-            >Password must be at lest 4 symbols!</ae-toolbar>
-            <ae-toolbar v-if="loginError" slot="footer">Incorrect password !</ae-toolbar>
+            >{{ $t('pages.index.passwordError ') }}</ae-toolbar>
+            <ae-toolbar v-if="loginError" slot="footer">{{ $t('pages.index.incorrectPasswordError') }}</ae-toolbar>
           </ae-input>
           <ae-button
             face="round"
@@ -34,7 +34,7 @@
             fill="primary"
             class="loginBtn"
             @click="login({accountPassword})"
-          >Login</ae-button>
+          >{{ $t('pages.index.loginButton') }}</ae-button>
           <ae-divider />
         </div>
         <ae-button
@@ -44,32 +44,32 @@
           class="mb-1"
           extend
           @click="generateAddress"
-        >{{ language.buttons.generateWallet }}</ae-button>
+        >{{ $t('pages.index.generateWallet') }}</ae-button>
         <ae-button
           face="round"
           extend
           @click="openImportModal"
           class="importBtn"
-        >{{ language.buttons.importPrivateKey }}</ae-button>
+        >{{ $t('pages.index.importPrivateKey') }}</ae-button>
       </div>
     </footer>
 
     <ae-modal v-if="modalVisible" @close="modalVisible = false">
-      <h2 class="modaltitle">Import waellet</h2>
+      <h2 class="modaltitle">{{ $t('pages.index.importWaellet') }}</h2>
 
       <div class="tabs">
         <span
           @click="switchImportType('privateKey')"
-          :class="{'tab-active':importType == 'privateKey'}"
-        >Private key</span>
+          :class="{'tab-active':importType =='privateKey'}"
+        >{{ $t('pages.index.privateKey') }}</span>
         <span
           @click="switchImportType('keystore')"
           :class="{'tab-active':importType == 'keystore'}"
-        >Keystore.json</span>
+        >{{ $t('pages.index.keystoreJson') }}</span>
         <span
           @click="switchImportType('seedPhrase')"
           :class="{'tab-active':importType == 'seedPhrase'}"
-        >Seed phrase</span>
+        >{{ $t('pages.index.seedPhrase') }}</span>
       </div>
 
       <ae-input
@@ -88,7 +88,7 @@
         :class="{'walletFileHolderError':inputError.hasOwnProperty('error')}"
       >
         <label for="walletFile" class="customFileUpload my-2 ae-input-box">
-          <div class="file-label">Choose file</div>
+          <div class="file-label">{{ $t('pages.index.chooseFile') }}</div>
           <div class="file-input">{{walletFile !='' ? walletFile.name : ''}}</div>
           <div class="file-toolbar">{{errorMsg}}</div>
         </label>
@@ -99,7 +99,7 @@
       <div v-if="importType == 'seedPhrase'">
         <p
           class="importTitle"
-        >Enter your seed phrase. The one you wrote down during account creation.</p>
+        >{{ $t('pages.index.enterSeedPhrase') }}</p>
         <ae-input label="Seed phrase" class="my-2" v-bind="inputError">
           <textarea
             class="ae-input textarea"
@@ -117,14 +117,13 @@
         extend
         fill="primary"
         @click="importShowPassword({importType,privateKey,seedPhrase})"
-      >Continue</ae-button>
+      >{{ $t('pages.index.continueButton') }}</ae-button>
     </ae-modal>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import { fetchData, redirectAfterLogin } from '../../utils/helper';
@@ -137,7 +136,6 @@ export default {
     return {
       loading: false,
       modalAskVisible: true,
-      language: locales['en'],
       modalVisible: false,
       logo: browser.runtime.getURL('../../../icons/icon_128.png'),
       privateKey: '',
@@ -339,7 +337,6 @@ export default {
                 context.errorMsg = 'Invalid file format! ';
               }
             } catch (err) {
-              console.log(err);
               context.inputError = { error: '' };
               context.errorMsg = 'Invalid file format! ';
             }

@@ -1,33 +1,33 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{language.buttons.backToUtilities}}</button>
+            <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{$t('pages.tipPage.backToUtilities')}}</button>
         </div>
         <div>
             <div class="tipWebsiteHeader flex flex-align-center ">
                 <Loader size="small" class="loader" v-if="loadFavicon" :loading="loadFavicon" v-bind="{'content':''}"></Loader>
                 <img :src="favicon" v-if="!loadFavicon && typeof favicon !== 'undefined'" class="domainFavicon"/>
-                <div v-if="!loadFavicon && typeof favicon == 'undefined' " class="domainFavicon noFavicon">No image</div>
+                <div v-if="!loadFavicon && typeof favicon == 'undefined' " class="domainFavicon noFavicon">{{$t('pages.tipPage.noImage')}}</div>
                 <div class="domainInfo text-left">
                     <h3>{{domain}}</h3>
                     <p>
                         <div v-if="domainVerified" class="verified verifyRow">
                             <ae-icon fill="alternative" face="round" name="check" /> 
-                            {{language.pages.tip.domainVerified}}
+                            {{$t('pages.tipPage.domainVerified')}}
                         </div>
                         <div v-else class="notVerified verifyRow">
                             <ae-icon fill="alternative"  face="round" name="close" /> 
-                            {{language.pages.tip.domainNotVerified}}
+                            {{$t('pages.tipPage.domainNotVerified')}}
                         </div>
-                        <span class="verifyBtn" @click="checkDomain"> {{language.pages.tip.check}}</span>
+                        <span class="verifyBtn" @click="checkDomain"> {{$t('pages.tipPage.check')}}</span>
                     </p>
                 </div>
             </div>
             <ae-input label="More info" class="my-2">
                 <textarea class="ae-input textarea" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
             </ae-input>
-            <h3> {{language.pages.tip.sendHeading}}</h3>
-            <h4>Select amount</h4>
+            <h3> {{$t('pages.tipPage.sendHeading')}}</h3>
+            <h4>{{$t('pages.tipPage.selectAmount')}}</h4>
             <div class="flex flex-justify-between tipWebisteAmount">  
                 <ae-badge :class="selectedTip == index ? 'primary' : ''" @click.native="selectTip(index)" v-for="(tip,index) in tips" :key="index">{{tip == 0 ? 'other' : `${tip} ${tokenSymbol}`}} </ae-badge>
             </div>
@@ -37,12 +37,12 @@
                 <span class="tipMax tipAmount">100 {{tokenSymbol}}</span>
                 <input class="range-slider__range" type="range"  min="1" max="100" step="1"  v-model="finalAmount" @input="setTip" ref="tipSlider">
             </div>
-            <h4>Amount to tip</h4>
+            <h4>{{$t('pages.tipPage.amountToTip')}}</h4>
             <ae-input label="Tip amount" placeholder="0.0" aemount v-model="finalAmount" disabled="true" class="finalAmount">
                 <ae-text slot="header" fill="black">{{tokenSymbol}}</ae-text>
                 <ae-toolbar slot="footer" class="flex-justify-between">
                    <div>
-                       Transaction fee
+                       {{$t('pages.tipPage.transactionFee')}}
                     </div>
                     <div>
                         {{txFee}} AE
@@ -51,13 +51,13 @@
             </ae-input>
             <div class="flex flex-justify-between balanceInfo">
                 <div>
-                    Balance
+                    {{$t('pages.tipPage.balance')}}
                 </div>
                 <div class="balance no-sign">
                     {{tokenBalance}} {{tokenSymbol}}
                 </div>
             </div>
-            <ae-button face="round" fill="alternative" extend class="sendTip" @click="sendTip">Send tip</ae-button>
+            <ae-button face="round" fill="alternative" extend class="sendTip" @click="sendTip">{{$t('pages.tipPage.sendTipBtn')}}</ae-button>
         </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
@@ -65,7 +65,6 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import locales from '../../locales/locales.json';
 import { extractHostName } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
@@ -73,7 +72,6 @@ import BigNumber from 'bignumber.js';
 export default {
     data() {
         return {
-            language: locales['en'],
             domain:'',
             favicon:undefined,
             loadFavicon:true,
@@ -86,7 +84,6 @@ export default {
             txFee:MIN_SPEND_TX_FEE
         }
     },
-    locales,
     computed: {
         ...mapGetters(['balance','account','tokenSymbol','tokenBalance','popup']),
         maxValue() {

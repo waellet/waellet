@@ -1,62 +1,62 @@
 <template>
     <div class="popup">
-        <ae-modal-light class="signature-modal" v-if="modalVisible && !requirePass" @close="modalVisible = false" title="Signature" >
-            <h3 class="h3-signature">Signed message:</h3>
+        <ae-modal-light class="signature-modal" v-if="modalVisible && !requirePass" @close="modalVisible = false" :title="$t('pages.signAndVerifyMsg.signatureTitle')" >
+            <h3 class="h3-signature">{{$t('pages.signAndVerifyMsg.signedMessage')}}</h3>
             <p class="signedmsg-modal">{{signature}}</p>
             <div class="signature-modal-buttons">
-                <button class="signMsg-copy" @click="doCopy">COPY</button>
-                <button class="signMsg-cancel" @click="modalVisible = false" >Cancel</button>
+                <button class="signMsg-copy" @click="doCopy">{{$t('pages.signAndVerifyMsg.copyBtn')}}</button>
+                <button class="signMsg-cancel" @click="modalVisible = false" >{{$t('pages.signAndVerifyMsg.cancelBtn')}}</button>
             </div>
         </ae-modal-light>
         <ae-modal-light class="signature-modal" v-if="requirePass" @close="requirePass = false" title="" >
-            <h3 class="h3-signature">Enter your password</h3>
+            <h3 class="h3-signature">{{$t('pages.signAndVerifyMsg.enterPassword')}}</h3>
             <p class="error">{{passwordAlert}}</p>
-            <ae-input class="my-2" label="Password">
-                <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+            <ae-input class="my-2" :label="$t('pages.signAndVerifyMsg.password')">
+                <input type="password" class="ae-input" :placeholder="$t('pages.signAndVerifyMsg.enterPassword')" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
             </ae-input>
             <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
             <div class="signature-modal-buttons">
-                <button class="signMsg-copy" @click="openSignPage">Sign message</button>
-                <button class="signMsg-cancel" @click="requirePass = false" >Cancel</button>
+                <button class="signMsg-copy" @click="openSignPage">{{$t('pages.signAndVerifyMsg.signMessage')}}</button>
+                <button class="signMsg-cancel" @click="requirePass = false" >{{$t('pages.signAndVerifyMsg.cancelBtn')}}</button>
             </div>
         </ae-modal-light>
         <div v-if="page == ''">
             <div class="actions">
-                <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" />{{ language.buttons.backToUtilities }}</button>
+                <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" />{{ $t('pages.signAndVerifyMsg.backToUtilities') }}</button>
             </div>
-            <h3>Sign and verify messages</h3>
+            <h3>{{$t('pages.signAndVerifyMsg.signAndVerify')}}</h3>
             <ae-panel>
-                <h4>Sign message</h4>
+                <h4>{{$t('pages.signAndVerifyMsg.signMessage')}}</h4>
                 <hr>
-                <small class="sett_info">This allows you to sign message with your private key</small>
-                <ae-button face="round" extend fill="primary" @click="requirePasswordModal">Sign</ae-button>
+                <small class="sett_info">{{$t('pages.signAndVerifyMsg.signMessageinfo')}}</small>
+                <ae-button face="round" extend fill="primary" @click="requirePasswordModal">{{$t('pages.signAndVerifyMsg.signBtn')}}</ae-button>
             </ae-panel>
             <ae-panel>
-                <h4>Verify message</h4>
+                <h4>{{$t('pages.signAndVerifyMsg.verifyMessage')}}</h4>
                 <hr>
-                <small class="sett_info">This allows you to verify signed messages</small>
-                <ae-button face="round" extend fill="primary" class="create-token" @click="page='verify'; verifyMessage=''">Verify</ae-button>
+                <small class="sett_info">{{$t('pages.signAndVerifyMsg.verifyMessageinfo')}}</small>
+                <ae-button face="round" extend fill="primary" class="create-token" @click="page='verify'; verifyMessage=''">{{$t('pages.signAndVerifyMsg.verifyBtn')}}</ae-button>
             </ae-panel>
         </div>
         <div v-if="page=='sign'">
             <div class="actions">
-                <button class="backbutton toAccount" @click="page = ''"><ae-icon name="back" />{{ language.buttons.backToSignVerifyMsg }}</button>
+                <button class="backbutton toAccount" @click="page = ''"><ae-icon name="back" />{{ $t('pages.signAndVerifyMsg.backToSignVerifyMsg') }}</button>
             </div>
-            <h4>Sign message</h4>
+            <h4>{{ $t('pages.signAndVerifyMsg.signMessage') }}</h4>
             <hr>
-            <ae-textarea v-model="signMessage" monospace placeholder="Message" />
+            <ae-textarea v-model="signMessage" monospace :placeholder="$t('pages.signAndVerifyMsg.message')" />
             <p :class="alert.class"><small>{{alert.msg}}</small></p>
-            <ae-button face="round" fill="primary" extend :class="[ signMessage.length > 0 ? '' : 'disabled' ]" @click="signMessageAction">Sign</ae-button>
+            <ae-button face="round" fill="primary" extend :class="[ signMessage.length > 0 ? '' : 'disabled' ]" @click="signMessageAction">{{$t('pages.signAndVerifyMsg.signBtn')}}</ae-button>
         </div>
         <div v-if="page=='verify'">
             <div class="actions">
-                <button class="backbutton toAccount" @click="page = ''"><ae-icon name="back" />{{ language.buttons.backToSignVerifyMsg }}</button>
+                <button class="backbutton toAccount" @click="page = ''"><ae-icon name="back" />{{ $t('pages.signAndVerifyMsg.backToSignVerifyMsg') }}</button>
             </div>
-            <h4>Verify message</h4>
+            <h4>{{$t('pages.signAndVerifyMsg.verifyMessage')}}</h4>
             <hr>
-            <ae-textarea v-model="verifyMessage" monospace placeholder="Message" />
+            <ae-textarea v-model="verifyMessage" monospace :placeholder="$t('pages.signAndVerifyMsg.message')" />
             <p :class="alert.class"><small>{{alert.msg}}</small></p>
-            <ae-button face="round" fill="primary" extend :class="[ verifyMessage.length > 0 ? '' : 'disabled' ]" @click="verifyMessageAction">Verify</ae-button>
+            <ae-button face="round" fill="primary" extend :class="[ verifyMessage.length > 0 ? '' : 'disabled' ]" @click="verifyMessageAction">{{$t('pages.signAndVerifyMsg.verifyBtn')}}</ae-button>
         </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
@@ -64,7 +64,6 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
 import { Crypto } from '@aeternity/aepp-sdk/es';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
@@ -73,7 +72,6 @@ import { decrypt, str2buf } from '../../utils/keystore';
 export default {
     data() {
         return {
-            language: locales['en'],
             loading: false,
             page: '',
             signMessage: '',
@@ -89,7 +87,6 @@ export default {
             requirePass: false
         }
     },
-    locales,
     computed: {
         ...mapGetters(['account', 'sdk', 'activeAccount', 'popup', 'wallet']),
     },

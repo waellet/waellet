@@ -1,9 +1,9 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.qrCodeReader.backToAccount')}}</button>
         </div>
-        <h3 style='text-align:center;'>Qr Code Scanner</h3>
+        <h3 style='text-align:center;'>{{$t('pages.qrCodeReader.heading')}}</h3>
         <br>
 
 
@@ -24,19 +24,15 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import locales from '../../locales/locales.json';
 import { detectBrowser } from '../../utils/helper';
 import QrcodeVue from 'qrcode.vue';
 import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader';
-import {
-  getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl,
-} from '../../utils/airGap';
+import { getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl } from '../../utils/airGap';
 import { Crypto } from '@aeternity/aepp-sdk/es';
 
 export default {
     data() {
         return {
-            language: locales['en'],
             loading: false,
             successMessage: '',
             errorMessage: '',
@@ -44,7 +40,6 @@ export default {
             accountspublicKeys: []
         }
     },
-    locales,
     computed: {
         ...mapGetters (['account', 'current', 'network','subaccounts','wallet', 'popup'])
     },

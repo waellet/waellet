@@ -1,6 +1,6 @@
   <template>
   <div class="popup">
-    <h3>{{language.pages.account.heading}}</h3>
+    <h3>{{ $t('pages.account.heading') }}</h3>
     <div class="currenciesgroup">
       <div class="inputGroup-currencies">
         <div class="input-group-icon">$</div>
@@ -14,7 +14,7 @@
     <ae-card :fill="cardColor">
       <template slot="avatar">
         <ae-identicon :address="account.publicKey" />
-        <ae-input-plain fill="white" :placeholder="language.strings.accountName" @keyup.native="setAccountName" :value="activeAccountName"  />
+        <ae-input-plain fill="white" :placeholder="$t('pages.account.accountName')" @keyup.native="setAccountName" :value="activeAccountName"  />
       </template>
       <template slot="header">
         <ae-text fill="white" face="mono-base">{{tokenBalance}} {{tokenSymbol}}</ae-text>
@@ -23,26 +23,26 @@
       <ae-toolbar :fill="cardColor" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="copy">
           <ae-icon name="copy" />
-          {{language.buttons.copy}}
+          {{ $t('pages.account.copy') }}
         </ae-button>
       </ae-toolbar>
     </ae-card>
     <br>
     <div class="actions">
       <ae-button-group>
-        <ae-button face="round" fill="primary" extend class="sendBtn" @click="navigateSend">{{language.buttons.send}}</ae-button>
-        <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{language.buttons.receive}}</ae-button>
+        <ae-button face="round" fill="primary" extend class="sendBtn" @click="navigateSend">{{$t('pages.account.send') }}</ae-button>
+        <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{$t('pages.account.receive') }}</ae-button>
       </ae-button-group>
     </div>
-    <h3>Latest transactions</h3>
+    <h3>{{$t('pages.account.latestTransactions') }}</h3>
     <div v-if="transactions.latest.length && !loading">
       <ae-list class="transactionList">
         <TransactionItem v-for="transaction in transactions.latest" v-bind:key="transaction.id" :transactionData="transaction"></TransactionItem>
       </ae-list>
-      <ae-button face="round" fill="primary" class="transactionHistory" @click="showAllTranactions">{{language.buttons.wholeTransaction}}</ae-button>
+      <ae-button face="round" fill="primary" class="transactionHistory" @click="showAllTranactions">{{$t('pages.account.wholeTransaction') }}</ae-button>
     </div>
     <div v-if="transactions.latest.length == 0 && !loading">
-        <p class="paragraph noTransactions">No transactions found!</p> 
+        <p class="paragraph noTransactions">{{$t('pages.account.noTransactionsFound') }}</p> 
     </div>
     <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     <Loader size="small" :loading="loading" ></Loader>
@@ -52,20 +52,17 @@
 <script>
 
 import { mapGetters } from 'vuex';
-import locales from '../../locales/locales.json';
 import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { request } from 'http';
 import { fetchData, currencyConv } from '../../utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
 
-
 export default {
   name: 'Account',
   data () {
     return {
       polling: null,
-      language: locales['en'],
       loading:true,
       accountName:'',
       pollingTransaction:null,

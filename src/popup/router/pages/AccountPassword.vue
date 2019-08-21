@@ -7,23 +7,22 @@
                     <password v-if="confirmPassword" v-model="accountPassword" strength-meter-class="passwordStrengthMeter" :strength-meter-only="true" @score="getScore"/>
                     <ae-input  placeholder="" class="my-2" label="Password" v-bind="inputError">
                         <input type="password" class="ae-input" :min="minPasswordLength"  v-model="accountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                        <ae-toolbar v-if="errorMsg == 'length'" slot="footer">Password must be at lest {{ minPasswordLength }} symbols! </ae-toolbar>
-                        <ae-toolbar v-if="errorMsg == 'weak'" slot="footer">Too weak password!</ae-toolbar>
-                        <ae-toolbar v-if="loginError" slot="footer">Incorrect password !</ae-toolbar>
+                        <ae-toolbar v-if="errorMsg == 'length'" slot="footer">{{ $t('pages.accountPassword.passwordSymbolsError') }}{{ minPasswordLength }}</ae-toolbar>
+                        <ae-toolbar v-if="errorMsg == 'weak'" slot="footer">{{ $t('pages.accountPassword.weakPasswordError') }}</ae-toolbar>
+                        <ae-toolbar v-if="loginError" slot="footer">{{ $t('pages.accountPassword.incorrectPasswordError') }}</ae-toolbar>
                     </ae-input>
                     <ae-input  v-if="confirmPassword" placeholder="" class="my-2" label="Repeat Password" v-bind="inputError">
                         <input type="password" class="ae-input" :min="minPasswordLength" v-model="confirmAccountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                        <ae-toolbar v-if="errorMsg == 'match'" slot="footer">Passwords doesn't match! </ae-toolbar>
+                        <ae-toolbar v-if="errorMsg == 'match'" slot="footer">{{ $t('pages.accountPassword.passwordDoesntMatchError') }} </ae-toolbar>
                     </ae-input>
                     <ae-button face="round" extend fill="primary" @click="clickAction({accountPassword,data,confirmAccountPassword})">{{buttonTitle}}</ae-button>
                 </div>
-                <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
+                <Loader size="small" :loading="loading" v-bind="{'content':$t('pages.accountPassword.securingAccount')}"></Loader>
             </div>
         </main>
     </div> 
 </template>
 <script>
-import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import { mnemonicToSeed } from '@aeternity/bip39';
@@ -38,7 +37,6 @@ export default {
     components: { Password },
     data() {
         return {
-            language: locales['en'],
             accountPassword:'',
             confirmAccountPassword:'',
             inputError:{},
@@ -52,7 +50,6 @@ export default {
     computed: {
         ...mapGetters(['tokens'])
     },
-    locales,
     methods: {
         getScore(score) {
             this.passwordScore = score;

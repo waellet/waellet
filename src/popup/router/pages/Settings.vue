@@ -1,34 +1,32 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.settings.backToAccount')}}</button>
         </div>
-        <h3 style='text-align:center;'>{{language.pages.settings.heading}}</h3>
+        <h3 style='text-align:center;'>{{$t('pages.settings.heading')}}</h3>
         <br>
         <ae-list class="settingslist" face="primary">
             <button class="generalsett" @click="GeneralSettings">
-                <span class="settings-li">{{ language.pages.settings.tabGeneral }}</span>
+                <span class="settings-li">{{ $t('pages.settings.tabGeneral') }}</span>
                 <i class="arrowright"></i>
-                <p class="tabinfo">{{ language.pages.settings.tabGeneralsmall }}</p>
+                <p class="tabinfo">{{ $t('pages.settings.tabGeneralsmall') }}</p>
             </button>
             <button class="advancedsett" @click="AdvancedSettings">
-                <span class="settings-li">{{ language.pages.settings.tabAdvanced }}</span>
+                <span class="settings-li">{{ $t('pages.settings.tabAdvanced') }}</span>
                 <i class="arrowright"></i>
-                <p class="tabinfo">{{ language.pages.settings.tabAdvancedsmall }}</p>
+                <p class="tabinfo">{{ $t('pages.settings.tabAdvancedsmall') }}</p>
             </button>
             <button class="securitysett" @click="SecuritySettings">
-                <span class="settings-li">{{ language.pages.settings.tabSecurity }}</span>
+                <span class="settings-li">{{ $t('pages.settings.tabSecurity') }}</span>
                 <i class="arrowright"></i>
-                <p class="tabinfo">{{ language.pages.settings.tabSecuritysmall }}</p>
+                <p class="tabinfo">{{ $t('pages.settings.tabSecuritysmall') }}</p>
             </button>
             <button class="aboutsett" @click="AboutSettings">
-                <span class="settings-li">{{ language.pages.settings.tabAbout }}</span>
+                <span class="settings-li">{{ $t('pages.settings.tabAbout') }}</span>
                 <i class="arrowright"></i>
-                <p class="tabinfo">{{ language.pages.settings.tabAboutsmall }}</p>
+                <p class="tabinfo">{{ $t('pages.settings.tabAboutsmall') }}</p>
             </button>
         </ae-list>
-
-
         <div v-if="loading" class="loading">
             <ae-loader />
         </div>
@@ -38,12 +36,10 @@
 <script>
 
 import { mapGetters } from 'vuex';
-import locales from '../../locales/locales.json';
 
 export default {
     data () {
         return {
-            language: locales['en'],
             loading: false,
         }
     },
@@ -88,7 +84,7 @@ export default {
 .settingslist button:hover {
     border-left: 2px solid #ff0d6a;
     background: rgba(226, 226, 226, 0.5);
-    .arrowright, {
+    .arrowright {
         right: 20px;
     }
 }
