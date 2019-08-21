@@ -1,0 +1,1 @@
+# Waellet Contributing Guidelines
