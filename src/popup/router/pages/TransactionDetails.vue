@@ -39,6 +39,10 @@
                 <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.txAccount')}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.account_id" @click="copy" class="copyBtn">{{$t('pages.transactionDetails.copy')}}</button></div>
                 <input disabled :value="txAccount" length="flat" class="transactionTo transactionDetailsInputs"/>
             </ae-list-item>
+            <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isContractCallTx">
+                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.contractId}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.contract_id" @click="copy" class="copyBtn">COPY</button></div>
+                <input disabled :value="transaction.tx.contract_id" length="flat" class="transactionTo transactionDetailsInputs"/>
+            </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column" v-if="isNameClaimTx">
                 <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.txName')}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.name" @click="copy" class="copyBtn">{{$t('pages.transactionDetails.copy')}}</button></div>
                 <div  class="flex-justify-items-left transactionName text-left">{{transaction.tx.name}}</div>
@@ -105,11 +109,19 @@ export default {
         isConractCreateTx() {
             return this.transaction.tx.type == 'ContractCreateTx';
         },
+        isContractCallTx() {
+            return this.transaction.tx.type == 'ContractCallTx'
+        },
         txTotal() {
             return (this.txAmount + this.txFee).toFixed(7)
         },
         txAccount() {
-            return this.isConractCreateTx ? this.transaction.tx.owner_id : this.transaction.tx.account_id
+            if(this.isConractCreateTx) {
+                return this.transaction.tx.owner_id
+            }else if(this.isContractCallTx) {
+                return this.transaction.tx.caller_id
+            }
+            return this.transaction.tx.account_id
         }
     },
     methods: {

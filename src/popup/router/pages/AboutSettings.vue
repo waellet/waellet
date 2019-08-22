@@ -11,7 +11,7 @@
             {{ $t('pages.aboutSettings.systemName') }}
         </p>
         <div v-if="loading" class="loading">
-            <ae-loader />
+            <ae-loader /> 
         </div>
     </div>
 </template>
