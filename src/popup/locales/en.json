@@ -160,7 +160,8 @@
             "keystoreJson": "Keystore.json",
             "seedPhrase": "Seed phrase",
             "enterSeedPhrase": "Enter your seed phrase. The one you wrote down during account creation.",
-            "continueButton": "Continue"
+            "continueButton": "Continue",
+            "chooseFile": "Choose file"
         },
         "ledgerSetup": {
             "ledgerConnectSetup": "How to connect from Ledger",
@@ -215,6 +216,7 @@
             "decryptingPrivateKey":"Decrypting private key"
         },
         "seedPhrase": {
+            "securingAccount": "Securing your account",
             "attentionMsg": "Please make sure to keep your seedphrase safe! Waellet does not store and cannot recover your seedphrase! It is your responsibility to keep it safe. If you loose access to your waellet, you will loose all your funds.",
             "tips": "Tips on how to protect your funds",
             "tip1": "Safe a backup on multiple places",

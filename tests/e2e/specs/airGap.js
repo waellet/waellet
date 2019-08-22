@@ -19,30 +19,7 @@ const deriveAdress = (seed,index) => {
 };
 
 
-describe('Test cases for managing accounts and deriving multiple address from same private key', () => {
-
-    // it("have account menu", () => {
-    //     login();
-    //     cy
-    //     .visit('popup/popup.html',{onBeforeLoad})
-    //     .get('#account')
-    //     .should('be.visible')
-    //     .get('#account .dropdown-button-name')
-    //     .should('contain','Main account')
-    //     .get('#account')
-    //     .click()
-    //     .get('.dropdown-holder')
-    //     .should('be.visible')
-    //     .get('.dropdown-holder li').eq(0)
-    //     .should('be.visible')
-    //     .should('have.class','activeAccount')
-    //     .get('.dropdown-holder li').eq(0).find('.subAccountName')
-    //     .should('contain','Main account')
-    //     .get('.newSubaccount')
-    //     .should('be.visible')
-    //     .get('.iconBtn')
-    //     .should('be.visible')
-    // });
+describe('Test cases for creating airgap account', () => {
 
     it("open Create AirGap Vault Account page all steps", () => {
         login();
@@ -67,13 +44,10 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .get('div.step2')
         .should('be.visible')
         .get('.ae-button')
-        .should('have.class','step-button')
-        .should('be.visible')
-        .should('contain','Link vault ')
         .click()
         .wait(3000)
-        .get('.cameraMsg p b')
-        .should('contain','Camera successfully initilized! Ready for scanning now!')
+        .get('video.camera')
+        .should('be.visible')
     });
 
 });

@@ -213,7 +213,9 @@ export default {
       browser.storage.sync.get('language').then((data) => {
         this.language = langs[data.language];
         this.$store.state.current.language = data.language;
-        fetchAndSetLocale(data.language);
+        if (typeof data.language != 'undefined') {
+          fetchAndSetLocale(data.language);
+        }
       });
       browser.storage.sync.get('activeNetwork').then((data) => {
         if (data.hasOwnProperty('activeNetwork') && data.activeNetwork != 0) {

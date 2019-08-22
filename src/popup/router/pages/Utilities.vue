@@ -21,11 +21,11 @@
                 <i class="arrowright"></i>
                 <p class="tabinfo">{{$t('pages.utilities.fungibleTokensInfo')}}</p>
             </button>
-            <!-- <button class="fungible-tokens" @click="openSignVerifyMsgPage">
+            <button class="sign-verify-messages" @click="openSignVerifyMsgPage">
                 <span class="settings-li">{{$t('pages.utilities.signAndVerifyMsg')}}</span>
                 <i class="arrowright"></i>
                 <p class="tabinfo">{{$t('pages.utilities.signAndVerifyMsgInfo')}}</p>
-            </button> -->
+            </button>
         </ae-list>
         <Loader size="big" :loading="loading" type="transparent" ></Loader>
     </div>

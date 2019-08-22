@@ -33,10 +33,12 @@ export const BALANCE_ACCOUNT_NOT_EXISTENT = {type:'error', title:'Oops! Somethin
 export const ACCOUNT_INSUFFICIENT_ALLOWANCE = {type:'error', title:'Oops! Something went wrong', msg:''}
 export const LEDGER_SUPPORT = {type:'error', title:'Oops! Something went wrong', msg:'Ledger currently cannot sign this type of transaction! '}
 export const LEDGER_ACCOUNT_ERROR = { type:'error', title:'Oops! Something went wrong', msg:'Account cannot be added! ' }
+export const UNSUCCESS_VERIFYMESSAGE = {type:'error', title:'Oops! Something went wrong', msg:'Verification failed!'}
 //success messages
 export const SIGNED_MESSAGE = {type:'success', title:'Signed message:', msg:'', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Copy', buttonsFillPrimary: 'neutral', buttonsFillSecondary: 'primary'};
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};
 export const SUCCESS_TRANSFER = { type:'success', title:'Transfer completed', msg:''}
+export const SUCCESS_VERIFYMESSAGE = { type:'success', title:'Verification completed', msg:''}
 export const SUCCESS_DEPLOY = { type:'success', title:'Contract deployed', msg:''}
 export const SUCCESS_ADDED = { type:'success', title:'Successfully added!', msg:''}
 export const REMOVE_USER_NETWORK = {type:'success', title:'Are you sure?', msg:'', buttonsTextPrimary: 'No', buttonsTextSecondary: 'Yes', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}

@@ -40,7 +40,7 @@
         <ae-panel>
             <div class="maindiv_input-group-addon">
                 <h4>{{$t('pages.generalSettings.switchLanguage') }}</h4><hr>
-                <small class="sett_info">{{$t('pages.generalSettings.currentLanguage') }}: {{this.current.language}}</small>
+                <small class="sett_info">{{$t('pages.generalSettings.currentLanguage') }}: {{ (this.current.language ? this.current.language : 'en') }}</small>
                 <div class="language-settings">
                     <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
                         <ae-button class="notround switchlanguageBtn" face="round" fill="primary" extend @click="toggleDropdown($event, '.have-subDropdown')">

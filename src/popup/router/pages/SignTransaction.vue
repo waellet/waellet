@@ -156,7 +156,7 @@ export default {
             return (parseFloat(this.amount) + parseFloat(this.selectedFee)).toFixed(7)
         },
         insufficientBalance() {
-            if (this.data.tx.token == 'AE') {
+            if (this.data.type != 'contractCall') {
                 if(typeof this.data.tx.token != 'undefined') {
                     return this.tokenBalance - this.amount <= 0
                 }

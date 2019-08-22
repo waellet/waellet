@@ -4,7 +4,7 @@
             <h3 class="h3-signature">{{$t('pages.signAndVerifyMsg.signedMessage')}}</h3>
             <p class="signedmsg-modal">{{signature}}</p>
             <div class="signature-modal-buttons">
-                <button class="signMsg-copy" @click="doCopy">{{$t('pages.signAndVerifyMsg.copyBtn')}}</button>
+                <button class="copySignature signMsg-copy" @click="doCopy"><ae-icon name="copy" /> {{$t('pages.signAndVerifyMsg.copyBtn')}}</button>
                 <button class="signMsg-cancel" @click="modalVisible = false" >{{$t('pages.signAndVerifyMsg.cancelBtn')}}</button>
             </div>
         </ae-modal-light>
@@ -16,7 +16,7 @@
             </ae-input>
             <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
             <div class="signature-modal-buttons">
-                <button class="signMsg-copy" @click="openSignPage">{{$t('pages.signAndVerifyMsg.signMessage')}}</button>
+                <button class="signMsg-copy openSignPage" @click="openSignPage">{{$t('pages.signAndVerifyMsg.signMessage')}}</button>
                 <button class="signMsg-cancel" @click="requirePass = false" >{{$t('pages.signAndVerifyMsg.cancelBtn')}}</button>
             </div>
         </ae-modal-light>
@@ -29,13 +29,13 @@
                 <h4>{{$t('pages.signAndVerifyMsg.signMessage')}}</h4>
                 <hr>
                 <small class="sett_info">{{$t('pages.signAndVerifyMsg.signMessageinfo')}}</small>
-                <ae-button face="round" extend fill="primary" @click="requirePasswordModal">{{$t('pages.signAndVerifyMsg.signBtn')}}</ae-button>
+                <ae-button class="signPage" face="round" extend fill="primary" @click="requirePasswordModal">{{$t('pages.signAndVerifyMsg.signBtn')}}</ae-button>
             </ae-panel>
             <ae-panel>
                 <h4>{{$t('pages.signAndVerifyMsg.verifyMessage')}}</h4>
                 <hr>
                 <small class="sett_info">{{$t('pages.signAndVerifyMsg.verifyMessageinfo')}}</small>
-                <ae-button face="round" extend fill="primary" class="create-token" @click="page='verify'; verifyMessage=''">{{$t('pages.signAndVerifyMsg.verifyBtn')}}</ae-button>
+                <ae-button class="verifyPage" face="round" extend fill="primary" @click="page='verify'; verifyMessage=''">{{$t('pages.signAndVerifyMsg.verifyBtn')}}</ae-button>
             </ae-panel>
         </div>
         <div v-if="page=='sign'">
@@ -68,6 +68,7 @@ import { mapGetters } from 'vuex';
 import { Crypto } from '@aeternity/aepp-sdk/es';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { decrypt, str2buf } from '../../utils/keystore';
+import { getHdWalletAccount, generateHdWallet } from '../../utils/hdWallet';
 
 export default {
     data() {
@@ -127,48 +128,39 @@ export default {
         },
         signMessageAction() {
             this.loading = true;
-            browser.storage.sync.get('userAccount').then(async (user) => {
-                if(user.userAccount && user.hasOwnProperty('userAccount') && this.password != '') {
-                    let encPrivateKey = user.userAccount.encryptedPrivateKey;
-                    try {
-                        JSON.parse(user.userAccount.encryptedPrivateKey);
-                    }catch(e) {
-                        user.userAccount.encryptedPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
-                        encPrivateKey = JSON.stringify( user.userAccount.encryptedPrivateKey );
+            let privKey = getHdWalletAccount(this.wallet,this.activeAccount).secretKey
+            try {
+                const sign = Crypto.signPersonalMessage(this.signMessage, privKey)
+                this.signature = JSON.stringify(
+                    { 
+                        text: this.signMessage, 
+                        sig: sign
                     }
-                    let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-                    let privKeyasHex = await decrypt(encryptedPrivateKey.crypto.ciphertext, this.password, encryptedPrivateKey.crypto.cipher_params.nonce, encryptedPrivateKey.crypto.kdf_params.salt);
-                    let privKey = Buffer.from(privKeyasHex, 'hex')
-                    let publicKey = Buffer.from(Crypto.decodeBase58Check(this.account.publicKey.split('_')[1]))
-                    try {
-                        const sign = Crypto.signPersonalMessage(this.signMessage, privKey)
-                        this.signature = JSON.stringify(
-                            { 
-                                text: this.signMessage, 
-                                sig: sign, 
-                                address: publicKey,
-                            },
-                            null,
-                            2
-                        );
-                        this.loading = false;
-                        this.modalVisible = true;
-                    } catch (error) {
-                        console.log(error);
-                    }
-                }
-            });
+                );
+                this.loading = false;
+                this.modalVisible = true;
+            } catch (error) {
+                console.log(error);
+            }
         },
         verifyMessageAction() {
             try {
                 let verObj = JSON.parse(this.verifyMessage);
-                console.log(verObj);
-                const verify = Crypto.verifyPersonalMessage(verObj.text, new Uint8Array(verObj.sig.data), new Uint8Array(verObj.address.data));
-                console.log(verify);
+                var signature = new Uint8Array(Object.values(verObj.sig));
+                let publicKey = Buffer.from(Crypto.decodeBase58Check(this.account.publicKey.split('_')[1]))
+                const verify = Crypto.verifyPersonalMessage( verObj.text, signature, publicKey );
+                if (verify == true) {
+                    this.$store.dispatch('popupAlert', { name: 'account', type: 'success_verifymessage'}).then( () => {
+                        this.verifyMessage = '';
+                    })
+                }
+                else {
+                    this.$store.dispatch('popupAlert', { name: 'account', type: 'unsuccess_verifymessage'});
+                }
             } catch (error) {
-                console.log(error);
+                console.log('error', error.toString());
                 error = error.toString();
-                if (error.includes('unexpected type') || error.includes('Unexpected token') || error.includes('argument must be')) {
+                if (error.includes('unexpected type') || error.includes('Cannot convert') || error.includes('Unexpected token') || error.includes('argument must be')) {
                     this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'});
                 }
             }
