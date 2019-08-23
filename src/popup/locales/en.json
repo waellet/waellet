@@ -16,7 +16,9 @@
         "aboutSettings": {
             "heading": "About",
             "backToSettings": "Settings",
-            "systemName": "Waellet"
+            "systemName": "Waellet",
+            "terms": "Terms of Service",
+            "privacyPolicy": "Privacy Policy"
         },
         "account": {
             "heading": "Account",

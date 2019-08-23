@@ -25,7 +25,7 @@
             <ae-toolbar
               v-if="errorMsg == 'length'"
               slot="footer"
-            >{{ $t('pages.index.passwordError ') }}</ae-toolbar>
+            >{{ $t('pages.index.passwordError') }}</ae-toolbar>
             <ae-toolbar v-if="loginError" slot="footer">{{ $t('pages.index.incorrectPasswordError') }}</ae-toolbar>
           </ae-input>
           <ae-button
@@ -55,7 +55,7 @@
         <ae-button
           face="round"
           extend
-          :class="[ terms[0] != 1 ? 'disabled' : '' ]"
+          :class="[ terms[0] != 1 && termsAgreedOrNot != true ? 'disabled' : '' ]"
           @click="openImportModal"
           class="importBtn"
         >{{ $t('pages.index.importPrivateKey') }}</ae-button>

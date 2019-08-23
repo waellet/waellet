@@ -124,7 +124,6 @@ const verifyMessage = () => {
     .get('.ae-modal-light').should('be.visible').get('h1').should('contain','Incorrect fields').get('.buttons > .ae-button').click() //close alert modal
     .get('.ae-textarea')
     .clear()
-    // console.log('stringedsignature',stringedsignature)
     .type(stringedsignature, { parseSpecialCharSequences: false })
     .get('.ae-button')
     .click().then(() => {

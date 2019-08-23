@@ -4,6 +4,9 @@
             <div class="popup">
                 <div v-if="!loading">
                     <h3>{{title}}</h3>
+                    <ae-button @click="navigateToIndex" class="closeBtn">
+                        <ae-icon name="close" />
+                    </ae-button>
                     <password v-if="confirmPassword" v-model="accountPassword" strength-meter-class="passwordStrengthMeter" :strength-meter-only="true" @score="getScore"/>
                     <ae-input  placeholder="" class="my-2" label="Password" v-bind="inputError">
                         <input type="password" class="ae-input" :min="minPasswordLength"  v-model="accountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
@@ -51,6 +54,9 @@ export default {
         ...mapGetters(['tokens'])
     },
     methods: {
+        navigateToIndex() {
+            this.$router.push('/');
+        },
         getScore(score) {
             this.passwordScore = score;
         },
@@ -166,11 +172,18 @@ export default {
                     },
                 });
             });
-        },
+        }
     }
 }
 
 </script>
 <style lang="scss" scoped>
 @import '../../../common/base';
+.closeBtn {
+    position: absolute !important;
+    top: 17px;
+    right: 16px;
+    font-size: 18px;
+    color: #000;
+}
 </style>

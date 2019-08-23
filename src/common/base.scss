@@ -13,6 +13,20 @@ $color-alternative: #14CCB7;
 $color-secondary:#6948A1;
 $ledger-color:#203040;
 
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  // border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.7); 
+}
+
+
 * {
   box-sizing: border-box;
 }
