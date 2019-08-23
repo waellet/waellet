@@ -148,6 +148,9 @@
             "OkButton": "OK"
         },
         "index": {
+            "term1": "I agree to the Waellet ",
+            "term2": "Terms of Service",
+            "term3": "Privacy Policy",
             "heading": "Welcome to waellet, to start interacting with aeternity blockchain: ",
             "securingAccount": "Securing your account",
             "generateWallet": "Generate wallet",
@@ -190,6 +193,10 @@
             "addnetworkName": "Add Node name",
             "addnetworkURL": "Add Node URL",
             "add": "Add"
+        },
+        "privacyPolicy": {
+            "backButton": "Back",
+            "heading": "Privacy Policy"
         },
         "qrCodeReader": {
             "backToAccount": "Back to account",
@@ -291,6 +298,10 @@
             "backToScan": "Back to scan transaction",
             "heading": "Scan with AirGap Vault to sign the transaction",
             "doneBtn": "Done"
+        },
+        "termsOfService": {
+            "backButton": "Back",
+            "heading": "Terms and conditions"
         },
         "tipPage": {
             "backToUtilities": "Back to utilities",

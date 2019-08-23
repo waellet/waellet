@@ -541,10 +541,10 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account .iconBtn, #network .iconBtn { padding: 0 !important; height: 30px !important; width: 30px; color: #fff; text-align: center; margin-right: 8px;}
 #account .iconBtn i, #network .iconBtn i { color: #fff !important; font-size: 1.2rem !important; margin: 0;float: none; text-align: center;}
 #account.dropdown ul li .ae-button > * { display: inline-block; vertical-align: middle; }
-.ae-check .ae-check-button { float: right; min-width: 0 !important; min-height: 0 !important; padding-left: 0 !important; }
-.ae-check-button:before { position: static !important; }
-.ae-check-button:after { left: 0 !important; top: 0 !important; width: 28px !important; height: 28px !important; }
-.ae-check > input[type="radio"]:checked + .ae-check-button:before, .ae-check > input[type="checkbox"]:checked + .ae-check-button:before { border-color: #dae1ea !important; }
+.subAccountCheckbox .ae-check-button { float: right; min-width: 0 !important; min-height: 0 !important; padding-left: 0 !important; }
+.subAccountCheckbox .ae-check-button:before { position: static !important; }
+.subAccountCheckbox .ae-check-button:after { left: 0 !important; top: 0 !important; width: 28px !important; height: 28px !important; }
+.subAccountCheckbox > input[type="radio"]:checked + .ae-check-button:before, .ae-check > input[type="checkbox"]:checked + .ae-check-button:before { border-color: #dae1ea !important; }
 #settings li .ae-icon { font-size: 1.2rem; margin-right: 10px; }
 #settings.dropdown ul { min-width: 250px }
 #languages .ae-button img { margin-right: 5px; }

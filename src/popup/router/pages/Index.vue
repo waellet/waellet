@@ -37,17 +37,25 @@
           >{{ $t('pages.index.loginButton') }}</ae-button>
           <ae-divider />
         </div>
+        
+        <ae-check v-if="termsAgreedOrNot != true" class="termsCheck" v-model="terms" value="1" type="checkbox">
+          <div class="termsHolder">
+            {{ $t('pages.index.term1') }}<a href="#" @click="goToTermsOfService"> {{ $t('pages.index.term2') }}</a> and <a href="#" @click="goToPrivacyPolicy"> {{ $t('pages.index.term3') }}</a>
+          </div>
+        </ae-check>
         <ae-button
           face="round"
           v-if="!account.encryptedPrivateKey"
           fill="primary"
           class="mb-1"
+          :class="[ terms[0] != 1 ? 'disabled' : '' ]"
           extend
           @click="generateAddress"
         >{{ $t('pages.index.generateWallet') }}</ae-button>
         <ae-button
           face="round"
           extend
+          :class="[ terms[0] != 1 ? 'disabled' : '' ]"
           @click="openImportModal"
           class="importBtn"
         >{{ $t('pages.index.importPrivateKey') }}</ae-button>
@@ -148,6 +156,9 @@ export default {
       loginError: false,
       accountPassword: '',
       imported: false,
+      termsIndex: 0,
+      terms: [],
+      termsAgreedOrNot: false
     };
   },
   computed: {
@@ -155,9 +166,18 @@ export default {
   },
   mounted() {},
   created() {
+    browser.storage.sync.get('termsAgreed').then(res => {
+      this.termsAgreedOrNot = res.termsAgreed;
+    });
     this.init();
   },
   methods: {
+    goToPrivacyPolicy() {
+      this.$router.push('/privacyPolicy');
+    },
+    goToTermsOfService() {
+      this.$router.push('/termsOfService');
+    },
     init() {
       // check if there is an account generated already
       // browser.storage.sync.set({userAccount: ''}).then(() => {});
@@ -258,6 +278,7 @@ export default {
           buttonTitle: 'Continue',
           type: 'generateEncrypt',
           title: 'Protect Account with Password',
+          termsAgreed: true
         },
       });
     },
@@ -283,6 +304,7 @@ export default {
               buttonTitle: 'Import',
               type: importType,
               title: 'Import From Private Key',
+              termsAgreed: true
             },
           });
           this.modalVisible = false;
@@ -303,6 +325,7 @@ export default {
               buttonTitle: 'Restore',
               type: importType,
               title: 'Import From Seed Phrase',
+              termsAgreed: true
             },
           });
           this.modalVisible = false;
@@ -329,6 +352,7 @@ export default {
                     buttonTitle: 'Import',
                     type: importType,
                     title: 'Import From Keystore.json',
+                    termsAgreed: true
                   },
                 });
                 context.modalVisible = false;
@@ -439,6 +463,14 @@ export default {
         context.loading = false;
       }
     },
+    // termsAgreedCheckbox() {
+    //   if (this.terms[0] == 1) {
+    //     this.agreed = true;
+    //   }
+    //   else {
+    //     this.agreed = false;
+    //   }
+    // }
   },
 };
 </script>
@@ -464,5 +496,19 @@ export default {
 .importTitle {
   font-size: 1.5rem;
   font-weight: 500;
+}
+.disabled {
+  background: #ccc !important;
+  pointer-events: none;
+}
+.termsCheck {
+  margin-bottom: 20px;
+}
+.termsHolder {
+  position: relative;
+  margin: 0px 10px;
+}
+.termsHolder a {
+  font-weight: bold;
 }
 </style>
