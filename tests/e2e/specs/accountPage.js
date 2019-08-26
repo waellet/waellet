@@ -4,17 +4,6 @@ import {ACCOUNT_PASSWORD,account} from '../utils';
 import { equal } from 'assert';
 
 describe("Test cases for Account Page" , () => {
-   
-    // it("export keystore",() => {
-    //     login();
-    //     cy.visit('popup/popup.html',{onBeforeLoad})
-    //     .get('#settings')
-    //     .should('be.visible')
-    //     .click()
-    //     .get('#exportKeystore')
-    //     .click()
-    // });
-
     it('change network', () => {
         login();
         cy
@@ -284,8 +273,6 @@ describe("Test cases for Account Page" , () => {
                 let fee = data.tx.fee / 10 ** 18;
                 cy.wrap(el)
                 .should('have.class',data.hash)
-                // .find('div.balance')
-                // .should('contain',amount);
                 cy.wrap(el)
                 .find('small .balance')
                 .should('contain',fee);

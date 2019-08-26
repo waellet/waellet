@@ -116,13 +116,20 @@ export default {
                 }
             })
         },
-        reset(privateKey) {
-            this.$copyText(privateKey).then(e => {
-                this.privateKey = ''
-                this.alert.show = false
-                this.alert.content = ''
-                this.password = ''
-            });
+        reset(privateKey = '') {
+            if(privateKey == '') {
+                this.resetFields()
+            }else {
+                this.$copyText(privateKey).then(e => {
+                    this.resetFields()
+                })
+            }
+        },
+        resetFields() {
+            this.privateKey = ''
+            this.alert.show = false
+            this.alert.content = ''
+            this.password = ''
         },
         setAlertData(fill,show,content) {
             this.alert.fill = fill

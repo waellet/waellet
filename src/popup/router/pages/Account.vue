@@ -53,7 +53,6 @@
 
 import { mapGetters } from 'vuex';
 import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
-import { getHdWalletAccount } from '../../utils/hdWallet';
 import { request } from 'http';
 import { fetchData, currencyConv } from '../../utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
@@ -92,9 +91,6 @@ export default {
       publicKey() {
         this.loading = true;
         this.updateTransactions();
-      },
-      watchBalance() {
-        // this.updateTransactions();
       },
       watchToken() {
         this.updateTransactions();

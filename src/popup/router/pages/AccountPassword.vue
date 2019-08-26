@@ -86,35 +86,36 @@ export default {
             }else if(this.type == 'login') {
                 this.login({accountPassword});
             }
-            // this.$emit('clickAction',{accountPassword,data});
         },
         importPrivateKey: async function importPrivateKey({accountPassword,data,termsAgreed}) {
             this.loading = true;
-            let wallet = generateHdWallet(data);
-            const keyPair = await addressGenerator.importPrivateKey(accountPassword, data, wallet);
+            console.log("here")
+            let address = await this.$store.dispatch('generateWallet', { seed: data })
+            console.log(address)
+            const keyPair = await addressGenerator.importPrivateKey(accountPassword, data, address);
             if(keyPair) {
-                this.setLogin(keyPair,wallet, false, termsAgreed);
+                this.setLogin(keyPair, false, termsAgreed, accountPassword);
             }
             
         },
         importSeedPhrase: async function importSeedPhrase({accountPassword,data,termsAgreed}) {
             this.loading = true;
-            let privateKey = mnemonicToSeed(data)
-            let wallet = generateHdWallet(privateKey);
-            const keyPair = await addressGenerator.generateKeyPair(accountPassword,privateKey.toString('hex'),wallet);
+            let seed = mnemonicToSeed(data)
+            let address = await this.$store.dispatch('generateWallet', { seed })
+            const keyPair = await addressGenerator.generateKeyPair(accountPassword,seed.toString('hex'),address);
             if(keyPair) {
-                this.setLogin(keyPair,wallet, false, termsAgreed);
+                this.setLogin(keyPair, false, termsAgreed, accountPassword);
             }
         },
         importKeystore:async function importKeystore({accountPassword,data,termsAgreed}) {
             this.loading = true;
             const encryptedPrivateKey = JSON.parse(data);
-            let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
-            
-            if(match !== false) {
-                let wallet = generateHdWallet(match);
+            let seed = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+            if(seed !== false) {
+                let address = await this.$store.dispatch('generateWallet', { seed })
+                
                 let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),publicKey:encryptedPrivateKey.public_key};
-                this.setLogin(keyPair,wallet,true,termsAgreed);
+                this.setLogin(keyPair,true,termsAgreed, accountPassword);
             }else {
                 this.loginError = true;
                 this.errorMsg = "";
@@ -123,9 +124,10 @@ export default {
                 
             }
         },
-        setLogin(keyPair,wallet, fixAccount = false, termsAgreed) {
+        async setLogin(keyPair, fixAccount = false, termsAgreed, accountPassword) {
             if(fixAccount) {
-                let address = getHdWalletAccount(wallet).address;
+                
+                let address = await this.$store.dispatch('getAccount', { idx:0 })
                 if(address !== keyPair.publicKey) {
                     keyPair.publicKey = address;
                     let encPrivateKey = JSON.parse(keyPair.encryptedPrivateKey);
@@ -134,30 +136,28 @@ export default {
                 }
             }
             browser.storage.sync.set({userAccount: keyPair}).then(() => {
-                browser.storage.sync.set({isLogged: true}).then(() => {
-                    browser.storage.sync.set({wallet: JSON.stringify(wallet)}).then(() => {
-                        browser.storage.sync.set({ termsAgreed: termsAgreed }).then(() => {
-                            let sub = [];
-                            sub.push({
-                                name:'Main account',
-                                publicKey:keyPair.publicKey,
-                                balance:0,
-                                root:true
+                browser.storage.sync.set({isLogged: true}).then(async () => {
+                    browser.storage.sync.set({ termsAgreed: termsAgreed }).then(() => {
+                        let sub = [];
+                        sub.push({
+                            name:'Main account',
+                            publicKey:keyPair.publicKey,
+                            balance:0,
+                            root:true
+                        });
+                        browser.storage.sync.set({subaccounts: sub}).then(() => {
+                            browser.storage.sync.set({activeAccount: 0}).then( () => {
+                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
                             });
-                            browser.storage.sync.set({subaccounts: sub}).then(() => {
-                                browser.storage.sync.set({activeAccount: 0}).then(() => {
-                                    this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
-                                });
-                                this.$store.dispatch('setSubAccounts', sub).then(() => {
-                                    this.$store.commit('UNSET_TOKENS')
-                                    this.$store.dispatch('setTokens',this.tokens)
-                                    this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                                    this.$store.commit('SWITCH_LOGGED_IN', true);
-                                    this.$store.commit('SET_WALLET', wallet);
-                                    redirectAfterLogin(this)
-                                });
+                            this.$store.dispatch('setSubAccounts', sub).then(async () => {
+                                this.$store.commit('UNSET_TOKENS')
+                                this.$store.dispatch('setTokens',this.tokens)
+                                this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                                this.$store.commit('SWITCH_LOGGED_IN', true);
+                                redirectAfterLogin(this)
                             });
                         });
+                        
                     });
                 });
             });

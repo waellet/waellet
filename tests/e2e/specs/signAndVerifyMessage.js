@@ -2,6 +2,7 @@ import {onBeforeLoad} from '../support/mock_chrome.js';
 import {login} from '../login';
 import { Crypto } from '@aeternity/aepp-sdk/es';
 import { account, generateHdWallet, getHdWalletAccount } from '../utils';
+import { assert } from 'chai'
 
 const openSVmessagePage = () => {
     login();
@@ -131,7 +132,7 @@ const verifyMessage = () => {
         var signature = new Uint8Array(Object.values(verObj.sig));
         const result = Crypto.verifyPersonalMessage(message, signature, publicKey)
         assert.isTrue(result)
-        .clear()
+        
     });
 
 }

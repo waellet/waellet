@@ -92,7 +92,6 @@ import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee } from '../../utils/constants';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
-import { getHdWalletAccount } from '../../utils/hdWallet';
 import BigNumber from 'bignumber.js';
 import { clearInterval, clearTimeout  } from 'timers';
 
@@ -387,9 +386,9 @@ export default {
                         if(this.data.popup) {
                             this.errorTx.error.message = this.alertMsg
                             this.port.postMessage(this.errorTx)
-                            // setTimeout(() => {
-                            //     window.close()
-                            // },1000)
+                            setTimeout(() => {
+                                window.close()
+                            },1000)
                         }
                     },2000)  
                 }
@@ -452,7 +451,7 @@ export default {
                             this.port.postMessage(res)
                             let list = await removeTxFromStorage(this.data.id)
                             browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
-                            // this.removeTxStorageData()
+                            
                             setTimeout(() => {
                                 window.close()
                             },1000)
@@ -463,8 +462,6 @@ export default {
                                 let list = await removeTxFromStorage(this.data.id)
                                 browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
                                 this.redirectInExtensionAfterAction()
-                                // this.removeTxStorageData()
-                                // this.$router.push('/account');
                             })
                         }
                     }
@@ -560,7 +557,6 @@ export default {
         async contractDeploy() {
             let deployed
             if(this.isLedger) {
-                // let params = Object.assign({ foo: 'foo', bar: 'bar' }, this.txParams)
                 let { ownerId, amount, gas, code, callData, deposit } = this.txParams 
                 let tx = (await this.sdk[TX_TYPES[this.data.type]]({ownerId, amount, gas, code, callData, deposit})).tx
                 let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
@@ -695,8 +691,7 @@ export default {
     },
     beforeRouteUpdate (to, from, next) {
         next()
-        // react to route changes...
-        // don't forget to call next()
+        
     }
 }
 </script>

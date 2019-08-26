@@ -8,7 +8,11 @@ import { initializeSDK } from '../../../src/popup/utils/helper';
 
 const deployContract = async() => {
     let wallet = generateHdWallet(account.secretKey);
-    let sdk = await initializeSDK(this, { account, wallet }, true)
+    let acc = {
+        publicKey:account.publicKey,
+        secretKey:getHdWalletAccount(wallet, 0).secretKey
+    }
+    let sdk = await initializeSDK(this, { account:acc }, true)
     let bytecode = (await sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
     let deployed = await sdk.contractDeploy(bytecode, FUNGIBLE_TOKEN_CONTRACT, [ `"AE TEST"`, '8', `"AET"` ])
     let call = await sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, deployed.address,"mint",[account.publicKey,"1000000"])
@@ -344,7 +348,7 @@ describe("Test cases for Allowances Page", () => {
         .should('contain','Get it')
         .click()
         .get('h3')
-        .should('contain','Transfer Allowance')
+        .should('contain','Transfer allowance')
         .should('be.visible')
         .get(':nth-child(5) > .ae-input-box > .ae-input')
         .should('be.disabled')
@@ -439,7 +443,7 @@ describe("Test cases for Allowances Page", () => {
         .get('.allowance-address')
         .should('be.disabled')
         .get('.allowanceExistError')
-        .should("contain",'Current allowed allowance is 999750 AET')
+        .should("contain",'Current allowed allowance amount is 999750 AET')
 
         .get('.allowance-value > .ae-input-box > .ae-input')
         .clear()

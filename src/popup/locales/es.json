@@ -321,7 +321,9 @@
             "name": "Name",
             "nameSalt": "Name Salt",
             "nameId": "Name Id",
-            "copy": "Copy"
+            "copy": "Copy",
+            "contractId": "Contract Id"
+
         },
         "transactions": {
             "backToAccount": "Back to account",

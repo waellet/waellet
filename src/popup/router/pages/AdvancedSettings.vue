@@ -52,17 +52,15 @@ export default {
                 let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
                 let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
                 saveAs(blob, "keypair.json");
-                this.dropdown.settings = false; this.dropdown.languages = false; 
             }else if(type == 'keystore') {
                 let blobData = "";
                 try {
-                blobData = JSON.parse(this.account.encryptedPrivateKey);
+                    blobData = JSON.parse(this.account.encryptedPrivateKey);
                 }catch(err) {
-                blobData = JSON.stringify(this.account.encryptedPrivateKey);
+                    blobData = JSON.stringify(this.account.encryptedPrivateKey);
                 }
                 let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
                 saveAs(blob, "keystore.json");
-                this.dropdown.settings = false; this.dropdown.languages = false;
             }
         },
         navigateToSettings() {

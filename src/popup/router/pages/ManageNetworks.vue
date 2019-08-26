@@ -162,7 +162,7 @@ export default {
 @import '../../../common/base';
 .ae-list-item { cursor: default !important; }
 .ae-list-item .ae-icon, h4 .ae-icon , h4 .icon-btn{ float: right; font-size: 1.2rem; }
-// .ae-icon-edit, .ae-icon-plus { color: #00b6ff !important; }
+
 #manageAccounts .ae-icon-check { color: #13b100 !important; }
 #manageAccounts .ae-icon-close { color: #b10000 !important; }
 .editaccount:first-child { border-top: none !important; }
@@ -172,9 +172,9 @@ export default {
 .editaccount div input { width: 60% !important; }
 
 .slideform { position: relative; width: 100%; overflow: hidden; padding: 0; top: 10px; list-style-type: none; height: 0; margin:0;
-    /*box-shadow: 0 0 8px rgba(0, 33, 87, 0.15);*/ transform-origin: top; transition: all .4s ease-in-out; }
+    transform-origin: top; transition: all .4s ease-in-out; }
 .slide-enter, .slide-leave-to{ transform: scaleY(0); }
-.add-form { text-align: center; /*padding: 15px; margin: 10px; */}
+.add-form { text-align: center; }
 .required_fields { color: red; margin: 5px; }
 .ae-list-item .ae-icon, h4 .ae-icon { font-size: 1.7rem !important; }
 .add-form .ae-input-container { margin-bottom: 1rem; }

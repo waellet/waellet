@@ -31,7 +31,6 @@ import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader';
 import {
   getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl,
 } from '../../utils/airGap';
-import { getHdWalletAccount } from '../../utils/hdWallet'
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
 
