@@ -14,7 +14,6 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 export default {
     data() {
         return {
@@ -22,7 +21,6 @@ export default {
         };
     },
     props: ['loading','content', 'size', 'type'],
-    locales,
     methods: {
 
     }

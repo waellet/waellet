@@ -2,13 +2,13 @@
   <div>
     <main>
       <div class="wrapper">
-        <p>{{ language.pages.index.heading }}</p>
+        <p>{{ $t('pages.index.heading') }}</p>
         <div class="logo-center">
           <img :src="logo" alt="Waellet logo" />
         </div>
       </div>
     </main>
-    <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
+    <Loader size="small" :loading="loading" v-bind="{'content':$t('pages.index.securingAccount')}"></Loader>
     <footer v-if="!loading">
       <div class="wrapper">
         <div v-if="account.encryptedPrivateKey">
@@ -25,8 +25,8 @@
             <ae-toolbar
               v-if="errorMsg == 'length'"
               slot="footer"
-            >Password must be at lest 4 symbols!</ae-toolbar>
-            <ae-toolbar v-if="loginError" slot="footer">Incorrect password !</ae-toolbar>
+            >{{ $t('pages.index.passwordError') }}</ae-toolbar>
+            <ae-toolbar v-if="loginError" slot="footer">{{ $t('pages.index.incorrectPasswordError') }}</ae-toolbar>
           </ae-input>
           <ae-button
             face="round"
@@ -34,42 +34,50 @@
             fill="primary"
             class="loginBtn"
             @click="login({accountPassword})"
-          >Login</ae-button>
+          >{{ $t('pages.index.loginButton') }}</ae-button>
           <ae-divider />
         </div>
+        
+        <ae-check v-if="termsAgreedOrNot != true" class="termsCheck" v-model="terms" value="1" type="checkbox">
+          <div class="termsHolder">
+            {{ $t('pages.index.term1') }}<a href="#" @click="goToTermsOfService"> {{ $t('pages.index.term2') }}</a> and <a href="#" @click="goToPrivacyPolicy"> {{ $t('pages.index.term3') }}</a>
+          </div>
+        </ae-check>
         <ae-button
           face="round"
           v-if="!account.encryptedPrivateKey"
           fill="primary"
           class="mb-1"
+          :class="[ terms[0] != 1 ? 'disabled' : '' ]"
           extend
           @click="generateAddress"
-        >{{ language.buttons.generateWallet }}</ae-button>
+        >{{ $t('pages.index.generateWallet') }}</ae-button>
         <ae-button
           face="round"
           extend
+          :class="[ terms[0] != 1 && termsAgreedOrNot != true ? 'disabled' : '' ]"
           @click="openImportModal"
           class="importBtn"
-        >{{ language.buttons.importPrivateKey }}</ae-button>
+        >{{ $t('pages.index.importPrivateKey') }}</ae-button>
       </div>
     </footer>
 
     <ae-modal v-if="modalVisible" @close="modalVisible = false">
-      <h2 class="modaltitle">Import waellet</h2>
+      <h2 class="modaltitle">{{ $t('pages.index.importWaellet') }}</h2>
 
       <div class="tabs">
         <span
           @click="switchImportType('privateKey')"
-          :class="{'tab-active':importType == 'privateKey'}"
-        >Private key</span>
+          :class="{'tab-active':importType =='privateKey'}"
+        >{{ $t('pages.index.privateKey') }}</span>
         <span
           @click="switchImportType('keystore')"
           :class="{'tab-active':importType == 'keystore'}"
-        >Keystore.json</span>
+        >{{ $t('pages.index.keystoreJson') }}</span>
         <span
           @click="switchImportType('seedPhrase')"
           :class="{'tab-active':importType == 'seedPhrase'}"
-        >Seed phrase</span>
+        >{{ $t('pages.index.seedPhrase') }}</span>
       </div>
 
       <ae-input
@@ -88,7 +96,7 @@
         :class="{'walletFileHolderError':inputError.hasOwnProperty('error')}"
       >
         <label for="walletFile" class="customFileUpload my-2 ae-input-box">
-          <div class="file-label">Choose file</div>
+          <div class="file-label">{{ $t('pages.index.chooseFile') }}</div>
           <div class="file-input">{{walletFile !='' ? walletFile.name : ''}}</div>
           <div class="file-toolbar">{{errorMsg}}</div>
         </label>
@@ -99,7 +107,7 @@
       <div v-if="importType == 'seedPhrase'">
         <p
           class="importTitle"
-        >Enter your seed phrase. The one you wrote down during account creation.</p>
+        >{{ $t('pages.index.enterSeedPhrase') }}</p>
         <ae-input label="Seed phrase" class="my-2" v-bind="inputError">
           <textarea
             class="ae-input textarea"
@@ -117,14 +125,13 @@
         extend
         fill="primary"
         @click="importShowPassword({importType,privateKey,seedPhrase})"
-      >Continue</ae-button>
+      >{{ $t('pages.index.continueButton') }}</ae-button>
     </ae-modal>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-import locales from '../../locales/locales.json';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import { fetchData, redirectAfterLogin } from '../../utils/helper';
@@ -137,7 +144,6 @@ export default {
     return {
       loading: false,
       modalAskVisible: true,
-      language: locales['en'],
       modalVisible: false,
       logo: browser.runtime.getURL('../../../icons/icon_128.png'),
       privateKey: '',
@@ -150,6 +156,9 @@ export default {
       loginError: false,
       accountPassword: '',
       imported: false,
+      termsIndex: 0,
+      terms: [],
+      termsAgreedOrNot: false
     };
   },
   computed: {
@@ -157,9 +166,18 @@ export default {
   },
   mounted() {},
   created() {
+    browser.storage.sync.get('termsAgreed').then(res => {
+      this.termsAgreedOrNot = res.termsAgreed;
+    });
     this.init();
   },
   methods: {
+    goToPrivacyPolicy() {
+      this.$router.push('/privacyPolicy');
+    },
+    goToTermsOfService() {
+      this.$router.push('/termsOfService');
+    },
     init() {
       // check if there is an account generated already
       // browser.storage.sync.set({userAccount: ''}).then(() => {});
@@ -260,6 +278,7 @@ export default {
           buttonTitle: 'Continue',
           type: 'generateEncrypt',
           title: 'Protect Account with Password',
+          termsAgreed: true
         },
       });
     },
@@ -285,6 +304,7 @@ export default {
               buttonTitle: 'Import',
               type: importType,
               title: 'Import From Private Key',
+              termsAgreed: true
             },
           });
           this.modalVisible = false;
@@ -305,6 +325,7 @@ export default {
               buttonTitle: 'Restore',
               type: importType,
               title: 'Import From Seed Phrase',
+              termsAgreed: true
             },
           });
           this.modalVisible = false;
@@ -331,6 +352,7 @@ export default {
                     buttonTitle: 'Import',
                     type: importType,
                     title: 'Import From Keystore.json',
+                    termsAgreed: true
                   },
                 });
                 context.modalVisible = false;
@@ -339,7 +361,6 @@ export default {
                 context.errorMsg = 'Invalid file format! ';
               }
             } catch (err) {
-              console.log(err);
               context.inputError = { error: '' };
               context.errorMsg = 'Invalid file format! ';
             }
@@ -442,6 +463,14 @@ export default {
         context.loading = false;
       }
     },
+    // termsAgreedCheckbox() {
+    //   if (this.terms[0] == 1) {
+    //     this.agreed = true;
+    //   }
+    //   else {
+    //     this.agreed = false;
+    //   }
+    // }
   },
 };
 </script>
@@ -467,5 +496,19 @@ export default {
 .importTitle {
   font-size: 1.5rem;
   font-weight: 500;
+}
+.disabled {
+  background: #ccc !important;
+  pointer-events: none;
+}
+.termsCheck {
+  margin-bottom: 20px;
+}
+.termsHolder {
+  position: relative;
+  margin: 0px 10px;
+}
+.termsHolder a {
+  font-weight: bold;
 }
 </style>

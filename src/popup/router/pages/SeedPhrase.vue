@@ -5,17 +5,17 @@
                 <div class="attentionHolder" v-if="step == 1" >
 
                     <h1><div>!</div></h1>
-                    <h4>Please make sure to keep your seedphrase safe! Waellet does not store and cannot recover your seedphrase! It is your responsibility to keep it safe. If you loose access to your waellet, you will loose all your funds.</h4>
-                    <h4 class="mt-3">Tips on how to protect your funds</h4>
+                    <h4>{{$t('pages.seedPhrase.attentionMsg') }}</h4>
+                    <h4 class="mt-3">{{$t('pages.seedPhrase.tips') }}</h4>
                     <ul>
-                        <li>Safe a backup on multiple places</li>
-                        <li>Remember your password to decrypt your waellet</li>
-                        <li>Never share the phrase with anyone</li>
+                        <li>{{$t('pages.seedPhrase.tip1') }}</li>
+                        <li>{{$t('pages.seedPhrase.tip2') }}</li>
+                        <li>{{$t('pages.seedPhrase.tip3') }}</li>
                     </ul>
 
                 </div>
                 <div v-if="step == 2">
-                    <h3  class="phraseTitle">Carefully keep this phrase safe! Write these 12 words down and keep them in safe place. You need them to recover your account in the future. </h3>
+                    <h3  class="phraseTitle">{{$t('pages.seedPhrase.keepCarefully') }}</h3>
                     <div class="seeds-container">
                         <div class="col" v-for="column in columns" v-bind:key="column.id">
                             <ae-badge v-for="seed in column" v-bind:key="seed.id">{{seed.id + 1}} {{seed.name}}</ae-badge>
@@ -24,32 +24,31 @@
                     <progress class="seedProgress" :value="progress" max="100"></progress>
                 </div>
                 <div v-if="step == 3">
-                    <h3  class="phraseTitle">Confirm your phrase. Tap the words below to compose your phrase, note correct order! </h3>
+                    <h3  class="phraseTitle">{{$t('pages.seedPhrase.confirmSeedPhrase') }}</h3>
                     <ae-phraser>
                         <ae-badge class="seedBadge" :class="{'selected':seed.selected}" v-for="(seed,index) in shiffledSeed" v-bind:key="seed.id" @click.native="selectSeed(seed.name,index,seed.id)">{{seed.name}}</ae-badge>
                     </ae-phraser>
-                    <div class="phraseSubTitle">Your recovery phrase</div>
+                    <div class="phraseSubTitle">{{$t('pages.seedPhrase.recoveryPhrase') }}</div>
                     <ae-phraser v-if="selectedSeed.length == 0">
-                        <ae-badge class="seedBadge selected">first</ae-badge>
-                        <ae-badge class="seedBadge selected">second</ae-badge>
-                        <ae-badge class="seedBadge selected">third</ae-badge>
+                        <ae-badge class="seedBadge selected">{{$t('pages.seedPhrase.first') }}</ae-badge>
+                        <ae-badge class="seedBadge selected">{{$t('pages.seedPhrase.second') }}</ae-badge>
+                        <ae-badge class="seedBadge selected">{{$t('pages.seedPhrase.third') }}</ae-badge>
                         <ae-badge class="seedBadge selected">...</ae-badge>
                     </ae-phraser>
                     <ae-phraser v-bind="seedError" class="mb-5">
                         <ae-badge class="seedBadge" v-for="(seed,index) in selectedSeed" v-bind:key="seed.id" @click.native="removeSeed(seed.parent,index)">{{seed.name}} <ae-icon name="close" class="seedClose" /></ae-badge>
                     </ae-phraser>
                 </div>
-                <ae-button extend face="round" :fill="buttonFill" class="mt-1 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
+                <ae-button extend face="round" :fill="buttonFill" class="mt-1 nextStep" @click="nextSeedStep(step,termsAgreed)">{{buttonTitle}}</ae-button>
                 
             </div>
-            <Loader size="small" :loading="loading" v-bind="{'content':language.strings.securingAccount}"></Loader>
+            <Loader size="small" :loading="loading" v-bind="{'content':$t('pages.seedPhrase.securingAccount')}"></Loader>
             <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         </main>
     </div>
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
 
 import {shuffleArray, fetchData} from '../../utils/helper';
@@ -58,6 +57,7 @@ import { addressGenerator } from '../../utils/address-generator';
 import { generateHdWallet } from '../../utils/hdWallet'
 
 export default {
+    props: ['termsAgreed'],
     data() {
         return {
             step:1,
@@ -81,7 +81,6 @@ export default {
             seedError:{},
             progress:0,
             loading: false,
-            language: locales['en'],
             generated: false
         };
     },
@@ -103,7 +102,6 @@ export default {
             return columns
         }
     },
-    locales,
     methods: { 
         generateSeeds() {
             let mnemonic;
@@ -120,7 +118,7 @@ export default {
                 });
             });
         },
-        nextSeedStep:async function nextSeedStep (step) {
+        nextSeedStep:async function nextSeedStep (step, termsAgreed) {
 
             step += 1;
             if(step <= 3) {
@@ -164,27 +162,29 @@ export default {
                                 if(keyPair) {
                                     browser.storage.sync.set({isLogged: true}).then(async () => {
                                         browser.storage.sync.set({userAccount: keyPair}).then(() => {
-                                            this.loading = false;
-                                            let sub = [];
-                                            sub.push({
-                                                name:'Main account',
-                                                publicKey:keyPair.publicKey,
-                                                balance:0,
-                                                root:true
-                                            });
-                                            browser.storage.sync.set({accountPassword: ''}).then(() => {});
-                                            browser.storage.sync.set({mnemonic: ''}).then(() => {});
-                                            browser.storage.sync.set({confirmSeed: true}).then(() => {});
-                                            browser.storage.sync.set({wallet: wallet}).then(() => {});
-                                            browser.storage.sync.set({subaccounts: sub}).then(() => {
-                                                this.$store.dispatch('setSubAccounts', sub);
-                                                browser.storage.sync.set({activeAccount: 0}).then(() => {
-                                                    this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
-                                                    this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                                                    this.$store.commit('SWITCH_LOGGED_IN', true);
-                                                    this.$store.commit('SET_WALLET', wallet);
-                                                    this.$router.push('/account');
-                                                    this.generated = true;
+                                            browser.storage.sync.set({termsAgreed: termsAgreed}).then(() => {
+                                                this.loading = false;
+                                                let sub = [];
+                                                sub.push({
+                                                    name:'Main account',
+                                                    publicKey:keyPair.publicKey,
+                                                    balance:0,
+                                                    root:true
+                                                });
+                                                browser.storage.sync.set({accountPassword: ''}).then(() => {});
+                                                browser.storage.sync.set({mnemonic: ''}).then(() => {});
+                                                browser.storage.sync.set({confirmSeed: true}).then(() => {});
+                                                browser.storage.sync.set({wallet: wallet}).then(() => {});
+                                                browser.storage.sync.set({subaccounts: sub}).then(() => {
+                                                    this.$store.dispatch('setSubAccounts', sub);
+                                                    browser.storage.sync.set({activeAccount: 0}).then(() => {
+                                                        this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
+                                                        this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                                                        this.$store.commit('SWITCH_LOGGED_IN', true);
+                                                        this.$store.commit('SET_WALLET', wallet);
+                                                        this.$router.push('/account');
+                                                        this.generated = true;
+                                                    });
                                                 });
                                             });
                                         });

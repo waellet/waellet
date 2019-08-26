@@ -5,7 +5,9 @@
         <!-- login screen header -->
         <div class="logo_top" :slot="menuSlot" v-if="!isLoggedIn">
           <img :src="logo_top" alt="">
-          <p>{{ language.system.name }} <span class="extensionVersion extensionVersionTop">{{extensionVersion}}</span></p>
+          <p>
+            {{ $t('pages.appVUE.systemName') }} 
+            <span class="extensionVersion extensionVersionTop">{{extensionVersion}}</span></p>
           
         </div>
         
@@ -32,7 +34,9 @@
                     <ae-button face="icon" fill="primary" class="iconBtn">
                       <ae-icon name="plus" />
                     </ae-button>
-                    <span class="newSubaccount">{{ language.strings.manageNetworks }}</span>
+                    <span class="newSubaccount">
+                      {{ $t('pages.appVUE.manageNetworks') }}
+                      </span>
                   </ae-button>
                 </ae-list-item>
               </ae-list>
@@ -67,7 +71,9 @@
                     <ae-button face="icon" fill="primary" class="iconBtn">
                       <ae-icon name="plus" />
                     </ae-button>
-                    <span class="newSubaccount">{{ language.strings.manageAccounts }}</span>
+                    <span class="newSubaccount">
+                      {{ $t('pages.appVUE.manageAccounts') }}
+                      </span>
                   </ae-button>
                 </ae-list-item>
                 <ae-list-item fill="neutral" class="airGapVault manageAccounts account-btn" v-if="!aeppPopup">
@@ -75,7 +81,9 @@
                     <ae-button face="icon" fill="alternative" class="iconBtn">
                       <ae-icon name="plus" />
                     </ae-button>
-                    <span class="newSubaccount">{{ language.strings.airGapVault }}</span>
+                    <span class="newSubaccount">
+                      {{ $t('pages.appVUE.airGapVault') }}
+                      </span>
                   </ae-button>
                 </ae-list-item>
                 <ae-list-item fill="neutral" class="ledger manageAccounts account-btn" v-if="!aeppPopup">
@@ -83,7 +91,9 @@
                     <ae-button face="icon" class="iconBtn ledger">
                       <ae-icon name="plus" />
                     </ae-button>
-                    <span class="newSubaccount">{{ language.strings.ledgerAccount }}</span>
+                    <span class="newSubaccount">
+                      {{ $t('pages.appVUE.ledgerAccount') }}
+                      </span>
                   </ae-button>
                 </ae-list-item>
               </ae-list>
@@ -94,20 +104,20 @@
           <div id="settings" class="dropdown" v-if="account.publicKey && isLoggedIn && !aeppPopup" :slot="mobileRight" direction="right" ref="settings">
             <button v-on:click="toggleDropdown">
               <ae-icon class="dropdown-button-icon" name="burger" slot="button" />
-              <span class="dropdown-button-name" slot="button">{{ language.strings.menu }}</span>
+              <span class="dropdown-button-name" slot="button">{{ $t('pages.appVUE.menu') }}</span>
             </button>
             <transition name="slide-fade">
               <ul v-if="dropdown.settings" class="dropdown-holder">
                 <li>
                   <ae-button @click="navigateAccount" class="toAccount">
                     <ae-icon name="home" />
-                    {{ language.strings.myAccount }}
+                      {{ $t('pages.appVUE.myAccount') }}
                   </ae-button>
                 </li>
                 <li id="tokens" class="have-subDropdown" :class="dropdown.tokens ? 'show' : ''">
                     <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
                     <ae-icon name="grid" />
-                    {{ language.strings.switchToken }}
+                    {{ $t('pages.appVUE.switchToken') }}
                     <ae-icon name="left-more" />
                   </ae-button>
 
@@ -126,28 +136,33 @@
                 <li id="utilities">
                   <ae-button @click="utilities" class="utilities">
                     <ae-icon name="underline" />
-                    {{ language.strings.utilities }}
+                    {{ $t('pages.appVUE.utilities') }}
                   </ae-button>
                 </li>
                 <li id="settings">
                   <ae-button @click="settings" class="settings">
                     <ae-icon name="settings" />
-                    {{ language.strings.settings }}
+                    {{ $t('pages.appVUE.settings') }}
                   </ae-button>
                 </li>
                 <li id="toLogout">
                   <ae-button @click="logout" class="toLogout">
                     <ae-icon name="sign-out" />
-                    {{ language.strings.logout }}
+                    {{ $t('pages.appVUE.logout') }}
                   </ae-button>
                 </li>
               </ul>
             </transition>
           </div>
+
+
+      
         <!-- logged in header END -->
       </ae-header>
     <router-view :key="$route.fullPath"></router-view>
-    <span class="extensionVersion " v-if="isLoggedIn">{{ language.system.name }} {{extensionVersion}} </span>
+    <span class="extensionVersion " v-if="isLoggedIn">
+      {{ $t('pages.appVUE.systemName') }} 
+      {{extensionVersion}} </span>
     <Loader size="big" :loading="mainLoading"></Loader>
     <div class="connect-error" v-if="connectError" >Unable to connect to choosen node</div>
   </ae-main>
@@ -157,12 +172,13 @@
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import store from '../store';
-import locales from './locales/locales.json'
+import locales from './locales/en.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK } from './utils/helper';
-import LedgerBridge from './utils/ledger/ledger-bridge'
+import LedgerBridge from './utils/ledger/ledger-bridge';
+import { langs,fetchAndSetLocale } from './utils/i18nHelper'
 
 export default {
   
@@ -170,8 +186,8 @@ export default {
     return {
       logo_top: browser.runtime.getURL('../../../icons/icon_48.png'),
       ae_token: browser.runtime.getURL('../../../icons/ae.png'),
-      language: locales['en'],
-      locales: locales,
+      language: '',
+      locales: langs,
       dropdown: {
         network: false,
         settings: false,
@@ -194,17 +210,11 @@ export default {
     }
   },
   created: function () {
-      // browser.storage.sync.set({language: 'en'}).then(() => {
-      //   browser.storage.sync.set({activeLanguage: 'en'});
-      //   this.language = locales['en'];
-      //   this.current.language = 'en';
-      // });
-      
-      browser.storage.sync.get('activeLanguage').then((data) => {
-        if (data.hasOwnProperty('activeLanguage')) {
-          let defLang = locales['en'];
-          this.language = Object.assign(defLang, locales[data.activeLanguage]);
-          this.current.language = data.activeLanguage;
+      browser.storage.sync.get('language').then((data) => {
+        this.language = langs[data.language];
+        this.$store.state.current.language = data.language;
+        if (typeof data.language != 'undefined') {
+          fetchAndSetLocale(data.language);
         }
       });
       browser.storage.sync.get('activeNetwork').then((data) => {
@@ -212,7 +222,6 @@ export default {
           this.$store.state.current.network = data.activeNetwork;
         }
       });
-
       //init SDK
       this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {
@@ -293,13 +302,6 @@ export default {
         this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
       }
       
-    },
-    switchLanguage(languageChoose) {
-      browser.storage.sync.set({language: languageChoose}).then(() => {
-        let defLang = Object.assign({}, locales['en']);
-        this.language = Object.assign(defLang, locales[languageChoose]);
-        this.current.language = languageChoose;
-      });
     },
     switchToken(token){
       this.current.token = token
@@ -539,10 +541,10 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account .iconBtn, #network .iconBtn { padding: 0 !important; height: 30px !important; width: 30px; color: #fff; text-align: center; margin-right: 8px;}
 #account .iconBtn i, #network .iconBtn i { color: #fff !important; font-size: 1.2rem !important; margin: 0;float: none; text-align: center;}
 #account.dropdown ul li .ae-button > * { display: inline-block; vertical-align: middle; }
-.ae-check .ae-check-button { float: right; min-width: 0 !important; min-height: 0 !important; padding-left: 0 !important; }
-.ae-check-button:before { position: static !important; }
-.ae-check-button:after { left: 0 !important; top: 0 !important; width: 28px !important; height: 28px !important; }
-.ae-check > input[type="radio"]:checked + .ae-check-button:before, .ae-check > input[type="checkbox"]:checked + .ae-check-button:before { border-color: #dae1ea !important; }
+.subAccountCheckbox .ae-check-button { float: right; min-width: 0 !important; min-height: 0 !important; padding-left: 0 !important; }
+.subAccountCheckbox .ae-check-button:before { position: static !important; }
+.subAccountCheckbox .ae-check-button:after { left: 0 !important; top: 0 !important; width: 28px !important; height: 28px !important; }
+.subAccountCheckbox > input[type="radio"]:checked + .ae-check-button:before, .ae-check > input[type="checkbox"]:checked + .ae-check-button:before { border-color: #dae1ea !important; }
 #settings li .ae-icon { font-size: 1.2rem; margin-right: 10px; }
 #settings.dropdown ul { min-width: 250px }
 #languages .ae-button img { margin-right: 5px; }

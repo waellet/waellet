@@ -1,11 +1,11 @@
 <template>
     <div id="manageAccounts" class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.manageAccounts.backToAccount')}}</button>
         </div>
-        <h3>{{ language.strings.manageAccounts }}</h3>
+        <h3>{{$t('pages.manageAccounts.manageAccounts') }}</h3>
         <ae-panel>
-            <h4>{{ language.strings.allAccounts }}</h4>
+            <h4>{{$t('pages.manageAccounts.allAccounts') }}</h4>
             <hr>
             <ae-list >
                 <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts" v-bind:key="index">
@@ -18,7 +18,7 @@
                     <!-- IF edit -->
                     <div v-if="subaccount.edit">
                         <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
-                        <ae-input-plain placeholder="Enter name here.." v-model="subaccount.name" />
+                        <ae-input-plain :placeholder="$t('pages.manageAccounts.enterName')" v-model="subaccount.name" />
                         <button @click="cancelEdit(index)"><ae-icon name="close" /></button>
                         <button @click="nameSave(index)"><ae-icon name="check" /></button>  
                     </div>
@@ -28,30 +28,16 @@
         </ae-panel>
         <ae-panel>
             <h4 class="addaccount">
-                {{ language.strings.addNewSubAccount }}
+                {{ $t('pages.manageAccounts.addNewSubAccount') }}
                 <button v-if="!аddNewSubbAcc" @click="AddNewSubbAccount" class="icon-btn"><ae-icon name="plus" /></button>
                 <button v-if="аddNewSubbAcc" @click="closeNewSubbAccountForm" class="icon-btn"><ae-icon name="close" /></button>
             </h4>
             <hr>
-            <!-- <div class="addaccount" >
-                <div v-if="!аddNewSubbAcc">
-                    <span>{{ language.strings.addNewSubAccount }}</span>
-                    <button @click="AddNewSubbAccount"><ae-icon name="plus" /></button>
-                </div>
-                <div v-if="аddNewSubbAcc">
-                    <span>{{ language.strings.addNewSubAccount }}</span>
-                    <button @click="closeNewSubbAccountForm"><ae-icon name="close" /></button>
-                </div>
-            </div> -->
             <transition name="slide">
                 <ul class="slideform" :class="dropdown ? 'open' : ''">
                     <div class="add-form">
-                        <!-- <h4 class="pageTitle">{{ language.strings.addNewSubAccount }}</h4> -->
-                        <!-- <label style="float:left;"> {{ language.strings.account }}<span class="required_fields">*</span></label> -->
-                        <ae-input :label="language.strings.account" v-model="newSubAcc" placeholder="Enter name"></ae-input>
-                        <!-- <hr>
-                        <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small> -->
-                        <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
+                        <ae-input :label="$t('pages.manageAccounts.account')" v-model="newSubAcc" :placeholder="$t('pages.manageAccounts.enterName')"></ae-input>
+                        <ae-button @click="addbtn" face="round" fill="primary" extend>{{ $t('pages.manageAccounts.add') }}</ae-button>
                     </div>
                 </ul>
             </transition>
@@ -62,15 +48,12 @@
 
 <script>
 import store from '../../../store';
-import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 export default {
     data () {
         return {
             logo_top: browser.runtime.getURL('../../../icons/icon_48.png'),
-            language: locales['en'],
-            locales: locales,
             new_accname: '',
             new_accnameValue: 'MyAccount',
             editAccountName: false,

@@ -155,6 +155,13 @@ export default {
           case 'signedMessage':
             commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'copyText', ...popupMessages.SIGNED_MESSAGE, msg: payload.msg, data: payload.data })
             break
+            case 'success_verifymessage':
+              commit(types.SHOW_POPUP, { show: true, ...popupMessages.SUCCESS_VERIFYMESSAGE })
+              break
+            case 'unsuccess_verifymessage':
+              commit(types.SHOW_POPUP, { show: true, ...popupMessages.UNSUCCESS_VERIFYMESSAGE })
+              break
+            
           default:
             break;
         }

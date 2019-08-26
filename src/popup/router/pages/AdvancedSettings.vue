@@ -1,25 +1,25 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{language.buttons.backToSettings}}</button>
+            <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{$t('pages.advancedSettings.backToSettings') }}</button>
         </div>
-        <h3 style='text-align:center;'>{{language.pages.settings.advancedSettings.heading}}</h3>
+        <h3 style='text-align:center;'>{{$t('pages.advancedSettings.heading') }}</h3>
         
         <ae-panel>
             <div class="maindiv_input-group-addon">
-                <h4>{{ language.strings.exportKeystore }}</h4><hr>
+                <h4>{{ $t('pages.advancedSettings.exportKeystore') }}</h4><hr>
                 <ae-button @click="exportKeypair('keystore')" id="exportKeystore" class="notround" face="round" fill="primary">
                     <ae-icon name="save" />
-                    {{ language.strings.exportKeystore }}
+                    {{ $t('pages.advancedSettings.exportKeystore') }}
                 </ae-button>
             </div>
         </ae-panel>
         <ae-panel>
             <div class="maindiv_input-group-addon">
-                <h4>{{ language.strings.exportKeypair }}</h4><hr>
+                <h4>{{ $t('pages.advancedSettings.exportKeypair') }}</h4><hr>
                 <ae-button @click="exportKeypair('keypair')" id="exportKeypair" class="notround" face="round" fill="primary">
                     <ae-icon name="save" />
-                    {{ language.strings.exportKeypair }}
+                    {{ $t('pages.advancedSettings.exportKeypair') }}
                 </ae-button>
             </div>
         </ae-panel>
@@ -34,14 +34,12 @@
 <script>
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
-import locales from '../../locales/locales.json';
 const {Universal} = require('@aeternity/aepp-sdk');
 import { saveAs } from 'file-saver';
 
 export default {
     data () {
         return {
-            language: locales['en'],
             loading: false,
         }
     },

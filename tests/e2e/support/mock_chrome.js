@@ -51,7 +51,7 @@ const onBeforeLoad = (win,mock = '') => {
                 }
            }
        }
-        win.chrome.storage.sync.set({allowTracking: false},()=>{});
+        win.chrome.storage.sync.set({termsAgreed: true},()=>{});
         window.chrome = win.chrome;
         if(mock == 'account') {
             const account = {

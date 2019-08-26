@@ -58,6 +58,7 @@
     "uuid": "^3.3.2",
     "vue": "^2.6.10",
     "vue-clipboard2": "^0.3.0",
+    "vue-i18n": "^8.14.0",
     "vue-password-strength-meter": "^1.4.2",
     "vue-qr-reader": "^1.6.0",
     "vue-qrcode-reader": "^2.0.2",

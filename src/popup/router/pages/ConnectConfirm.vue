@@ -15,17 +15,16 @@
             </div>
         </div>
         
-        <h2><span class="primary">{{data.params.title}}</span> would like to connect to your account </h2>
-        <p>This website is requesting access to view your current account address. Always make sure you trust the website you interact with. </p>
+        <h2><span class="primary">{{data.params.title}}</span> {{$t('pages.connectConfirm.websiteRequestconnect') }} </h2>
+        <p>{{$t('pages.connectConfirm.websiteRequest') }}</p>
         <ae-button-group class="btnFixed">
-            <ae-button face="round" fill="primary" @click="cancel">Cancel</ae-button>
-            <ae-button face="round" fill="alternative" @click="connect">Connect</ae-button>
+            <ae-button face="round" fill="primary" @click="cancel">{{$t('pages.connectConfirm.cancelButton') }}</ae-button>
+            <ae-button face="round" fill="alternative" @click="connect">{{$t('pages.connectConfirm.confirmButton') }}</ae-button>
         </ae-button-group>
     </div>
 </template>
 
 <script>
-import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 import { setConnectedAepp, checkAeppConnected } from '../../utils/helper';
 
@@ -46,7 +45,6 @@ export default {
             }
         }
     },
-    locales,
     props:['data'],
     created() {
         if(this.data.popup) {

@@ -5,7 +5,6 @@
                 <div class="flex flex-align-center accountFrom">
                     <ae-identicon :address="account.publicKey" />
                     <span  class="spendAccountAddr">{{activeAccountName}}</span>
-                    <!-- <ae-address :value="account.publicKey" length="short" /> -->
                 </div>
                 <div class="arrowSeprator">
                     <ae-icon name="left-more" />
@@ -13,7 +12,7 @@
                 <div class="flex flex-align-center accountTo" v-if="isAddressShow">
                     <ae-identicon :address="receiver"  />
                     <ae-address :value="receiver" v-if="receiver" length="short" class="spendAccountAddr" />
-                    <span v-if="!receiver" class="spendAccountAddr">{{language.strings.unknownAccount}}</span>
+                    <span v-if="!receiver" class="spendAccountAddr">{{$t('pages.signTransaction.unknownAccount')}}</span>
                 </div>
                 <div v-else class="flex flex-align-center accountTo">
                     <ae-icon name="square" />
@@ -22,7 +21,7 @@
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between flex-align-start flex-direction-column">
                 <div>
-                    <ae-badge v-if="data.type=='contractCall'">Contract Call</ae-badge>
+                    <ae-badge v-if="data.type=='contractCall'">{{$t('pages.signTransaction.contractCall')}}</ae-badge>
                     <ae-badge>{{txType}}</ae-badge>
                 </div>
                 <div class="balance balanceSpend no-sign" v-if="!isNameTx">{{amount}} {{token}}</div>
@@ -30,7 +29,7 @@
             </ae-list-item>
             <ae-list-item v-if="data.type == 'nameClaim' || data.type == 'nameUpdate' " fill="neutral" class="flex-justify-between whiteBg  flex-align-center " >
                 <div class="tx-label">
-                    {{language.pages.transactionDetails.name}}
+                    {{$t('pages.signTransaction.name')}}
                 </div>
                 <div>
                     <strong>{{data.tx.name}}</strong>
@@ -38,7 +37,7 @@
             </ae-list-item>
             <ae-list-item v-if="data.type == 'nameClaim'" fill="neutral" class="flex-justify-between whiteBg flex-align-center " >
                 <div class="tx-label ">
-                    {{language.pages.transactionDetails.nameSalt}}
+                    {{$t('pages.signTransaction.nameSalt')}}
                 </div>
                 <div>
                     <strong>{{data.tx.preclaim.salt}}</strong>
@@ -46,7 +45,7 @@
             </ae-list-item>
             <ae-list-item v-if="data.type == 'nameUpdate'" fill="neutral" class="flex-justify-between whiteBg  flex-align-center flex-direction-column" >
                 <div class="tx-label extend text-left">
-                    {{language.pages.transactionDetails.nameId}}
+                    {{$t('pages.signTransaction.nameId')}}
                 </div>
                 <div class="text-left">
                     <strong>{{data.tx.claim.id}}</strong>
@@ -54,7 +53,7 @@
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg flex-direction-column flex-align-center " v-if="alertMsg == ''">
                 <div class="flex extend flex-justify-between ">
-                    <div class="tx-label">{{language.pages.transactionDetails.fee}}</div>
+                    <div class="tx-label">{{$t('pages.signTransaction.fee')}}</div>
                     <div class="text-right">
                         <div class="balance balanceBig txFee">{{selectedFee}}</div>
                         <div class="fiat-rate">${{convertCurrency(usdRate,selectedFee)}}</div>
@@ -66,7 +65,7 @@
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-justify-between whiteBg" v-if="alertMsg == '' && !isNameTx">
-                <div class="tx-label">{{language.pages.transactionDetails.total}}</div>
+                <div class="tx-label">{{$t('pages.signTransaction.total')}}</div>
                 <div class="text-right">
                     <div class="balance balanceBig balanceTotalSpend no-sign">{{totalSpend}} {{token}}</div>
                     <div class="fiat-rate" v-if="!data.tx.token">${{convertCurrency(usdRate,totalSpend)}}</div>
@@ -79,8 +78,8 @@
             </div>
          </Alert>
         <ae-button-group class="btnFixed">
-            <ae-button face="round" fill="primary" @click="cancelTransaction" class="reject">{{language.pages.signTx.reject}}</ae-button>
-            <ae-button face="round" fill="alternative" class="confirm" :class="signDisabled ? 'disabled' : '' " @click="signTransaction">{{language.pages.signTx.confirm}}</ae-button>
+            <ae-button face="round" fill="primary" @click="cancelTransaction" class="reject">{{$t('pages.signTransaction.reject')}}</ae-button>
+            <ae-button face="round" fill="alternative" class="confirm" :class="signDisabled ? 'disabled' : '' " @click="signTransaction">{{$t('pages.signTransaction.confirm')}}</ae-button>
         </ae-button-group>
         <Loader size="big" :loading="loading" :type="loaderType" :content="loaderContent" ></Loader>
         <input type="hidden" class="txHash" :value="hash" />
@@ -88,7 +87,6 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName  } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee } from '../../utils/constants';
@@ -109,7 +107,6 @@ export default {
             popup:false,
             signDisabled:true,
             alertMsg:'',
-            language: locales['en'],
             loading:false,
             loaderType:'transparent',
             loaderContent:"",
@@ -134,7 +131,6 @@ export default {
         };
     },
     props:['data'],
-    locales,
     async created(){
         await this.init()
     },
@@ -160,7 +156,7 @@ export default {
             return (parseFloat(this.amount) + parseFloat(this.selectedFee)).toFixed(7)
         },
         insufficientBalance() {
-            if (this.data.tx.token == 'AE') {
+            if (this.data.type != 'contractCall') {
                 if(typeof this.data.tx.token != 'undefined') {
                     return this.tokenBalance - this.amount <= 0
                 }
@@ -233,7 +229,7 @@ export default {
             if(typeof this.data.callType != "undefined" && this.data.callType == 'static') {
                 this.loaderType = ''
                 this.loading = true
-                this.loaderContent = this.language.pages.signTx.contractCall
+                this.loaderContent = this.$t('pages.signTransaction.contractCalling')
                 
                 this.checkSDKReady = setInterval(async () => {
                     if(this.sdk != null) {
@@ -375,9 +371,9 @@ export default {
         },
         showAlert(balance = false) {
             if(this.insufficientBalance) {
-                this.alertMsg = this.language.pages.signTx.insufficientBalance
+                this.alertMsg = this.$t('pages.signTransaction.insufficientBalance')
             }else if(this.inccorectAddress && this.isAddressShow) {
-                this.alertMsg = this.language.pages.signTx.inccorectAddress
+                this.alertMsg = this.$t('pages.signTransaction.inccorectAddress')
             }else{
                 this.alertMsg = ''
             }

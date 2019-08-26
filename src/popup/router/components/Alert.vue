@@ -8,7 +8,6 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 export default {
     props:['fill','show']
 }
