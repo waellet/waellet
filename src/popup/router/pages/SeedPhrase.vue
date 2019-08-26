@@ -39,10 +39,10 @@
                         <ae-badge class="seedBadge" v-for="(seed,index) in selectedSeed" v-bind:key="seed.id" @click.native="removeSeed(seed.parent,index)">{{seed.name}} <ae-icon name="close" class="seedClose" /></ae-badge>
                     </ae-phraser>
                 </div>
-                <ae-button extend face="round" :fill="buttonFill" class="mt-1 nextStep" @click="nextSeedStep(step)">{{buttonTitle}}</ae-button>
+                <ae-button extend face="round" :fill="buttonFill" class="mt-1 nextStep" @click="nextSeedStep(step,termsAgreed)">{{buttonTitle}}</ae-button>
                 
             </div>
-            <Loader size="small" :loading="loading" v-bind="{'content':$t('strings.securingAccount')}"></Loader>
+            <Loader size="small" :loading="loading" v-bind="{'content':$t('pages.seedPhrase.securingAccount')}"></Loader>
             <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         </main>
     </div>
@@ -57,6 +57,7 @@ import { addressGenerator } from '../../utils/address-generator';
 import { generateHdWallet } from '../../utils/hdWallet'
 
 export default {
+    props: ['termsAgreed'],
     data() {
         return {
             step:1,
@@ -117,7 +118,7 @@ export default {
                 });
             });
         },
-        nextSeedStep:async function nextSeedStep (step) {
+        nextSeedStep:async function nextSeedStep (step, termsAgreed) {
 
             step += 1;
             if(step <= 3) {
@@ -161,27 +162,29 @@ export default {
                                 if(keyPair) {
                                     browser.storage.sync.set({isLogged: true}).then(async () => {
                                         browser.storage.sync.set({userAccount: keyPair}).then(() => {
-                                            this.loading = false;
-                                            let sub = [];
-                                            sub.push({
-                                                name:'Main account',
-                                                publicKey:keyPair.publicKey,
-                                                balance:0,
-                                                root:true
-                                            });
-                                            browser.storage.sync.set({accountPassword: ''}).then(() => {});
-                                            browser.storage.sync.set({mnemonic: ''}).then(() => {});
-                                            browser.storage.sync.set({confirmSeed: true}).then(() => {});
-                                            browser.storage.sync.set({wallet: wallet}).then(() => {});
-                                            browser.storage.sync.set({subaccounts: sub}).then(() => {
-                                                this.$store.dispatch('setSubAccounts', sub);
-                                                browser.storage.sync.set({activeAccount: 0}).then(() => {
-                                                    this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
-                                                    this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                                                    this.$store.commit('SWITCH_LOGGED_IN', true);
-                                                    this.$store.commit('SET_WALLET', wallet);
-                                                    this.$router.push('/account');
-                                                    this.generated = true;
+                                            browser.storage.sync.set({termsAgreed: termsAgreed}).then(() => {
+                                                this.loading = false;
+                                                let sub = [];
+                                                sub.push({
+                                                    name:'Main account',
+                                                    publicKey:keyPair.publicKey,
+                                                    balance:0,
+                                                    root:true
+                                                });
+                                                browser.storage.sync.set({accountPassword: ''}).then(() => {});
+                                                browser.storage.sync.set({mnemonic: ''}).then(() => {});
+                                                browser.storage.sync.set({confirmSeed: true}).then(() => {});
+                                                browser.storage.sync.set({wallet: wallet}).then(() => {});
+                                                browser.storage.sync.set({subaccounts: sub}).then(() => {
+                                                    this.$store.dispatch('setSubAccounts', sub);
+                                                    browser.storage.sync.set({activeAccount: 0}).then(() => {
+                                                        this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
+                                                        this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                                                        this.$store.commit('SWITCH_LOGGED_IN', true);
+                                                        this.$store.commit('SET_WALLET', wallet);
+                                                        this.$router.push('/account');
+                                                        this.generated = true;
+                                                    });
                                                 });
                                             });
                                         });

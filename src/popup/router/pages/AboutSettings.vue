@@ -10,6 +10,11 @@
         <p>
             {{ $t('pages.aboutSettings.systemName') }}
         </p>
+        <hr>
+        <div class="waellet-links">
+            <a href="#" @click="goToTermsOfService" >{{ $t('pages.aboutSettings.terms') }}</a>
+            <a href="#" @click="goToPrivacyPolicy" >{{ $t('pages.aboutSettings.privacyPolicy') }}</a>
+        </div>
         <div v-if="loading" class="loading">
             <ae-loader /> 
         </div>
@@ -29,6 +34,12 @@ export default {
         navigateToSettings() {
             this.$router.push('/settings')
         },
+        goToTermsOfService() {
+            this.$router.push('/termsOfService');
+        },
+        goToPrivacyPolicy() {
+            this.$router.push('/privacyPolicy');
+        },
     }
 }
 </script>
@@ -38,5 +49,9 @@ export default {
 @import '../../../common/base';
 .backbtn {
     width: 50%; margin-top: 5px;
+}
+.waellet-links a{
+    font-weight: bold;
+    display: block;
 }
 </style>

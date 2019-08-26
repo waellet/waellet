@@ -26,6 +26,8 @@ import SignTransactionByQrCode from './pages/SignTransactionByQrCode';
 import QrCodeReader from './pages/QrCodeReader';
 import CreateFungibleTokenComponent from './pages/CreateFungibleToken';
 import LedgerSetupComponent from './pages/LedgerSetup';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 export default [
   {
@@ -156,5 +158,14 @@ export default [
   {
     path:'/ledger-setup',
     component:LedgerSetupComponent
+  },
+  {
+    path:'/termsOfService',
+    component:TermsOfService
+  },
+  {
+    path:'/privacyPolicy',
+    component:PrivacyPolicy
   }
+  
 ];
