@@ -8,6 +8,9 @@ describe("Test cases for Account Page" , () => {
         login();
         cy
         .visit('popup/popup.html',{onBeforeLoad})
+        .get('.ae-loader')
+        .should('not.be.visible')
+        .wait(2000)
         .get('.ae-card-header p')
         .should((elem) => {
             expect(elem.text()).not.to.equal('0 AE')
@@ -33,10 +36,10 @@ describe("Test cases for Account Page" , () => {
         .click()
         .get('.dropdown-holder')
         .should('not.be.visible') 
+        .get('.noTransactions')
+        .should('be.visible')
         .get('.ae-card-header p')
-        .should((elem) => {
-            expect(elem.text()).to.equal('0 AE')
-        });
+        .should('contain', '0 AE')
     });
 
     it("have settings menu", () => {
