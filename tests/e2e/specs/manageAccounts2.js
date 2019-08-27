@@ -131,34 +131,6 @@ describe('Test cases for managing accounts and deriving multiple address from sa
         .should('contain', accountName);
     });
 
-    // Test fail because of mainnet middleware CORS
-    // it("change network and check balances", () => {
-    //     login()
-    //     cy
-    //     .visit('popup/popup.html',{onBeforeLoad:(contentWindow) => { onBeforeLoad(contentWindow,'subaccounts') }})
-    //     .get('#network')
-    //     .click()
-    //     .get('.dropdown-holder')
-    //     .should('be.visible')
-    //     .get('.dropdown-holder li button').eq(0)
-    //     .should('have.class','current')
-    //     .get('.dropdown-holder li button').eq(1)
-    //     .click()
-    //     .get('.ae-card-header p.ae-text')
-    //     .should('eq','0 AE')
-    //     .get('#account')
-    //     .click()
-    //     .get('.dropdown-holder li').each()
-    //     .then((el) => {
-    //         cy.wrap(el).find('.subAccountBalance').should('eq','0 AE')
-    //     })
-    //     .get('#network')
-    //     .click()
-    //     .get('.dropdown-holder li button').eq(1)
-    //     .should('have.class','current')
-    //     .click()
-    // });
-
     it("derive correctly three address ", () => {
         login();
         createSubAccount();

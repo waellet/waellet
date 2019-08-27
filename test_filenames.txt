@@ -20,3 +20,4 @@ tests/e2e/specs/sendPage.js
 tests/e2e/specs/settings.js
 tests/e2e/specs/transactionsPage.js
 tests/e2e/specs/utilitiesPage.js
+tests/e2e/specs/signAndVerifyMessage.js

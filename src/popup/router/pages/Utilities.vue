@@ -39,8 +39,9 @@ import { MemoryAccount } from '@aeternity/aepp-sdk';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
-import { getHdWalletAccount } from '../../utils/hdWallet';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto'
+import { addressGenerator } from '../../utils/address-generator';
 
 export default {
   data() {

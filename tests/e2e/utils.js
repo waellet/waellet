@@ -173,7 +173,7 @@ export const importSeed  = () => {
   .invoke('attr', 'title')
   .should('eq',hdWallet(mnemonicToSeed(mnemonic)));
 }
-
+ 
 export const importKeystore = () => {
   cy
   .visit('popup/popup.html',{onBeforeLoad})
@@ -306,8 +306,6 @@ export const renameAccounts = () => {
   .click()
   .get('.dropdown-holder')
   .should('not.be.visible')
-  .get('body')
-  .click()
   .get('.ae-card-header-avatar .ae-input-plain')
   .clear()
   .type("Account 2")
@@ -376,9 +374,6 @@ export const createNetwork = () => {
   .click()
   .get('.add-form')
   .should('be.visible')
-  // .get('.pageTitle')
-  // .should('be.visible')
-  // .should('contain','Add new node')
   .get('.ae-button').should('contain','Add')
   .click()
   .get('.ae-modal-light')

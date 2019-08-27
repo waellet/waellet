@@ -47,9 +47,8 @@ export default  {
             }else if(this.transactionData.tx.type == "ContractCallTx") {
                 return { fill: "secondary", type: "Contract Call Tx" }
             }
-            else {
-                return { fill: "", type: this.transactionData.tx.type }
-            }
+            
+            return { fill: "", type:this.transactionData.tx.type }
         },
         transactionAccount() {
             if(this.transactionData.tx.type == 'SpendTx' ) {

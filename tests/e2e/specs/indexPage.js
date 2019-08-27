@@ -47,6 +47,7 @@ describe('Test cases for Index Page', () => {
         .click()
         .get('.dropdown-holder')
         .should('be.visible')
+        .wait(2000)
         .get('.toLogout')
         .click()
         .get('input[type="password"]')
