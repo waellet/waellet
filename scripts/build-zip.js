@@ -4,7 +4,16 @@ const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver');
 
-const DEST_DIR = path.join(__dirname, '../dist');
+const DEST_DIR = [
+  { 
+    name: 'chrome',
+    dir: path.join(__dirname, '../dist/chrome')
+  },
+  {
+    name: 'firefox',
+    dir: path.join(__dirname, '../dist/firefox')
+  }
+];
 const DEST_ZIP_DIR = path.join(__dirname, '../dist-zip'); 
 
 const extractExtensionData = () => {
@@ -40,14 +49,17 @@ const buildZip = (src, dist, zipFilename) => {
 };
 
 const main = () => {
-  const {name, version} = extractExtensionData();
-  const zipFilename = `${name}-v${version}.zip`;
-  
-  makeDestZipDirIfNotExists();
 
-  buildZip(DEST_DIR, DEST_ZIP_DIR, zipFilename)
-    .then(() => console.info('OK'))
-    .catch(console.err); 
+  DEST_DIR.forEach((build, index) => {
+    const {name, version} = extractExtensionData();
+    const zipFilename = `${name}-${build.name}-v${version}.zip`;
+    
+    makeDestZipDirIfNotExists();
+  
+    buildZip(build.dir, DEST_ZIP_DIR, zipFilename)
+      .then(() => console.info('OK'))
+      .catch(console.err); 
+  })
 };
 
 main();
