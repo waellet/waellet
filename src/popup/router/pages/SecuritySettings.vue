@@ -175,9 +175,6 @@ input:active,input:focus {
     outline: none;
 }
 .notround { border-radius: 0 !important; }
-.settingBtn {
-    margin-top:2rem
-}
 small {
     word-break: break-word;
 }

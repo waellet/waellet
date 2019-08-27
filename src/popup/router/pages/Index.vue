@@ -38,7 +38,7 @@
           <ae-divider />
         </div>
         
-        <ae-check v-if="termsAgreedOrNot != true" class="termsCheck" v-model="terms" value="1" type="checkbox">
+        <ae-check v-if="termsAgreedOrNot != true || termsAgreedOrNot == undefined" class="termsCheck" v-model="terms" value="1" type="checkbox">
           <div class="termsHolder">
             {{ $t('pages.index.term1') }}<a href="#" @click="goToTermsOfService"> {{ $t('pages.index.term2') }}</a> and <a href="#" @click="goToPrivacyPolicy"> {{ $t('pages.index.term3') }}</a>
           </div>
@@ -48,7 +48,7 @@
           v-if="!account.encryptedPrivateKey"
           fill="primary"
           class="mb-1"
-          :class="[ terms[0] != 1 ? 'disabled' : '' ]"
+          :class="[ terms[0] != 1 && termsAgreedOrNot != true ? 'disabled' : '' ]"
           extend
           @click="generateAddress"
         >{{ $t('pages.index.generateWallet') }}</ae-button>

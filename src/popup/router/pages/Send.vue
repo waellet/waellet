@@ -133,7 +133,7 @@ export default {
     },
     myTokens() {
       return this.tokens.filter((t,index) =>  {
-        if(t.parent == this.account.publicKey) {
+        if(t.parent == this.account.publicKey || t.symbol == 'AE') {
           t.key = index
           return t
         }
