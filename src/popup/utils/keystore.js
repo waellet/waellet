@@ -1,9 +1,7 @@
 /* eslint-disable */
 const nacl = require('tweetnacl')
 const argon = require('./argon2.js');
-// import * as argon2 from './argon2.js'
 import uuid from 'uuid';
-// const bs58check = require('bs58check')
 import { encodeBase58Check } from '@aeternity/aepp-sdk/es/utils/crypto';
 
 const DERIVED_KEY_FUNCTIONS = {

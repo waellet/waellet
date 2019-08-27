@@ -177,7 +177,8 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK } from './utils/helper';
-import LedgerBridge from './utils/ledger/ledger-bridge';
+import LedgerBridge from './utils/ledger/ledger-bridge'
+import { start, postMesssage } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
 
 export default {
@@ -204,12 +205,12 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'wallet', 'sdk','tokens','aeppPopup','ledgerNextIdx']),
+    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'background', 'sdk','tokens','aeppPopup','ledgerNextIdx']),
     extensionVersion() {
       return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
   },
-  created: function () {
+  created: async function () {
       browser.storage.sync.get('language').then((data) => {
         this.language = langs[data.language];
         this.$store.state.current.language = data.language;
@@ -222,11 +223,16 @@ export default {
           this.$store.state.current.network = data.activeNetwork;
         }
       });
+      let background = await start(browser)
+      this.$store.commit( 'SET_BACKGROUND', background )
+      
       //init SDK
       this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {
+         
           this.initLedger()
           this.initSDK()
+          
           this.pollData()
           clearInterval(this.checkSDKReady)
         }
@@ -251,10 +257,6 @@ export default {
           this.mobileRight = "default"
         }
       });
-      // let states = this.$store.state;
-      // if (typeof states.aeAPI == 'undefined') {
-      //   this.$store.state.aeAPI = this.fetchApi();
-      // }
   },
   mounted: function mounted () {
     this.dropdown.settings = false;
@@ -319,9 +321,9 @@ export default {
       }); 
     },
     logout () {
-      browser.storage.sync.set({isLogged: false}).then(() => {
-        browser.storage.sync.set({wallet: ''}).then(() => {
-          browser.storage.sync.set({activeAccount: 0}).then(() => {
+      browser.storage.sync.remove('isLogged').then(() => {
+        browser.storage.local.remove('wallet').then(() => {
+          browser.storage.sync.remove('activeAccount').then(() => {
             this.dropdown.settings = false;
             this.dropdown.languages = false;
             this.dropdown.account = false;
@@ -431,7 +433,7 @@ export default {
       return ae;
     },
     initSDK() {
-        initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount })
+        initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
     },
     toTokens() {
       this.dropdown.settings = false
@@ -488,9 +490,6 @@ export default {
   html { scrollbar-width: none; }
   .actions .backbutton .ae-icon { vertical-align: middle !important; }
 }
-// ::-webkit-scrollbar { 
-//     display: none; 
-// }
 @-moz-document url-prefix() {
   .ae-main { width: 380px; margin:0 auto; }
 }
@@ -503,7 +502,6 @@ input { background: transparent; border: none; border-bottom: 1px; height: 25px;
 input:focus { border-bottom: 1px solid #DDD; }
 button:focus { outline: none; }
 button { background: none; border: none; color: #717C87; cursor: pointer; transition: all 0.2s; }
-// .ae-button + .ae-button { margin-top: 1rem; }
 .pageTitle { margin: 0 0 10px; }
 .ae-header { border-bottom: 1px solid #EEE; margin-bottom: 10px; }
 .ae-header.logged { background: #001833; }
@@ -524,7 +522,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .subAccountInfo { margin-right:auto; margin-bottom:0 !important; max-width: 155px; }
 #network .subAccountInfo { max-width: 195px; }
 .subAccountIcon { margin-right: 10px; }
-.subAccountName { /*width: 110px; line-height: 28px;*/text-align: left; color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
+.subAccountName { text-align: left; color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
 .subAccountBalance { font-family: monospace; margin-bottom:0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;}
 .name-pending { width:24px !important; height:24px !important; margin-right:5px; font-size:.8rem; }
 #account .subAccountCheckbox { float: right; }

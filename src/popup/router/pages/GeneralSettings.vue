@@ -15,6 +15,7 @@
                 </ae-list>
                 <p v-if="!haveRegisteredNames">{{ $t('pages.generalSettings.noNames') }}</p>
                 <ae-button face="round" fill="primary" @click="seeAllRegisteredNames = false" extend>{{ $t('pages.generalSettings.OkButton') }}</ae-button>
+                <ae-button face="round" fill="primary" @click="seeAllRegisteredNames = false" class="closeAllAENS" extend>{{ $t('pages.generalSettings.OkButton') }}</ae-button>
             </div>
         </div>
         <div v-if="!seeAllRegisteredNames">
@@ -34,7 +35,7 @@
                         <ae-icon name="plus" />
                     </ae-button>
                     <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{$t('pages.generalSettings.registerNameRequirement') }}</small>
-                    <ae-button class="seeAllRegisteredNamesBtn" face="flat" fill="primary" @click="seeAllRegisteredNames = true">{{$t('pages.generalSettings.seeAllRegisteredNames') }}</ae-button>
+                    <ae-button class="seeAllRegisteredNamesBtn allAENS" face="flat" fill="primary" @click="seeAllRegisteredNames = true">{{$t('pages.generalSettings.seeAllRegisteredNames') }}</ae-button>
                 </div>
             </ae-panel>
             <Loader size="big" :loading="loading" type="transparent" content="" ></Loader>

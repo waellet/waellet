@@ -18,7 +18,7 @@ $ledger-color:#203040;
 }
 
 ::-webkit-scrollbar-track {
-  // border-radius: 0px;
+  
 }
 
 ::-webkit-scrollbar-thumb {
@@ -481,8 +481,6 @@ $range-label-width: 60px !default;
     background: $primary-color;
     cursor: pointer;
     transition: background .15s ease-in-out;
-    // box-shadow: 0 0 0 3px $shade-0,
-    //             0 0 0 6px $primary-color;
   }
   &:active::-webkit-slider-thumb {
     background: $primary-color;

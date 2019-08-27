@@ -125,11 +125,11 @@ export default {
                 }, 2800);
             }
         },
-        signMessageAction() {
+        async signMessageAction() {
             this.loading = true;
-            let privKey = getHdWalletAccount(this.wallet,this.activeAccount).secretKey
+            let { secretKey } = await this.$store.dispatch('getKeyPair', { idx: this.activeAccount})
             try {
-                const sign = Crypto.signPersonalMessage(this.signMessage, privKey)
+                const sign = Crypto.signPersonalMessage(this.signMessage, secretKey)
                 this.signature = JSON.stringify(
                     { 
                         text: this.signMessage, 

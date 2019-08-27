@@ -27,7 +27,7 @@ describe('Test cases for Generate wallet', () => {
         cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG);
         cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG + "asd");
         cy.get('button').contains('Continue').click();
-        cy.get('.ae-toolbar').should('contain',"Passwords doesn't match!");
+        cy.get('.ae-toolbar').should('contain',"Password does not match!");
 
         cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG);
         cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG);

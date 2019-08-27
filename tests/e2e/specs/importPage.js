@@ -37,7 +37,7 @@ describe('Test cases for Import private key and seed phrase', () => {
         cy.get('input[type="password"]').eq(0).type(ACCOUNT_PASSWORD_STRONG);
         cy.get('input[type="password"]').eq(1).type(ACCOUNT_PASSWORD_STRONG + "as");
         cy.get('button').contains('Import').click();
-        cy.get('.ae-toolbar').should('contain',"Passwords doesn't match!");
+        cy.get('.ae-toolbar').should('contain',"Password does not match!");
         cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG);
         cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG);
         cy.get('button').contains('Import').click();
@@ -77,7 +77,7 @@ describe('Test cases for Import private key and seed phrase', () => {
         cy.get('input[type="password"]').eq(0).type(ACCOUNT_PASSWORD_STRONG);
         cy.get('input[type="password"]').eq(1).type(ACCOUNT_PASSWORD_STRONG + "as");
         cy.get('button').contains('Restore').click();
-        cy.get('.ae-toolbar').should('contain',"Passwords doesn't match!");
+        cy.get('.ae-toolbar').should('contain',"Password does not match!");
 
         cy.get('input[type="password"]').eq(0).clear().type(ACCOUNT_PASSWORD_STRONG);
         cy.get('input[type="password"]').eq(1).clear().type(ACCOUNT_PASSWORD_STRONG);

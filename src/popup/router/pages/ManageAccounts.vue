@@ -50,6 +50,7 @@
 import store from '../../../store';
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
+import { postMesssage } from '../../utils/connection';
 export default {
     data () {
         return {
@@ -64,7 +65,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters (['account', 'current', 'network','subaccounts','wallet', 'popup'])
+        ...mapGetters (['account', 'current', 'network','subaccounts','wallet', 'popup', 'background'])
     },
     created(){
         this.setAccounts();
@@ -110,13 +111,13 @@ export default {
             this.dropdown = false;
             this.аddNewSubbAcc = false;
         },
-        addbtn() {
+        async addbtn() {
             if (this.newSubAcc != '') {
                 let idx = this.subaccounts.filter(s => !s.isLedger && !s.isAirGapAcc).length
-                let public_K = getHdWalletAccount(this.wallet, idx).address;
+                let address = await this.$store.dispatch('getAccount', { idx })
                 this.$store.dispatch('setSubAccount', {
                     name: this.newSubAcc,
-                    publicKey: public_K,
+                    publicKey: address,
                     root:false,
                     balance:0
                 }).then(() => {
@@ -127,7 +128,7 @@ export default {
                         }).then(() => {
                             let index =  this.subaccounts.length - 1;
                             browser.storage.sync.set({activeAccount: index }).then(() => {
-                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:public_K,index:index});
+                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:address,index:index});
                             });
                             this.setAccounts();
                         });
@@ -164,7 +165,7 @@ export default {
 .slideform { position: relative; width: 100%; overflow: hidden; height:0; padding: 0; top: 10px; list-style-type: none; margin:0; }
 .slideform.open { height:150px}
 .slide-enter, .slide-leave-to{ transform: scaleY(0); }
-.add-form { text-align: center; /*padding: 15px; margin: 10px;*/ }
+.add-form { text-align: center; }
 .required_fields { color: red; margin: 5px; }
 .ae-list-item .ae-icon, h4 .ae-icon { font-size: 1.7rem !important; }
 .ae-button { margin-top: 1rem; }

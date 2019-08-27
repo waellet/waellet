@@ -134,7 +134,7 @@
 import { mapGetters } from 'vuex';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
-import { fetchData, redirectAfterLogin } from '../../utils/helper';
+import { fetchData, redirectAfterLogin, parseFromStorage } from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet';
 
@@ -248,21 +248,16 @@ export default {
                 }
               });
               if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                browser.storage.sync.get('wallet').then(wallet => {
-                  if (wallet.hasOwnProperty('wallet') && wallet.wallet != '') {
                     browser.storage.sync.get('tokens').then(tkn => {
                       let tokens = this.tokens;
                       if (tkn.hasOwnProperty('tokens')) {
                         tokens = tkn.tokens;
                       }
                       this.$store.dispatch('setTokens', tokens).then(() => {
-                        this.$store.commit('SET_WALLET', JSON.parse(wallet.wallet));
                         this.$store.commit('SWITCH_LOGGED_IN', true);
                         redirectAfterLogin(this);
                       });
                     });
-                  }
-                });
               }
             });
           });
@@ -393,18 +388,13 @@ export default {
               encPrivateKey = JSON.stringify(user.userAccount.encryptedPrivateKey);
             }
             let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-            let match = await decrypt(
-              encryptedPrivateKey.crypto.ciphertext,
-              accountPassword,
-              encryptedPrivateKey.crypto.cipher_params.nonce,
-              encryptedPrivateKey.crypto.kdf_params.salt
-            );
+            let unlock = await this.$store.dispatch('unlockWallet', { accountPassword, encryptedPrivateKey  })
             user.userAccount.encryptedPrivateKey = JSON.stringify(user.userAccount.encryptedPrivateKey);
-            if (match !== false) {
+            
+            if (unlock.decrypt) {
               this.loginError = false;
               this.inputError = {};
-              let wallet = generateHdWallet(match);
-              let address = getHdWalletAccount(wallet).address;
+              let address = unlock.address;
               let sub = [];
               let account = {
                 name: 'Main account',
@@ -413,17 +403,15 @@ export default {
                 root: true,
               };
               browser.storage.sync.set({ isLogged: true }).then(() => {
-                browser.storage.sync.set({ wallet: JSON.stringify(wallet) }).then(() => {
                   if (address !== user.userAccount.publicKey) {
                     user.userAccount.publicKey = address;
                     user.userAccount.encryptedPrivateKey = encPrivateKey;
                     browser.storage.sync.set({ userAccount: user.userAccount }).then(() => {
                       sub.push(account);
                       browser.storage.sync.set({ subaccounts: sub }).then(() => {
-                        browser.storage.sync.set({ activeAccount: 0 }).then(() => {
+                        browser.storage.sync.set({ activeAccount: 0 }).then(async () => {
                           this.$store.commit('SET_ACTIVE_ACCOUNT', { publicKey: account.publicKey, index: 0 });
                           this.$store.dispatch('setSubAccounts', sub);
-                          this.$store.commit('SET_WALLET', wallet);
                           this.$store.commit('SWITCH_LOGGED_IN', true);
                           this.$router.push('/account');
                         });
@@ -442,13 +430,11 @@ export default {
                     } else {
                       sub = subaccounts.subaccounts;
                     }
-                    this.$store.dispatch('setSubAccounts', sub).then(() => {
-                      this.$store.commit('SET_WALLET', wallet);
+                    this.$store.dispatch('setSubAccounts', sub).then(async () => {
                       this.$store.commit('SWITCH_LOGGED_IN', true);
                       redirectAfterLogin(this);
                     });
                   });
-                });
               });
             } else {
               this.loginError = true;
@@ -463,14 +449,6 @@ export default {
         context.loading = false;
       }
     },
-    // termsAgreedCheckbox() {
-    //   if (this.terms[0] == 1) {
-    //     this.agreed = true;
-    //   }
-    //   else {
-    //     this.agreed = false;
-    //   }
-    // }
   },
 };
 </script>
