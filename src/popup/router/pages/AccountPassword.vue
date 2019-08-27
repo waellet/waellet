@@ -89,9 +89,7 @@ export default {
         },
         importPrivateKey: async function importPrivateKey({accountPassword,data,termsAgreed}) {
             this.loading = true;
-            console.log("here")
             let address = await this.$store.dispatch('generateWallet', { seed: data })
-            console.log(address)
             const keyPair = await addressGenerator.importPrivateKey(accountPassword, data, address);
             if(keyPair) {
                 this.setLogin(keyPair, false, termsAgreed, accountPassword);

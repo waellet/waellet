@@ -192,6 +192,11 @@ export default {
         this.loading = false;
         return;
       }
+      if (this.tokenSymbol != 'AE' && this.form.amount % 1 != 0) {
+        this.$store.dispatch('popupAlert', { name: 'spend', type: 'integer_required'});
+        this.loading = false;
+        return;
+      }
       if (this.maxValue - this.form.amount <= 0 && this.current.token == 0) {
         this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
         this.loading = false;

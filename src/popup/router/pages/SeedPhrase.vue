@@ -157,7 +157,6 @@ export default {
                             if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
                                 originalSeed = originalSeed.replace(/,/g, ' ');
                                 let seed = mnemonicToSeed(originalSeed);
-                                console.log(seed)
                                 let address = await this.$store.dispatch('generateWallet', { seed })
                                 const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,seed.toString('hex'), address);
                                 if(keyPair) {

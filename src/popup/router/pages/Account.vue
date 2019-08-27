@@ -114,8 +114,13 @@ export default {
         this.polling = setInterval(() => {
           if(this.sdk != null) {
               this.updateTransactions();
-              this.toUsd = (this.balance * this.usdRate).toFixed(3);
-              this.toEur = (this.balance * this.eurRate).toFixed(3);
+              if (this.tokenSymbol == 'AE') {
+                this.toUsd = (this.balance * this.usdRate).toFixed(3);
+                this.toEur = (this.balance * this.eurRate).toFixed(3);
+              }
+              else {
+                this.toUsd = this.toEur = '---'
+              }
           }
         }, 2500);
     },
