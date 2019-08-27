@@ -28,7 +28,7 @@ jobs:
   cypress/run:
     docker:
     - image: cypress/base:8
-    parallelism: 24
+    parallelism: 4
     steps:
     - run:
         command: echo "Assuming dependencies were installed using cypress/install
