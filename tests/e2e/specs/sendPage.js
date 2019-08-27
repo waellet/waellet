@@ -165,8 +165,11 @@ describe("Test cases for Send Page", () => {
         login()
         cy
         .visit("popup/popup.html",{onBeforeLoad})
+        .get('.ae-loader')
+        .should('not.be.visible')
         .wait(5000)
         .get('.sendBtn')
+        .should('be.visible')
         .click()
         .get('.address .ae-input')
         .type("asda.test")
@@ -188,8 +191,11 @@ describe("Test cases for Send Page", () => {
         login()
         cy
         .visit("popup/popup.html",{onBeforeLoad})
+        .get('.ae-loader')
+        .should('not.be.visible')
         .wait(5000)
         .get('.sendBtn')
+        .should('be.visible')
         .click()
         .get('.address .ae-input')
         .type("asda.tet")
