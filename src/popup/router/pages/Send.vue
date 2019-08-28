@@ -132,7 +132,7 @@ export default {
     },
     myTokens() {
       return this.tokens.filter((t,index) =>  {
-        if(t.parent == this.account.publicKey) {
+        if(t.parent == this.account.publicKey || t.symbol == 'AE') {
           t.key = index
           return t
         }
@@ -189,6 +189,11 @@ export default {
       }
       if(this.form.amount <= 0) {
         this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_amount'});
+        this.loading = false;
+        return;
+      }
+      if (this.tokenSymbol != 'AE' && this.form.amount % 1 != 0) {
+        this.$store.dispatch('popupAlert', { name: 'spend', type: 'integer_required'});
         this.loading = false;
         return;
       }

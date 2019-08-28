@@ -147,7 +147,8 @@
             "switchLanguage" : "Language",
             "currentLanguage": "Current language",
             "seeAllRegisteredNames": "See all registered names",
-            "OkButton": "OK"
+            "OkButton": "OK",
+            "noNames": "No names found"
         },
         "index": {
             "term1": "I agree to the Waellet ",

@@ -12,7 +12,7 @@
                     <hr>
                     <div class="input-container">
                         <ae-input :label="$t('pages.addFungibleToken.tokenContractLabel')" >
-                            <input type="text" class="ae-input token-contract" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                            <input type="text" class="ae-input token-contract" @mouseout="validate('contract')" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                             <ae-toolbar slot="footer">
                                 {{$t('pages.addFungibleToken.validContractAddressError') }}
                             </ae-toolbar>
@@ -20,15 +20,15 @@
                     </div>
                     <div class="input-container">
                         <ae-input :label="$t('pages.addFungibleToken.tokenSymbolLabel')">
-                            <input type="text" :disabled="token.precisionDisabled" class="ae-input token-symbol" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                            <input type="text" :disabled="token.precisionDisabled" class="ae-input token-symbol" @mouseout="validate('symbol')" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                             <ae-toolbar slot="footer">
                                 {{$t('pages.addFungibleToken.symbolBetween1and12') }}
                             </ae-toolbar>
                         </ae-input>
                     </div>
                     <div class="input-container">
-                        <ae-input :label="$t('pages.addFungibleToken.tokenSymbolLabel')" >
-                            <input type="text" :disabled="token.precisionDisabled" class="ae-input token-precision" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                        <ae-input :label="$t('pages.addFungibleToken.tokenPrecision')" >
+                            <input type="text" :disabled="token.precisionDisabled" class="ae-input token-precision" @mouseout="validate('precision')" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                             <ae-toolbar slot="footer" >
                                 {{$t('pages.addFungibleToken.numberBetween0and36') }}
                             </ae-toolbar>
