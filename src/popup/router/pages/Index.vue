@@ -38,7 +38,7 @@
           <ae-divider />
         </div>
         
-        <ae-check v-if="termsAgreedOrNot != true" class="termsCheck" v-model="terms" value="1" type="checkbox">
+        <ae-check v-if="termsAgreedOrNot != true || termsAgreedOrNot == undefined" class="termsCheck" v-model="terms" value="1" type="checkbox">
           <div class="termsHolder">
             {{ $t('pages.index.term1') }}<a href="#" @click="goToTermsOfService"> {{ $t('pages.index.term2') }}</a> and <a href="#" @click="goToPrivacyPolicy"> {{ $t('pages.index.term3') }}</a>
           </div>

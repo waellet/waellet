@@ -3,7 +3,7 @@
         <div class="seeAllRegisteredNames" v-if="seeAllRegisteredNames">
             <div class="maindiv_input-group-addon">
                 <h4>{{$t('pages.generalSettings.registeredNames') }}</h4><hr>
-                <ae-list>
+                <ae-list v-if="haveRegisteredNames">
                     <ae-list-item fill="neutral" v-for="(name, key) in names" :key="key" >
                         <ae-identicon class="subAccountIcon" v-bind:address="name.owner" size="base" />
                         <div class="subAccountInfo">
@@ -13,6 +13,8 @@
                         <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="name.pending"/>
                     </ae-list-item>
                 </ae-list>
+                <p v-if="!haveRegisteredNames">{{ $t('pages.generalSettings.noNames') }}</p>
+                <ae-button face="round" fill="primary" @click="seeAllRegisteredNames = false" extend>{{ $t('pages.generalSettings.OkButton') }}</ae-button>
                 <ae-button face="round" fill="primary" @click="seeAllRegisteredNames = false" class="closeAllAENS" extend>{{ $t('pages.generalSettings.OkButton') }}</ae-button>
             </div>
         </div>
@@ -89,6 +91,9 @@ export default {
     },
     computed: {
         ...mapGetters(['current', 'popup', 'names', 'sdk']),
+        haveRegisteredNames() {
+            return this.names.length > 0;
+        }
     },
     created() {
         if (this.current.language == undefined) {

@@ -7,16 +7,17 @@ import { initializeSDK } from '../../../src/popup/utils/helper';
 
 
 const deployContract = async() => {
-    let wallet = generateHdWallet(account.secretKey);
-    let acc = {
-        publicKey:account.publicKey,
-        secretKey:getHdWalletAccount(wallet, 0).secretKey
-    }
-    let sdk = await initializeSDK(this, { account:acc }, true)
-    let bytecode = (await sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
-    let deployed = await sdk.contractDeploy(bytecode, FUNGIBLE_TOKEN_CONTRACT, [ `"AE TEST"`, '8', `"AET"` ])
-    let call = await sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, deployed.address,"mint",[account.publicKey,"1000000"])
-    return new Promise((resolve,reject) => {
+    
+    return new Promise(async (resolve,reject) => {
+        let wallet = generateHdWallet(account.secretKey);
+        let acc = {
+            publicKey:account.publicKey,
+            secretKey:getHdWalletAccount(wallet, 0).secretKey
+        }
+        let sdk = await initializeSDK(this, { account:acc }, true)
+        let bytecode = (await sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
+        let deployed = await sdk.contractDeploy(bytecode, FUNGIBLE_TOKEN_CONTRACT, [ `"AE TEST"`, '8', `"AET"` ])
+        let call = await sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, deployed.address,"mint",[account.publicKey,"1000000"])
         resolve (deployed)
     })
 }

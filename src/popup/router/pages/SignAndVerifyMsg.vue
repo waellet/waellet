@@ -14,7 +14,6 @@
             <ae-input class="my-2" :label="$t('pages.signAndVerifyMsg.password')">
                 <input type="password" class="ae-input" :placeholder="$t('pages.signAndVerifyMsg.enterPassword')" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
             </ae-input>
-            <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
             <div class="signature-modal-buttons">
                 <button class="signMsg-copy openSignPage" @click="openSignPage">{{$t('pages.signAndVerifyMsg.signMessage')}}</button>
                 <button class="signMsg-cancel" @click="requirePass = false" >{{$t('pages.signAndVerifyMsg.cancelBtn')}}</button>

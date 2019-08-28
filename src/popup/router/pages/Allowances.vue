@@ -134,6 +134,7 @@ export default {
             transferform: {
                 to_account: '',
                 value: '0',
+                transferallowedValue: ''
             },
             changeform: {
                 symbol: '',
@@ -261,11 +262,8 @@ export default {
                 })
             }
             else {
-                if (this.transferform.value == '' && ((this.transferform.value).toString()).length == 0) {
-                    this.$store.dispatch('popupAlert', {
-                        name: 'account',
-                        type: 'invalid_number'
-                    })
+                if ( (this.transferform.value == '' && ((this.transferform.value).toString()).length == 0) || (this.transferform.value < 0) || (( this.transferform.value > this.transferform.transferallowedValue) && (this.transferform.transferallowedValue != '') ) ) {
+                    this.$store.dispatch('popupAlert', { name: 'account', type: 'invalid_number' })
                 }
                 else {
                     this.tokens.forEach(async element => {
@@ -276,7 +274,7 @@ export default {
                                 let checkAmountLeft = await contract.call('allowance', [{from_account: this.transferform.to_account, for_account:this.account.publicKey }], { callStatic: true })
                                 let amountLeft = await checkAmountLeft.decode()
                                 try {
-                                    if ( (amountLeft != 'None') && (amountLeft + this.transferform.value >= amountLeft) ) {
+                                    if ( (amountLeft != 'None') && (amountLeft + this.transferform.value >= amountLeft)) {
                                         let tx = {
                                             popup:false,
                                             tx: {
@@ -400,6 +398,7 @@ export default {
             this.allowancePage = 'transfer';
             this.transferform.to_account = address;
             this.transferform.value = amount
+            this.transferform.transferallowedValue = amount
             this.disableAfterSeeAll = true;
         },
         openAllowencesPage() {
