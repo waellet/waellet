@@ -22,7 +22,7 @@ describe("Test cases for Ledger", () => {
     it("iframe is injected", () => {
         login()
         cy
-        .get('ifram')
+        .get('iframe')
         .should('have.attr','src','https://waellet.com/ledger.html')
     })
 
