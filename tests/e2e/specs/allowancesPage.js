@@ -25,6 +25,8 @@ const openTokensPage = () => {
     login()
     cy
     .visit('popup/popup.html',{onBeforeLoad})
+    .get('.ae-loader')
+    .should('not.be.visible')
     .get('#settings')
     .click()
     .get('.utilities')

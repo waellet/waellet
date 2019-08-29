@@ -172,7 +172,7 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
         
     })
 }
-
+let countErr = 0;
 const createSDKObject = (ctx, { network, current, account, wallet, activeAccount = 0, background, res }, backgr ) => {
     return new Promise((resolve, reject) => {
         Universal({
@@ -195,7 +195,15 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
                 ctx.hideLoader()
                 ctx.showConnectError()
             }
-            resolve()
+            console.log(err)
+            // reject(err)
+            
+            if(countErr < 3) {
+                createSDKObject(ctx, { network, current, account, activeAccount, background, res },backgr)
+            }else {
+                reject({error:true})
+            }
+            countErr++
         })
     })
     
