@@ -15,8 +15,10 @@ const deployContract = async() => {
             secretKey:getHdWalletAccount(wallet, 0).secretKey
         }
         let sdk = await initializeSDK(this, { account:acc }, true)
+        
         let bytecode = (await sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
         let deployed = await sdk.contractDeploy(bytecode, FUNGIBLE_TOKEN_CONTRACT, [ `"AE TEST"`, '8', `"AET"` ])
+        cy.task('log', 'This will be output to the terminal' + deployed.address)
         let call = await sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, deployed.address,"mint",[account.publicKey,"1000000"])
         resolve (deployed)
     })
