@@ -47,7 +47,7 @@ jobs:
         name: Run Cypress tests
         command: npx cypress run --spec "${TESTFILES//$'\n'/','}"
     - store_artifacts:
-        path: ~/tests/e2e/screenshots
+        path: ~/tests/e2e/screenshots/
         destination: prefix
 workflows:
   build:
