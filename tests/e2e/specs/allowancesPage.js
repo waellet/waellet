@@ -43,7 +43,6 @@ const addToken = () => {
     .get('.token-contract')
     .clear()
     .type( deployContract().then(res => {
-        cy.task('log', 'This will be output to the terminal' + res.address)
         return res.address
     }) ) 
     .wait(7000)
