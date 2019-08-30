@@ -110,6 +110,21 @@ const Aepp = {
                     resolve(r)
                 }, req.id)
             })
+        },
+        signMessage({message}){
+            let req = {
+                id:uuid(),
+                method: "aeppMessage",
+                type: "signMessage",
+                msg: message,
+                hostname: window.location.host
+            }
+            window.postMessage(req, '*')
+            return new Promise((resolve, reject) => {
+                receiveResponse((r) => {
+                    resolve(r)
+                }, req.id)
+            })
         }
     },
     get: {
