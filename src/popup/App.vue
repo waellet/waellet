@@ -432,8 +432,18 @@ export default {
       })
       return ae;
     },
-    initSDK() {
-        initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
+    async initSDK() {
+      let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
+      if(typeof sdk.error != 'undefined') {
+          await browser.storage.sync.remove('isLogged')
+          await browser.storage.sync.remove('activeAccount')
+          this.hideLoader()
+          this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
+          this.$store.commit('UNSET_SUBACCOUNTS');
+          this.$store.commit('UPDATE_ACCOUNT', '');
+          this.$store.commit('SWITCH_LOGGED_IN', false);
+          this.$router.push('/')
+      }
     },
     toTokens() {
       this.dropdown.settings = false
