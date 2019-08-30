@@ -117,7 +117,7 @@ const Aepp = {
                 method: "aeppMessage",
                 type: "signMessage",
                 msg: {
-                    payload: message
+                    text: message
                 },
                 hostname: window.location.host
             }
@@ -128,14 +128,15 @@ const Aepp = {
                 }, req.id)
             })
         },
-        verifyMessage({message, address}) {
+        verifyMessage({message, signature, publicKey}) {
             let req = {
                 id: uuid(),
                 method: "aeppMessage",
                 type: "verifyMessage",
                 msg: {
-                    payload: message,
-                    publicKey: address
+                    text: message,
+                    signature: signature,
+                    publicKey: publicKey
                 },
                 hostname: window.location.host
             }
