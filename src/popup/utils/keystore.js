@@ -1,9 +1,7 @@
 /* eslint-disable */
 const nacl = require('tweetnacl')
 const argon = require('./argon2.js');
-// import * as argon2 from './argon2.js'
 import uuid from 'uuid';
-// const bs58check = require('bs58check')
 import { encodeBase58Check } from '@aeternity/aepp-sdk/es/utils/crypto';
 
 const DERIVED_KEY_FUNCTIONS = {
@@ -85,7 +83,7 @@ function isBase64(str) {
   return !!(index === -1 || str.slice(index).match(/={1,2}/));
 }
 
-function str2buf(str, enc) {
+export function str2buf(str, enc) {
   if (!str || str.constructor !== String) return str;
   if (!enc && isHex(str)) enc = 'hex';
   if (!enc && isBase64(str)) enc = 'base64';

@@ -102,5 +102,11 @@ export default {
   },
   [types.SET_LEDGER_API] (state, { ledger }) {
     state.ledgerApi = ledger
+  },
+  [types.SET_ENCRYPTED_WALLET] (state, payload) {
+    state.encryptedWallet = payload
+  },
+  [types.SET_BACKGROUND] (state, payload) {
+    state.background = payload
   }
 }; 

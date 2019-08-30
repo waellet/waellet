@@ -1,53 +1,52 @@
 <template>
 <div class="popup">
     <div class="actions">
-        <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+        <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.airGapSetup.backToAccount') }}</button>
     </div>
-    <h3>AirGap Setup</h3>
+    <h3>{{$t('pages.airGapSetup.heading') }}</h3>
 
     <div v-if="step == 1" class="step1">
-        <h4>Install AirGap on your phone</h4>
-        <p class="airgap-setup-definitions">Search for AirGap.it in the store or scan this QR code</p>
+        <h4>{{$t('pages.airGapSetup.step1heading') }}</h4>
+        <p class="airgap-setup-definitions">{{$t('pages.airGapSetup.step1info') }}</p>
         <div class="qr-wrapper">
             <qrcode-vue :value="this.airgap_it" foreground="#14CCB7" :size="180" level="H"></qrcode-vue>
         </div>
-        <ae-button class="step-button" face="flat" fill="alternative" @click="next">Next <ae-icon name="left-more" /></ae-button>
+        <ae-button class="step-button" face="flat" fill="alternative" @click="next">{{$t('pages.airGapSetup.step1buttonNext') }} <ae-icon name="left-more" /></ae-button>
     </div>
 
     <div v-if="step == 2" class="step2">
-        <h5 class="airgap-setup-titles">Open AirGap on the 2nd device</h5>
+        <h5 class="airgap-setup-titles">{{$t('pages.airGapSetup.setupSteps1heading') }}</h5>
         <p class="airgap-setup-definitions">
-            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold">1.</span> Turn off the internet connection before opening AirGap</ae-badge>
+            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold; display: contents;">1</span> {{$t('pages.airGapSetup.setupSteps1') }}</ae-badge>
         </p>
         <ae-divider />
-        <h5 class="airgap-setup-titles">Create secret key</h5>
+        <h5 class="airgap-setup-titles">{{$t('pages.airGapSetup.setupSteps2heading') }}</h5>
         <p class="airgap-setup-definitions">
-            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold">2.</span> No internet connection means maximum security for the key</ae-badge>
+            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold; display: contents;">2</span> {{$t('pages.airGapSetup.setupSteps2') }}</ae-badge>
         </p>
         <ae-divider />
-        <h5 class="airgap-setup-titles">Write it down in the right order</h5>
+        <h5 class="airgap-setup-titles">{{$t('pages.airGapSetup.setupSteps3heading') }}</h5>
         <p class="airgap-setup-definitions">
-            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold">3.</span> You will need it for recovery</ae-badge>
+            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold; display: contents;">3</span> {{$t('pages.airGapSetup.setupSteps3') }}</ae-badge>
         </p>
         <ae-divider />
-        <h5 class="airgap-setup-titles">Add an aeternity wallet</h5>
+        <h5 class="airgap-setup-titles">{{$t('pages.airGapSetup.setupSteps4heading') }}</h5>
         <p class="airgap-setup-definitions">
-            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold">4.</span> Tap wallet, add wallet and choose aeternity</ae-badge>
+            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold; display: contents;">4</span> {{$t('pages.airGapSetup.setupSteps4') }}</ae-badge>
         </p>
         <ae-divider />
-        <h5 class="airgap-setup-titles">Link your aeternity wallet</h5>
+        <h5 class="airgap-setup-titles">{{$t('pages.airGapSetup.setupSteps5heading') }}</h5>
         <p class="airgap-setup-definitions">
-            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold">5.</span> Finish by linking your vault to your aeternity address</ae-badge>
+            <ae-badge class="airgap-setup-badge"><span style="font-weight:bold; display: contents;">5</span> {{$t('pages.airGapSetup.setupSteps5') }}</ae-badge>
         </p>
         <br>
-        <ae-button class="step-button" face="flat" fill="alternative" @click="linkVault">Link vault <ae-icon name="left-more" /></ae-button>
+        <ae-button class="step-button" face="flat" fill="alternative" @click="linkVault">{{$t('pages.airGapSetup.linkVault') }} <ae-icon name="left-more" /></ae-button>
     </div>
 
 </div>
 </template>
 
 <script>
-import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 import QrcodeVue from 'qrcode.vue';
 
@@ -57,8 +56,6 @@ export default {
     },
     data () {
         return {
-            language: locales['en'],
-            locales: locales,
             step: 1,
             airgap_it: 'https://airgap.it'
         }

@@ -21,7 +21,6 @@ describe('Test cases for Import keystore.json ', () => {
         cy.get('.ae-toolbar').should('contain','Too weak password!');
         cy.get('input[type="password"]').clear().type(ACCOUNT_PASSWORD_STRONG + 'a');
         cy.get('button').contains('Import').click();
-        // cy.get('.ae-loader').should('be.visible');
         cy.get('.ae-toolbar').should('contain','Incorrect password !');
         cy.get('input[type="password"]').clear().type(ACCOUNT_PASSWORD_STRONG);
         cy.get('button').contains('Import').click();

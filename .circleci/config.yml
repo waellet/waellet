@@ -1,9 +1,55 @@
-version: 2.1
-orbs:
-  cypress: cypress-io/cypress@1.0.0
+version: 2
+jobs:
+  cypress/install:
+    docker:
+    - image: cypress/base:8
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - cache-{{ .Branch }}-{{ checksum "package.json" }}
+    - run:
+        name: Npm CI
+        command: npm ci
+    - run:
+        command: npx cypress verify
+    - save_cache:
+        key: cache-{{ .Branch }}-{{ checksum "package.json" }}
+        paths:
+        - ~/.npm
+        - ~/.cache
+    - run:
+        command: npm run build:dev
+    - persist_to_workspace:
+        root: ~/
+        paths:
+        - project
+        - .cache/Cypress
+  cypress/run:
+    docker:
+    - image: cypress/base:8
+    parallelism: 4
+    steps:
+    - run:
+        command: echo "Assuming dependencies were installed using cypress/install
+          job"
+    - attach_workspace:
+        at: ~/
+    - run:
+        name: Start
+        command: npm start
+        background: true
+    - run:
+        name: Split tests
+        command: | 
+          echo 'export TESTFILES=$(circleci tests split test_filenames.txt) ' >> $BASH_ENV
+    - run:
+        name: Run Cypress tests
+        command: npx cypress run --spec "${TESTFILES//$'\n'/','}"
 workflows:
   build:
     jobs:
+<<<<<<< HEAD
       - cypress/install:
           build: "npm run build:dev"
           executor: cypress/base-8
@@ -16,3 +62,10 @@ workflows:
           group: 'all tests'
     parallelism: 4
           
+=======
+    - cypress/install
+    - cypress/run:
+        requires:
+        - cypress/install
+  version: 2
+>>>>>>> upstream/master

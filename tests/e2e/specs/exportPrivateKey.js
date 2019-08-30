@@ -82,12 +82,6 @@ describe("Export private key", () => {
         .click()
         .get('.alert-card.alternative')
         .should('be.visible')
-        // .wait(1000)
-        // .get('.ae-toolbar .ae-button')
-        // .should('be.visible')
-        // .click()
-        // .get('.alert-card.alternative')
-        // .should('not.be.visible')
     })
 
     it("decrypt private key then close and open again", () => {

@@ -1,11 +1,11 @@
 <template>
     <div id="manageNetworks" class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.manageNetworks.backToAccount')}}</button>
         </div>
-        <h3>{{ language.strings.manageNetworks }}</h3>
+        <h3>{{$t('pages.manageNetworks.manageNetworks') }}</h3>
         <ae-panel>
-            <h4>{{ language.strings.networks }}</h4>
+            <h4>{{$t('pages.manageNetworks.networks') }}</h4>
             <hr>
             <ae-list >
                 <ae-list-item class="editaccount" fill="neutral" v-for="(userNetowrk, index) in userNetworks" v-bind:key="index">
@@ -19,7 +19,7 @@
         </ae-panel>
         <ae-panel>
             <h4 class="addaccount">
-                {{ language.strings.addNewNetwork }}
+                {{$t('pages.manageNetworks.addNewNetwork') }}
                 <button class="icon-btn" v-if="!аddNewUserNetwork" @click="AddNewUserNetwork"><ae-icon name="plus" /></button>
                 <button class="icon-btn" v-if="аddNewUserNetwork" @click="closeNewUserNetworkForm"><ae-icon name="close" /></button>
             </h4>
@@ -27,14 +27,9 @@
             <transition name="slide">
                 <ul class="slideform" :class="dropdown ? 'open' : ''">
                     <div class="add-form">
-                        <!-- <h4 class="pageTitle">{{ language.strings.addNewNetwork }}</h4> -->
-                        <!-- <label style="float:left;"> {{ language.strings.networkName }}<span class="required_fields">*</span></label> -->
-                        <ae-input class="node-name" :label="language.strings.networkName" v-model="newUserNetwork" placeholder="Add Node name"></ae-input>
-                        <!-- <label style="float:left; margin-top: 10px;"> {{ language.strings.networkURL }}<span class="required_fields">*</span></label> -->
-                        <ae-input class="node-url" :label="language.strings.networkURL" v-model="newUserNetworkURL" placeholder="Add Node URL"></ae-input>
-                        <!-- <hr>
-                        <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small> -->
-                        <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
+                        <ae-input class="node-name" :label="$t('pages.manageNetworks.networkName')" v-model="newUserNetwork" :placeholder="$t('pages.manageNetworks.addnetworkName')"></ae-input>
+                        <ae-input class="node-url" :label="$t('pages.manageNetworks.networkURL')" v-model="newUserNetworkURL" :placeholder="$t('pages.manageNetworks.addnetworkURL')"></ae-input>
+                        <ae-button @click="addbtn" face="round" fill="primary" extend>{{ $t('pages.manageNetworks.add') }}</ae-button>
                     </div>
                 </ul>
             </transition>
@@ -45,15 +40,12 @@
 
 <script>
 import store from '../../../store';
-import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 
 export default {
     data () {
         return {
             logo_top: browser.runtime.getURL('../../../icons/icon_48.png'),
-            language: locales['en'],
-            locales: locales,
             editNetworkName: false,
             аddNewUserNetwork: false,
             dropdown: false,
@@ -69,18 +61,17 @@ export default {
     },
     methods: {
         removeUserNetwork () {
-        let networkName = this.popup.data;
-            // deleteIndex = null;
-        if (networkName != '') {
-            let un = this.userNetworks.filter(d => {
-                return d.name != networkName
-            });
-            this.$store.dispatch('setUserNetworks', un).then(() => {
-                browser.storage.sync.set({ userNetworks: un}).then(() => {
-                delete this.$store.state.network[networkName];
+            let networkName = this.popup.data;
+            if (networkName != '') {
+                let un = this.userNetworks.filter(d => {
+                    return d.name != networkName
                 });
-            });
-        }
+                this.$store.dispatch('setUserNetworks', un).then(() => {
+                    browser.storage.sync.set({ userNetworks: un}).then(() => {
+                    delete this.$store.state.network[networkName];
+                    });
+                });
+            }
         },
         removeUserNetworkCheck (name) {
             if (this.$store.state.current.network == name) {
@@ -171,7 +162,7 @@ export default {
 @import '../../../common/base';
 .ae-list-item { cursor: default !important; }
 .ae-list-item .ae-icon, h4 .ae-icon , h4 .icon-btn{ float: right; font-size: 1.2rem; }
-// .ae-icon-edit, .ae-icon-plus { color: #00b6ff !important; }
+
 #manageAccounts .ae-icon-check { color: #13b100 !important; }
 #manageAccounts .ae-icon-close { color: #b10000 !important; }
 .editaccount:first-child { border-top: none !important; }
@@ -181,9 +172,9 @@ export default {
 .editaccount div input { width: 60% !important; }
 
 .slideform { position: relative; width: 100%; overflow: hidden; padding: 0; top: 10px; list-style-type: none; height: 0; margin:0;
-    /*box-shadow: 0 0 8px rgba(0, 33, 87, 0.15);*/ transform-origin: top; transition: all .4s ease-in-out; }
+    transform-origin: top; transition: all .4s ease-in-out; }
 .slide-enter, .slide-leave-to{ transform: scaleY(0); }
-.add-form { text-align: center; /*padding: 15px; margin: 10px; */}
+.add-form { text-align: center; }
 .required_fields { color: red; margin: 5px; }
 .ae-list-item .ae-icon, h4 .ae-icon { font-size: 1.7rem !important; }
 .add-form .ae-input-container { margin-bottom: 1rem; }

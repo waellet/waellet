@@ -64,7 +64,6 @@ const injectScript = (content) => {
       scriptTag.setAttribute('async', false)
       scriptTag.textContent = content
       container.insertBefore(scriptTag, container.children[0])
-    //   container.removeChild(scriptTag)
     } catch (e) {
       console.error('Waellet script injection failed', e)
     }

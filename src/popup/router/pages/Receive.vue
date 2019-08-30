@@ -1,9 +1,9 @@
 <template>
   <div class="popup">
     <div class="actions">
-      <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+      <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.receive.backToAccount') }}</button>
     </div>
-    <p>{{language.pages.receive.heading}}</p>
+    <p>{{$t('pages.receive.heading') }}</p>
     <ae-card fill="neutral" align="center">
       <div class="qr-wrapper">
         <qrcode-vue :value="account.publicKey"></qrcode-vue>
@@ -12,7 +12,7 @@
       <ae-toolbar fill="neutral" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="copy">
           <ae-icon name="copy" />
-          {{ language.buttons.copy }}
+          {{ $t('pages.receive.copy') }}
         </ae-button>
       </ae-toolbar>
     </ae-card>
@@ -23,7 +23,6 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import locales from '../../locales/locales.json';
 import QrcodeVue from 'qrcode.vue';
 
 export default {
@@ -33,11 +32,8 @@ export default {
   },
   data() {
     return {
-      heading: 'Receive AE tokens',
-      language: locales['en']
     }
   },
-  locales,
   computed: {
     ...mapGetters(['account','popup'])
   },

@@ -1,55 +1,59 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="back"><ae-icon name="back" /> {{language.pages.transactionDetails.backToTransactions}}</button>
+            <button class="backbutton toAccount" @click="back"><ae-icon name="back" /> {{$t('pages.transactionDetails.backToTransactions')}}</button>
         </div>
-        <h3 class="transactionsPadding">{{language.pages.transactionDetails.heading}}</h3>
+        <h3 class="transactionsPadding">{{$t('pages.transactionDetails.heading')}}</h3>
         <ae-list class="transactionList ">
             <ae-list-item fill="neutral">
-                <div class="detailTitle">{{language.pages.transactionDetails.date}}</div>
+                <div class="detailTitle">{{$t('pages.transactionDetails.date')}}</div>
                 <div class="transactionDate">{{new Date(transaction.time).toLocaleString()}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral">
-                <div class="detailTitle">{{language.pages.transactionDetails.type}}</div>
+                <div class="detailTitle">{{$t('pages.transactionDetails.type')}}</div>
                 <ae-badge :class="transactionType.fill" class="transactionType">{{transactionType.type}}</ae-badge>
             </ae-list-item> 
             <ae-list-item fill="neutral" class="flex-direction-column">
                 <div class="flex-col flex-justify-between flex mb-1" v-if="isSpendTx">
-                    <div class="detailTitle">{{language.pages.transactionDetails.amount}}</div>
+                    <div class="detailTitle">{{$t('pages.transactionDetails.amount')}}</div>
                     <div class="balance transactionAmount">{{txAmount}}</div>
                 </div>
                 <div class="flex-col flex-justify-between flex mb-1">
-                    <div class="detailTitle">{{language.pages.transactionDetails.fee}}</div>
+                    <div class="detailTitle">{{$t('pages.transactionDetails.fee')}}</div>
                     <div class="balance transactionFee">{{txFee}}</div>
                 </div>
                 <div class="flex-col flex-justify-between flex flex-align-center">
-                    <div class="detailTitle">{{language.pages.transactionDetails.total}}</div>
+                    <div class="detailTitle">{{$t('pages.transactionDetails.total')}}</div>
                     <div class="balance balanceTotal">{{txTotal}}</div>
                 </div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isSpendTx">
-                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txFrom}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.sender_id" @click="copy" class="copyBtn">COPY</button></div>
+                <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.txFrom')}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.sender_id" @click="copy" class="copyBtn">{{$t('pages.transactionDetails.copy')}}</button></div>
                 <input disabled :value="transaction.tx.sender_id" length="flat"  class="transationFrom transactionDetailsInputs"/>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isSpendTx">
-                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txTo}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.recipient_id" @click="copy" class="copyBtn">COPY</button></div>
+                <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.txTo')}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.recipient_id" @click="copy" class="copyBtn">{{$t('pages.transactionDetails.copy')}}</button></div>
                 <input disabled :value="transaction.tx.recipient_id" length="flat" class="transactionTo transactionDetailsInputs"/>
             </ae-list-item>
-            <ae-list-item fill="neutral" class="flex-direction-column"  v-if="!isSpendTx">
-                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txAccount}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.account_id" @click="copy" class="copyBtn">COPY</button></div>
+            <ae-list-item fill="neutral" class="flex-direction-column"  v-if="!isSpendTx && transactionType.fill != ''">
+                <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.txAccount')}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.account_id" @click="copy" class="copyBtn">{{$t('pages.transactionDetails.copy')}}</button></div>
                 <input disabled :value="txAccount" length="flat" class="transactionTo transactionDetailsInputs"/>
             </ae-list-item>
+            <ae-list-item fill="neutral" class="flex-direction-column"  v-if="isContractCallTx">
+                <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.contractId')}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.contract_id" @click="copy" class="copyBtn">COPY</button></div>
+                <input disabled :value="transaction.tx.contract_id" length="flat" class="transactionTo transactionDetailsInputs"/>
+            </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column" v-if="isNameClaimTx">
-                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txName}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.name" @click="copy" class="copyBtn">COPY</button></div>
+                <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.txName')}} <button :class="transactionType.fill" v-clipboard:copy="transaction.tx.name" @click="copy" class="copyBtn">{{$t('pages.transactionDetails.copy')}}</button></div>
                 <div  class="flex-justify-items-left transactionName text-left">{{transaction.tx.name}}</div>
             </ae-list-item>
             <ae-list-item fill="neutral" class="flex-direction-column">
-                <div class="flex-col text-left mb-1 detailTitle">{{language.pages.transactionDetails.txHash}} <button :class="transactionType.fill" v-clipboard:copy="transaction.hash" @click="copy" class="copyBtn">COPY</button></div>
+                <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.txHash')}} <button :class="transactionType.fill" v-clipboard:copy="transaction.hash" @click="copy" class="copyBtn">{{$t('pages.transactionDetails.copy')}}</button></div>
                 <input disabled :value="transaction.hash" length="flat"  class="transactionHash transactionDetailsInputs"/>
             </ae-list-item>
         </ae-list>
         <ae-button-group  class="btnFixed">
-            <ae-button face="round" class=" transactionExplorerBtn" :fill="transactionType.fill" @click="transactionInExplorer">    <ae-icon name="search" />  {{language.pages.transactionDetails.explorer}} </ae-button>
+            <ae-button face="round" class=" transactionExplorerBtn" :fill="transactionType.fill != '' ? transactionType.fill : null" @click="transactionInExplorer">    <ae-icon name="search" />  {{$t('pages.transactionDetails.explorer')}}  </ae-button>
         </ae-button-group>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
@@ -57,16 +61,13 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
 export default {
     data() {
         return {
-            language: locales['en']
         }
     },
     props: ['transaction'],
-    locales,
     computed: {
         ...mapGetters(['account','current','network' ,'popup']),
         txAmount() {
@@ -81,15 +82,19 @@ export default {
         transactionType() {
             if(this.transaction.tx.type == "SpendTx") {
                 if(this.transaction.tx.sender_id == this.account.publicKey) {
-                    return {fill:"primary", type: "Spend Tx Out"}
+                    return { fill:"primary", type: "Spend Tx Out" }
                 }else {
-                    return {fill:"alternative", type: "Spend Tx In"}
+                    return { fill:"alternative", type: "Spend Tx In" }
                 }
             }else if(this.transaction.tx.type == "ContractCreateTx") {
-                return {fill:"secondary", type: "Contract Create Tx"}
+                return { fill:"secondary", type: "Contract Create Tx" }
             }else if(this.transaction.tx.type == "NamePreclaimTx" || this.transaction.tx.type == "NameUpdateTx" || this.transaction.tx.type == "NameClaimTx") {
-                return {fill:"", type:this.transaction.tx.type}
+                return { fill:"", type:this.transaction.tx.type }
+            }else if(this.transaction.tx.type == 'ContractCallTx') {
+                return { fill:"secondary", type: "Contract Call Tx" }
             }
+
+            return { fill:"", type:this.transaction.tx.type }
         },
         transactionThemeColor () {
             return this.transaction.tx.sender_id == this.account.publicKey ? 'secondary' : 'alternative';
@@ -103,11 +108,19 @@ export default {
         isConractCreateTx() {
             return this.transaction.tx.type == 'ContractCreateTx';
         },
+        isContractCallTx() {
+            return this.transaction.tx.type == 'ContractCallTx'
+        },
         txTotal() {
             return (this.txAmount + this.txFee).toFixed(7)
         },
         txAccount() {
-            return this.isConractCreateTx ? this.transaction.tx.owner_id : this.transaction.tx.account_id
+            if(this.isConractCreateTx) {
+                return this.transaction.tx.owner_id
+            }else if(this.isContractCallTx) {
+                return this.transaction.tx.caller_id
+            }
+            return this.transaction.tx.account_id
         }
     },
     methods: {

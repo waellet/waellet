@@ -2,28 +2,28 @@
     <div class="popup">
         <div class="flex flex-justify-between flex-align-center popupPadding">
             <div class="actions" >
-                <button class="backbutton" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+                <button class="backbutton" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.transactions.backToAccount')}}</button>
             </div>
             <div class="actions filtersOpen">
                 <ae-button extend class="filtersBtn" fill="primary" face="round" @click="openFilter = true">
                     <ae-icon name="filter" />
-                    Filters
+                    {{$t('pages.transactions.filters')}}
                 </ae-button>
             </div>
         </div>
         
-        <h3 class="transactionsPadding mb-0"> {{language.pages.transactions.heading}} </h3>
+        <h3 class="transactionsPadding mb-0"> {{$t('pages.transactions.heading')}} </h3>
         
         
         <ae-list class="allTransactions">
-            <div v-for="(trans,index) in groupedTransactionsByDate">
+            <div v-for="(trans,index) in groupedTransactionsByDate" v-bind:key="index">
                 <div class="date">{{index}}</div>
-                <TransactionItem v-for="transaction in trans" :transactionData="transaction"></TransactionItem>
+                <TransactionItem v-for="transaction in trans" v-bind:key="transaction.id" :transactionData="transaction"></TransactionItem>
             </div>
-            <ae-button face="flat" v-if="showMoreBtn" @click="loadMore" fill="neutral"> <ae-icon name="reload" /> {{language.buttons.loadMore}}</ae-button>
-            <p v-if="showMoreBtn == false">All transactions loaded! </p>
+            <ae-button face="flat" v-if="showMoreBtn" @click="loadMore" fill="neutral"> <ae-icon name="reload" /> {{$t('pages.transactions.loadMore')}}</ae-button>
+            <p v-if="showMoreBtn == false">{{$t('pages.transactions.allLoaded')}} </p>
         </ae-list>
-        <div class="newTx" @click="mergeNewTransactions" v-if="newTransactions != 0"><span class="newTxCount">{{newTransactions}}</span> new transactions</div>
+        <div class="newTx" @click="mergeNewTransactions" v-if="newTransactions != 0"><span class="newTxCount">{{newTransactions}}</span> {{$t('pages.transactions.newTransactions')}}</div>
         <Loader size="small" :loading="loading" v-bind="{'content':''}"></Loader>
 
 
@@ -34,46 +34,39 @@
             class="filterModal">   
             <ae-list class="filters">
                 <ae-list-item fill="neutral" class="flex-direction-column">
-                    <h4>Type</h4>
+                    <h4>{{$t('pages.transactions.type')}}</h4>
                     <div>
-                        <ae-badge :class="filter.direction == '' ? 'selected' : '' " @click.native="setFilter('direction','')">All</ae-badge>
-                        <ae-badge :class="filter.direction == 'incoming' ? 'selected' : '' "  @click.native="setFilter('direction','incoming')">Incoming</ae-badge>
-                        <ae-badge :class="filter.direction == 'outgoing' ? 'selected' : '' "  @click.native="setFilter('direction','outgoing')">Outgoing</ae-badge>
+                        <ae-badge :class="filter.direction == '' ? 'selected' : '' " @click.native="setFilter('direction','')">{{$t('pages.transactions.all')}}</ae-badge>
+                        <ae-badge :class="filter.direction == 'incoming' ? 'selected' : '' "  @click.native="setFilter('direction','incoming')">{{$t('pages.transactions.incoming')}}</ae-badge>
+                        <ae-badge :class="filter.direction == 'outgoing' ? 'selected' : '' "  @click.native="setFilter('direction','outgoing')">{{$t('pages.transactions.outgoing')}}</ae-badge>
                     </div>
                 </ae-list-item>
                 <ae-list-item fill="neutral" class="flex-direction-column">
-                    <h4>Spend Type</h4>
+                    <h4>{{$t('pages.transactions.spendType')}}</h4>
                     <div>
-                        <ae-badge :class="filter.spendType == 'all' ? 'selected' : ''" @click.native="setFilter('spendType','all')">all</ae-badge>
-                        <ae-badge :class="filter.spendType == 'spendTx' ? 'selected' : ''" @click.native="setFilter('spendType','spendTx')">spend tx</ae-badge>
-                        <ae-badge :class="filter.spendType == 'namePreclaimTx' ? 'selected' : ''" @click.native="setFilter('spendType','namePreclaimTx')">name preclaim tx</ae-badge>
-                        <ae-badge :class="filter.spendType == 'nameClaimTx' ? 'selected' : ''" @click.native="setFilter('spendType','nameClaimTx')">name claim tx</ae-badge>
-                        <ae-badge :class="filter.spendType == 'nameUpdateTx' ? 'selected' : ''" @click.native="setFilter('spendType','nameUpdateTx')">name update tx</ae-badge>
-                        <ae-badge :class="filter.spendType == 'contractCreateTx' ? 'selected' : ''" @click.native="setFilter('spendType','contractCreateTx')">contract create tx</ae-badge>
+                        <ae-badge :class="filter.spendType == 'all' ? 'selected' : ''" @click.native="setFilter('spendType','all')">{{$t('pages.transactions.all')}}</ae-badge>
+                        <ae-badge :class="filter.spendType == 'spendTx' ? 'selected' : ''" @click.native="setFilter('spendType','spendTx')">{{$t('pages.transactions.spendTx')}}</ae-badge>
+                        <ae-badge :class="filter.spendType == 'namePreclaimTx' ? 'selected' : ''" @click.native="setFilter('spendType','namePreclaimTx')">{{$t('pages.transactions.namePreclaim')}}</ae-badge>
+                        <ae-badge :class="filter.spendType == 'nameClaimTx' ? 'selected' : ''" @click.native="setFilter('spendType','nameClaimTx')">{{$t('pages.transactions.nameClaim')}}</ae-badge>
+                        <ae-badge :class="filter.spendType == 'nameUpdateTx' ? 'selected' : ''" @click.native="setFilter('spendType','nameUpdateTx')">{{$t('pages.transactions.nameUpdate')}}</ae-badge>
+                        <ae-badge :class="filter.spendType == 'contractCreateTx' ? 'selected' : ''" @click.native="setFilter('spendType','contractCreateTx')">{{$t('pages.transactions.createTx')}}</ae-badge>
                     </div>
                 </ae-list-item>
-                <!--<ae-list-item fill="neutral" class="flex-direction-column">
-                    <h4>Address</h4>
-                    <div class="w-100">
-                        <ae-input label="Search address" aeddress></ae-input>
-                    </div>
-                </ae-list-item>-->
             </ae-list>
             <div class="filterButtons btnFixed">
                 <ae-button
                 face="round"
-                @click="clearFilter"><ae-icon name="close" /> Clear filter</ae-button>
+                @click="clearFilter"><ae-icon name="close" />{{$t('pages.transactions.clear')}}</ae-button>
                 <ae-button
                 face="round"
                 fill="primary"
-                @click="applyFilter"><ae-icon name="check" /> Apply filter</ae-button>
+                @click="applyFilter"><ae-icon name="check" />{{$t('pages.transactions.apply')}}</ae-button>
             </div>
         </ae-modal>
     </div>
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 import {mapGetters} from 'vuex';
 import { groupBy,orderBy } from 'lodash-es'; 
 import { clearInterval, clearTimeout  } from 'timers';
@@ -89,7 +82,6 @@ export default {
             totalTransactions:0,
             currentCount:0,
             groupedTransactions:{},
-            language: locales['en'],
             polling:null,
             newTransactions:0,
             newTr:[],
@@ -101,7 +93,6 @@ export default {
             upadateInterval:null
         }
     },
-    locales,
     computed: {
         ...mapGetters(['account','transactions','current']),
         showMore() {
@@ -263,8 +254,6 @@ export default {
         }
     },
     beforeDestroy () {
-    //   clearInterval(this.polling)
-    //   clearInterval(this.updateInterval)
       window.clearTimeout(this.polling)
       window.clearTimeout(this.upadateInterval)
     }

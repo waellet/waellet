@@ -1,16 +1,16 @@
 <template>
 <div class="popup">
     <div class="actions">
-        <button v-if="step == 1" class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
-        <button v-if="step == 2" class="backbutton toAccount" @click="step = 1"><ae-icon name="back" />Back to scan transaction</button>
+        <button v-if="step == 1" class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.signTransactionByQrCode.backToAccount')}}</button>
+        <button v-if="step == 2" class="backbutton toAccount" @click="step = 1"><ae-icon name="back" />{{$t('pages.signTransactionByQrCode.backToScan')}}</button>
     </div>
-    <h3 class="breakword">Scan with AirGap Vault to sign the transaction</h3>
+    <h3 class="breakword">{{$t('pages.signTransactionByQrCode.heading')}}</h3>
     <div>
         <div v-if="step == 1">
             <div class="qr-wrapper">
                 <qrcode-vue :value="url" foreground="#000" :size="200" level="H"></qrcode-vue>
             </div>
-                <ae-button class="step-button" face="flat" fill="alternative" @click="step = 2">Done <ae-icon name="left-more" /></ae-button>
+                <ae-button class="step-button" face="flat" fill="alternative" @click="step = 2">{{$t('pages.signTransactionByQrCode.doneBtn')}} <ae-icon name="left-more" /></ae-button>
         </div>
         <div v-if="step == 2" class="qr-wrapper">
             <qrcode-stream @decode="onDecode" @init="onInit"></qrcode-stream>
@@ -25,14 +25,12 @@
 </template>
 
 <script>
-import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 import QrcodeVue from 'qrcode.vue';
 import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader';
 import {
   getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl,
 } from '../../utils/airGap';
-import { getHdWalletAccount } from '../../utils/hdWallet'
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
 
@@ -43,8 +41,6 @@ export default {
     },
     data () {
         return {
-            language: locales['en'],
-            locales: locales,
             loading: false,
             successMessage: '',
             errorMessage: '',
@@ -60,13 +56,11 @@ export default {
         },
         async onDecode (content) {
             this.loading = true;
-            console.log(content)
             const signed = getSignedTransactionByResponseUrl(content);
-            console.log(signed)
             let transaction = await this.sdk.sendTransaction(signed);
             let amount = transaction.tx['amount'] / 1000000000000000000;
             let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + transaction.hash;
-            let msg = 'You send ' + amount + ' AE';
+            let msg = 'You have sent ' + amount + ' AE';
             this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl});
             this.$router.push('/account')
         },

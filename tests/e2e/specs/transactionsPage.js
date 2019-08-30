@@ -28,13 +28,15 @@ describe("Tets cases for Transactions Page", () => {
                         address = data.tx.sender_id 
                     } else if(data.tx.type  == 'ContractCreateTx') {
                         address =  data.tx.owner_id
+                    }else if(data.tx.type == 'ContractCallTx'){
+                        address = data.tx.caller_id
                     }else {
                         address = data.tx.account_id
                     }
                     cy.wrap(elem).should('have.class',data.hash);
                     cy.wrap(elem).find('.ae-address').should('have.attr','title',address);
                     cy.wrap(elem).find('.transactionDate').should('contain',new Date(data.time).toLocaleTimeString() );
-                    if (data.tx.type != "NameClaimTx" && data.tx.type != 'NamePreclaimTx' && data.tx.type != 'NameUpdateTx' && data.tx.type != 'ContractCreateTx'){
+                    if (data.tx.type != "NameClaimTx" && data.tx.type != 'NamePreclaimTx' && data.tx.type != 'NameUpdateTx' && data.tx.type != 'ContractCreateTx' && data.tx.type != 'ContractCallTx'){
                         cy.wrap(elem).find('div.balance').should('contain',amount);
                         cy.wrap(elem).find('small .balance').should('contain',fee);
                     }
@@ -58,14 +60,11 @@ describe("Tets cases for Transactions Page", () => {
             let fee = data.tx.fee / 10 ** 18;
             let total = (parseFloat(amount) + parseFloat(fee)).toFixed(7);
             cy.get('.allTransactions .list-item-transaction').eq(0).click().then(elem => {
-                if (data.tx.type != "NameClaimTx" && data.tx.type != 'NamePreclaimTx' && data.tx.type != 'NameUpdateTx' && data.tx.type != 'ContractCreateTx'){
+                if (data.tx.type != "NameClaimTx" && data.tx.type != 'NamePreclaimTx' && data.tx.type != 'NameUpdateTx' && data.tx.type != 'ContractCreateTx' && data.tx.type != 'ContractCallTx'){
                     cy.get('body').find('.transactionDate').should('contain',new Date(data.time).toLocaleTimeString() );
-                    // cy.get('body').find('.transactionType').should('contain',data.tx.type)
                     cy.get('body').find('.transactionAmount').should('contain',amount);
                     cy.get('body').find('.transactionFee').should('contain',fee);
                     cy.get('body').find('.balanceTotal').should('contain',total);
-                    // cy.get('body').find('.transationFrom').should('contain',data.tx.sender_id);
-                    // cy.get('body').find('.transactionTo').should('contain',data.tx.recipient_id);
                     cy.get('body').find('.transactionHash').should('have.value',data.hash);
                 }
             });

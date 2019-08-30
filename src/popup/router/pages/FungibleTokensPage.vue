@@ -1,34 +1,31 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{language.buttons.backToUtilities}}</button>
+            <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{$t('pages.fungibleTokensPage.backToUtilities') }}</button>
         </div>
-        <h3>Fungible Tokens</h3>
+        <h3>{{$t('pages.fungibleTokensPage.heading') }}</h3>
         <ae-panel>
-            <h4>Add Fungible Token</h4>
+            <h4>{{$t('pages.fungibleTokensPage.addFungToken') }}</h4>
             <hr>
-            <p><small>This allows you to add token from given deployed fungible token contract</small></p>
-            <ae-button face="round" fill="primary" class="add-token" @click="navigateAddToken">Add Token</ae-button>
+            <small class="sett_info">{{$t('pages.fungibleTokensPage.tokenInfo') }}</small>
+            <ae-button face="round" fill="primary" extend class="add-token" @click="navigateAddToken">{{$t('pages.fungibleTokensPage.addTokenButton') }}</ae-button>
         </ae-panel>
         <ae-panel>
-            <h4>Add Fungible Token</h4>
+            <h4>{{$t('pages.fungibleTokensPage.addFungToken') }}</h4>
             <hr>
-            <p><small>This allows you to deploy your own fungible token contract</small></p>
-            <ae-button face="round" fill="primary" class="create-token" @click="navigateCreateToken">Deploy Token Contract</ae-button>
+            <small class="sett_info">{{$t('pages.fungibleTokensPage.deployInfo') }}</small>
+            <ae-button face="round" fill="primary" extend class="create-token" @click="navigateCreateToken">{{$t('pages.fungibleTokensPage.deployButton') }}</ae-button>
         </ae-panel>
         
     </div>
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 export default {
     data() {
         return {
-            language: locales['en'],
         }
     },
-    locales,
     methods:{
         navigateUtilities(){
             this.$router.push('/utilities')

@@ -1,15 +1,15 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateFungibleTokens"><ae-icon name="back" /> {{language.buttons.backToFungibleTokens}}</button>
+            <button class="backbutton toAccount" @click="navigateFungibleTokens"><ae-icon name="back" /> {{$t('pages.createFungibleToken.backToFungibleTokens') }}</button>
         </div>
-        <h3>{{language.pages.createFungibleToken.heading}}</h3>
+        <h3>{{$t('pages.createFungibleToken.heading') }}</h3>
         <ae-panel>
-            <h4>{{language.pages.createFungibleToken.heading}}</h4>
+            <h4>{{$t('pages.createFungibleToken.heading') }}</h4>
             <hr>
             <div>
                 <div class="input-container token-name-holder">
-                    <ae-input :label="language.pages.tokens.tokenName" >
+                    <ae-input :label="$t('pages.createFungibleToken.tokenName') " >
                         <input type="text" class="ae-input token-name" v-model="token.name" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar slot="footer" v-if="err.name">
                             Enter token name
@@ -17,7 +17,7 @@
                     </ae-input>
                 </div>
                 <div class="input-container token-symbol-holder">
-                    <ae-input :label="language.pages.tokens.tokenSymbolLabel">
+                    <ae-input :label="$t('pages.createFungibleToken.tokenSymbolLabel') ">
                         <input type="text" class="ae-input token-symbol" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar slot="footer" v-if="err.symbol">
                             Invalid token symbol value
@@ -25,29 +25,28 @@
                     </ae-input>
                 </div>
                 <div class="input-container token-precision-holder">
-                    <ae-input :label="language.pages.tokens.tokenPrecision" >
+                    <ae-input :label="$t('pages.createFungibleToken.tokenPrecision') " >
                         <input type="number" min="0" max="36" step="1" class="ae-input token-precision" v-model.number="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar slot="footer" v-if="err.precision">
                             Invalid token precision
                         </ae-toolbar>
                     </ae-input>
                 </div>
-                <ae-button face="round" fill="primary" @click="confirmTx" class="confirmTx" extend >{{language.pages.createFungibleToken.deployTokenContract}}</ae-button>
+                <ae-button face="round" fill="primary" @click="confirmTx" class="confirmTx" extend >{{$t('pages.createFungibleToken.deployTokenContract') }}</ae-button>
             </div>
         </ae-panel>
     </div>
 </template>
 
 <script>
-import locales from '../../locales/locales.json';
 import { mapGetters } from 'vuex';
+import { isInt } from '../../utils/helper'
 import { FUNGIBLE_TOKEN_CONTRACT, MIN_SPEND_TX_FEE, MAX_REASONABLE_FEE, TX_TYPES } from '../../utils/constants';
 
 
 export default {
     data() {
         return {
-            language: locales['en'],
             token: {
                 name:'',
                 precision:0,
@@ -80,7 +79,7 @@ export default {
                 this.err.symbol = true 
                 return
             }
-            if(this.token.precision < 1 || this.token .precision > 36) {
+            if(this.token.precision < 1 || this.token.precision > 36 || !isInt(this.token.precision)) {
                 this.err.precision = true
                 return
             }
@@ -88,7 +87,6 @@ export default {
             for(let param in this.token) {
                 contractInitArgs.push(this.token[param])
             }
-            console.log("here")
             let tx = {
                 popup:false,
                 tx: {

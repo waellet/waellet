@@ -1,27 +1,9 @@
 <template>
     <div class="popup">
-        <div class="actions">
-            <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{language.buttons.backToSettings}}</button>
-        </div>
-        <h3 style='text-align:center;'>{{language.pages.settings.generalSettings.heading}}</h3>
-        <ae-panel>
+        <div class="seeAllRegisteredNames" v-if="seeAllRegisteredNames">
             <div class="maindiv_input-group-addon">
-                <h4>{{language.pages.settings.generalSettings.registerName}}</h4><hr>
-                <small class="sett_info">{{language.pages.settings.generalSettings.registerNameInfo}}</small>
-                <div class="checkName input-group-addon">
-                    <input v-model="name" class="addon-input" />
-                    <label class="addon-lbl" >.test</label>
-                </div>
-                <ae-button class="regbtn notround" face="icon" fill="primary" @click="registerName">
-                    <ae-icon name="plus" />
-                </ae-button>
-                <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{language.pages.settings.generalSettings.registerNameRequirement}}</small>
-            </div>
-        </ae-panel>
-        <ae-panel>
-            <div class="maindiv_input-group-addon">
-                <h4>{{language.pages.settings.generalSettings.registeredNames}}</h4><hr>
-                <ae-list>
+                <h4>{{$t('pages.generalSettings.registeredNames') }}</h4><hr>
+                <ae-list v-if="haveRegisteredNames">
                     <ae-list-item fill="neutral" v-for="(name, key) in names" :key="key" >
                         <ae-identicon class="subAccountIcon" v-bind:address="name.owner" size="base" />
                         <div class="subAccountInfo">
@@ -31,64 +13,92 @@
                         <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="name.pending"/>
                     </ae-list-item>
                 </ae-list>
+                <p v-if="!haveRegisteredNames">{{ $t('pages.generalSettings.noNames') }}</p>
+                <ae-button face="round" fill="primary" @click="seeAllRegisteredNames = false" extend>{{ $t('pages.generalSettings.OkButton') }}</ae-button>
+                <ae-button face="round" fill="primary" @click="seeAllRegisteredNames = false" class="closeAllAENS" extend>{{ $t('pages.generalSettings.OkButton') }}</ae-button>
             </div>
-        </ae-panel>
-        <Loader size="big" :loading="loading" type="transparent" content="" ></Loader>
-        
-        <ae-panel>
-            <div class="maindiv_input-group-addon">
-                <h4>{{ language.strings.switchLanguage }}</h4><hr>
-                <small class="sett_info">Current language: {{this.current.language}}</small>
-                <div class="language-settings">
-                    <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
-                        <ae-button class="notround switchlanguageBtn" face="round" fill="primary" extend @click="toggleDropdown($event, '.have-subDropdown')">
-                            <ae-icon name="globe" />
-                            {{ language.strings.switchLanguage }}
-                            <ae-icon name="left-more" />
-                        </ae-button>
-
-                        <!-- Language sub dropdown -->
-                        <ul class="sub-dropdown">
-                            <li v-for="(value, name) in locales" v-bind:key="name">
-                            <ae-button v-on:click="switchLanguage(name)" class="triggerhidedd" :class="current.language == name ? 'current' : ''">
-                                <img :src="'../icons/flag_'+name+'.png'" />
-                                {{ name }}
-                            </ae-button>
-                            </li>
-                        </ul>
-                    </li>
+        </div>
+        <div v-if="!seeAllRegisteredNames">
+            <div class="actions">
+                <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{$t('pages.generalSettings.backToSettings') }}</button>
+            </div>
+            <h3 style='text-align:center;'>{{$t('pages.generalSettings.heading') }}</h3>
+            <ae-panel>
+                <div class="maindiv_input-group-addon">
+                    <h4>{{$t('pages.generalSettings.registerName') }}</h4><hr>
+                    <small class="sett_info">{{$t('pages.generalSettings.registerNameInfo') }}</small>
+                    <div class="checkName input-group-addon">
+                        <input v-model="name" class="addon-input" />
+                        <label class="addon-lbl" >.test</label>
+                    </div>
+                    <ae-button class="regbtn notround" face="icon" fill="primary" @click="registerName">
+                        <ae-icon name="plus" />
+                    </ae-button>
+                    <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{$t('pages.generalSettings.registerNameRequirement') }}</small>
+                    <ae-button class="seeAllRegisteredNamesBtn allAENS" face="flat" fill="primary" @click="seeAllRegisteredNames = true">{{$t('pages.generalSettings.seeAllRegisteredNames') }}</ae-button>
                 </div>
-            </div>
-        </ae-panel>
+            </ae-panel>
+            <Loader size="big" :loading="loading" type="transparent" content="" ></Loader>
+            
+            <ae-panel>
+                <div class="maindiv_input-group-addon">
+                    <h4>{{$t('pages.generalSettings.switchLanguage') }}</h4><hr>
+                    <small class="sett_info">{{$t('pages.generalSettings.currentLanguage') }}: {{ (this.current.language ? this.current.language : 'en') }}</small>
+                    <div class="language-settings">
+                        <li id="languages" class="have-subDropdown" :class="dropdown.languages ? 'show' : ''">
+                            <ae-button class="notround switchlanguageBtn" face="round" fill="primary" extend @click="toggleDropdown($event, '.have-subDropdown')">
+                                <ae-icon name="globe" />
+                                {{$t('pages.generalSettings.switchLanguage') }}
+                                <ae-icon name="left-more" />
+                            </ae-button>
 
+                            <!-- Language sub dropdown -->
+                            <ul class="sub-dropdown">
+                                <li v-for="(value, name) in locales" v-bind:key="name">
+                                <ae-button v-on:click="switchLanguage(name)" class="" :class="current.language == name ? 'current' : ''">
+                                    <img :src="'../icons/flag_'+name+'.png'" />
+                                    {{ name }}
+                                </ae-button>
+                                </li>
+                            </ul>
+                        </li>
+                    </div>
+                </div>
+            </ae-panel>
+        </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-import { getHdWalletAccount } from '../../utils/hdWallet';
-import locales from '../../locales/locales.json';
-import { Universal } from '@aeternity/aepp-sdk';
-import { clearInterval, clearTimeout  } from 'timers';
+import { clearTimeout  } from 'timers';
+import {langs, fetchAndSetLocale} from '../../utils/i18nHelper'
+
 export default {
     data () {
         return {
-            language: locales['en'],
-            locales: locales,
+            locales: langs,
             loading: false,
             name: '',
             ak_address: '',
             polling:null,
             dropdown: {
                 languages: false,
-            }
+            },
+            seeAllRegisteredNames: ''
         }
     },
     computed: {
-        ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount', 'popup', 'names', 'sdk']),
+        ...mapGetters(['current', 'popup', 'names', 'sdk']),
+        haveRegisteredNames() {
+            return this.names.length > 0;
+        }
     },
     created() {
+        if (this.current.language == undefined) {
+            this.current.language = 'en';
+        }
         this.polling = setInterval(() => {
             this.$store.dispatch('getRegisteredNames')
         },5000)
@@ -133,17 +143,6 @@ export default {
                         data:tx,
                         type:tx.type
                     }});
-
-                    // const preclaim = await this.sdk.aensPreclaim(name);
-                    // const claim = await this.sdk.aensClaim(name, preclaim.salt, preclaim.height);
-                    // const update = await this.sdk.aensUpdate(claim.id, this.account.publicKey);
-
-                    // this.$store.dispatch('popupAlert', {
-                    //     name: 'account',
-                    //     type: 'added_success'
-                    // })
-
-                    // this.loading = false;
                 })
             }
         },
@@ -154,11 +153,12 @@ export default {
             let dropdownParent = event.target.closest(parentClass);
             this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
         },
-        switchLanguage(languageChoose) {
+        async switchLanguage(languageChoose) {
+            fetchAndSetLocale(languageChoose);
             browser.storage.sync.set({language: languageChoose}).then(() => {
-                let defLang = Object.assign({}, locales['en']);
-                this.language = Object.assign(defLang, locales[languageChoose]);
                 this.current.language = languageChoose;
+                this.dropdown.languages = false;
+                this.$store.state.current.language = languageChoose;
             });
         },
         navigateToSettings() {
@@ -216,6 +216,7 @@ input:active,input:focus {
     outline: none;
 }
 .sett_info {
+    color: #9c9c9c;
     text-align: left;
     width: 100%;
     margin: 0 0px 10px;

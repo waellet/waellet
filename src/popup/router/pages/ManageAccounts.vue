@@ -1,11 +1,11 @@
 <template>
     <div id="manageAccounts" class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{language.buttons.backToAccount}}</button>
+            <button class="backbutton toAccount" @click="navigateAccount"><ae-icon name="back" /> {{$t('pages.manageAccounts.backToAccount')}}</button>
         </div>
-        <h3>{{ language.strings.manageAccounts }}</h3>
+        <h3>{{$t('pages.manageAccounts.manageAccounts') }}</h3>
         <ae-panel>
-            <h4>{{ language.strings.allAccounts }}</h4>
+            <h4>{{$t('pages.manageAccounts.allAccounts') }}</h4>
             <hr>
             <ae-list >
                 <ae-list-item class="editaccount" fill="neutral" v-for="(subaccount, index) in accounts" v-bind:key="index">
@@ -18,7 +18,7 @@
                     <!-- IF edit -->
                     <div v-if="subaccount.edit">
                         <ae-identicon class="subAccountIcon" v-bind:address="subaccount.publicKey" size="base" />
-                        <ae-input-plain placeholder="Enter name here.." v-model="subaccount.name" />
+                        <ae-input-plain :placeholder="$t('pages.manageAccounts.enterName')" v-model="subaccount.name" />
                         <button @click="cancelEdit(index)"><ae-icon name="close" /></button>
                         <button @click="nameSave(index)"><ae-icon name="check" /></button>  
                     </div>
@@ -28,30 +28,16 @@
         </ae-panel>
         <ae-panel>
             <h4 class="addaccount">
-                {{ language.strings.addNewSubAccount }}
+                {{ $t('pages.manageAccounts.addNewSubAccount') }}
                 <button v-if="!аddNewSubbAcc" @click="AddNewSubbAccount" class="icon-btn"><ae-icon name="plus" /></button>
                 <button v-if="аddNewSubbAcc" @click="closeNewSubbAccountForm" class="icon-btn"><ae-icon name="close" /></button>
             </h4>
             <hr>
-            <!-- <div class="addaccount" >
-                <div v-if="!аddNewSubbAcc">
-                    <span>{{ language.strings.addNewSubAccount }}</span>
-                    <button @click="AddNewSubbAccount"><ae-icon name="plus" /></button>
-                </div>
-                <div v-if="аddNewSubbAcc">
-                    <span>{{ language.strings.addNewSubAccount }}</span>
-                    <button @click="closeNewSubbAccountForm"><ae-icon name="close" /></button>
-                </div>
-            </div> -->
             <transition name="slide">
                 <ul class="slideform" :class="dropdown ? 'open' : ''">
                     <div class="add-form">
-                        <!-- <h4 class="pageTitle">{{ language.strings.addNewSubAccount }}</h4> -->
-                        <!-- <label style="float:left;"> {{ language.strings.account }}<span class="required_fields">*</span></label> -->
-                        <ae-input :label="language.strings.account" v-model="newSubAcc" placeholder="Enter name"></ae-input>
-                        <!-- <hr>
-                        <small><span class="required_fields">*</span> {{ language.messages.requiredFields }} </small> -->
-                        <ae-button @click="addbtn" face="round" fill="primary" extend>{{ language.buttons.add }}</ae-button>
+                        <ae-input :label="$t('pages.manageAccounts.account')" v-model="newSubAcc" :placeholder="$t('pages.manageAccounts.enterName')"></ae-input>
+                        <ae-button @click="addbtn" face="round" fill="primary" extend>{{ $t('pages.manageAccounts.add') }}</ae-button>
                     </div>
                 </ul>
             </transition>
@@ -62,15 +48,13 @@
 
 <script>
 import store from '../../../store';
-import locales from '../../locales/locales.json'
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
+import { postMesssage } from '../../utils/connection';
 export default {
     data () {
         return {
             logo_top: browser.runtime.getURL('../../../icons/icon_48.png'),
-            language: locales['en'],
-            locales: locales,
             new_accname: '',
             new_accnameValue: 'MyAccount',
             editAccountName: false,
@@ -81,7 +65,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters (['account', 'current', 'network','subaccounts','wallet', 'popup'])
+        ...mapGetters (['account', 'current', 'network','subaccounts','wallet', 'popup', 'background'])
     },
     created(){
         this.setAccounts();
@@ -127,13 +111,13 @@ export default {
             this.dropdown = false;
             this.аddNewSubbAcc = false;
         },
-        addbtn() {
+        async addbtn() {
             if (this.newSubAcc != '') {
                 let idx = this.subaccounts.filter(s => !s.isLedger && !s.isAirGapAcc).length
-                let public_K = getHdWalletAccount(this.wallet, idx).address;
+                let address = await this.$store.dispatch('getAccount', { idx })
                 this.$store.dispatch('setSubAccount', {
                     name: this.newSubAcc,
-                    publicKey: public_K,
+                    publicKey: address,
                     root:false,
                     balance:0
                 }).then(() => {
@@ -144,7 +128,7 @@ export default {
                         }).then(() => {
                             let index =  this.subaccounts.length - 1;
                             browser.storage.sync.set({activeAccount: index }).then(() => {
-                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:public_K,index:index});
+                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:address,index:index});
                             });
                             this.setAccounts();
                         });
@@ -170,7 +154,6 @@ export default {
 @import '../../../common/base';
 .ae-list-item { cursor: default !important; }
 .ae-list-item .ae-icon, h4 .ae-icon , h4 .icon-btn{ float: right; font-size: 1.2rem; }
-// .ae-icon-edit, .ae-icon-plus { color: #00b6ff !important; }
 #manageAccounts .ae-icon-check { color: #13b100 !important; }
 #manageAccounts .ae-icon-close { color: #b10000 !important; }
 .editaccount:first-child { border-top: none !important; }
@@ -179,11 +162,10 @@ export default {
 .editaccount div button, .addaccount div button { float: right; }
 .editaccount div input { width: 58% !important; }
 
-.slideform { position: relative; width: 100%; overflow: hidden; height:0; padding: 0; top: 10px; list-style-type: none; margin:0;
-    /*box-shadow: 0 0 8px rgba(0, 33, 87, 0.15);*/ transform-origin: top; transition: all .4s ease-in-out; }
+.slideform { position: relative; width: 100%; overflow: hidden; height:0; padding: 0; top: 10px; list-style-type: none; margin:0; }
 .slideform.open { height:150px}
 .slide-enter, .slide-leave-to{ transform: scaleY(0); }
-.add-form { text-align: center; /*padding: 15px; margin: 10px;*/ }
+.add-form { text-align: center; }
 .required_fields { color: red; margin: 5px; }
 .ae-list-item .ae-icon, h4 .ae-icon { font-size: 1.7rem !important; }
 .ae-button { margin-top: 1rem; }

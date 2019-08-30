@@ -1,6 +1,7 @@
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from './hdWallet';
 import { Crypto } from '@aeternity/aepp-sdk/es';
+import { postMesssage } from './connection';
 
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -152,35 +153,54 @@ const redirectAfterLogin = (ctx) => {
 }
 
 
+const initializeSDK = (ctx, { network, current, account, wallet, activeAccount = 0, background },backgr = false) => {
+    if(!backgr) {
+        ctx.hideConnectError()
+    }
+    return new Promise (async (resolve,reject) => {
+        if(!backgr) {
+            postMesssage(background, { type: 'getKeypair' , payload: {  activeAccount, account } } ).then(async ({ res }) => {
+                res = parseFromStorage(res)
+                let sdk = await createSDKObject(ctx, { network, current, account, wallet, activeAccount, background, res },backgr)
+                resolve(sdk)
+            })
+        }else {
+            let sdk = await createSDKObject(ctx, { network, current, account, activeAccount, background, res: account },backgr)
+            resolve(sdk)
+        }
+        
+        
+    })
+}
 
-const initializeSDK = (ctx, { network, current, account, wallet, activeAccount = 0 },background = false) => {
-    ctx.hideConnectError()
-    return new Promise ((resolve,reject) => {
+const createSDKObject = (ctx, { network, current, account, wallet, activeAccount = 0, background, res }, backgr ) => {
+    return new Promise((resolve, reject) => {
         Universal({
             url: (typeof network != 'undefined' ? network[current.network].url : "https://sdk-testnet.aepps.com" ) , 
             internalUrl:(typeof network != 'undefined' ? network[current.network].internalUrl : "https://sdk-testnet.aepps.com" ),
-            keypair: {
-                publicKey: account.publicKey,
-                secretKey: getHdWalletAccount(wallet,activeAccount).secretKey
-            },
+            keypair:{ ...res },
             networkId: (typeof network != 'undefined' ? network[current.network].networkId : "ae_uat" ), 
             nativeMode: true,
             compilerUrl: 'https://compiler.aepps.com'
         }).then((sdk) => {
-            if(!background) {
+            if(!backgr) {
                 ctx.$store.dispatch('initSdk',sdk).then(() => {
                     ctx.hideLoader()
                 })
-            }else {
-                resolve(sdk)
             }
+            resolve(sdk)
         })
         .catch(err => {
-            ctx.hideLoader()
-            ctx.showConnectError()
+            if(!backgr) {
+                ctx.hideLoader()
+                ctx.showConnectError()
+            }
+            resolve()
         })
     })
+    
 }
+
 
 const  currencyConv = async (ctx) => {
     browser.storage.sync.get('convertTimer').then(async result => {
@@ -233,8 +253,43 @@ const checkAddress = (value) => {
     return Crypto.isAddressValid(value);
 }
 
+const isInt = (n) => {
+    return n % 1 === 0;
+}
+
 const chekAensName = (value) => {
     return value.endsWith('.test');
+}
+
+const stringifyForStorage = state =>  {
+    return JSON.stringify(state, (key, value) => {
+        if (value instanceof ArrayBuffer) {
+          return { type: 'ArrayBuffer', data: Array.from(new Uint8Array(value)) };
+        }
+        if (value instanceof Uint8Array) {
+          return { type: 'Uint8Array', data: Array.from(value) };
+        }
+        return value;
+    })
+}
+    
+const parseFromStorage = state => {
+    return JSON.parse(
+        state,
+        (key, value) => {
+          if (value && value.type === 'ArrayBuffer') {
+            return new Uint8Array(value.data).buffer;
+          }
+          if (value && value.type === 'Uint8Array') {
+            return new Uint8Array(value.data);
+          }
+          if(value && value.type == 'Buffer' ) {
+            return new Uint8Array(value.data);
+          }
+          
+          return value;
+        },
+    );
 }
 
 export { 
@@ -253,7 +308,10 @@ export {
     contractDecodeData, 
     removeTxFromStorage,
     checkAddress,
-    chekAensName
+    chekAensName,
+    isInt,
+    stringifyForStorage,
+    parseFromStorage
 }
 
 

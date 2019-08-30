@@ -1,5 +1,7 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
-import { checkAeppConnected, initializeSDK, removeTxFromStorage } from './popup/utils/helper';
+import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser } from './popup/utils/helper';
+import WalletContorller from './wallet-controller'
+
 
 global.browser = require('webextension-polyfill');
 
@@ -15,9 +17,11 @@ setInterval(() => {
     browser.windows.getAll({}).then((wins) => {
         if(wins.length == 0) {
             sessionStorage.removeItem("phishing_urls");
+            browser.storage.sync.remove('isLogged')
+            browser.storage.sync.remove('activeAccount')
         }
     });
-},60000);
+},5000);
 
 chrome.browserAction.setBadgeText({ 'text': 'beta' });
 chrome.browserAction.setBadgeBackgroundColor({ color: "#FF004D"});
@@ -34,102 +38,6 @@ function getAccount() {
         })
     });
 }
-
-
-// getAccount()
-//     .then((account) => {
-//         // Init accounts
-//         const accounts = [
-//             // You can add your own account implementation,
-//             // Account.compose({
-//             //     init() {
-//             //     },
-//             //     methods: {
-//             //         /**
-//             //          * Sign data blob
-//             //          * @function sign
-//             //          * @instance
-//             //          * @abstract
-//             //          * @category async
-//             //          * @rtype (data: String) => data: Promise[String]
-//             //          * @param {String} data - Data blob to sign
-//             //          * @return {String} Signed data blob
-//             //          */
-//             //         async sign(data) {
-//             //         },
-//             //         /**
-//             //          * Obtain account address
-//             //          * @function address
-//             //          * @instance
-//             //          * @abstract
-//             //          * @category async
-//             //          * @rtype () => address: Promise[String]
-//             //          * @return {String} Public account address
-//             //          */
-//             //         async address() {
-//             //         }
-//             //     }
-//             // })(),
-//             MemoryAccount(account)
-//         ]
-//         return accounts
-//     })
-//     .then((accounts) => {
-//         // Init extension stamp from sdk
-//         ExtensionProvider({
-//             // Provide post function (default: window.postMessage)
-//             postFunction: postToContent,
-//             // By default `ExtesionProvider` use first account as default account. You can change active account using `selectAccount (address)` function
-//             accounts: accounts,
-//             // Hook for sdk registration
-//             onSdkRegister: function (sdk) {
-//                 // sendDataToPopup(this.getSdks())
-//                 // if (confirm('Do you want to share wallet with sdk ' + sdk.sdkId)) sdk.shareWallet()
-//                 sdk.shareWallet();
-//                 chrome.storage.sync.set({showAeppPopup:{ data: sdk.sdkId.toString(), type:'confirm',callback:null } } , () => {
-//                     chrome.windows.create({
-//                         url: chrome.runtime.getURL('./popup/popup.html'),
-//                         type: "popup",
-//                         height: 600,
-//                         width:420
-//                       },() => {
-//                         console.log("created");
-                        
-//                     });
-//                 });
-//             },
-//             // Hook for signing transaction
-//             onSign: function ({sdkId, tx, txObject, sign}) {
-//                 // sendDataToPopup(this.getSdks())
-//                 // if (confirm('Do you want to sign ' + JSON.stringify(txObject) + ' ?')) sign() // SIGN TX
-//                 // sign();
-//                 console.log(sign);
-//                 chrome.storage.sync.set({showAeppPopup:{ data: txObject, type:'sign',callback:'asd'  } } , () => {
-//                     chrome.windows.create({
-//                         url: chrome.runtime.getURL('./popup/popup.html'),
-//                         type: "popup",
-//                         height: 600,
-//                         width:420
-//                       },() => {
-//                         console.log("created");
-//                     });
-//                 });
-//             }
-//         }).then(provider => {
-//             // Subscribe from postMessages from page
-//             chrome.runtime.onMessage.addListener((msg, sender) => {
-//                 switch (msg.method) {
-//                     case 'pageMessage':
-//                         console.log(msg);
-//                         provider.processMessage(msg);
-//                         break 
-//                 }
-//             })
-//         }).catch(err => {
-//             console.error(err)
-//         })
-//     });
-
 
 const error = {
     "error": {
@@ -247,7 +155,6 @@ const connectToPopup = (cb,type, id) => {
             if(id == sender.name) cb(msg)
         });
         port.onDisconnect.addListener(async (event) => {
-            // browser.storage.sync.remove('pendingTransaction').then(() => {});
             let list = await removeTxFromStorage(event.name)
             browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
             browser.storage.sync.remove('showAeppPopup').then(() => {}); 
@@ -310,3 +217,20 @@ const postToContent = (data, tabId) => {
     const message = { method: 'aeppMessage', data };
     browser.tabs.sendMessage(tabId, message)
 }
+
+const controller = new WalletContorller()
+
+browser.runtime.onConnect.addListener( ( port ) => {
+    let extensionUrl = 'chrome-extension'
+    if(detectBrowser() == 'Firefox') {
+        extensionUrl = 'moz-extension'
+    }
+    if((port.name == 'popup' && port.sender.id == browser.runtime.id && port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && detectBrowser() != 'Firefox') || ( detectBrowser() == 'Firefox' && port.name == 'popup' && port.sender.id == browser.runtime.id ) ) {
+        port.onMessage.addListener(({ type, payload, uuid}) => {
+            console.log(type)
+            controller[type](payload).then((res) => {
+                port.postMessage({ uuid, res })
+            })
+        })  
+    }
+})  

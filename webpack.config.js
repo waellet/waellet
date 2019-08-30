@@ -5,19 +5,18 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 const { VueLoaderPlugin } = require('vue-loader');
 const { version } = require('./package.json');
+const platforms = [
+  "chrome",
+  "firefox"
+];
+
 
 const config = {
   mode: process.env.NODE_ENV,
   context: __dirname + '/src',
   entry: {
-    background: './background.js',
-    'inject': './inject.js',
-    'popup/popup': './popup/popup.js',
-    'options/options': './options/options.js',
-    'main':'./main.js',
-    'phishing/phishing':'./phishing/phishing.js',
-    "aepp":'./aepp.js',
-    "cameraRequestPermission":'./popup/CameraRequestPermission.html'
+    ...getPlatformFiles()
+  
   },
   node: {
     fs: 'empty', net: 'empty', tls: 'empty'
@@ -69,28 +68,32 @@ const config = {
     new MiniCssExtractPlugin({
       filename: '[name].css',
     }),
-    new CopyWebpackPlugin([
-      { from: '../node_modules/argon2-browser', to: 'argon2' },
-      { from: 'icons', to: 'icons', ignore: ['icon.xcf'] },
-      { from: 'popup/popup.html', to: 'popup/popup.html', transform: transformHtml },
-      { from: 'options/options.html', to: 'options/options.html', transform: transformHtml },
-      { from: 'phishing/phishing.html', to: 'phishing/phishing.html', transform:transformHtml },
-      { from: 'popup/CameraRequestPermission.html', to: 'popup/CameraRequestPermission.html', transform:transformHtml },
-      {
-        from: 'manifest.json',
-        to: 'manifest.json',
-        transform: content => {
-          const jsonContent = JSON.parse(content);
-          jsonContent.version = version;
-
-          if (config.mode === 'development') {
-            jsonContent['content_security_policy'] = "script-src 'self' 'unsafe-eval'; object-src 'self'";
-          }
-
-          return JSON.stringify(jsonContent, null, 2);
+    ...platforms.map((platform) => {
+      return new CopyWebpackPlugin([
+        { from: '../node_modules/argon2-browser', to: `${platform}/argon2` },
+        { from: 'icons', to: `${platform}/icons`, ignore: ['icon.xcf'] },
+        { from: 'popup/popup.html', to: `${platform}/popup/popup.html`, transform: transformHtml },
+        { from: 'options/options.html', to: `${platform}/options/options.html`, transform: transformHtml },
+        { from: 'phishing/phishing.html', to: `${platform}/phishing/phishing.html`, transform:transformHtml },
+        { from: 'popup/CameraRequestPermission.html', to: `${platform}/popup/CameraRequestPermission.html`, transform:transformHtml },
+        { from: 'icons/icon_48.png', to: `${platform}/popup/assets/logo-small.png` },
+        {
+          from: `manifests/manifest_${platform}.json`,
+          to: `${platform}/manifest.json`,
+          transform: content => {
+            const jsonContent = JSON.parse(content);
+            jsonContent.version = version;
+  
+            if (config.mode === 'development') {
+              jsonContent['content_security_policy'] = "script-src 'self' 'unsafe-eval'; object-src 'self'";
+            }
+  
+            return JSON.stringify(jsonContent, null, 2);
+          },
         },
-      },
-    ]),
+      ])
+    }),
+
   ],
 };
 
@@ -115,5 +118,30 @@ function transformHtml(content) {
     ...process.env,
   });
 }
+
+function getPlatformFiles() {
+  let files = {}
+  let pl = platforms.map((platform) => {
+    return {
+      [`${platform}/background`]: './background.js',
+      [`${platform}/inject`]: './inject.js',
+      [`${platform}/popup/popup`]: './popup/popup.js',
+      [`${platform}/options/options`]: './options/options.js',
+      [`${platform}/main`]:'./main.js',
+      [`${platform}/phishing/phishing`]:'./phishing/phishing.js',
+      [`${platform}/aepp`]:'./aepp.js',
+      [`${platform}/popup/cameraPermission`]:'./popup/cameraPermission.js'
+    }
+  })
+
+  pl.forEach(p => {
+    files =  {
+      ...files,
+      ...p
+    }
+  })
+  return files
+}
+
 
 module.exports = config;

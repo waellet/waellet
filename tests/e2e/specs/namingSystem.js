@@ -86,8 +86,13 @@ describe("tests cases for registering names ", () => {
     it("check if registered name is present in list", () => {
         openNamesPage()
         cy
+        .get('.allAENS')
+        .should('be.visible')
+        .click()
+        .get('.seeAllRegisteredNames')
+        .should('be.visible')
         .get('.subAccountName')
-        .should('contain','testw123.test')
+        .should('contain','alabala.test')
     })
 
     it("show preclaim confirm tx", () => {
@@ -132,21 +137,19 @@ describe("tests cases for registering names ", () => {
         .should('be.visible')
         .get('.spendTxDetailsList')
         .should('not.be.visible')
+        .get('.allAENS')
+        .should('be.visible')
+        .click()
+        .get('.seeAllRegisteredNames')
+        .should('be.visible')
         .get('.subAccountName')
         .should('contain', name)
         .get('.name-pending')
         .should('be.visible')
-        .get('.dropdown-button-name')
-        .should('contain',name)
-        .get('#account')
+        .get('.closeAllAENS')
         .click()
-        .get('.dropdown-holder').eq(0).find('.name-pending')
-        .should('be.visible')
-    })
-
-    it("check name is set to account", () => {
-        login({}, 'account2')
-        cy
+        .get('.seeAllRegisteredNames')
+        .should('not.be.visible')
         .get('.dropdown-button-name')
         .should('contain',name)
         .get('#account')

@@ -19,12 +19,15 @@ import AllowancesComponent from './pages/Allowances';
 import ConnectConfirmComponent from './pages/ConnectConfirm';
 import ManageNetworksComponent from './pages/ManageNetworks';
 import FungibleTokensComponent from './pages/AddFungibleToken';
+import SignAndVerifyMsg from './pages/SignAndVerifyMsg';
 import FungibleTokensPageComponent from './pages/FungibleTokensPage';
 import AirGapSetup from './pages/AirGapSetup';
 import SignTransactionByQrCode from './pages/SignTransactionByQrCode';
 import QrCodeReader from './pages/QrCodeReader';
 import CreateFungibleTokenComponent from './pages/CreateFungibleToken';
 import LedgerSetupComponent from './pages/LedgerSetup';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 export default [
   {
@@ -129,6 +132,10 @@ export default [
     component:FungibleTokensPageComponent
   },
   {
+    path:'/signAndVerifyMsg',
+    component:SignAndVerifyMsg
+  },
+  {
     path:'/airGapSetup',
     component:AirGapSetup
   },
@@ -151,5 +158,14 @@ export default [
   {
     path:'/ledger-setup',
     component:LedgerSetupComponent
+  },
+  {
+    path:'/termsOfService',
+    component:TermsOfService
+  },
+  {
+    path:'/privacyPolicy',
+    component:PrivacyPolicy
   }
+  
 ];

@@ -1,21 +1,21 @@
 <template>
     <div class="popup">
         <div class="actions">
-            <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{language.buttons.backToSettings}}</button>
+            <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{$t('pages.securitySettings.backToSettings')}}</button>
         </div>
-        <h3 style='text-align:center;'>{{language.pages.settings.securitySettings.heading}}</h3>
+        <h3 style='text-align:center;'>{{$t('pages.securitySettings.heading')}}</h3>
         <ae-panel>
             <div class="maindiv_input-group-addon">
-                <h4>{{language.pages.settings.securitySettings.privacyDataHeading}}</h4><hr>
-                <small class="sett_info">{{language.pages.settings.securitySettings.privacyDataSmall}}</small>
-                <ae-button face="round" fill="primary" class="notround settingBtn" extend @click="clearPrivacyConfirm">{{language.pages.settings.securitySettings.privacyDataClearBtn}}</ae-button>
+                <h4>{{$t('pages.securitySettings.privacyDataHeading')}}</h4><hr>
+                <small class="sett_info">{{$t('pages.securitySettings.privacyDataSmall')}}</small>
+                <ae-button face="round" fill="primary" class="notround settingBtn" extend @click="clearPrivacyConfirm">{{$t('pages.securitySettings.privacyDataClearBtn')}}</ae-button>
             </div>
         </ae-panel>
         <ae-panel class="decryptKey">
             <div class="maindiv_input-group-addon">
-                <h4>{{language.pages.settings.securitySettings.privateKeyHeading}}</h4><hr>
-                <small class="sett_info">{{language.pages.settings.securitySettings.privateKeySmall}}</small>
-                <ae-button face="round" fill="primary" class="notround settingBtn" extend @click="revealPrivateKey">{{language.pages.settings.securitySettings.privateKeyRevealBtn}}</ae-button>
+                <h4>{{$t('pages.securitySettings.privateKeyHeading')}}</h4><hr>
+                <small class="sett_info">{{$t('pages.securitySettings.privateKeySmall')}}</small>
+                <ae-button face="round" fill="primary" class="notround settingBtn" extend @click="revealPrivateKey">{{$t('pages.securitySettings.privateKeyRevealBtn')}}</ae-button>
             </div>
         </ae-panel>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
@@ -24,26 +24,26 @@
         </div>
         <Modal :modal="modal">
             <div slot="content">
-                <small v-if="privateKey == '' && !loading">{{language.pages.settings.securitySettings.privateKeyWarning}}</small>
-                <h3 v-if="privateKey != ''">{{language.pages.settings.securitySettings.privateKey}}</h3>
+                <small v-if="privateKey == '' && !loading">{{$t('pages.securitySettings.privateKeyWarning')}}</small>
+                <h3 v-if="privateKey != ''">{{$t('pages.securitySettings.privateKey')}}</h3>
                 <Alert :fill="alert.fill" :show="alert.show && !loading">
                     <div slot="content">
                         {{alert.content}}
                     </div>
                 </Alert>
                 <ae-toolbar fill="alternative" v-if="privateKey != ''" align="right">
-                    <ae-button face="toolbar" v-clipboard:copy="privateKey" @click="reset">
+                    <ae-button face="toolbar" v-clipboard:copy="privateKey" @click="reset(privateKey)">
                         <ae-icon name="copy" />
-                        {{language.buttons.copy}}
+                        {{$t('pages.securitySettings.copy')}}
                     </ae-button>
-                </ae-toolbar>
+                </ae-toolbar>`
                 <div v-if="privateKey == '' && !loading">
                     <ae-input class="my-2" label="Password">
                         <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                     </ae-input>
-                    <ae-button class="notround decrypt-btn" extend face="round" fill="primary" @click="decryptKeystore">{{language.pages.settings.securitySettings.showPrivateKey}}</ae-button>
+                    <ae-button class="notround decrypt-btn" extend face="round" fill="primary" @click="decryptKeystore">{{$t('pages.securitySettings.showPrivateKey')}}</ae-button>
                 </div>
-                <Loader :loading="loading" size="small" :content="language.pages.settings.securitySettings.decryptingPrivateKey"></Loader>
+                <Loader :loading="loading" size="small" :content="$t('pages.securitySettings.decryptingPrivateKey')"></Loader>
             </div>
         </Modal>
 
@@ -53,13 +53,11 @@
 <script>
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
-import locales from '../../locales/locales.json';
 import { decrypt } from '../../utils/keystore';
 
 export default {
     data () {
         return {
-            language: locales['en'],
             loading: false,
             onoff: false,
             modal:{
@@ -99,7 +97,7 @@ export default {
         },
         revealPrivateKey() {
             this.modal.visible = true
-            this.modal.title = this.language.pages.settings.securitySettings.showPrivateKey
+            this.modal.title = this.$t('pages.securitySettings.showPrivateKey')
             this.reset()
         },
         decryptKeystore() {
@@ -113,12 +111,21 @@ export default {
                         this.privateKey = match
                         this.setAlertData("alternative",true,match)
                     }else {
-                        this.setAlertData("primary",true,this.language.pages.settings.securitySettings.incorrectPassword)
+                        this.setAlertData("primary",true,this.$t('pages.securitySettings.incorrectPassword'))
                     }
                 }
             })
         },
-        reset() {
+        reset(privateKey = '') {
+            if(privateKey == '') {
+                this.resetFields()
+            }else {
+                this.$copyText(privateKey).then(e => {
+                    this.resetFields()
+                })
+            }
+        },
+        resetFields() {
             this.privateKey = ''
             this.alert.show = false
             this.alert.content = ''
@@ -175,9 +182,6 @@ input:active,input:focus {
     outline: none;
 }
 .notround { border-radius: 0 !important; }
-.settingBtn {
-    margin-top:2rem
-}
 small {
     word-break: break-word;
 }
