@@ -49,23 +49,8 @@ jobs:
 workflows:
   build:
     jobs:
-<<<<<<< HEAD
-      - cypress/install:
-          build: "npm run build:dev"
-          executor: cypress/base-8
-      - cypress/run:
-          requires:
-            - cypress/install
-          executor: cypress/base-8
-          start: 'npm start'
-          parallel: true
-          group: 'all tests'
-    parallelism: 4
-          
-=======
     - cypress/install
     - cypress/run:
         requires:
         - cypress/install
   version: 2
->>>>>>> upstream/master
