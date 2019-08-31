@@ -110,6 +110,42 @@ const Aepp = {
                     resolve(r)
                 }, req.id)
             })
+        },
+        signMessage({message}) {
+            let req = {
+                id:uuid(),
+                method: "aeppMessage",
+                type: "signMessage",
+                msg: {
+                    text: message
+                },
+                hostname: window.location.host
+            }
+            window.postMessage(req, '*')
+            return new Promise((resolve, reject) => {
+                receiveResponse((r) => {
+                    resolve(r)
+                }, req.id)
+            })
+        },
+        verifyMessage({message, signature, publicKey}) {
+            let req = {
+                id: uuid(),
+                method: "aeppMessage",
+                type: "verifyMessage",
+                msg: {
+                    text: message,
+                    signature: signature,
+                    publicKey: publicKey
+                },
+                hostname: window.location.host
+            }
+            window.postMessage(req, '*')
+            return new Promise((resolve, reject) => {
+                receiveResponse((r) => {
+                    resolve(r)
+                }, req.id)
+            })
         }
     },
     get: {

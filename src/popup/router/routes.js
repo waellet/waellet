@@ -132,8 +132,10 @@ export default [
     component:FungibleTokensPageComponent
   },
   {
+    name:'sign-verify-message',
     path:'/signAndVerifyMsg',
-    component:SignAndVerifyMsg
+    component:SignAndVerifyMsg,
+    props: true
   },
   {
     path:'/airGapSetup',
