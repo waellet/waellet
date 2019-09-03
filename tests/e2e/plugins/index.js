@@ -9,7 +9,12 @@ module.exports = (on, config) => {
   }
 
   on('file:preprocessor', webpack(options))
-
+  on('task', {
+    log (message) {
+      console.log(message)
+      return null
+    }
+  })
   return Object.assign({}, config, {
     fixturesFolder: 'tests/e2e/fixtures',
     integrationFolder: 'tests/e2e/specs',

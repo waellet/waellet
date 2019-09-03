@@ -160,9 +160,13 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
     return new Promise (async (resolve,reject) => {
         if(!backgr) {
             postMesssage(background, { type: 'getKeypair' , payload: {  activeAccount, account } } ).then(async ({ res }) => {
-                res = parseFromStorage(res)
-                let sdk = await createSDKObject(ctx, { network, current, account, wallet, activeAccount, background, res },backgr)
-                resolve(sdk)
+                if(typeof res.error != 'undefined') {
+                    resolve({error:true})
+                } else {
+                    res = parseFromStorage(res)
+                    let sdk = await createSDKObject(ctx, { network, current, account, wallet, activeAccount, background, res },backgr)
+                    resolve(sdk)
+                }
             })
         }else {
             let sdk = await createSDKObject(ctx, { network, current, account, activeAccount, background, res: account },backgr)
@@ -172,7 +176,7 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
         
     })
 }
-
+let countErr = 0;
 const createSDKObject = (ctx, { network, current, account, wallet, activeAccount = 0, background, res }, backgr ) => {
     return new Promise((resolve, reject) => {
         Universal({
@@ -195,7 +199,15 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
                 ctx.hideLoader()
                 ctx.showConnectError()
             }
-            resolve()
+            console.log(err)
+            // reject(err)
+            
+            if(countErr < 3) {
+                createSDKObject(ctx, { network, current, account, activeAccount, background, res },backgr)
+            }else {
+                reject({error:true})
+            }
+            countErr++
         })
     })
     

@@ -54,10 +54,14 @@ export default class WalletController {
 
     getKeypair({ activeAccount, account }) {
         return new Promise((resolve, reject) => {
-            resolve(stringifyForStorage({
-                publicKey: account.publicKey,
-                secretKey: getHdWalletAccount(this.wallet,activeAccount).secretKey
-            }))
+            try {
+                resolve(stringifyForStorage({
+                    publicKey: account.publicKey,
+                    secretKey: getHdWalletAccount(this.wallet,activeAccount).secretKey
+                }))
+            }catch(e) {
+                resolve({ error: true })
+            }
         })
     }
 

@@ -16,6 +16,7 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 setInterval(() => {
     browser.windows.getAll({}).then((wins) => {
         if(wins.length == 0) {
+            console.log("remove")
             sessionStorage.removeItem("phishing_urls");
             browser.storage.sync.remove('isLogged')
             browser.storage.sync.remove('activeAccount')
