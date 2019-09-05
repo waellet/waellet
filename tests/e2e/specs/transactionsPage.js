@@ -74,8 +74,6 @@ describe("Tets cases for Transactions Page", () => {
             .get('.backbutton')
             .should('be.visible')
             .click()
-            .get('.ae-loader')
-            .should('be.visible')
             .get('.allTransactions')
             .should('be.visible')
         });
