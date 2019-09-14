@@ -225,6 +225,9 @@ export default {
                     }
                 })
             }
+            if(this.data.tx.hasOwnProperty("options") && this.data.tx.options.hasOwnProperty("amount")) {
+                this.data.tx.amount = this.data.tx.options.amount
+            }
             if(typeof this.data.callType != "undefined" && this.data.callType == 'static') {
                 this.loaderType = ''
                 this.loading = true
@@ -288,6 +291,13 @@ export default {
                             } 
                         }else if(this.data.type == 'contractCall') {
                             this.data.tx.call = {}
+                            this.data.tx.params = this.data.tx.params.map(p => {
+                                if(typeof p == 'string') {
+                                    return `"${p}"`
+                                } else {
+                                    return p.toString()
+                                }
+                            })
                             let callData = await contractEncodeCall(this.sdk,this.data.tx.source,this.data.tx.method,[...this.data.tx.params])
                             this.txParams = {
                                 ...this.txParams,
@@ -504,7 +514,10 @@ export default {
         },
         async contractCallStatic(tx) {
             try {
-                let call = await this.sdk.contractCallStatic(tx.source,tx.address,tx.method,tx.params)
+                if(tx.options.hasOwnProperty("amount")) {
+                    tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(MAGNITUDE)
+                }
+                let call = await this.sdk.contractCallStatic(tx.source,tx.address,tx.method,tx.params, { options: tx.options } )
                 let decoded = await call.decode()
                 call.decoded = decoded
                 this.port.postMessage(call)
@@ -522,21 +535,27 @@ export default {
         async contractCall(){
             let call
             try {
+                if(this.data.tx.options.hasOwnProperty("amount")) {
+                    this.data.tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(MAGNITUDE)
+                }
                 if (this.data.popup) {
                     let byteCode = await this.checkSourceByteCode(this.data.tx.source)
                     let deployedByteCode = await this.getDeployedByteCode(this.data.tx.address)
-                    if(byteCode == deployedByteCode) {
-                        call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
+                    if(byteCode.bytecode == deployedByteCode.tx.code) {
+                        call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, {...this.data.tx.options, fee:this.convertSelectedFee})
                         let decoded = await call.decode()
                         call.decoded = decoded
                         this.port.postMessage(call)
                     }else {
                         this.errorTx.error.message = "Invalid contract interface"
                         this.port.postMessage(this.errorTx)
+                        setTimeout(() => {
+                            window.close()
+                        }, 500)
                     }
                 }
                 else {
-                    call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { fee:this.convertSelectedFee})
+                    call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, { ...this.data.tx.options, fee:this.convertSelectedFee})
                     let decoded = await call.decode()
                 }
             }catch(err) {
@@ -547,7 +566,7 @@ export default {
             let list = await removeTxFromStorage(this.data.id)
             browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
             if(this.data.popup) {
-                setTimeout(() => {
+                setInterval(() => {
                     window.close()
                 },1000)
             }else {
