@@ -155,12 +155,12 @@ export default {
             return (parseFloat(this.amount) + parseFloat(this.selectedFee)).toFixed(7)
         },
         insufficientBalance() {
-            // if (this.data.type != 'contractCall') {
+            if (this.data.type != 'contractCall') {
                 if(typeof this.data.tx.token != 'undefined') {
                     return this.tokenBalance - this.amount <= 0
                 }
                 return this.maxValue - this.amount <= 0
-            // }
+            }
         },
         inccorectAddress() {
                 if(this.data.type != 'txSign') {
