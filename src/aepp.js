@@ -69,7 +69,7 @@ const Aepp = {
                 }, req.id)
             })
         },
-        contractCallStatic({source,address, method, params = []}) {
+        contractCallStatic({source,address, method, params = [], options = {}}) {
             let req = {
                 id:uuid(),
                 method: "aeppMessage",
@@ -79,7 +79,8 @@ const Aepp = {
                     source,
                     address,
                     method,
-                    params
+                    params,
+                    options
                 },
                 hostname:window.location.host
             }
@@ -90,7 +91,7 @@ const Aepp = {
                 }, req.id)
             })
         },
-        contractCall({source, address, method, params = []}) {
+        contractCall({source, address, method, params = [], options = {} }) {
             let req = {
               id:uuid(),
               method: "aeppMessage",
@@ -100,7 +101,8 @@ const Aepp = {
                   source,
                   address,
                   method,
-                  params
+                  params,
+                  options
               },
               hostname:window.location.host
             }
