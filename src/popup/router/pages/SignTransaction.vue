@@ -545,7 +545,8 @@ export default {
                         call = await this.sdk.contractCall(this.data.tx.source,this.data.tx.address,this.data.tx.method,this.data.tx.params, {...this.data.tx.options, fee:this.convertSelectedFee})
                         let decoded = await call.decode()
                         call.decoded = decoded
-                        this.port.postMessage(call)
+                        let { decode, ...res} = call
+                        this.port.postMessage({...res})
                     }else {
                         this.errorTx.error.message = "Invalid contract interface"
                         this.port.postMessage(this.errorTx)
