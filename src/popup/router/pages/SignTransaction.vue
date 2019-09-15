@@ -126,7 +126,8 @@ export default {
             checkSDKReady:null,
             receiver:"",
             hash:"",
-            txParams:{}
+            txParams:{},
+            sending: false
         };
     },
     props:['data'],
@@ -242,9 +243,11 @@ export default {
                         if(byteCode.bytecode == deployedByteCode.tx.code) {
                             //Contract call static should be moved here after fixing differences between source of contract and the source compiled with
                             let call = await this.contractCallStatic(this.data.tx)
+                            this.sending = true
                             this.port.postMessage(call)
                         }else {
                             this.errorTx.error.message = "Invalid contract interface"
+                            this.sending = true
                             this.port.postMessage(this.errorTx)
                         }
                         let list = await removeTxFromStorage(this.data.id)
@@ -393,8 +396,9 @@ export default {
                 this.signDisabled = true
                 if(balance) {
                     setTimeout(() => {
-                        if(this.data.popup) {
+                        if(this.data.popup && !this.sending) {
                             this.errorTx.error.message = this.alertMsg
+                            
                             this.port.postMessage(this.errorTx)
                             setTimeout(() => {
                                 window.close()
@@ -420,6 +424,7 @@ export default {
             }else {
                 browser.storage.sync.set({pendingTransaction: { list } }).then(() => {
                     this.errorTx.error.message = "Transaction rejected by user"
+                    this.sending = true
                     this.port.postMessage(this.errorTx)
                     setTimeout(() => {
                         window.close()
@@ -458,6 +463,7 @@ export default {
                                 "params":{...result}
                                 
                             }
+                            this.sending = true
                             this.port.postMessage(res)
                             let list = await removeTxFromStorage(this.data.id)
                             browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
@@ -481,6 +487,7 @@ export default {
                 })
                 .catch(async err => {
                     if(this.data.popup) {
+                        this.sending = true
                         this.port.postMessage(this.errorTx)
                         let list = await removeTxFromStorage(this.data.id)
                         browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
@@ -520,9 +527,11 @@ export default {
                 let call = await this.sdk.contractCallStatic(tx.source,tx.address,tx.method,tx.params, { options: tx.options } )
                 let decoded = await call.decode()
                 call.decoded = decoded
+                this.sending = true
                 this.port.postMessage(call)
             }catch(err) {
                 this.errorTx.error.message = err.message
+                this.sending = true
                 this.port.postMessage(this.errorTx)
             }
             let list = await removeTxFromStorage(this.data.id)
@@ -546,9 +555,11 @@ export default {
                         let decoded = await call.decode()
                         call.decoded = decoded
                         let { decode, ...res} = call
+                        this.sending = true
                         this.port.postMessage({...res})
                     }else {
                         this.errorTx.error.message = "Invalid contract interface"
+                        this.sending = true
                         this.port.postMessage(this.errorTx)
                         setTimeout(() => {
                             window.close()
@@ -562,6 +573,7 @@ export default {
             }catch(err) {
                 console.log(err);
                 this.errorTx.error.message = err.message
+                this.sending = true
                 this.port.postMessage(this.errorTx)
             }
             let list = await removeTxFromStorage(this.data.id)
@@ -704,6 +716,7 @@ export default {
     },
     async beforeDestroy() {
         if(this.data.popup) {
+            this.sending = true
             this.port.postMessage(this.errorTx)
         }
         let list = await removeTxFromStorage(this.data.id)
