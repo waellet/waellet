@@ -311,7 +311,7 @@ export default {
         }
       } else if (importType == 'seedPhrase') {
         let seed = seedPhrase.split(' ');
-        if (seed.length == 12 && this.checkSeed(seedPhrase)) {
+        if (seed.length >= 12 && seed.length <= 24 && this.checkSeed(seedPhrase)) {
           this.$router.push({
             name: 'password',
             params: {
