@@ -134,6 +134,11 @@ const redirectAfterLogin = (ctx) => {
                     ctx.$router.push({'name':'sign', params: {
                         data:aepp.showAeppPopup.data
                     }});
+                }else if(aepp.showAeppPopup.type == 'signMessage') {
+                    aepp.showAeppPopup.data.popup = true
+                    ctx.$router.push({'name':'sign-verify-message', params: {
+                        data:aepp.showAeppPopup.data
+                    }})
                 }
             return;
             });

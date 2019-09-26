@@ -141,6 +141,36 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                         }
                     })
                 break;
+
+                case 'signMessage':
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            openAeppPopup(msg,'signMessage')
+                            .then(res => {
+                                sendResponse(res)
+                            })
+                        }else {
+                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    })
+                break;
+
+                case 'verifyMessage':
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            openAeppPopup(msg,'verifyMessage')
+                            .then(res => {
+                                sendResponse(res)
+                            })
+                        }else {
+                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    })
+                break;
             }
         break
     }
