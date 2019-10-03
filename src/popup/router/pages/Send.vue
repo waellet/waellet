@@ -218,9 +218,9 @@ export default {
           tx: {
             source:FUNGIBLE_TOKEN_CONTRACT,
             method:'transfer', 
-            params: [receiver,this.form.amount],
+            params: [receiver,parseFloat(this.form.amount)],
             address:this.tokens[this.current.token].contract,
-            amount:this.form.amount,
+            amount:parseFloat(this.form.amount),
             token:this.tokenSymbol
           },
           type:'contractCall'
