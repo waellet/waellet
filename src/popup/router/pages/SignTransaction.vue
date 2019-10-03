@@ -88,7 +88,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName  } from '../../utils/helper';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParams  } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee } from '../../utils/constants';
 import Wallet from '@aeternity/aepp-sdk/es/ae/wallet';
 import { MemoryAccount } from '@aeternity/aepp-sdk';
@@ -277,13 +277,7 @@ export default {
                         
                         if(this.data.type == 'contractCreate') {
                             this.data.tx.contract = {}
-                            this.data.tx.contract.params = this.data.tx.init.map(p => {
-                                if(typeof p == 'string') {
-                                    return `"${p}"`
-                                }else {
-                                    return p.toString()
-                                }
-                            })
+                            this.data.tx.contract.params = escapeCallParams(this.data.tx.init)
                             this.data.tx.contract.bytecode = (await this.sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
                             let callData = await contractEncodeCall(this.sdk,FUNGIBLE_TOKEN_CONTRACT,'init',[...this.data.tx.contract.params])
                             this.txParams = {
@@ -294,13 +288,7 @@ export default {
                             } 
                         }else if(this.data.type == 'contractCall') {
                             this.data.tx.call = {}
-                            this.data.tx.params = this.data.tx.params.map(p => {
-                                if(typeof p == 'string') {
-                                    return `"${p}"`
-                                } else {
-                                    return p.toString()
-                                }
-                            })
+                            this.data.tx.params = escapeCallParams(this.data.tx.params)
                             let callData = await contractEncodeCall(this.sdk,this.data.tx.source,this.data.tx.method,[...this.data.tx.params])
                             this.txParams = {
                                 ...this.txParams,
@@ -404,7 +392,7 @@ export default {
                                 window.close()
                             },1000)
                         }
-                    },2000)  
+                    },5000)  
                 }
             }
         },
@@ -716,8 +704,9 @@ export default {
     },
     async beforeDestroy() {
         if(this.data.popup) {
-            this.sending = true
-            this.port.postMessage(this.errorTx)
+            if(!this.sending) {
+                this.port.postMessage(this.errorTx)
+            }   
         }
         let list = await removeTxFromStorage(this.data.id)
         browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
