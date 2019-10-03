@@ -137,6 +137,13 @@
             "deployInfo": "This allows you to deploy your own fungible token contract",
             "deployButton": "Deploy Token Contract"
         },
+        "mintTokenPage": {
+            "mint": "Mint token",
+            "mintInfo": "",
+            "mintBtn": "Mint",
+            "amount": "Amount",
+            "address": "Address"
+        },
         "generalSettings": {
             "backToSettings": "Back to settings",
             "heading": "General",
