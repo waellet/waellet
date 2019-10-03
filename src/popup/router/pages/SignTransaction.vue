@@ -160,7 +160,6 @@ export default {
         },
         insufficientBalance() {
             // if (this.data.type != 'contractCall') {
-                console.log(this.data)
                 if(this.data.type == 'contractCall' && this.data.tx.method == "transfer_allowance") {
                     return false;
                 }
@@ -554,7 +553,6 @@ export default {
             setTimeout(() => {
                 window.close()
             },1000)
-            
         },
         async contractCall(){
             let call
