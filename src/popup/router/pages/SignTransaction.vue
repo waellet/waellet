@@ -300,22 +300,19 @@ export default {
                         if(this.data.type == 'contractCreate') {
                             this.data.tx.contract = {}
                             this.data.tx.contract.bytecode = (await this.sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
-                            let callData = await contractEncodeCall(this.sdk,FUNGIBLE_TOKEN_CONTRACT,'init',[...escapeCallParams(this.data.tx.init)])
+                            // let callData = await contractEncodeCall(this.sdk,FUNGIBLE_TOKEN_CONTRACT,'init',[...escapeCallParams(this.data.tx.init)])
                             this.txParams = {
                                 ...this.txParams,
                                 ownerId:this.account.publicKey,
-                                code:this.data.tx.contract.bytecode,
-                                callData,
+                                code:this.data.tx.contract.bytecode
                             } 
                             await this.setContractInstance(FUNGIBLE_TOKEN_CONTRACT)
                             
                         }else if(this.data.type == 'contractCall') {
                             this.data.tx.call = {}
-                            
-                            let callData = await contractEncodeCall(this.sdk,this.data.tx.source,this.data.tx.method,[...escapeCallParams(this.data.tx.params)])
+                            // let callData = await contractEncodeCall(this.sdk,this.data.tx.source,this.data.tx.method,[...escapeCallParams(this.data.tx.params)])
                             this.txParams = {
                                 ...this.txParams,
-                                callData,
                                 contractId:this.data.tx.address,
                                 callerId:this.account.publicKey
                             }
