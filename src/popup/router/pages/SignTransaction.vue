@@ -369,7 +369,6 @@ export default {
                                 pointers:this.data.tx.claim.pointers
                             }
                         }
-                        console.log(this.contractInstance)
                         let fee = calculateFee(TX_TYPES[this.data.type],this.txParams)
                         this.txFee = fee
                         this.selectedFee = this.fee.toFixed(7)
@@ -575,7 +574,6 @@ export default {
                     this.port.postMessage({...res})
                 }
             }catch(err) {
-                console.log(err);
                 this.errorTx.error.message = err.message
                 this.sending = true
                 this.port.postMessage(this.errorTx)
@@ -700,7 +698,6 @@ export default {
                         this.nameUpdate()
                     }
                 }catch(err) {
-                    console.log(err);
                 }
             }
         },
