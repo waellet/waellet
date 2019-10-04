@@ -309,6 +309,16 @@ const parseFromStorage = state => {
     );
 }
 
+const escapeCallParams = params => {
+    return params.map(p => {
+        if(typeof p == 'string' && !checkAddress(p)) {
+            return `"${p}"`
+        }else {
+            return p.toString()
+        }
+    })
+}
+
 export { 
     shuffleArray, 
     convertToAE, 
@@ -328,7 +338,8 @@ export {
     chekAensName,
     isInt,
     stringifyForStorage,
-    parseFromStorage
+    parseFromStorage,
+    escapeCallParams
 }
 
 
