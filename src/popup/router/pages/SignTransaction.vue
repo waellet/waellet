@@ -573,7 +573,12 @@ export default {
             }catch(err) {
                 this.errorTx.error.message = err.message
                 this.sending = true
-                this.port.postMessage(this.errorTx)
+                if(this.data.popup) {
+                    this.port.postMessage(this.errorTx)
+                } else {
+                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                }
+                
             }
             let list = await removeTxFromStorage(this.data.id)
             browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})

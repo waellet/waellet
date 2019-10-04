@@ -16,6 +16,13 @@
             <small class="sett_info">{{$t('pages.fungibleTokensPage.deployInfo') }}</small>
             <ae-button face="round" fill="primary" extend class="create-token" @click="navigateCreateToken">{{$t('pages.fungibleTokensPage.deployButton') }}</ae-button>
         </ae-panel>
+
+        <ae-panel>
+            <h4>{{$t('pages.mintTokenPage.mint') }}</h4>
+            <hr>
+            <small class="sett_info">{{$t('pages.mintTokenPage.mintInfo') }}</small>
+            <ae-button face="round" fill="primary" extend @click="navigateMintToken">{{$t('pages.mintTokenPage.mint') }}</ae-button>
+        </ae-panel>
         
     </div>
 </template>
@@ -35,6 +42,9 @@ export default {
         },
         navigateCreateToken() {
             this.$router.push('/create-token')
+        },
+        navigateMintToken() {
+            this.$router.push('/mint-token')
         }
     }
 }
