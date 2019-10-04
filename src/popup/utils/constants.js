@@ -63,6 +63,22 @@ const toMicro = value => value.shiftedBy(-MAGNITUDE_MICRO).toFixed();
 export const MIN_SPEND_TX_FEE_MICRO = toMicro(MIN_SPEND_TX_FEE);
 export const MAX_REASONABLE_FEE_MICRO = toMicro(MAX_REASONABLE_FEE);
 
+export const networks = {
+  Testnet: {
+    url: 'https://sdk-testnet.aepps.com',
+    internalUrl: 'https://sdk-testnet.aepps.com',
+    networkId: 'ae_uat',
+    middlewareUrl: 'https://testnet.mdw.aepps.com/',
+    explorerUrl: 'https://testnet.explorer.aepps.com'
+  },
+  Mainnet: {
+    url: 'https://sdk-mainnet.aepps.com',
+    internalUrl: 'https://sdk-mainnet.aepps.com',
+    networkId: 'ae_mainnet',
+    middlewareUrl: 'http://mdw.aepps.com/',
+    explorerUrl: 'https://testnet.explorer.aepps.com'
+  }
+}
 
 export const FUNGIBLE_TOKEN_CONTRACT = 
 `contract FungibleToken =

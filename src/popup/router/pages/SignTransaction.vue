@@ -133,7 +133,6 @@ export default {
     },
     props:['data'],
     async created(){
-        
         await this.init()
     },
    
@@ -235,6 +234,18 @@ export default {
                 
             }
             return Promise.resolve(false)
+        },
+        async setTxInQueue(tx) {
+            let { processingTx } = await browser.storage.sync.get('processingTx')
+            let list = [];
+            if(typeof processingTx != 'undefined' && processingTx.length) {
+                list = [
+                    ...list,
+                    ...processingTx
+                ]
+            }
+            list.push(tx)
+            await browser.storage.sync.set({ processingTx: list })
         },
         async init() {
             this.setReceiver()
@@ -458,6 +469,7 @@ export default {
                     if(typeof result == "object") {
                         this.loading = false
                         this.hash = result.hash
+                        this.setTxInQueue(result.hash)
                         let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
                         let msg = 'You have sent ' + this.amount + ' AE'
                         if(this.data.popup) {
@@ -563,6 +575,7 @@ export default {
                 }
                 options= { ...options, fee:this.convertSelectedFee }
                 call = await this.contractInstance.methods[this.data.tx.method](...this.data.tx.params, options)
+                this.setTxInQueue(call.hash)
                 let decoded = await call.decode()
                 call.decoded = decoded
                 if (this.data.popup) {
@@ -599,6 +612,7 @@ export default {
                 
             }else {
                 deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
+                this.setTxInQueue(deployed.transaction)
             }
             
             
@@ -630,6 +644,7 @@ export default {
         },
         async namePreclaim(){
             const preclaim = await this.sdk.aensPreclaim(this.data.tx.name)
+            this.setTxInQueue(preclaim.hash)
             let tx = {
                 popup:false,
                 tx: {
@@ -648,6 +663,7 @@ export default {
         },  
         async nameClaim() {
             const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false })
+            this.setTxInQueue(claim.hash)
             setTimeout(() => {
                 this.$store.commit('SET_AEPP_POPUP',false)
                 this.$router.push('/generalSettings')
@@ -655,6 +671,7 @@ export default {
         },
         async nameUpdate(){
             const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
+            this.setTxInQueue(update.hash)
             this.$store.dispatch('popupAlert', {
                 name: 'account',
                 type: 'added_success'
@@ -681,6 +698,7 @@ export default {
                             this.contractCall()
                         }else {
                             let call = await this.contractInstance.methods[this.data.tx.method](...this.data.tx.params,{ fee:this.convertSelectedFee} )
+                            this.setTxInQueue(call.hash)
                             let decoded = await call.decode()
                             let msg = `You have sent ${this.data.tx.amount} ${this.data.tx.token}` 
                             let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + call.hash
@@ -699,6 +717,7 @@ export default {
                     }else if(this.data.type == 'nameUpdate') {
                         this.nameUpdate()
                     }
+                    
                 }catch(err) {
                 }
             }
