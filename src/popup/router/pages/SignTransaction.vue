@@ -83,13 +83,14 @@
         </ae-button-group>
         <Loader size="big" :loading="loading" :type="loaderType" :content="loaderContent" ></Loader>
         <input type="hidden" class="txHash" :value="hash" />
+        <popup :popupSecondBtnClick="popup.secondBtnClick" :redirect="true"></popup>
     </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
 import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParams  } from '../../utils/helper';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee } from '../../utils/constants';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY } from '../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
 
 import BigNumber from 'bignumber.js';
@@ -103,7 +104,6 @@ export default {
                 min:0,
                 max:0
             },
-            popup:false,
             signDisabled:true,
             alertMsg:'',
             loading:false,
@@ -128,7 +128,8 @@ export default {
             hash:"",
             txParams:{},
             sending: false,
-            contractInstance:null
+            contractInstance:null,
+            deployed:null
         };
     },
     props:['data'],
@@ -137,7 +138,7 @@ export default {
     },
    
     computed: {
-        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger']),
+        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger','popup']),
         maxValue() {
             let calculatedMaxValue = this.balance - this.fee
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -503,6 +504,7 @@ export default {
                     }
                 })
                 .catch(async err => {
+                    this.setTxInQueue('error')
                     if(this.data.popup) {
                         this.sending = true
                         this.port.postMessage(this.errorTx)
@@ -584,6 +586,7 @@ export default {
                     this.port.postMessage({...res})
                 }
             }catch(err) {
+                this.setTxInQueue('error')
                 this.errorTx.error.message = err.message
                 this.sending = true
                 if(this.data.popup) {
@@ -611,8 +614,13 @@ export default {
                 let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
                 
             }else {
-                deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
-                this.setTxInQueue(deployed.transaction)
+                try {
+                    deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
+                    this.setTxInQueue(deployed.transaction)
+                } catch(err) {
+                    this.setTxInQueue('error')
+                }
+                
             }
             
             
@@ -622,6 +630,7 @@ export default {
                     window.close()
                 },1000)
             }else {
+                this.deployed = deployed.address
                 let msg = `Contract deployed at address <br> ${deployed.address}`
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg})
                 .then(() => {
@@ -636,57 +645,102 @@ export default {
                     })
                     this.$store.dispatch('setTokens', tokens).then(() => {
                         browser.storage.sync.set({ tokens: this.tokens}).then(() => { 
-                            this.redirectInExtensionAfterAction()
+                            // this.redirectInExtensionAfterAction()
                         })
                     })
                 })
             }
         },
-        async namePreclaim(){
-            const preclaim = await this.sdk.aensPreclaim(this.data.tx.name)
-            this.setTxInQueue(preclaim.hash)
-            let tx = {
-                popup:false,
-                tx: {
-                    name:this.data.tx.name,
-                    recipientId:'',
-                    preclaim
-                },
-                type:'nameClaim'
-            }
-            this.$store.commit('SET_AEPP_POPUP',true)
+        copyAddress() {
+            this.$copyText(this.deployed).then(e => {
+                this.redirectInExtensionAfterAction()
+            })
             
-            this.$router.push({'name':'sign', params: {
-                data:tx,
-                type:tx.type
-            }});
+        },
+        async namePreclaim(){
+            try {
+                const preclaim = await this.sdk.aensPreclaim(this.data.tx.name)
+                this.setTxInQueue(preclaim.hash)
+                let tx = {
+                    popup:false,
+                    tx: {
+                        name:this.data.tx.name,
+                        recipientId:'',
+                        preclaim
+                    },
+                    type:'nameClaim'
+                }
+                this.$store.commit('SET_AEPP_POPUP',true)
+                
+                this.$router.push({'name':'sign', params: {
+                    data:tx,
+                    type:tx.type
+                }});
+            } catch(err) {
+                this.setTxInQueue('error')
+            }
+            
         },  
         async nameClaim() {
-            const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false })
-            this.setTxInQueue(claim.hash)
-            setTimeout(() => {
-                this.$store.commit('SET_AEPP_POPUP',false)
-                this.$router.push('/generalSettings')
-            },1000)
-        },
-        async nameUpdate(){
-            const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
-            this.setTxInQueue(update.hash)
-            this.$store.dispatch('popupAlert', {
-                name: 'account',
-                type: 'added_success'
-            }).then(() => {
-                this.$store.dispatch('removePendingName',{ hash: this.data.tx.hash }).then(() => {
+            try {
+                const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false })
+                this.setTxInQueue(claim.hash)
+                setTimeout(() => {
                     this.$store.commit('SET_AEPP_POPUP',false)
                     this.$router.push('/generalSettings')
-                })  
-            })
+                },1000)
+            } catch(err) {
+                this.setTxInQueue('error')
+            }
+            
+        },
+        async nameUpdate(){
+            try {
+                const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
+                this.setTxInQueue(update.hash)
+                this.$store.dispatch('popupAlert', {
+                    name: 'account',
+                    type: 'added_success'
+                }).then(() => {
+                    this.$store.dispatch('removePendingName',{ hash: this.data.tx.hash }).then(() => {
+                        this.$store.commit('SET_AEPP_POPUP',false)
+                        this.$router.push('/generalSettings')
+                    })  
+                })
+            } catch(err) {
+                this.setTxInQueue('error')
+            }
+            
         },
         async signTransaction() {
             if(!this.signDisabled) {
                 this.loading = true
                 let amount = BigNumber(this.amount).shiftedBy(MAGNITUDE);
                 try {
+                    let { tx_count } = await browser.storage.sync.get('tx_count')
+                    
+                    if(!tx_count.hasOwnProperty(new Date().toDateString()) ) {
+                        tx_count = {
+                            [new Date().toDateString()]: { 
+                                [this.account.publicKey]: 1
+                            }
+                        }
+                    } else if(tx_count.hasOwnProperty(new Date().toDateString()) && !tx_count[new Date().toDateString()].hasOwnProperty(this.account.publicKey)) {
+                        tx_count[new Date().toDateString()][this.account.publicKey] = 1
+                    } else {
+                        tx_count[new Date().toDateString()][this.account.publicKey]++
+                    }
+
+                    await browser.storage.sync.set({ tx_count: tx_count })
+                    if(tx_count[[new Date().toDateString()]] > TX_LIMIT_PER_DAY) {
+
+                        return this.$store.dispatch('popupAlert', { name: 'spend', type: 'tx_limit_per_day'})
+                        .then(() => {
+                            this.$store.commit('SET_AEPP_POPUP',false)
+                            this.$router.push('/account')
+                        })
+                    }
+
                     if(this.data.type == 'txSign') {
                         if(this.isLedger) {
                             this.signSpendTxLedger(amount)
