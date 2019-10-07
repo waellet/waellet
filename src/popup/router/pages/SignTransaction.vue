@@ -719,13 +719,18 @@ export default {
                 try {
                     let { tx_count } = await browser.storage.sync.get('tx_count')
                     
-                    if(tx_count.hasOwnProperty(new Date().toDateString())) {
-                        tx_count[new Date().toDateString()]++
-                    } else {
+                    if(!tx_count.hasOwnProperty(new Date().toDateString()) ) {
                         tx_count = {
-                            [new Date().toDateString()]: 1
+                            [new Date().toDateString()]: { 
+                                [this.account.publicKey]: 1
+                            }
                         }
+                    } else if(tx_count.hasOwnProperty(new Date().toDateString()) && !tx_count[new Date().toDateString()].hasOwnProperty(this.account.publicKey)) {
+                        tx_count[new Date().toDateString()][this.account.publicKey] = 1
+                    } else {
+                        tx_count[new Date().toDateString()][this.account.publicKey]++
                     }
+
                     await browser.storage.sync.set({ tx_count: tx_count })
                     if(tx_count[[new Date().toDateString()]] > TX_LIMIT_PER_DAY) {
 
