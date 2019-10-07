@@ -83,6 +83,7 @@
         </ae-button-group>
         <Loader size="big" :loading="loading" :type="loaderType" :content="loaderContent" ></Loader>
         <input type="hidden" class="txHash" :value="hash" />
+        <popup :popupSecondBtnClick="popup.secondBtnClick" :redirect="true"></popup>
     </div>
 </template>
 
@@ -103,7 +104,6 @@ export default {
                 min:0,
                 max:0
             },
-            popup:false,
             signDisabled:true,
             alertMsg:'',
             loading:false,
@@ -128,7 +128,8 @@ export default {
             hash:"",
             txParams:{},
             sending: false,
-            contractInstance:null
+            contractInstance:null,
+            deployed:null
         };
     },
     props:['data'],
@@ -137,7 +138,7 @@ export default {
     },
    
     computed: {
-        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger']),
+        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger','popup']),
         maxValue() {
             let calculatedMaxValue = this.balance - this.fee
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -629,6 +630,7 @@ export default {
                     window.close()
                 },1000)
             }else {
+                this.deployed = deployed.address
                 let msg = `Contract deployed at address <br> ${deployed.address}`
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg})
                 .then(() => {
@@ -643,11 +645,17 @@ export default {
                     })
                     this.$store.dispatch('setTokens', tokens).then(() => {
                         browser.storage.sync.set({ tokens: this.tokens}).then(() => { 
-                            this.redirectInExtensionAfterAction()
+                            // this.redirectInExtensionAfterAction()
                         })
                     })
                 })
             }
+        },
+        copyAddress() {
+            this.$copyText(this.deployed).then(e => {
+                this.redirectInExtensionAfterAction()
+            })
+            
         },
         async namePreclaim(){
             try {
