@@ -14,6 +14,7 @@ export default class WalletController {
                 browser.windows.getAll({}).then((wins) => {
                     if(wins.length == 0) {
                         this.wallet = null
+                        browser.storage.sync.remove('isLogged')
                     }
                 });
             },5000);

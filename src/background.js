@@ -1,6 +1,7 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
 import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser } from './popup/utils/helper';
 import WalletContorller from './wallet-controller'
+import Notification from './notifications';
 
 
 global.browser = require('webextension-polyfill');
@@ -265,3 +266,7 @@ browser.runtime.onConnect.addListener( ( port ) => {
         })  
     }
 })  
+
+
+
+const notification = new Notification();
