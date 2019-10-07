@@ -49,7 +49,7 @@ export default class Notification {
                 if (tx != "error") {
                     let res = await this.client.poll(tx)
                     let url = this.network.explorerUrl + '/#/tx/' + tx
-                    this.sendNoti({ title: 'Transaction ready', message: `You can expore your transaction at: ${url}`, contextMessage: url})
+                    this.sendNoti({ title: 'Transaction ready', message: `You can expore your transaction by clicking button below`, contextMessage: url})
                 } else {
                     this.sendNoti({ title: 'Transaction error', message: 'Transaction cannot be processed '})
                 }
