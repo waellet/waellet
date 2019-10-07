@@ -8,7 +8,8 @@
     "unlimitedStorage",
     "videoCapture",
     "activeTab",
-    "clipboardWrite"
+    "clipboardWrite",
+    "notifications"
   ],
   "icons": {
     "48": "icons/icon_48.png",

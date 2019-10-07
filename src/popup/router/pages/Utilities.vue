@@ -11,11 +11,6 @@
                 <i class="arrowright"></i>
                 <p class="tabinfo">{{$t('pages.utilities.tipWebsiteInfo')}}</p>
             </button>
-            <button class="allowances" @click="openAllowencesPage">
-                <span class="settings-li">{{$t('pages.utilities.allowances')}}</span>
-                <i class="arrowright"></i>
-                <p class="tabinfo">{{$t('pages.utilities.allowancesInfo')}}</p>
-            </button>
             <button class="fungible-tokens" @click="openFungibleTokensPage">
                 <span class="settings-li">{{$t('pages.utilities.fungibleTokens')}}</span>
                 <i class="arrowright"></i>
@@ -55,9 +50,6 @@ export default {
   methods: {
     openTipPage() {
       this.$router.push('/tip');
-    },
-    openAllowencesPage() {
-      this.$router.push('/allowances');
     },
     navigateAccount() {
       this.$router.push('/account');

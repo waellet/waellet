@@ -138,11 +138,13 @@
             "deployButton": "Deploy Token Contract"
         },
         "mintTokenPage": {
-            "mint": "Mint token",
-            "mintInfo": "",
-            "mintBtn": "Mint",
+            "mint": "Mint/Burn token",
+            "mintInfo": "This allows you to mint or burn token amount",
+            "mintBtn": "Mint/Burn",
             "amount": "Amount",
-            "address": "Address"
+            "address": "Address",
+            "enterAmount": "Invalid amount",
+            "enterAddress": "Enter address"
         },
         "generalSettings": {
             "backToSettings": "Back to settings",
