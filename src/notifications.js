@@ -1,6 +1,7 @@
 global.browser = require('webextension-polyfill');
 const { Universal: Ae, Crypto } = require('@aeternity/aepp-sdk')
 import { networks } from './popup/utils/constants';
+import { detectBrowser } from './popup/utils/helper';
 
 export default class Notification {
 
@@ -45,9 +46,15 @@ export default class Notification {
         let noties = await this.getAllNotifications()
         if(noties) {
             noties.forEach(async (tx, index ) => {
-                let res = await this.client.poll(tx)
-                let url = this.network.explorerUrl + '/#/tx/' + tx
-                this.sendNoti({ title: 'Transaction ready', message: 'You can expore your transaction at: ', contextMessage: url})
+                if (tx != "error") {
+                    let res = await this.client.poll(tx)
+                    let url = this.network.explorerUrl + '/#/tx/' + tx
+                    this.sendNoti({ title: 'Transaction ready', message: 'You can expore your transaction at: ', contextMessage: url})
+                } else {
+                    this.sendNoti({ title: 'Transaction error', message: 'Transaction cannot be processed '})
+                }
+                
+                
                 await this.deleteNotification(tx)
             })
         }
@@ -55,22 +62,27 @@ export default class Notification {
     }
     
     async sendNoti ({ title, message, contextMessage }) {
-        if(typeof chrome.notifications != 'undefined') {
-            let noti = chrome.notifications.create(`popup.html?${contextMessage}`,{
-                'type': 'basic',
-                'title': title,
-                'iconUrl':browser.runtime.getURL('../../../icons/icon_48.png'),
-                'message': message,
-                'priority': 2,
+        let params = {
+            'type': 'basic',
+            'title': title,
+            'iconUrl':browser.runtime.getURL('../../../icons/icon_48.png'),
+            'message': message,
+            'priority': 2,
+            
+        }
+        if(detectBrowser() != 'Firefox') {
+            params = {
+                ...params,
                 'buttons': [
                     { title: 'See transaction details' }
                 ]
-            })
-            chrome.notifications.onButtonClicked.addListener((id) => {
-                browser.tabs.create({url: id.split('?')[1], active: true});
-            })
+            }
         }
-        
+
+        let noti = browser.notifications.create(`popup.html?${contextMessage}`,params )
+        browser.notifications.onButtonClicked.addListener((id) => {
+            browser.tabs.create({url: id.split('?')[1], active: true});
+        })
     }
     
 }

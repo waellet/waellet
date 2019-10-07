@@ -503,6 +503,7 @@ export default {
                     }
                 })
                 .catch(async err => {
+                    this.setTxInQueue('error')
                     if(this.data.popup) {
                         this.sending = true
                         this.port.postMessage(this.errorTx)
@@ -584,6 +585,7 @@ export default {
                     this.port.postMessage({...res})
                 }
             }catch(err) {
+                this.setTxInQueue('error')
                 this.errorTx.error.message = err.message
                 this.sending = true
                 if(this.data.popup) {
@@ -611,8 +613,13 @@ export default {
                 let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
                 
             }else {
-                deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
-                this.setTxInQueue(deployed.transaction)
+                try {
+                    deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
+                    this.setTxInQueue(deployed.transaction)
+                } catch(err) {
+                    this.setTxInQueue('error')
+                }
+                
             }
             
             
@@ -643,44 +650,59 @@ export default {
             }
         },
         async namePreclaim(){
-            const preclaim = await this.sdk.aensPreclaim(this.data.tx.name)
-            this.setTxInQueue(preclaim.hash)
-            let tx = {
-                popup:false,
-                tx: {
-                    name:this.data.tx.name,
-                    recipientId:'',
-                    preclaim
-                },
-                type:'nameClaim'
+            try {
+                const preclaim = await this.sdk.aensPreclaim(this.data.tx.name)
+                this.setTxInQueue(preclaim.hash)
+                let tx = {
+                    popup:false,
+                    tx: {
+                        name:this.data.tx.name,
+                        recipientId:'',
+                        preclaim
+                    },
+                    type:'nameClaim'
+                }
+                this.$store.commit('SET_AEPP_POPUP',true)
+                
+                this.$router.push({'name':'sign', params: {
+                    data:tx,
+                    type:tx.type
+                }});
+            } catch(err) {
+                this.setTxInQueue('error')
             }
-            this.$store.commit('SET_AEPP_POPUP',true)
             
-            this.$router.push({'name':'sign', params: {
-                data:tx,
-                type:tx.type
-            }});
         },  
         async nameClaim() {
-            const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false })
-            this.setTxInQueue(claim.hash)
-            setTimeout(() => {
-                this.$store.commit('SET_AEPP_POPUP',false)
-                this.$router.push('/generalSettings')
-            },1000)
-        },
-        async nameUpdate(){
-            const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
-            this.setTxInQueue(update.hash)
-            this.$store.dispatch('popupAlert', {
-                name: 'account',
-                type: 'added_success'
-            }).then(() => {
-                this.$store.dispatch('removePendingName',{ hash: this.data.tx.hash }).then(() => {
+            try {
+                const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false })
+                this.setTxInQueue(claim.hash)
+                setTimeout(() => {
                     this.$store.commit('SET_AEPP_POPUP',false)
                     this.$router.push('/generalSettings')
-                })  
-            })
+                },1000)
+            } catch(err) {
+                this.setTxInQueue('error')
+            }
+            
+        },
+        async nameUpdate(){
+            try {
+                const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
+                this.setTxInQueue(update.hash)
+                this.$store.dispatch('popupAlert', {
+                    name: 'account',
+                    type: 'added_success'
+                }).then(() => {
+                    this.$store.dispatch('removePendingName',{ hash: this.data.tx.hash }).then(() => {
+                        this.$store.commit('SET_AEPP_POPUP',false)
+                        this.$router.push('/generalSettings')
+                    })  
+                })
+            } catch(err) {
+                this.setTxInQueue('error')
+            }
+            
         },
         async signTransaction() {
             if(!this.signDisabled) {
