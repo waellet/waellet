@@ -2,7 +2,7 @@
     <div class="popup">
         <div v-if="allowancePage == ''">
             <div class="actions">
-                <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{$t('pages.allowances.backToUtilities') }}</button>
+                <button class="backbutton toAccount" @click="navigateFungibleTokens"><ae-icon name="back" /> {{$t('pages.addFungibleToken.backToFungibleTokens')}}</button>
             </div>
             <h3 style='text-align:center;'>{{$t('pages.allowances.heading') }}</h3>
             <div>
@@ -405,8 +405,8 @@ export default {
         openAllowencesPage() {
             this.$router.push('/allowances');
         },
-        navigateUtilities() {
-            this.$router.push('/utilities')
+        navigateFungibleTokens() {
+            this.$router.push('/fungible-tokens')
         },
     }
 }
