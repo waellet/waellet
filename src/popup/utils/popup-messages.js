@@ -35,7 +35,7 @@ export const LEDGER_SUPPORT = {type:'error', title:'Oops! Something went wrong',
 export const LEDGER_ACCOUNT_ERROR = { type:'error', title:'Oops! Something went wrong', msg:'Account cannot be added! ' }
 export const UNSUCCESS_VERIFYMESSAGE = {type:'error', title:'Oops! Something went wrong', msg:'Verification failed!'}
 export const INTEGER_REQUIRED = {type:'error', title:'Oops! Something went wrong', msg:'To interact with fungible tokens, only integers. Decimal places are not allowed!'}
-
+export const TX_LIMIT_PER_DAY = {type:'error', title:'Oops! Something went wrong', msg:'You reach your daily limit for transactions! '}
 //success messages
 export const SIGNED_MESSAGE = {type:'success', title:'Signed message:', msg:'', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Copy', buttonsFillPrimary: 'neutral', buttonsFillSecondary: 'primary'};
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};

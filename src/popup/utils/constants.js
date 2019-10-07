@@ -80,6 +80,8 @@ export const networks = {
   }
 }
 
+export const TX_LIMIT_PER_DAY = 2000
+
 export const FUNGIBLE_TOKEN_CONTRACT = 
 `contract FungibleToken =
   

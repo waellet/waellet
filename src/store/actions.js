@@ -95,6 +95,9 @@ export default {
           case 'incorrect_address':
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.INCORRECT_ADDRESS });
             break;
+          case 'tx_limit_per_day':
+              commit(types.SHOW_POPUP, { show: true, ...popupMessages.TX_LIMIT_PER_DAY });
+            break;
           case 'incorrect_amount':
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.INCORRECT_AMOUNT });
             break;

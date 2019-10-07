@@ -90,7 +90,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParams  } from '../../utils/helper';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee } from '../../utils/constants';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY } from '../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
 
 import BigNumber from 'bignumber.js';
@@ -717,6 +717,25 @@ export default {
                 this.loading = true
                 let amount = BigNumber(this.amount).shiftedBy(MAGNITUDE);
                 try {
+                    let { tx_count } = await browser.storage.sync.get('tx_count')
+                    
+                    if(tx_count.hasOwnProperty(new Date().toDateString())) {
+                        tx_count[new Date().toDateString()]++
+                    } else {
+                        tx_count = {
+                            [new Date().toDateString()]: 1
+                        }
+                    }
+                    await browser.storage.sync.set({ tx_count: tx_count })
+                    if(tx_count[[new Date().toDateString()]] > TX_LIMIT_PER_DAY) {
+
+                        return this.$store.dispatch('popupAlert', { name: 'spend', type: 'tx_limit_per_day'})
+                        .then(() => {
+                            this.$store.commit('SET_AEPP_POPUP',false)
+                            this.$router.push('/account')
+                        })
+                    }
+
                     if(this.data.type == 'txSign') {
                         if(this.isLedger) {
                             this.signSpendTxLedger(amount)
