@@ -69,18 +69,52 @@ export const networks = {
     internalUrl: 'https://sdk-testnet.aepps.com',
     networkId: 'ae_uat',
     middlewareUrl: 'https://testnet.mdw.aepps.com/',
-    explorerUrl: 'https://testnet.explorer.aepps.com'
+    explorerUrl: 'https://testnet.explorer.aepps.com',
+    tokenRegistry: 'ct_Ask9wUJ7CATmiR61v2ESJhBZ7pVJqVwo8C1UbW79a1yBu1cv8'
   },
   Mainnet: {
     url: 'https://sdk-mainnet.aepps.com',
     internalUrl: 'https://sdk-mainnet.aepps.com',
     networkId: 'ae_mainnet',
     middlewareUrl: 'http://mdw.aepps.com/',
-    explorerUrl: 'https://testnet.explorer.aepps.com'
+    explorerUrl: 'https://testnet.explorer.aepps.com',
+    tokenRegistry: ''
   }
 }
 
 export const TX_LIMIT_PER_DAY = 2000
+
+
+export const TOKEN_REGISTRY_CONTRACT = 
+`contract Token =
+  record meta_info =
+    { name : string
+    , symbol : string
+    , decimals : int }
+    
+  entrypoint meta_info : () => meta_info
+  entrypoint total_supply : () => int
+  entrypoint owner : () => address
+  entrypoint balances : () => map(address, int)
+  entrypoint balance : (address) => option(int)
+  entrypoint transfer : (address, int) => ()
+
+contract TokenRegistry =
+  record state = { tokens: map(Token, Token.meta_info) }
+
+  stateful entrypoint init() = { tokens = {} }
+
+  stateful entrypoint add_token(token : Token) : () =
+    put(state{ tokens[token] = token.meta_info() })
+
+  entrypoint get_all_tokens() : map(Token, Token.meta_info) = state.tokens
+
+  entrypoint get_token_meta_info(token : Token) : Token.meta_info = token.meta_info()
+  entrypoint get_token_balances(token : Token) : map(address, int) = token.balances()
+  entrypoint get_token_balance(token : Token, account: address) : option(int) = token.balance(account)
+  entrypoint get_token_owner(token : Token) : address = token.owner()
+  entrypoint get_token_total_supply(token : Token) : int = token.total_supply()`
+
 
 export const FUNGIBLE_TOKEN_CONTRACT = 
 `contract FungibleToken =

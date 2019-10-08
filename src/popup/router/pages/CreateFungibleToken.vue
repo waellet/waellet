@@ -92,7 +92,8 @@ export default {
                 tx: {
                     amount:0,
                     recipientId:'',
-                    init:contractInitArgs
+                    init:contractInitArgs,
+                    contractType: 'fungibleToken'
                 },
                 type:'contractCreate'
             }

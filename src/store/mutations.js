@@ -108,5 +108,8 @@ export default {
   },
   [types.SET_BACKGROUND] (state, payload) {
     state.background = payload
+  },
+  [types.SET_TOKEN_REGISTRY] (state, payload) {
+    state.tokenRegistry = payload
   }
 }; 

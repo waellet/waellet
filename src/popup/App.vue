@@ -177,6 +177,7 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK } from './utils/helper';
+import { TOKEN_REGISTRY_CONTRACT } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
 import { start, postMesssage } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
@@ -434,6 +435,7 @@ export default {
     },
     async initSDK() {
       let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
+      this.$store.commit('SET_TOKEN_REGISTRY', await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) )
       if(typeof sdk.error != 'undefined') {
           await browser.storage.sync.remove('isLogged')
           await browser.storage.sync.remove('activeAccount')
@@ -442,6 +444,7 @@ export default {
           this.$store.commit('UNSET_SUBACCOUNTS');
           this.$store.commit('UPDATE_ACCOUNT', '');
           this.$store.commit('SWITCH_LOGGED_IN', false);
+          
           this.$router.push('/')
       }
     },

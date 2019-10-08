@@ -45,7 +45,14 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current', 'wallet', 'activeAccount', 'subaccounts', 'tokenSymbol', 'tokenBalance', 'sdk', 'tokens', 'popup']),
+    ...mapGetters(['account', 'balance', 'network', 'current', 'wallet', 'activeAccount', 'subaccounts', 'tokenSymbol', 'tokenBalance', 'sdk', 'tokens', 'popup', 'tokenRegistry']),
+  },
+  async created() {
+    this.$store.dispatch('getAllUserTokens')
+    // console.log(await this.tokenRegistry.methods.get_all_tokens())
+    //  console.log(await this.tokenRegistry.methods.get_token_balances('ct_B2ovziTSnxLptTMHSrwKSHkNiC39rnBvLkHFMFNcpex7PvhVh'))
+    //  console.log(await this.tokenRegistry.methods.get_token_meta_info('ct_B2ovziTSnxLptTMHSrwKSHkNiC39rnBvLkHFMFNcpex7PvhVh'))
+    //  console.log(await this.tokenRegistry.methods.get_token_owner('ct_B2ovziTSnxLptTMHSrwKSHkNiC39rnBvLkHFMFNcpex7PvhVh'))
   },
   methods: {
     openTipPage() {

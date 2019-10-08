@@ -438,5 +438,12 @@ export default {
     return passwordDerivedKey;
   },
 
+  async getAllUserTokens({ state: { tokenRegistry, account }}) {
+    let { publicKey } = account
+    let tokens = (await tokenRegistry.methods.get_all_tokens()).decodedResult
+    tokens = tokens.map(async ( token ) => ( (await tokenRegistry.methods.get_token_balance(token[0], publicKey)).decodeResult ))
+    console.log(tokens)
+  },
+
   ...Ledger
 };

@@ -71,5 +71,8 @@ export const getters = {
   },
   background({ background }) {
     return background
+  },
+  tokenRegistry({ tokenRegistry }) {
+    return tokenRegistry
   }
 };

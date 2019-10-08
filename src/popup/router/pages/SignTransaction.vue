@@ -90,7 +90,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParams  } from '../../utils/helper';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY } from '../../utils/constants';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT } from '../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
 
 import BigNumber from 'bignumber.js';
@@ -129,7 +129,8 @@ export default {
             txParams:{},
             sending: false,
             contractInstance:null,
-            deployed:null
+            deployed:null,
+            tokenRegistryInstance: null
         };
     },
     props:['data'],
@@ -138,7 +139,7 @@ export default {
     },
    
     computed: {
-        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger','popup']),
+        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger','popup', 'tokenRegistry']),
         maxValue() {
             let calculatedMaxValue = this.balance - this.fee
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -606,7 +607,7 @@ export default {
                 this.redirectInExtensionAfterAction()
             }
         },
-        async contractDeploy() {
+        async contractDeploy() { 
             let deployed
             if(this.isLedger) {
                 let { ownerId, amount, gas, code, callData, deposit } = this.txParams 
@@ -614,9 +615,16 @@ export default {
                 let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
                 
             }else {
+                
                 try {
                     deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
                     this.setTxInQueue(deployed.transaction)
+                    console.log(this.data)
+                    if(this.data.tx.contractType == 'fungibleToken') {
+                        console.log("here")
+                        let c = await this.tokenRegistry.methods.add_token(deployed.address)
+                        console.log(c)
+                    }
                 } catch(err) {
                     this.setTxInQueue('error')
                 }
