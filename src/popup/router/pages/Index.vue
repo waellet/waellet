@@ -194,7 +194,7 @@ export default {
       browser.storage.sync.get('showAeppPopup').then(aepp => {
         browser.storage.sync.get('pendingTransaction').then(pendingTx => {
           browser.storage.sync.get('isLogged').then(data => {
-            browser.storage.sync.get('userAccount').then(user => {
+            browser.storage.sync.get('userAccount').then(async user => {
               if (user.userAccount && user.hasOwnProperty('userAccount')) {
                 try {
                   user.userAccount.encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
@@ -248,16 +248,8 @@ export default {
                 }
               });
               if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                    browser.storage.sync.get('tokens').then(tkn => {
-                      let tokens = this.tokens;
-                      if (tkn.hasOwnProperty('tokens')) {
-                        tokens = tkn.tokens;
-                      }
-                      this.$store.dispatch('setTokens', tokens).then(() => {
-                        this.$store.commit('SWITCH_LOGGED_IN', true);
-                        redirectAfterLogin(this);
-                      });
-                    });
+                  this.$store.commit('SWITCH_LOGGED_IN', true);
+                  redirectAfterLogin(this);
               }
             });
           });

@@ -3,7 +3,7 @@ import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
 import { convertToAE, stringifyForStorage, parseFromStorage } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
-import { uniqBy, head, flatten } from 'lodash-es';
+import { uniqBy, head, flatten, merge } from 'lodash-es';
 import router from '../popup/router/index'
 import Ledger from '../popup/utils/ledger/ledger';
 import { derivePasswordKey, genRandomBuffer } from '../popup/utils/hdWallet'
@@ -90,7 +90,8 @@ export default {
             commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'showTransaction', ...popupMessages.SUCCESS_TRANSFER, msg: payload.msg, data: payload.data })
             break;
           case 'success_deploy':
-            commit(types.SHOW_POPUP, { show: true,  secondBtn: true, secondBtnClick: 'copyAddress', buttonsTextSecondary:'Copy address', ...popupMessages.SUCCESS_DEPLOY, msg: payload.msg })
+            console.log(payload.noRedirect)
+            commit(types.SHOW_POPUP, { show: true,  secondBtn: true, secondBtnClick: 'copyAddress', buttonsTextSecondary:'Copy address', ...popupMessages.SUCCESS_DEPLOY, msg: payload.msg, noRedirect:payload.noRedirect })
             break;
           case 'incorrect_address':
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.INCORRECT_ADDRESS });
@@ -436,6 +437,37 @@ export default {
     const mac = new Uint8Array(await aes.decrypt(encryptedWallet.mac));
     if (mac.reduce((p, n) => p || n !== 0, false)) throw new Error('Wrong password');
     return passwordDerivedKey;
+  },
+
+  async getAllUserTokens({ state: { tokenRegistry, account, tokens, sdk }, dispatch }) {
+    let { publicKey } = account
+    let tkns = (await tokenRegistry.methods.get_all_tokens()).decodedResult
+    let res = (await Promise.all(tkns.map(async ( tkn ) => { 
+      let balance = (await tokenRegistry.methods.get_token_balance(tkn[0], publicKey)).decodedResult
+      let owner = (await tokenRegistry.methods.get_token_owner(tkn[0])).decodedResult
+      let token
+      if(typeof balance != 'undefined' || owner == publicKey) {
+        token = {
+          balance,
+          parent: publicKey,
+          contract: tkn[0],
+          name: tkn[1].name,
+          symbol:tkn[1].symbol,
+          precision:tkn[1].decimals
+        }
+      } 
+      return token
+      // console.log(tokens)
+    }))).filter(t => typeof t != 'undefined')
+    let savedTokens = await browser.storage.sync.get('tokens')
+    res = tokens.concat(res)
+    let userTokens = res
+    
+    if(savedTokens.hasOwnProperty("tokens")) {
+      userTokens = savedTokens.tokens.concat(res)
+    } 
+    userTokens = uniqBy(userTokens, (elem) => ( [elem.contract, elem.parent].join() ))
+    dispatch('setTokens', userTokens)
   },
 
   ...Ledger

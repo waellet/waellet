@@ -55,7 +55,7 @@ import { mapGetters } from 'vuex';
 import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
 import { request } from 'http';
 import { fetchData, currencyConv } from '../../utils/helper';
-import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT } from '../../utils/constants';
 
 export default {
   name: 'Account',
@@ -69,11 +69,11 @@ export default {
       toEur: null,
       timer: '',
       eurRate: '',
-      usdRate: '',
+      usdRate: ''
     }
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk','tokens','tokenSymbol','tokenBalance', 'popup','isLedger']),
+    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk','tokens','tokenSymbol','tokenBalance', 'popup','isLedger', 'tokenRegistry']),
     publicKey() { 
       return this.account.publicKey; 
     },
@@ -99,6 +99,7 @@ export default {
   created () {
     this.pollData();
     currencyConv(this);
+    
   },
   mounted(){
     this.updateTransactions();
@@ -113,6 +114,7 @@ export default {
     pollData() {
         this.polling = setInterval(() => {
           if(this.sdk != null) {
+            
               this.updateTransactions();
               if (this.tokenSymbol == 'AE') {
                 this.toUsd = (this.balance * this.usdRate).toFixed(3);

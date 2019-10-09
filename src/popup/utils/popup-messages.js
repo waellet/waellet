@@ -11,6 +11,7 @@ export const POPUP_PROPS = {
     buttonsTextSecondary: 'See in explorer',
     buttonsFillPrimary: 'primary',
     buttonsFillSecondary: 'secondary',
+    noRedirect: false
   }
 //error messages
 export const INSUFFICIENT_BALANCE = { type:'error', title:'Insufficient balance', msg:'The requested amount cannot be spent.'};
