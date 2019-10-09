@@ -619,13 +619,11 @@ export default {
                 try {
                     deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
                     this.setTxInQueue(deployed.transaction)
-                    console.log(this.data)
                     if(this.data.tx.contractType == 'fungibleToken') {
-                        console.log("here")
                         let c = await this.tokenRegistry.methods.add_token(deployed.address)
-                        console.log(c)
                     }
                 } catch(err) {
+                    console.log(err)
                     this.setTxInQueue('error')
                 }
                 
@@ -652,9 +650,9 @@ export default {
                         parent:this.account.publicKey
                     })
                     this.$store.dispatch('setTokens', tokens).then(() => {
-                        browser.storage.sync.set({ tokens: this.tokens}).then(() => { 
+                        // browser.storage.sync.set({ tokens: this.tokens}).then(() => { 
                             // this.redirectInExtensionAfterAction()
-                        })
+                        // })
                     })
                 })
             }
@@ -726,7 +724,9 @@ export default {
                 let amount = BigNumber(this.amount).shiftedBy(MAGNITUDE);
                 try {
                     let { tx_count } = await browser.storage.sync.get('tx_count')
-                    
+                    if(typeof tx_count == 'undefined') {
+                        tx_count = {}
+                    }
                     if(!tx_count.hasOwnProperty(new Date().toDateString()) ) {
                         tx_count = {
                             [new Date().toDateString()]: { 
@@ -781,6 +781,7 @@ export default {
                     }
                     
                 }catch(err) {
+                    console.log(err)
                 }
             }
         },
