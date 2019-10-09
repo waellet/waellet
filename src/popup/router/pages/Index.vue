@@ -248,17 +248,8 @@ export default {
                 }
               });
               if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                    // browser.storage.sync.get('tokens').then(tkn => {
-                    //   let tokens = this.tokens;
-                    //   if (tkn.hasOwnProperty('tokens')) {
-                    //     tokens = tkn.tokens;
-                    //   }
-                    //   this.$store.dispatch('setTokens', tokens).then(() => {
-                        
-                        this.$store.commit('SWITCH_LOGGED_IN', true);
-                        redirectAfterLogin(this);
-                      // });
-                    // });
+                  this.$store.commit('SWITCH_LOGGED_IN', true);
+                  redirectAfterLogin(this);
               }
             });
           });
