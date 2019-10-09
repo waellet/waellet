@@ -561,3 +561,18 @@ input::-moz-focus-outer {
   width: 100%;
   border:none;
 }
+
+.tokenRegistry .ae-check-button:after {
+  width: 29px;
+  height: 26px;
+  top:7px;
+}
+.tokenRegistry .ae-check-button:before {
+  top:7px;
+}
+.tokenRegistry .ae-check-button { 
+  padding-left:3rem;
+  word-break: break-word;
+  text-align: left;
+  margin-bottom:1rem;
+}

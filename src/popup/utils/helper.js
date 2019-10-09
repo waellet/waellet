@@ -319,6 +319,16 @@ const escapeCallParams = params => {
     })
 }
 
+const addRejectedToken = async (token) => {
+    let { rejected_token } = await browser.storage.sync.get('rejected_token')
+    if (typeof rejected_token == 'undefined') {
+        rejected_token = []
+    }
+    rejected_token.push(token)
+    await browser.storage.sync.set({ rejected_token })
+}
+
+
 export { 
     shuffleArray, 
     convertToAE, 
@@ -339,7 +349,8 @@ export {
     isInt,
     stringifyForStorage,
     parseFromStorage,
-    escapeCallParams
+    escapeCallParams,
+    addRejectedToken
 }
 
 

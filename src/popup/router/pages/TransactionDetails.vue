@@ -1,7 +1,14 @@
 <template>
     <div class="popup">
-        <div class="actions">
-            <button class="backbutton toAccount" @click="back"><ae-icon name="back" /> {{$t('pages.transactionDetails.backToTransactions')}}</button>
+        <div class="flex flex-justify-between flex-align-center popupPadding">
+            <div class="actions" >
+                <button class="backbutton toAccount" @click="back"><ae-icon name="back" /> {{$t('pages.transactionDetails.backToTransactions')}}</button>
+            </div>
+            <div class="actions filtersOpen">
+                <ae-button extend class="filtersBtn" :class="txAdvancedMode ? 'enabled' : 'disabled' " face="round" @click="setAdvancedMode" >
+                    {{$t('pages.transactionDetails.advancedMode')}}
+                </ae-button>
+            </div> 
         </div>
         <h3 class="transactionsPadding">{{$t('pages.transactionDetails.heading')}}</h3>
         <ae-list class="transactionList ">
@@ -51,6 +58,92 @@
                 <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.txHash')}} <button :class="transactionType.fill" v-clipboard:copy="transaction.hash" @click="copy" class="copyBtn">{{$t('pages.transactionDetails.copy')}}</button></div>
                 <input disabled :value="transaction.hash" length="flat"  class="transactionHash transactionDetailsInputs"/>
             </ae-list-item>
+            <div v-if="txAdvancedMode">
+                <ae-list-item fill="neutral" class="flex-direction-column">
+                    <h4>{{$t('pages.transactionDetails.moreInfo')}} </h4>
+                </ae-list-item>
+                <ae-list-item fill="neutral" class="flex-direction-column">
+                    <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.blockHeight')}} </div>
+                    <input disabled :value="transaction.block_height" length="flat"  class="transactionDetailsInputs"/>
+                </ae-list-item>
+                <ae-list-item fill="neutral" class="flex-direction-column">
+                    <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.signatures')}} </div>
+                    <input disabled :value="transaction.signatures[0]" length="flat"  class="transactionDetailsInputs"/>
+                </ae-list-item>
+                <ae-list-item fill="neutral" class="flex-direction-column">
+                    <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.nonce')}} </div>
+                    <input disabled :value="transaction.tx.nonce" length="flat"  class="transactionDetailsInputs"/>
+                </ae-list-item>
+                
+                <div v-if="isContractCallTx || isConractCreateTx">
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.callData')}} </div>
+                        <input disabled :value="transaction.tx.call_data" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.gas')}} </div>
+                        <input disabled :value="transaction.tx.gas" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.gasPrice')}} </div>
+                        <input disabled :value="transaction.tx.gas_price" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                </div>
+                <div v-if="isConractCreateTx">
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.code')}} </div>
+                        <input disabled :value="transaction.tx.code" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.abiV')}} </div>
+                        <input disabled :value="transaction.tx.abi_version" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.vmV')}} </div>
+                        <input disabled :value="transaction.tx.vm_version" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                </div>
+                <div v-if="isSpendTx">
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.payload')}} </div>
+                        <input disabled :value="transaction.tx.payload" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                </div>
+                <div v-if="transaction.tx.type == 'NamePreclaimTx'">
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.commitment')}} </div>
+                        <input disabled :value="transaction.tx.commitment_id" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                </div>
+                <div v-if="isNameClaimTx">
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.nameSalt')}} </div>
+                        <input disabled :value="transaction.tx.name_salt" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                </div>
+                <div v-if="transaction.tx.type == 'NameUpdateTx'">
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.clientTtl')}} </div>
+                        <input disabled :value="transaction.tx.client_ttl" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.nameId')}} </div>
+                        <input disabled :value="transaction.tx.name_id" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.nameTtl')}} </div>
+                        <input disabled :value="transaction.tx.name_id" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.pointerId')}} </div>
+                        <input disabled :value="transaction.tx.pointers[0].id" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                    <ae-list-item fill="neutral" class="flex-direction-column">
+                        <div class="flex-col text-left mb-1 detailTitle">{{$t('pages.transactionDetails.pointerKey')}} </div>
+                        <input disabled :value="transaction.tx.pointers[0].key" length="flat"  class="transactionDetailsInputs"/>
+                    </ae-list-item>
+                </div>
+            </div>
         </ae-list>
         <ae-button-group  class="btnFixed">
             <ae-button face="round" class=" transactionExplorerBtn" :fill="transactionType.fill != '' ? transactionType.fill : null" @click="transactionInExplorer">    <ae-icon name="search" />  {{$t('pages.transactionDetails.explorer')}}  </ae-button>
@@ -69,7 +162,7 @@ export default {
     },
     props: ['transaction'],
     computed: {
-        ...mapGetters(['account','current','network' ,'popup']),
+        ...mapGetters(['account','current','network' ,'popup', 'txAdvancedMode']),
         txAmount() {
             return this.isSpendTx ? this.transaction.tx.amount / 10 ** 18 : 0; 
         },
@@ -133,6 +226,9 @@ export default {
         copy(){
             this.$store.dispatch('popupAlert', { name: 'account', type: 'publicKeyCopied'});
         },
+        setAdvancedMode() {
+            this.$store.commit('SET_TX_ADVANCED_MODE', !this.txAdvancedMode)
+        }
     }
 }
 </script>
@@ -182,5 +278,17 @@ export default {
 .transactionName {
     font-family:"IBM Plex Mono", monospace;
     width:100%;
+}
+.filtersBtn {
+    margin: 0;
+    height: auto !important;
+    padding: .4rem 1rem !important;
+    font-size: .7rem !important;
+}
+.filtersBtn.enabled {
+    background: $primary-color !important;
+}
+.filtersBtn.disabled {
+    background:$color-neutral-negative-1;
 }
 </style>

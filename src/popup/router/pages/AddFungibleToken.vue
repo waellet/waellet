@@ -8,33 +8,48 @@
             <h3>{{$t('pages.addFungibleToken.heading') }}</h3>
             <div v-if="addStep == false" class="token-add-form">
                 <ae-panel>
-                    <h4>{{$t('pages.addFungibleToken.addToken') }}</h4>
-                    <hr>
-                    <div class="input-container">
+                    <div class="tabs">
+                        <span :class="activeTab == 'search' ? 'tab-active' : ''" @click="activeTab = 'search'">{{ $t('pages.addFungibleToken.search') }}</span>
+                        <span :class="activeTab == 'custom' ? 'tab-active' : ''" @click="activeTab = 'custom'">{{ $t('pages.addFungibleToken.customToken') }}</span>
+                    </div>
+                    <!-- <h4>{{$t('pages.addFungibleToken.addToken') }}</h4> -->
+                    <!-- <hr> -->
+                    <div class="input-container" v-if="activeTab == 'search'">
+                        <ae-input :label="$t('pages.addFungibleToken.tokenSearchLabel')" >
+                            <input type="text" class="ae-input token-contract" @keyup="searchTokenName"  v-model="token.search" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                        </ae-input>
+                    </div>
+                    <ae-list v-if="token.results.length && activeTab == 'search'">
+                        <ae-list-item fill="neutral" v-for="(result,key) in token.results" @click="selectToken(result)" :key="key">
+                            <ae-identicon :address="result[0]" />
+                            {{ result[1].name}} <strong> ({{result[1].symbol}}) </strong>
+                        </ae-list-item>
+                    </ae-list>
+                    <div class="input-container" v-if="activeTab == 'custom'">
                         <ae-input :label="$t('pages.addFungibleToken.tokenContractLabel')" >
                             <input type="text" class="ae-input token-contract" @mouseout="validate('contract')" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                            <ae-toolbar slot="footer">
+                            <!-- <ae-toolbar slot="footer">
                                 {{$t('pages.addFungibleToken.validContractAddressError') }}
-                            </ae-toolbar>
+                            </ae-toolbar> -->
                         </ae-input>
                     </div>
-                    <div class="input-container">
+                    <div class="input-container" v-if="token.symbol && activeTab == 'custom'">
                         <ae-input :label="$t('pages.addFungibleToken.tokenSymbolLabel')">
                             <input type="text" :disabled="token.precisionDisabled" class="ae-input token-symbol" @mouseout="validate('symbol')" @keyup.native="validate('symbol')" v-model="token.symbol" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                            <ae-toolbar slot="footer">
+                            <!-- <ae-toolbar slot="footer">
                                 {{$t('pages.addFungibleToken.symbolBetween1and12') }}
-                            </ae-toolbar>
+                            </ae-toolbar> -->
                         </ae-input>
                     </div>
-                    <div class="input-container">
+                    <div class="input-container" v-if="token.precision && token.symbol && activeTab == 'custom'">
                         <ae-input :label="$t('pages.addFungibleToken.tokenPrecision')" >
                             <input type="text" :disabled="token.precisionDisabled" class="ae-input token-precision" @mouseout="validate('precision')" @keyup.native="validate('precision')" v-model="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                            <ae-toolbar slot="footer" >
+                            <!-- <ae-toolbar slot="footer" >
                                 {{$t('pages.addFungibleToken.numberBetween0and36') }}
-                            </ae-toolbar>
+                            </ae-toolbar> -->
                         </ae-input>
                     </div>
-                    <ae-button face="round" fill="primary" @click="next" id="to-confirm-add" class="to-confirm-add" extend >{{$t('pages.addFungibleToken.next') }}</ae-button>
+                    <ae-button v-if="activeTab == 'custom'" face="round" fill="primary" @click="next" id="to-confirm-add" class="to-confirm-add" extend >{{$t('pages.addFungibleToken.next') }}</ae-button>
                 </ae-panel>
             </div>
             <div v-if="addStep" >
@@ -65,18 +80,20 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_CONTRACT } from '../../utils/constants';
 export default {
     data() {
         return {
-            activeTab:'add',
+            activeTab:'search',
             token: {
                 contract:'',
                 symbol:'',
                 precision:1,
                 precisionDisabled:false,
                 balance:0,
-                name:''
+                name:'',
+                search: '',
+                results:[]
             },
             error: {
                 type:null,
@@ -84,11 +101,11 @@ export default {
             },
             addStep:false,
             loading:false,
-            timer: ''
+            timer: '',
         }
     },
     computed: {
-        ...mapGetters(['sdk','account','tokens','popup'])
+        ...mapGetters(['sdk','account','tokens','popup', 'tokenRegistry', 'network', 'current'])
     },
     async created() {
     },
@@ -119,8 +136,11 @@ export default {
                 }
             }, 3000);
         },
+        checkAdded(contract) {
+            return typeof this.tokens.find(tkn => tkn.contract == contract && tkn.parent == this.account.publicKey) != 'undefined'
+        },
         async next() {
-            let added = this.tokens.find(tkn => tkn.contract == this.token.contract && tkn.parent == this.account.publicKey)
+            let added = this.checkAdded(this.token.contract)
             if( 
                 (this.token.contract.length != 53 && this.token.contract.length != 54 &&  this.token.contract.length != 52) || 
                 (this.token.symbol.length < 1 || this.token.symbol.length > 12) || 
@@ -128,7 +148,7 @@ export default {
                 (!isNaN(this.token.precision) && (this.token.precision < 1 || this.token.precision > 36 ))
             ) {
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_add'})
-            }else if(typeof added != 'undefined'){
+            }else if(added){
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_exists'})
             }else {
                 this.loading = true
@@ -150,19 +170,47 @@ export default {
                 balance:this.token.balance,
                 parent:this.account.publicKey
             })
-            this.$store.dispatch('setTokens', tokens).then(() => {
-                browser.storage.sync.set({ tokens: this.tokens}).then(() => { 
-                    this.$store.dispatch('popupAlert', {
-                            name: 'account',
-                            type: 'added_success'
-                        }).then(() => { 
-                            this.token.contract = ""
-                            this.token.symbol = ""
-                            this.token.precision = 0
-                            this.token.precisionDisabled = false
-                            this.addStep = false
-                        });
+            this.$store.dispatch('setTokens', tokens).then(async () => {
+                this.loading = true
+                let find = (await this.tokenRegistry.methods.get_all_tokens()).decodedResult.find(t => t[0] == this.token.contract)
+                
+                if(this.token.balance == 0) {
+                    await browser.storage.sync.set({ tokens: this.tokens})
+                }
+
+                if(typeof find == 'undefined') {
+                    let tx = {
+                        popup:false,
+                        tx: {
+                            source: TOKEN_REGISTRY_CONTRACT,
+                            address: this.network[this.current.network].tokenRegistry ,
+                            params: [this.token.contract],
+                            method: 'add_token',
+                            amount: 0,
+                            contractType: 'fungibleToken'
+                        },
+                        callType: 'pay',
+                        type:'contractCall'
+                    }
+                    this.$store.commit('SET_AEPP_POPUP',true)
+                    return this.$router.push({'name':'sign', params: {
+                        data:tx,
+                        type:tx.type
+                    }});
+                }
+                
+                this.$store.dispatch('popupAlert', {
+                    name: 'account',
+                    type: 'added_success'
+                }).then(() => { 
+                    this.loading = false
+                    this.token.contract = ""
+                    this.token.symbol = ""
+                    this.token.precision = 0
+                    this.token.precisionDisabled = false
+                    this.addStep = false
                 });
+                
             });
         },
         async searchTokenMetaInfo(address) {
@@ -196,6 +244,32 @@ export default {
                 this.loading = false
             }
             
+        },
+        async searchTokenName() {
+            if(this.token.search == '') {
+                this.token.results = []
+                return
+            }
+            this.token.results = (await this.tokenRegistry.methods.get_all_tokens()).decodedResult.filter(t => t[1].name.toLowerCase().includes(this.token.search) || 
+                t[1].name.toLowerCase().startsWith(this.token.search) || 
+                t[1].symbol.toLowerCase().startsWith(this.token.search) ||
+                t[0] == this.token.search )
+        },
+        resetToken() {
+            this.token.precision = 1
+            this.token.symbol = ''
+            this.token.name = ''
+            this.token.contract = ''
+        },
+        async selectToken(token) {
+            this.token.precision = token[1].decimals
+            this.token.symbol = token[1].symbol
+            this.token.name = token[1].name
+            this.token.contract = token[0]
+            await this.next()
+            if(!this.addStep) {
+                this.resetToken()
+            }
         }
     }
 }
@@ -232,5 +306,7 @@ export default {
     height:3rem !important;
     margin-right:1rem;
 }
-
+.to-confirm-add { margin-top: 1rem; }
+.ae-identicon { margin-right:1rem; }
+.ae-list-item:hover{ background: #fefefe}
 </style>
