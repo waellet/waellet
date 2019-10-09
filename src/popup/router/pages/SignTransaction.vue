@@ -650,7 +650,9 @@ export default {
                 },1000)
             }else {
                 this.deployed = deployed.address
-                console.log(this.data.tx.tokenRegistry)
+                if(!this.data.tx.tokenRegistry) {
+                    addRejectedToken(deployed.address)
+                }
                 let msg = `Contract deployed at address <br> ${deployed.address}`
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect: this.data.tx.tokenRegistry })
                 .then(() => {
