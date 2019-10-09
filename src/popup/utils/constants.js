@@ -70,7 +70,7 @@ export const networks = {
     networkId: 'ae_uat',
     middlewareUrl: 'https://testnet.mdw.aepps.com/',
     explorerUrl: 'https://testnet.explorer.aepps.com',
-    tokenRegistry: 'ct_Ask9wUJ7CATmiR61v2ESJhBZ7pVJqVwo8C1UbW79a1yBu1cv8'
+    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
   },
   Mainnet: {
     url: 'https://sdk-mainnet.aepps.com',
@@ -78,7 +78,7 @@ export const networks = {
     networkId: 'ae_mainnet',
     middlewareUrl: 'http://mdw.aepps.com/',
     explorerUrl: 'https://testnet.explorer.aepps.com',
-    tokenRegistry: ''
+    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
   }
 }
 

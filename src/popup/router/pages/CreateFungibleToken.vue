@@ -32,6 +32,9 @@
                         </ae-toolbar>
                     </ae-input>
                 </div>
+                <ae-check class="tokenRegistry" v-model="tokenRegistry">
+                    {{$t('pages.createFungibleToken.registryFee') }}
+                </ae-check>
                 <ae-button face="round" fill="primary" @click="confirmTx" class="confirmTx" extend >{{$t('pages.createFungibleToken.deployTokenContract') }}</ae-button>
             </div>
         </ae-panel>
@@ -50,8 +53,9 @@ export default {
             token: {
                 name:'',
                 precision:0,
-                symbol:''
+                symbol:'',
             },
+            tokenRegistry:false,
             err:{
                 name:false,
                 symbol:false,
@@ -93,7 +97,8 @@ export default {
                     amount:0,
                     recipientId:'',
                     init:contractInitArgs,
-                    contractType: 'fungibleToken'
+                    contractType: 'fungibleToken',
+                    tokenRegistry: this.tokenRegistry
                 },
                 type:'contractCreate'
             }

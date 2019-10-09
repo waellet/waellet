@@ -43,9 +43,10 @@ export default {
     },
     methods: {
         closePopup() {
+            let { noRedirect } = this.popup
             this.$store.commit('HIDE_POPUP');
             this.$store.commit('DEF_POPUP');
-            if(this.redirect) {
+            if(this.redirect && !noRedirect) {
                 this.$store.commit('SET_AEPP_POPUP',false)
                 this.$router.push('/account')
             }

@@ -90,7 +90,8 @@ export default {
             commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'showTransaction', ...popupMessages.SUCCESS_TRANSFER, msg: payload.msg, data: payload.data })
             break;
           case 'success_deploy':
-            commit(types.SHOW_POPUP, { show: true,  secondBtn: true, secondBtnClick: 'copyAddress', buttonsTextSecondary:'Copy address', ...popupMessages.SUCCESS_DEPLOY, msg: payload.msg })
+            console.log(payload.noRedirect)
+            commit(types.SHOW_POPUP, { show: true,  secondBtn: true, secondBtnClick: 'copyAddress', buttonsTextSecondary:'Copy address', ...popupMessages.SUCCESS_DEPLOY, msg: payload.msg, noRedirect:payload.noRedirect })
             break;
           case 'incorrect_address':
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.INCORRECT_ADDRESS });

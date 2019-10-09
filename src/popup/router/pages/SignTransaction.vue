@@ -89,7 +89,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParams  } from '../../utils/helper';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken  } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT } from '../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
 
@@ -428,6 +428,9 @@ export default {
         },
         async cancelTransaction() {
             let list = await removeTxFromStorage(this.data.id)
+            if(this.data.tx.contractType == 'fungibleToken' && this.data.tx.method == 'add_token') {
+                addRejectedToken(this.data.tx.params[0])
+            }
             if(!this.data.popup) {
                 if(this.data.type == 'nameUpdate') {
                     this.$store.dispatch('removePendingName', { hash: this.data.tx.hash }).then(() => {
@@ -456,10 +459,7 @@ export default {
                     let tx = data.pendingTransaction.list[Object.keys(data.pendingTransaction.list)[0]];
                     tx.popup = false
                     tx.countTx =  Object.keys(data.pendingTransaction.list).length
-                    this.$router.push({'name':'sign', params: {
-                        data:tx,
-                        type:tx.type
-                    }});
+                    this.redirectToTxConfirm(tx)
                 }else {
                     this.$store.commit('SET_AEPP_POPUP',false)
                     this.$router.push('/account')
@@ -620,7 +620,20 @@ export default {
                     deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
                     this.setTxInQueue(deployed.transaction)
                     if(this.data.tx.contractType == 'fungibleToken') {
-                        let c = await this.tokenRegistry.methods.add_token(deployed.address)
+                        let tx = {
+                            popup:false,
+                            tx: {
+                                source: TOKEN_REGISTRY_CONTRACT,
+                                address: this.network[this.current.network].tokenRegistry ,
+                                params: [deployed.address],
+                                method: 'add_token',
+                                amount: 0,
+                                contractType: 'fungibleToken'
+                            },
+                            callType: 'pay',
+                            type:'contractCall'
+                        }
+                        this.redirectToTxConfirm(tx)
                     }
                 } catch(err) {
                     console.log(err)
@@ -637,8 +650,9 @@ export default {
                 },1000)
             }else {
                 this.deployed = deployed.address
+                console.log(this.data.tx.tokenRegistry)
                 let msg = `Contract deployed at address <br> ${deployed.address}`
-                this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg})
+                this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect: this.data.tx.tokenRegistry })
                 .then(() => {
                     let tokens = this.tokens.map(tkn => tkn)
                     tokens.push({
@@ -649,19 +663,21 @@ export default {
                         balance:0,
                         parent:this.account.publicKey
                     })
-                    this.$store.dispatch('setTokens', tokens).then(() => {
-                        // browser.storage.sync.set({ tokens: this.tokens}).then(() => { 
-                            // this.redirectInExtensionAfterAction()
-                        // })
-                    })
+                    this.$store.dispatch('setTokens', tokens)
                 })
             }
         },
         copyAddress() {
-            this.$copyText(this.deployed).then(e => {
-                this.redirectInExtensionAfterAction()
-            })
+            this.$copyText(this.deployed)
             
+        },
+        redirectToTxConfirm(tx) {
+            this.$store.commit('SET_AEPP_POPUP',true)
+            
+            this.$router.push({'name':'sign', params: {
+                data:tx,
+                type:tx.type
+            }});
         },
         async namePreclaim(){
             try {
@@ -676,12 +692,7 @@ export default {
                     },
                     type:'nameClaim'
                 }
-                this.$store.commit('SET_AEPP_POPUP',true)
-                
-                this.$router.push({'name':'sign', params: {
-                    data:tx,
-                    type:tx.type
-                }});
+                this.redirectToTxConfirm(tx)
             } catch(err) {
                 this.setTxInQueue('error')
             }

@@ -80,7 +80,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
+import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_CONTRACT } from '../../utils/constants';
 export default {
     data() {
         return {
@@ -105,7 +105,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['sdk','account','tokens','popup', 'tokenRegistry'])
+        ...mapGetters(['sdk','account','tokens','popup', 'tokenRegistry', 'network', 'current'])
     },
     async created() {
     },
@@ -173,11 +173,30 @@ export default {
             this.$store.dispatch('setTokens', tokens).then(async () => {
                 this.loading = true
                 let find = (await this.tokenRegistry.methods.get_all_tokens()).decodedResult.find(t => t[0] == this.token.contract)
-                if(typeof find == 'undefined') {
-                    await this.tokenRegistry.methods.add_token(this.token.contract)
-                }
+                
                 if(this.token.balance == 0) {
                     await browser.storage.sync.set({ tokens: this.tokens})
+                }
+
+                if(typeof find == 'undefined') {
+                    let tx = {
+                        popup:false,
+                        tx: {
+                            source: TOKEN_REGISTRY_CONTRACT,
+                            address: this.network[this.current.network].tokenRegistry ,
+                            params: [this.token.contract],
+                            method: 'add_token',
+                            amount: 0,
+                            contractType: 'fungibleToken'
+                        },
+                        callType: 'pay',
+                        type:'contractCall'
+                    }
+                    this.$store.commit('SET_AEPP_POPUP',true)
+                    return this.$router.push({'name':'sign', params: {
+                        data:tx,
+                        type:tx.type
+                    }});
                 }
                 
                 this.$store.dispatch('popupAlert', {
