@@ -111,5 +111,8 @@ export default {
   },
   [types.SET_TOKEN_REGISTRY] (state, payload) {
     state.tokenRegistry = payload
+  },
+  [types.SET_TX_ADVANCED_MODE] (state, payload) {
+    state.txAdvancedMode = payload
   }
 }; 

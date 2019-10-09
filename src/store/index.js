@@ -45,7 +45,8 @@ export default new Vuex.Store({
     aeppPopup: false,
     ledgerApi: null,
     background:null,
-    tokenRegistry: null
+    tokenRegistry: null,
+    txAdvancedMode:false
   },
   getters,
   mutations,

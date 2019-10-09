@@ -74,5 +74,8 @@ export const getters = {
   },
   tokenRegistry({ tokenRegistry }) {
     return tokenRegistry
+  },
+  txAdvancedMode({ txAdvancedMode }) {
+    return txAdvancedMode
   }
 };

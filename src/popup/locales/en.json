@@ -350,7 +350,24 @@
             "nameSalt": "Name Salt",
             "nameId": "Name Id",
             "copy": "Copy",
-            "contractId": "Contract Id"
+            "contractId": "Contract Id",
+            "advancedMode": "Advanced Mode",
+            "blockHeight" : "Block Height",
+            "signatures": "Signatures",
+            "nonce" : "Nonce",
+            "callData": "Call Data",
+            "gas": "Gas",
+            "gasPrice": "Gas Price",
+            "code" : "Code",
+            "abiV": "Abi version",
+            "vmV": "Vm version",
+            "payload": "Payload",
+            "commitment": "Commitment id",
+            "clientTtl": "Client TTL",
+            "nameTtl": "Name TTL",
+            "pointerId": "Pointer Id",
+            "pointerKey": "Pointer Key",
+            "moreInfo": "More Info"
         },
         "transactions": {
             "backToAccount": "Back to account",
@@ -371,6 +388,7 @@
             "createTx": "create tx",
             "clear": "Clear filter",
             "apply": "Apply filter"
+            
         },
         "utilities": {
             "heading": "Utilities",
