@@ -116,7 +116,7 @@
             "tokenSymbolLabel":"Token Symbol",
             "tokenPrecision":"Decimals of Precision",
             "deployTokenContract": "Deploy Token Contract",
-            "registryFee": "Pay fee for token to be included in TokenRegistry"
+            "registryFee": "Include token in global TokenRegistry (tx fees apply)"
         },
         "fungibleTokens": {
             "backToAccount": "Back to account",
