@@ -57,7 +57,7 @@
                                 <li v-for="(value, name) in locales" v-bind:key="name">
                                 <ae-button v-on:click="switchLanguage(name)" class="" :class="current.language == name ? 'current' : ''">
                                     <img :src="'../icons/flag_'+name+'.png'" />
-                                    {{ name }}
+                                    {{ languageFullName(name) }}
                                 </ae-button>
                                 </li>
                             </ul>
@@ -163,6 +163,21 @@ export default {
         },
         navigateToSettings() {
             this.$router.push('/settings')
+        },
+        languageFullName(name) {
+            switch (name) {
+                case 'en':
+                    return "English";
+                case 'es':
+                    return "Spanish";
+                case 'ru':
+                    return "Russian";
+                case 'fr':
+                    return "French";
+                case 'cn':
+                    return "Chinese";
+                default: return "English";
+            }
         }
     },
     beforeDestroy() {
