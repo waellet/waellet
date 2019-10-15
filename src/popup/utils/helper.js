@@ -134,6 +134,11 @@ const redirectAfterLogin = (ctx) => {
                     ctx.$router.push({'name':'sign', params: {
                         data:aepp.showAeppPopup.data
                     }});
+                }else if(aepp.showAeppPopup.type == 'signMessage') {
+                    aepp.showAeppPopup.data.popup = true
+                    ctx.$router.push({'name':'sign-verify-message', params: {
+                        data:aepp.showAeppPopup.data
+                    }})
                 }
             return;
             });
@@ -160,9 +165,13 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
     return new Promise (async (resolve,reject) => {
         if(!backgr) {
             postMesssage(background, { type: 'getKeypair' , payload: {  activeAccount, account } } ).then(async ({ res }) => {
-                res = parseFromStorage(res)
-                let sdk = await createSDKObject(ctx, { network, current, account, wallet, activeAccount, background, res },backgr)
-                resolve(sdk)
+                if(typeof res.error != 'undefined') {
+                    resolve({error:true})
+                } else {
+                    res = parseFromStorage(res)
+                    let sdk = await createSDKObject(ctx, { network, current, account, wallet, activeAccount, background, res },backgr)
+                    resolve(sdk)
+                }
             })
         }else {
             let sdk = await createSDKObject(ctx, { network, current, account, activeAccount, background, res: account },backgr)
@@ -172,7 +181,7 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
         
     })
 }
-
+let countErr = 0;
 const createSDKObject = (ctx, { network, current, account, wallet, activeAccount = 0, background, res }, backgr ) => {
     return new Promise((resolve, reject) => {
         Universal({
@@ -195,7 +204,15 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
                 ctx.hideLoader()
                 ctx.showConnectError()
             }
-            resolve()
+            console.log(err)
+            // reject(err)
+            
+            if(countErr < 3) {
+                createSDKObject(ctx, { network, current, account, activeAccount, background, res },backgr)
+            }else {
+                reject({error:true})
+            }
+            countErr++
         })
     })
     
@@ -204,13 +221,15 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
 
 const  currencyConv = async (ctx) => {
     browser.storage.sync.get('convertTimer').then(async result => {
-      var time = new Date().getTime();
+        var time = new Date().getTime();
       if ( !result.hasOwnProperty('convertTimer') || (result.hasOwnProperty('convertTimer') && (result.convertTimer == '' || result.convertTimer == 'undefined' || result.convertTimer <= time)) ) {
-        const fetched = await fetchData('https://api.coingecko.com/api/v3/simple/price?ids=aeternity&vs_currencies=usd,eur','get','');
+        const fetched = await fetchData('https://api.coingecko.com/api/v3/simple/price?ids=aeternity&vs_currencies=usd,eur,aud,ron,brl,cad,chf,cny,czk,dkk,gbp,hkd,hrk,huf,idr,ils,inr,isk,jpy,krw,mxn,myr,nok,nzd,php,pln,ron,rub,sek,sgd,thb,try,zar,xau','get','');
         browser.storage.sync.set({ rateUsd : fetched.aeternity.usd}).then(() => { });
         browser.storage.sync.set({ rateEur : fetched.aeternity.eur}).then(() => { });
         browser.storage.sync.set({ convertTimer : time+3600000}).then(() => { });
+        browser.storage.sync.set({ allCurrencies : JSON.stringify(fetched.aeternity)}).then(() => { });
       }
+
       browser.storage.sync.get('rateUsd').then(resusd => {
         ctx.usdRate = resusd.rateUsd;
         ctx.toUsd = resusd.rateUsd * ctx.balance;
@@ -219,6 +238,11 @@ const  currencyConv = async (ctx) => {
         ctx.eurRate = reseur.rateEur;
         ctx.toEur = reseur.rateEur * ctx.balance;
       });
+      browser.storage.sync.get('allCurrencies').then(resall => {
+        let ar = JSON.parse(resall.allCurrencies)
+        ctx.allCurrencies = ar;
+      });
+
     });
 }
 
@@ -292,6 +316,26 @@ const parseFromStorage = state => {
     );
 }
 
+const escapeCallParams = params => {
+    return params.map(p => {
+        if(typeof p == 'string' && !checkAddress(p)) {
+            return `"${p}"`
+        }else {
+            return p.toString()
+        }
+    })
+}
+
+const addRejectedToken = async (token) => {
+    let { rejected_token } = await browser.storage.sync.get('rejected_token')
+    if (typeof rejected_token == 'undefined') {
+        rejected_token = []
+    }
+    rejected_token.push(token)
+    await browser.storage.sync.set({ rejected_token })
+}
+
+
 export { 
     shuffleArray, 
     convertToAE, 
@@ -311,7 +355,9 @@ export {
     chekAensName,
     isInt,
     stringifyForStorage,
-    parseFromStorage
+    parseFromStorage,
+    escapeCallParams,
+    addRejectedToken
 }
 
 

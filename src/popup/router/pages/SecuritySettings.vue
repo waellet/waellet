@@ -18,14 +18,21 @@
                 <ae-button face="round" fill="primary" class="notround settingBtn" extend @click="revealPrivateKey">{{$t('pages.securitySettings.privateKeyRevealBtn')}}</ae-button>
             </div>
         </ae-panel>
+        <ae-panel>
+            <div class="maindiv_input-group-addon">
+                <h4>{{$t('pages.securitySettings.seedRecoveryHeading')}}</h4><hr>
+                <small class="sett_info">{{$t('pages.securitySettings.seedRecoverySmall')}}</small>
+                <ae-button face="round" fill="primary" class="notround settingBtn" extend @click="seedPhraseRecovery">{{$t('pages.securitySettings.seedRecoveryBtn')}}</ae-button>
+            </div>
+        </ae-panel>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <div v-if="loading" class="loading">
             <ae-loader />
         </div>
-        <Modal :modal="modal">
+        <Modal v-if="type == 2" :modal="modal">
             <div slot="content">
-                <small v-if="privateKey == '' && !loading">{{$t('pages.securitySettings.privateKeyWarning')}}</small>
-                <h3 v-if="privateKey != ''">{{$t('pages.securitySettings.privateKey')}}</h3>
+                <small v-if="privateKey == '' && !loading && type == '2'">{{$t('pages.securitySettings.privateKeyWarning')}}</small>
+                <h3 v-if="privateKey != '' && type == '2'">{{$t('pages.securitySettings.privateKey')}}</h3>
                 <Alert :fill="alert.fill" :show="alert.show && !loading">
                     <div slot="content">
                         {{alert.content}}
@@ -36,7 +43,7 @@
                         <ae-icon name="copy" />
                         {{$t('pages.securitySettings.copy')}}
                     </ae-button>
-                </ae-toolbar>`
+                </ae-toolbar>
                 <div v-if="privateKey == '' && !loading">
                     <ae-input class="my-2" label="Password">
                         <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
@@ -46,7 +53,30 @@
                 <Loader :loading="loading" size="small" :content="$t('pages.securitySettings.decryptingPrivateKey')"></Loader>
             </div>
         </Modal>
-
+        <Modal v-if="type == 3" :modal="modal">
+            <div slot="content">
+                <small v-if="seedPhrase == '' && !loading && type == '3'">{{$t('pages.securitySettings.seedPhraseWarning')}}</small>
+                <h3 v-if="seedPhrase != '' && type == '3'">{{$t('pages.securitySettings.seedPhrase')}}</h3>
+                <Alert :fill="alert.fill" :show="alert.show && !loading">
+                    <div slot="content">
+                        {{alert.content}}
+                    </div>
+                </Alert>
+                <ae-toolbar fill="alternative" v-if="seedPhrase != ''" align="right">
+                    <ae-button face="toolbar" v-clipboard:copy="seedPhrase" @click="reset(seedPhrase)">
+                        <ae-icon name="copy" />
+                        {{$t('pages.securitySettings.copy')}}
+                    </ae-button>
+                </ae-toolbar>
+                <div v-if="seedPhrase == '' && !loading">
+                    <ae-input class="my-2" label="Password">
+                        <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                    </ae-input>
+                    <ae-button class="notround decrypt-btn" extend face="round" fill="primary" @click="decryptKeystore">{{$t('pages.securitySettings.showSeedPhrase')}}</ae-button>
+                </div>
+                <Loader :loading="loading" size="small" :content="$t('pages.securitySettings.decryptingPrivateKey')"></Loader>
+            </div>
+        </Modal>
     </div>
 </template>
 
@@ -54,6 +84,8 @@
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { decrypt } from '../../utils/keystore';
+const Cryptr = require('cryptr');
+const cryptr = new Cryptr('myTotalySecretKey');
 
 export default {
     data () {
@@ -66,12 +98,14 @@ export default {
             },
             password:'',
             privateKey:'',
+            seedPhrase: '',
             alert: {
                 fill:"neutral",
                 show:false,
                 content:""
             },
-            loading:false
+            loading:false,
+            type: ''
         }
     },
     computed: {
@@ -81,6 +115,10 @@ export default {
         browser.storage.sync.get('allowTracking').then((result) => {
             this.onoff = result.allowTracking;
         })
+        
+                            // browser.storage.sync.get('encryptedSeed').then((res) => {
+                            //     console.log('res', res)
+                            // });
     },
     methods: {
         navigateToSettings() {
@@ -93,28 +131,56 @@ export default {
             });
         },
         clearPrivacyData( ) {
+            this.type = '1';
             browser.storage.sync.remove('connectedAepps')
         },
         revealPrivateKey() {
+            this.type = '2';
             this.modal.visible = true
             this.modal.title = this.$t('pages.securitySettings.showPrivateKey')
             this.reset()
         },
+        seedPhraseRecovery() {
+            this.type = '3';
+            this.modal.visible = true
+            this.modal.title = this.$t('pages.securitySettings.showSeedPhrase')
+            this.reset()
+        },
         decryptKeystore() {
-            this.loading = true
-            browser.storage.sync.get('userAccount').then(async (user) => {
-                if(user.userAccount && user.hasOwnProperty('userAccount')) {
-                    let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-                    let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
-                    this.loading = false
-                    if(match) {
-                        this.privateKey = match
-                        this.setAlertData("alternative",true,match)
-                    }else {
-                        this.setAlertData("primary",true,this.$t('pages.securitySettings.incorrectPassword'))
+            if (this.type == '3') {
+                this.loading = true
+                browser.storage.sync.get('userAccount').then(async (user) => {
+                    if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                        let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                        let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                        this.loading = false
+                        if(match) {
+                            browser.storage.sync.get('encryptedSeed').then((res) => {
+                                let decryptedSeed = cryptr.decrypt(res.encryptedSeed);
+                                this.seedPhrase = decryptedSeed;
+                                this.setAlertData("alternative",true,decryptedSeed)
+                            });
+                        }else {
+                            this.setAlertData("primary",true,this.$t('pages.securitySettings.incorrectPassword'))
+                        }
                     }
-                }
-            })
+                })
+            } else if (this.type == '2') {
+                this.loading = true
+                browser.storage.sync.get('userAccount').then(async (user) => {
+                    if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                        let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                        let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                        this.loading = false
+                        if(match) {
+                            this.privateKey = match
+                            this.setAlertData("alternative",true,match)
+                        }else {
+                            this.setAlertData("primary",true,this.$t('pages.securitySettings.incorrectPassword'))
+                        }
+                    }
+                })
+            }
         },
         reset(privateKey = '') {
             if(privateKey == '') {
@@ -125,8 +191,18 @@ export default {
                 })
             }
         },
+        reset(seedPhrase = '') {
+            if(seedPhrase == '') {
+                this.resetFields()
+            }else {
+                this.$copyText(seedPhrase).then(e => {
+                    this.resetFields()
+                })
+            }
+        },
         resetFields() {
             this.privateKey = ''
+            this.seedPhrase = ''
             this.alert.show = false
             this.alert.content = ''
             this.password = ''

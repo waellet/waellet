@@ -13,19 +13,6 @@ $color-alternative: #14CCB7;
 $color-secondary:#6948A1;
 $ledger-color:#203040;
 
-::-webkit-scrollbar {
-  width: 12px;
-}
-
-::-webkit-scrollbar-track {
-  
-}
-
-::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.7); 
-}
-
 
 * {
   box-sizing: border-box;
@@ -69,7 +56,7 @@ p {
   right: 0;
   top: 0.5rem;
 }
-.sendContent .ae-dropdown .ae-dropdown-button {
+.sendContent .ae-dropdown .ae-dropdown-button, .sendAmount .ae-dropdown .ae-dropdown-button {
   width: 100% !important;
   height: 16px !important;
   font-size: 1.3rem;
@@ -538,3 +525,41 @@ input::-moz-focus-outer {
 * End slider styles
 */
 
+
+.dropdown-menu {
+  margin-bottom: 1rem;
+  width: 100%;
+  height: 4rem;
+  background: #ececec;
+  border: 0;
+  font-size: 19px;
+  text-align: center;
+  padding: 10px;
+  outline: none;
+}
+.dropdown-menu:active, .dropdown-menu:focus {
+  border: none;
+  outline: none;
+  border-left: 2px solid #ff0d6a;
+}
+.dropdown-menu option {
+  height: 4rem;
+  padding: 10px;
+  width: 100%;
+  border:none;
+}
+
+.tokenRegistry .ae-check-button:after {
+  width: 29px;
+  height: 26px;
+  top:7px;
+}
+.tokenRegistry .ae-check-button:before {
+  top:7px;
+}
+.tokenRegistry .ae-check-button { 
+  padding-left:3rem;
+  word-break: break-word;
+  text-align: left;
+  margin-bottom:1rem;
+}
