@@ -16,7 +16,6 @@
                 </div>
                 <div v-if="step == 2">
                     <h3 style="margin: 0 0 1rem 0;" class="phraseTitle">{{$t('pages.seedPhrase.keepCarefully') }}</h3>
-                    <ae-button face="flat" fill="primary" v-clipboard:copy="seedPhraseSeparatedByComma" >{{$t('pages.seedPhrase.copy') }}</ae-button>
                     <div class="seeds-container">
                         <div class="col" v-for="column in columns" v-bind:key="column.id">
                             <ae-badge v-for="seed in column" v-bind:key="seed.id">{{seed.id + 1}} {{seed.name}}</ae-badge>
