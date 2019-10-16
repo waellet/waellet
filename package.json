@@ -1,6 +1,6 @@
 {
   "name": "waellet",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "waellet - aeternity browser extension",
   "author": "Milen Radkov <milenradkov@me.com>",
   "license": "MIT",
@@ -43,6 +43,7 @@
     "coininfo": "^4.4.0",
     "coinkey": "^3.0.0",
     "crypto-browserify": "^3.12.0",
+    "cryptr": "^4.0.2",
     "detect-browser": "^4.5.1",
     "emailjs-com": "^2.3.2",
     "extensionizer": "^1.0.1",
