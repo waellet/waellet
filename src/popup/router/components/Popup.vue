@@ -35,15 +35,21 @@ import { mapGetters } from 'vuex';
 
 export default {
     props: [
-        'popupSecondBtnClick'
+        'popupSecondBtnClick',
+        'redirect'
     ],
     computed: {
         ...mapGetters(['popup']),
     },
     methods: {
         closePopup() {
+            let { noRedirect } = this.popup
             this.$store.commit('HIDE_POPUP');
             this.$store.commit('DEF_POPUP');
+            if(this.redirect && !noRedirect) {
+                this.$store.commit('SET_AEPP_POPUP',false)
+                this.$router.push('/account')
+            }
         },
         clickSecondBtn() {
             this.$parent[this.popupSecondBtnClick]();

@@ -15,8 +15,10 @@ const deployContract = async() => {
             secretKey:getHdWalletAccount(wallet, 0).secretKey
         }
         let sdk = await initializeSDK(this, { account:acc }, true)
+        
         let bytecode = (await sdk.contractCompile(FUNGIBLE_TOKEN_CONTRACT)).bytecode
         let deployed = await sdk.contractDeploy(bytecode, FUNGIBLE_TOKEN_CONTRACT, [ `"AE TEST"`, '8', `"AET"` ])
+
         let call = await sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, deployed.address,"mint",[account.publicKey,"1000000"])
         resolve (deployed)
     })
@@ -25,6 +27,8 @@ const openTokensPage = () => {
     login()
     cy
     .visit('popup/popup.html',{onBeforeLoad})
+    .get('.ae-loader')
+    .should('not.be.visible')
     .get('#settings')
     .click()
     .get('.utilities')

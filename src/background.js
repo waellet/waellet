@@ -1,6 +1,7 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
 import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser } from './popup/utils/helper';
 import WalletContorller from './wallet-controller'
+import Notification from './notifications';
 
 
 global.browser = require('webextension-polyfill');
@@ -16,6 +17,7 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 setInterval(() => {
     browser.windows.getAll({}).then((wins) => {
         if(wins.length == 0) {
+            console.log("remove")
             sessionStorage.removeItem("phishing_urls");
             browser.storage.sync.remove('isLogged')
             browser.storage.sync.remove('activeAccount')
@@ -140,6 +142,36 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                         }
                     })
                 break;
+
+                case 'signMessage':
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            openAeppPopup(msg,'signMessage')
+                            .then(res => {
+                                sendResponse(res)
+                            })
+                        }else {
+                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    })
+                break;
+
+                case 'verifyMessage':
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            openAeppPopup(msg,'verifyMessage')
+                            .then(res => {
+                                sendResponse(res)
+                            })
+                        }else {
+                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    })
+                break;
             }
         break
     }
@@ -234,3 +266,7 @@ browser.runtime.onConnect.addListener( ( port ) => {
         })  
     }
 })  
+
+
+
+const notification = new Notification();

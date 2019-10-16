@@ -177,6 +177,7 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK } from './utils/helper';
+import { TOKEN_REGISTRY_CONTRACT } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
 import { start, postMesssage } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
@@ -229,7 +230,7 @@ export default {
       //init SDK
       this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {
-         
+          
           this.initLedger()
           this.initSDK()
           
@@ -432,8 +433,25 @@ export default {
       })
       return ae;
     },
-    initSDK() {
-        initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
+    async initSDK() {
+      let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
+      
+      if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
+        await this.$store.commit('SET_TOKEN_REGISTRY', await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) )
+        this.$store.dispatch('getAllUserTokens')
+      }
+      
+      if(typeof sdk.error != 'undefined') {
+          await browser.storage.sync.remove('isLogged')
+          await browser.storage.sync.remove('activeAccount')
+          this.hideLoader()
+          this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
+          this.$store.commit('UNSET_SUBACCOUNTS');
+          this.$store.commit('UPDATE_ACCOUNT', '');
+          this.$store.commit('SWITCH_LOGGED_IN', false);
+          
+          this.$router.push('/')
+      }
     },
     toTokens() {
       this.dropdown.settings = false

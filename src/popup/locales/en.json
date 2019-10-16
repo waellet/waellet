@@ -50,7 +50,10 @@
             "symbolBetween1and12": "Symbol between 1 and 12 characters",
             "numberBetween0and36": "Number between 0 and 36",
             "token": "Token",
-            "balance": "Balance"
+            "balance": "Balance",
+            "search": "Search",
+            "customToken": "Custom Token",
+            "tokenSearchLabel": "Search Token"
         },
         "advancedSettings": {
             "heading": "Advanced",
@@ -112,7 +115,8 @@
             "tokenName":"Token Name",
             "tokenSymbolLabel":"Token Symbol",
             "tokenPrecision":"Decimals of Precision",
-            "deployTokenContract": "Deploy Token Contract"
+            "deployTokenContract": "Deploy Token Contract",
+            "registryFee": "Include token in global TokenRegistry (tx fees apply)"
         },
         "fungibleTokens": {
             "backToAccount": "Back to account",
@@ -136,6 +140,15 @@
             "addTokenButton": "Add Token",
             "deployInfo": "This allows you to deploy your own fungible token contract",
             "deployButton": "Deploy Token Contract"
+        },
+        "mintTokenPage": {
+            "mint": "Mint/Burn token",
+            "mintInfo": "This allows you to mint or burn token amount",
+            "mintBtn": "Mint/Burn",
+            "amount": "Amount",
+            "address": "Address",
+            "enterAmount": "Invalid amount",
+            "enterAddress": "Enter address"
         },
         "generalSettings": {
             "backToSettings": "Back to settings",
@@ -338,7 +351,24 @@
             "nameSalt": "Name Salt",
             "nameId": "Name Id",
             "copy": "Copy",
-            "contractId": "Contract Id"
+            "contractId": "Contract Id",
+            "advancedMode": "Advanced Mode",
+            "blockHeight" : "Block Height",
+            "signatures": "Signatures",
+            "nonce" : "Nonce",
+            "callData": "Call Data",
+            "gas": "Gas",
+            "gasPrice": "Gas Price",
+            "code" : "Code",
+            "abiV": "Abi version",
+            "vmV": "Vm version",
+            "payload": "Payload",
+            "commitment": "Commitment id",
+            "clientTtl": "Client TTL",
+            "nameTtl": "Name TTL",
+            "pointerId": "Pointer Id",
+            "pointerKey": "Pointer Key",
+            "moreInfo": "More Info"
         },
         "transactions": {
             "backToAccount": "Back to account",
@@ -359,6 +389,7 @@
             "createTx": "create tx",
             "clear": "Clear filter",
             "apply": "Apply filter"
+            
         },
         "utilities": {
             "heading": "Utilities",

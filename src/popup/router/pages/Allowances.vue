@@ -2,7 +2,7 @@
     <div class="popup">
         <div v-if="allowancePage == ''">
             <div class="actions">
-                <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{$t('pages.allowances.backToUtilities') }}</button>
+                <button class="backbutton toAccount" @click="navigateFungibleTokens"><ae-icon name="back" /> {{$t('pages.addFungibleToken.backToFungibleTokens')}}</button>
             </div>
             <h3 style='text-align:center;'>{{$t('pages.allowances.heading') }}</h3>
             <div>
@@ -177,7 +177,7 @@ export default {
                     if (element.key == this.selected) {
                         try {
                             this.loading = true
-                            let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
+                            let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract })
                             let checkAmountLeft = await contract.call('allowance', [{from_account: this.account.publicKey, for_account: this.createform.to_account}], { callStatic: true })
                             let amountLeft = await checkAmountLeft.decode()
                             .then (async amount => {
@@ -199,7 +199,7 @@ export default {
                                             accountCurrentBalance: element.balance
                                         });
                                         let value = (this.createform.value).toString();
-                                        let create = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, element.contract , 'create_allowance', [this.createform.to_account,value])
+                                        let create = await contract.methods.create_allowance(this.createform.to_account,value)
                                         let dec = await create.decode()
                                         this.$store.dispatch('popupAlert', { name: 'account', type: 'added_success'});
                                         this.loading = false;
@@ -281,7 +281,7 @@ export default {
                                                 source:     FUNGIBLE_TOKEN_CONTRACT,
                                                 address:    element.contract,
                                                 method:     'transfer_allowance', 
-                                                params:     [this.transferform.to_account,this.account.publicKey,(this.transferform.value).toString()],
+                                                params:     [this.transferform.to_account,this.account.publicKey,this.transferform.value],
                                                 amount:     this.transferform.value,
                                                 token:      element.symbol
                                             },
@@ -317,7 +317,8 @@ export default {
             this.selected = event.target.value;
             this.tokens.forEach(async element => {
                 if (element.key == this.selected) {
-                    let checkAllAllowances = await this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,element.contract,'allowances')
+                    let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
+                    let checkAllAllowances = await contract.methods.allowances()
                     let all = await checkAllAllowances.decode()
                     if (all.length != 0) {
                         all.forEach(async singleAllowance => {
@@ -378,7 +379,7 @@ export default {
                         this.loading = false;
                     }
                     else {
-                        let change = await this.sdk.contractCall(FUNGIBLE_TOKEN_CONTRACT, contractId , 'change_allowance', [this.changeform.to_account,value])
+                        let change = await contract.methods.change_allowance(this.changeform.to_account,value)
                         let changeDec = await change.decode()
                         this.$store.dispatch('popupAlert', { name: 'fungible_token', type: 'allowance_change_success' })
                         .then(res => {
@@ -404,8 +405,8 @@ export default {
         openAllowencesPage() {
             this.$router.push('/allowances');
         },
-        navigateUtilities() {
-            this.$router.push('/utilities')
+        navigateFungibleTokens() {
+            this.$router.push('/fungible-tokens')
         },
     }
 }

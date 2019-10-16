@@ -19,6 +19,7 @@ export const TX_TYPES = {
 }
 
 const STUB_ADDRESS = 'ak_enAPooFqpTQKkhJmU47J16QZu9HbPQQPwWBVeGnzDbDnv9dxp';
+const STUB_CALLDATA = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACDJfUrsdAtW6IZtMvhp0+eVDUiQivrquyBwXrl/ujPLcgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJQQwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACUEMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJvjRF'
 export const MAX_UINT256 = BigNumber(2).exponentiatedBy(256).minus(1);
 const MIN_SPEND_TX_FEE_STRING = TxBuilder.calculateMinFee(
     'spendTx', {
@@ -42,6 +43,7 @@ export const calculateFee = (type,params) => {
       nonce: MAX_UINT256,
       ctVersion:{abiVersion:ABI_VERSIONS.SOPHIA,vmVersion:VM_VERSIONS.SOPHIA},
       abiVersion:ABI_VERSIONS.SOPHIA,
+      callData: STUB_CALLDATA,
       ...params
     }
   })
@@ -60,6 +62,58 @@ const toMicro = value => value.shiftedBy(-MAGNITUDE_MICRO).toFixed();
 
 export const MIN_SPEND_TX_FEE_MICRO = toMicro(MIN_SPEND_TX_FEE);
 export const MAX_REASONABLE_FEE_MICRO = toMicro(MAX_REASONABLE_FEE);
+
+export const networks = {
+  Testnet: {
+    url: 'https://sdk-testnet.aepps.com',
+    internalUrl: 'https://sdk-testnet.aepps.com',
+    networkId: 'ae_uat',
+    middlewareUrl: 'https://testnet.mdw.aepps.com/',
+    explorerUrl: 'https://testnet.explorer.aepps.com',
+    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
+  },
+  Mainnet: {
+    url: 'https://sdk-mainnet.aepps.com',
+    internalUrl: 'https://sdk-mainnet.aepps.com',
+    networkId: 'ae_mainnet',
+    middlewareUrl: 'http://mdw.aepps.com/',
+    explorerUrl: 'https://testnet.explorer.aepps.com',
+    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
+  }
+}
+
+export const TX_LIMIT_PER_DAY = 2000
+
+
+export const TOKEN_REGISTRY_CONTRACT = 
+`contract Token =
+  record meta_info =
+    { name : string
+    , symbol : string
+    , decimals : int }
+    
+  entrypoint meta_info : () => meta_info
+  entrypoint total_supply : () => int
+  entrypoint owner : () => address
+  entrypoint balances : () => map(address, int)
+  entrypoint balance : (address) => option(int)
+  entrypoint transfer : (address, int) => ()
+
+contract TokenRegistry =
+  record state = { tokens: map(Token, Token.meta_info) }
+
+  stateful entrypoint init() = { tokens = {} }
+
+  stateful entrypoint add_token(token : Token) : () =
+    put(state{ tokens[token] = token.meta_info() })
+
+  entrypoint get_all_tokens() : map(Token, Token.meta_info) = state.tokens
+
+  entrypoint get_token_meta_info(token : Token) : Token.meta_info = token.meta_info()
+  entrypoint get_token_balances(token : Token) : map(address, int) = token.balances()
+  entrypoint get_token_balance(token : Token, account: address) : option(int) = token.balance(account)
+  entrypoint get_token_owner(token : Token) : address = token.owner()
+  entrypoint get_token_total_supply(token : Token) : int = token.total_supply()`
 
 
 export const FUNGIBLE_TOKEN_CONTRACT = 

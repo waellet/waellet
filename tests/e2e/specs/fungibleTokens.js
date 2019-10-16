@@ -1,10 +1,15 @@
 import { onBeforeLoad } from '../support/mock_chrome.js';
 import { login,loginAndLogout } from '../login';
 import { ACCOUNT_PASSWORD, PUBLIC_KEY_SEND } from '../utils';
+
+const tokenName = "HACK";
+
 const openTokensPage = () => {
     login()
     cy
     .visit('popup/popup.html',{onBeforeLoad})
+    .get('.ae-loader')
+    .should('not.be.visible')
     .get('#settings')
     .click()
     .get('.utilities')
@@ -19,7 +24,7 @@ const addToken = () => {
     cy
     .get('.token-contract')
     .clear()
-    .type('ct_2CC7FPsumg5azo7xNH6XS9wCnzFqVCdE4WrKzrUk6Z4jNeazF8')
+    .type('ct_ZrsqixJo96h2sqTn7HhHwTR9RdHQNWLSdC1f3PAkfK5Rucubm')
     .get('.ae-loader')
     .should('not.be.visible')
     .get('.token-symbol')
@@ -351,7 +356,7 @@ describe("Test cases for adding fungible tokens functionality", () => {
         .get('.address .ae-input')
         .type(PUBLIC_KEY_SEND)
         .get('.aemount')
-        .type(200)
+        .type(1000001)
         .get('.sendBtn')
         .click()
         .get('.ae-modal-light')

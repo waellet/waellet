@@ -9,7 +9,7 @@
                     <ae-icon name="filter" />
                     {{$t('pages.transactions.filters')}}
                 </ae-button>
-            </div>
+            </div> 
         </div>
         
         <h3 class="transactionsPadding mb-0"> {{$t('pages.transactions.heading')}} </h3>

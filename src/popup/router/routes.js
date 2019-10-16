@@ -21,6 +21,7 @@ import ManageNetworksComponent from './pages/ManageNetworks';
 import FungibleTokensComponent from './pages/AddFungibleToken';
 import SignAndVerifyMsg from './pages/SignAndVerifyMsg';
 import FungibleTokensPageComponent from './pages/FungibleTokensPage';
+import MintFungibleTokenComponent from './pages/MintFungibleToken';
 import AirGapSetup from './pages/AirGapSetup';
 import SignTransactionByQrCode from './pages/SignTransactionByQrCode';
 import QrCodeReader from './pages/QrCodeReader';
@@ -132,8 +133,14 @@ export default [
     component:FungibleTokensPageComponent
   },
   {
+    path:'/mint-token',
+    component: MintFungibleTokenComponent
+  },
+  {
+    name:'sign-verify-message',
     path:'/signAndVerifyMsg',
-    component:SignAndVerifyMsg
+    component:SignAndVerifyMsg,
+    props: true
   },
   {
     path:'/airGapSetup',

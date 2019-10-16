@@ -184,7 +184,7 @@ export default {
       // browser.storage.sync.set({isLogged: ''}).then(() => {});
       // browser.storage.sync.set({confirmSeed: true}).then(() => {});
       // browser.storage.sync.set({mnemonic: ''}).then(() => {});
-      // browser.storage.sync.remove('subaccounts').then(() => {});
+      browser.storage.sync.remove('processingTx').then(() => {});
       var newTab = false;
       browser.storage.sync.get('allowTracking').then(result => {
         if (result.hasOwnProperty('allowTracking')) {
@@ -194,7 +194,7 @@ export default {
       browser.storage.sync.get('showAeppPopup').then(aepp => {
         browser.storage.sync.get('pendingTransaction').then(pendingTx => {
           browser.storage.sync.get('isLogged').then(data => {
-            browser.storage.sync.get('userAccount').then(user => {
+            browser.storage.sync.get('userAccount').then(async user => {
               if (user.userAccount && user.hasOwnProperty('userAccount')) {
                 try {
                   user.userAccount.encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
@@ -248,16 +248,8 @@ export default {
                 }
               });
               if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                    browser.storage.sync.get('tokens').then(tkn => {
-                      let tokens = this.tokens;
-                      if (tkn.hasOwnProperty('tokens')) {
-                        tokens = tkn.tokens;
-                      }
-                      this.$store.dispatch('setTokens', tokens).then(() => {
-                        this.$store.commit('SWITCH_LOGGED_IN', true);
-                        redirectAfterLogin(this);
-                      });
-                    });
+                  this.$store.commit('SWITCH_LOGGED_IN', true);
+                  redirectAfterLogin(this);
               }
             });
           });
@@ -311,7 +303,7 @@ export default {
         }
       } else if (importType == 'seedPhrase') {
         let seed = seedPhrase.split(' ');
-        if (seed.length == 12 && this.checkSeed(seedPhrase)) {
+        if (seed.length >= 12 && seed.length <= 24 && this.checkSeed(seedPhrase)) {
           this.$router.push({
             name: 'password',
             params: {
