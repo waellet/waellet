@@ -190,7 +190,7 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
             keypair:{ ...res },
             networkId: (typeof network != 'undefined' ? network[current.network].networkId : "ae_uat" ), 
             nativeMode: true,
-            compilerUrl: 'https://compiler.aepps.com'
+            compilerUrl: (typeof network != 'undefined' ? network[current.network].compilerUrl : "https://compiler.aepps.com" )
         }).then((sdk) => {
             if(!backgr) {
                 ctx.$store.dispatch('initSdk',sdk).then(() => {
