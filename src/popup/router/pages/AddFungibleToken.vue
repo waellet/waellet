@@ -182,7 +182,7 @@ export default {
                     let tx = {
                         popup:false,
                         tx: {
-                            source: TOKEN_REGISTRY_CONTRACT,
+                            source: this.network[this.current.network].networkId == 'ae_uat' ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT,
                             address: this.network[this.current.network].tokenRegistry ,
                             params: [this.token.contract],
                             method: 'add_token',

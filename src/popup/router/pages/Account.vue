@@ -75,7 +75,7 @@ import { mapGetters } from 'vuex';
 import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
 import { request } from 'http';
 import { fetchData, currencyConv } from '../../utils/helper';
-import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT } from '../../utils/constants';
+import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
 
 export default {
   name: 'Account',
