@@ -25,8 +25,12 @@ We see Waellet as user’s first choice wallet when it comes to interacting with
 Currently, Waellet is still in beta and under heavy development. Last week we on-boarded three more people to work along with Milen, pushing to bring you our best vision of the wallet as soon as possible.
 
 ## Download 
-- [Chrome Web Extensions Store](https://chrome.google.com/webstore/detail/waellet/nnkfipoloblhgnahnaocfkhmmplcdneb)
-- [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/waellet/)
+
+We recommend installing the stable release via your browser's add-on store.
+
+| <img src="https://unpkg.com/@browser-logos/firefox@2.0.0/firefox_16x16.png" width="16" height="16"> [Firefox](https://www.mozilla.org/firefox/new/) | <img src="https://unpkg.com/@browser-logos/chrome@1.0.4/chrome_16x16.png" width="16" height="16"> [Chrome](https://www.google.com/chrome/) / <img src="https://unpkg.com/@browser-logos/brave@3.0.0/brave_16x16.png" width="16" height="16"> [Brave](https://brave.com/) / <img src="https://unpkg.com/@browser-logos/opera@1.1.1/opera_16x16.png" width="16" height="16"> [Opera](https://www.opera.com/)  / <img src="https://unpkg.com/@browser-logos/edge@1.0.6/edge_16x16.png" width="16" height="16"> [Edge](https://www.microsoftedgeinsider.com/)
+|------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [![Install From AMO](https://ipfs.io/ipfs/QmWNa64XjA78QvK3zG2593bSMizkDXXcubDHjnRDYUivqt)](https://addons.mozilla.org/firefox/addon/waellet/) | [![Install from Chrome Store](https://ipfs.io/ipfs/QmXeTTMAxJVSZLqNcVzBdsAZKhWUpP7w7QAZ8f3Bnmk3Mj)](https://chrome.google.com/webstore/detail/waellet/nnkfipoloblhgnahnaocfkhmmplcdneb) |
 
 or see instructions below how to build it from source.
 
