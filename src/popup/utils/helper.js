@@ -190,7 +190,7 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
             keypair:{ ...res },
             networkId: (typeof network != 'undefined' ? network[current.network].networkId : "ae_uat" ), 
             nativeMode: true,
-            compilerUrl: 'https://compiler.aepps.com'
+            compilerUrl: (typeof network != 'undefined' ? network[current.network].compilerUrl : "https://compiler.aepps.com" )
         }).then((sdk) => {
             if(!backgr) {
                 ctx.$store.dispatch('initSdk',sdk).then(() => {
@@ -221,13 +221,15 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
 
 const  currencyConv = async (ctx) => {
     browser.storage.sync.get('convertTimer').then(async result => {
-      var time = new Date().getTime();
+        var time = new Date().getTime();
       if ( !result.hasOwnProperty('convertTimer') || (result.hasOwnProperty('convertTimer') && (result.convertTimer == '' || result.convertTimer == 'undefined' || result.convertTimer <= time)) ) {
-        const fetched = await fetchData('https://api.coingecko.com/api/v3/simple/price?ids=aeternity&vs_currencies=usd,eur','get','');
+        const fetched = await fetchData('https://api.coingecko.com/api/v3/simple/price?ids=aeternity&vs_currencies=usd,eur,aud,ron,brl,cad,chf,cny,czk,dkk,gbp,hkd,hrk,huf,idr,ils,inr,isk,jpy,krw,mxn,myr,nok,nzd,php,pln,ron,rub,sek,sgd,thb,try,zar,xau','get','');
         browser.storage.sync.set({ rateUsd : fetched.aeternity.usd}).then(() => { });
         browser.storage.sync.set({ rateEur : fetched.aeternity.eur}).then(() => { });
         browser.storage.sync.set({ convertTimer : time+3600000}).then(() => { });
+        browser.storage.sync.set({ allCurrencies : JSON.stringify(fetched.aeternity)}).then(() => { });
       }
+
       browser.storage.sync.get('rateUsd').then(resusd => {
         ctx.usdRate = resusd.rateUsd;
         ctx.toUsd = resusd.rateUsd * ctx.balance;
@@ -236,6 +238,11 @@ const  currencyConv = async (ctx) => {
         ctx.eurRate = reseur.rateEur;
         ctx.toEur = reseur.rateEur * ctx.balance;
       });
+      browser.storage.sync.get('allCurrencies').then(resall => {
+        let ar = JSON.parse(resall.allCurrencies)
+        ctx.allCurrencies = ar;
+      });
+
     });
 }
 

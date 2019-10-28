@@ -236,7 +236,14 @@
             "privateKey":"Your private key",
             "showPrivateKey": "Show Private Key",
             "incorrectPassword":"Incorrect Password",
-            "decryptingPrivateKey":"Decrypting private key"
+            "decryptingPrivateKey":"Decrypting private key",
+            "showSeedPhrase": "Show seed phrase",
+            "seedRecoveryHeading": "Show seed phrase",
+            "seedRecoverySmall": "Reveals your 12 words used for generating your private key",
+            "seedRecoveryBtn": "Show seed phrase",
+            "seedPhraseWarning": "Do not share your seed with anyone, it can be used to steal all your accounts",
+            "seedPhrase": "Your seed phrase",
+            "copy": "Copy to clipboard"
         },
         "seedPhrase": {
             "securingAccount": "Securing your account",

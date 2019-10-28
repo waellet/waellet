@@ -177,7 +177,7 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK } from './utils/helper';
-import { TOKEN_REGISTRY_CONTRACT } from './utils/constants'
+import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
 import { start, postMesssage } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
@@ -437,7 +437,7 @@ export default {
       let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
       
       if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
-        await this.$store.commit('SET_TOKEN_REGISTRY', await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) )
+        await this.$store.commit('SET_TOKEN_REGISTRY', await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) )
         this.$store.dispatch('getAllUserTokens')
       }
       
@@ -546,10 +546,6 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account .subAccountCheckbox { float: right; }
 #account li, #network li { padding:0.75rem; cursor:pointer !important; }
 #account ul { width:250px; margin-left: -125px; max-height: 350px; height: auto; overflow-y: scroll;}
-#account ul::-webkit-scrollbar { width: 10px; }
-#account ul::-webkit-scrollbar-track { background: #f1f1f1; }
-#account ul::-webkit-scrollbar-thumb {background: #888; }
-#account ul::-webkit-scrollbar-thumb:hover {background: #555; }
 #account .activeAccount { background: #f6f6f6; }
 #account .manageAccounts, #network .manageAccounts { padding:0; }
 #account .manageAccounts button, #network .manageAccounts button { padding: 0.5rem 0.75rem; height: auto; justify-content: center; }

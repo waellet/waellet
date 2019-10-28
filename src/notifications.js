@@ -19,7 +19,7 @@ export default class Notification {
             url: this.network.url,
             internalUrl: this.network.internalUrl,
             networkId: this.network.networkId,
-            compilerUrl: 'https://compiler.aepps.com'
+            compilerUrl: this.network.compilerUrl
         })
         
         setInterval(() => {

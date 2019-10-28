@@ -70,7 +70,8 @@ export const networks = {
     networkId: 'ae_uat',
     middlewareUrl: 'https://testnet.mdw.aepps.com/',
     explorerUrl: 'https://testnet.explorer.aepps.com',
-    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
+    compilerUrl: 'https://latest.compiler.aepps.com',
+    tokenRegistry: 'ct_Dnwribmd21YrxSQnqXCB5vTFPrgYJx2eg2TrbLvbdyEbTMejw'
   },
   Mainnet: {
     url: 'https://sdk-mainnet.aepps.com',
@@ -78,6 +79,7 @@ export const networks = {
     networkId: 'ae_mainnet',
     middlewareUrl: 'http://mdw.aepps.com/',
     explorerUrl: 'https://testnet.explorer.aepps.com',
+    compilerUrl: 'https://compiler.aepps.com',
     tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
   }
 }
@@ -108,6 +110,37 @@ contract TokenRegistry =
     put(state{ tokens[token] = token.meta_info() })
 
   entrypoint get_all_tokens() : map(Token, Token.meta_info) = state.tokens
+
+  entrypoint get_token_meta_info(token : Token) : Token.meta_info = token.meta_info()
+  entrypoint get_token_balances(token : Token) : map(address, int) = token.balances()
+  entrypoint get_token_balance(token : Token, account: address) : option(int) = token.balance(account)
+  entrypoint get_token_owner(token : Token) : address = token.owner()
+  entrypoint get_token_total_supply(token : Token) : int = token.total_supply()`
+
+
+export const TOKEN_REGISTRY_CONTRACT_LIMA = 
+`contract Token =
+  record meta_info =
+    { name : string
+    , symbol : string
+    , decimals : int }
+    
+  entrypoint meta_info : () => meta_info
+  entrypoint total_supply : () => int
+  entrypoint owner : () => address
+  entrypoint balances : () => map(address, int)
+  entrypoint balance : (address) => option(int)
+  entrypoint transfer : (address, int) => unit
+
+contract TokenRegistry =
+  type state = map(Token, Token.meta_info)
+
+  stateful entrypoint init() : state = {}
+
+  stateful entrypoint add_token(token : Token) : unit =
+    put(state{ [token] = token.meta_info() })
+
+  entrypoint get_all_tokens() : map(Token, Token.meta_info) = state
 
   entrypoint get_token_meta_info(token : Token) : Token.meta_info = token.meta_info()
   entrypoint get_token_balances(token : Token) : map(address, int) = token.balances()

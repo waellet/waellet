@@ -15,7 +15,7 @@
 
                 </div>
                 <div v-if="step == 2">
-                    <h3  class="phraseTitle">{{$t('pages.seedPhrase.keepCarefully') }}</h3>
+                    <h3 style="margin: 0 0 1rem 0;" class="phraseTitle">{{$t('pages.seedPhrase.keepCarefully') }}</h3>
                     <div class="seeds-container">
                         <div class="col" v-for="column in columns" v-bind:key="column.id">
                             <ae-badge v-for="seed in column" v-bind:key="seed.id">{{seed.id + 1}} {{seed.name}}</ae-badge>
@@ -55,6 +55,8 @@ import {shuffleArray, fetchData} from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { addressGenerator } from '../../utils/address-generator';
 import { generateHdWallet } from '../../utils/hdWallet'
+const Cryptr = require('cryptr');
+const cryptr = new Cryptr('myTotalySecretKey');
 
 export default {
     props: ['termsAgreed'],
@@ -92,6 +94,13 @@ export default {
         ...mapGetters(['popup']),
         shiffledSeed() {
             return shuffleArray(this.seeds);
+        },
+        seedPhraseSeparatedByComma() {
+            var arr = [];
+            this.seeds.forEach(element => {
+                arr.push(element.name);
+            });
+            return arr.join(', ')
         },
         columns () {
             let columns = []
@@ -157,31 +166,34 @@ export default {
                             if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
                                 originalSeed = originalSeed.replace(/,/g, ' ');
                                 let seed = mnemonicToSeed(originalSeed);
+                                let encryptedSeed = cryptr.encrypt(originalSeed);
                                 let address = await this.$store.dispatch('generateWallet', { seed })
                                 const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,seed.toString('hex'), address);
                                 if(keyPair) {
-                                    browser.storage.sync.set({isLogged: true}).then(async () => {
-                                        browser.storage.sync.set({userAccount: keyPair}).then(() => {
-                                            browser.storage.sync.set({termsAgreed: termsAgreed}).then(() => {
-                                                this.loading = false;
-                                                let sub = [];
-                                                sub.push({
-                                                    name:'Main account',
-                                                    publicKey:keyPair.publicKey,
-                                                    balance:0,
-                                                    root:true
-                                                });
-                                                browser.storage.sync.set({accountPassword: ''}).then(() => {});
-                                                browser.storage.sync.set({mnemonic: ''}).then(() => {});
-                                                browser.storage.sync.set({confirmSeed: true}).then(() => {});
-                                                browser.storage.sync.set({subaccounts: sub}).then(() => {
-                                                    this.$store.dispatch('setSubAccounts', sub);
-                                                    browser.storage.sync.set({activeAccount: 0}).then(async () => {
-                                                        this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
-                                                        this.$store.commit('UPDATE_ACCOUNT', keyPair);
-                                                        this.$store.commit('SWITCH_LOGGED_IN', true);
-                                                        this.$router.push('/account');
-                                                        this.generated = true;
+                                    browser.storage.sync.set({encryptedSeed: encryptedSeed}).then(async () => {
+                                        browser.storage.sync.set({isLogged: true}).then(async () => {
+                                            browser.storage.sync.set({userAccount: keyPair}).then(() => {
+                                                browser.storage.sync.set({termsAgreed: termsAgreed}).then(() => {
+                                                    this.loading = false;
+                                                    let sub = [];
+                                                    sub.push({
+                                                        name:'Main account',
+                                                        publicKey:keyPair.publicKey,
+                                                        balance:0,
+                                                        root:true
+                                                    });
+                                                    browser.storage.sync.set({accountPassword: ''}).then(() => {});
+                                                    browser.storage.sync.set({mnemonic: ''}).then(() => {});
+                                                    browser.storage.sync.set({confirmSeed: true}).then(() => {});
+                                                    browser.storage.sync.set({subaccounts: sub}).then(() => {
+                                                        this.$store.dispatch('setSubAccounts', sub);
+                                                        browser.storage.sync.set({activeAccount: 0}).then(async () => {
+                                                            this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
+                                                            this.$store.commit('UPDATE_ACCOUNT', keyPair);
+                                                            this.$store.commit('SWITCH_LOGGED_IN', true);
+                                                            this.$router.push('/account');
+                                                            this.generated = true;
+                                                        });
                                                     });
                                                 });
                                             });
