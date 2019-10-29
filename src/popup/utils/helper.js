@@ -346,7 +346,7 @@ const contractCall = async ({ instance, method,  params = [], decode = false, as
     }catch(e) {
         if(e.message.indexOf("wrong_abi_version") > -1) {
             instance.setOptions({ backend: 'aevm'})
-            return contractCall({ instance, method, params, decode, async })
+            return await contractCall({ instance, method, params, decode, async })
         } else {
             throw e.message
         }

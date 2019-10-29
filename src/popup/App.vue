@@ -438,6 +438,7 @@ export default {
       
       if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
         await this.$store.commit('SET_TOKEN_REGISTRY', await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) )
+        
         this.$store.dispatch('getAllUserTokens')
       }
       
