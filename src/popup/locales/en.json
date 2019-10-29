@@ -139,7 +139,8 @@
             "tokenInfo": "This allows you to add token from given deployed fungible token contract",
             "addTokenButton": "Add Token",
             "deployInfo": "This allows you to deploy your own fungible token contract",
-            "deployButton": "Deploy Token Contract"
+            "deployButton": "Deploy Token Contract",
+            "deployFungToken": "Deploy Token"
         },
         "mintTokenPage": {
             "mint": "Mint/Burn token",

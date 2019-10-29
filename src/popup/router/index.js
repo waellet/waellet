@@ -13,7 +13,16 @@ import AmountInput from './components/AmountInput';
 import AddressInput from './components/AddressInput';
 import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader'
 import ModalComponent from './components/Modal';
+import * as helper from '../utils/helper'
 
+const plugin = {
+  install () {
+      Vue.helpers = helper
+      Vue.prototype.$helpers = helper
+  }
+}
+
+Vue.use(plugin)
 Vue.use(VueRouter);
 Vue.use(VueClipboard);
 Vue.use(Components);
