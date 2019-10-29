@@ -438,10 +438,6 @@ export default {
       
       if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
         await this.$store.commit('SET_TOKEN_REGISTRY', await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) )
-        
-        let instance = await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: "ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV" })
-        let call = await this.$helpers.contractCall({ instance, method: 'get_all_tokens' })
-        
         this.$store.dispatch('getAllUserTokens')
       }
       
