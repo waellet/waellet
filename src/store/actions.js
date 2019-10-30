@@ -1,7 +1,7 @@
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
-import { convertToAE, stringifyForStorage, parseFromStorage } from '../popup/utils/helper';
+import { convertToAE, stringifyForStorage, parseFromStorage, contractCall } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
 import { uniqBy, head, flatten, merge } from 'lodash-es';
 import router from '../popup/router/index'
@@ -441,10 +441,11 @@ export default {
 
   async getAllUserTokens({ state: { tokenRegistry, account, tokens, sdk }, dispatch }) {
     let { publicKey } = account
-    let tkns = (await tokenRegistry.methods.get_all_tokens()).decodedResult
+    
+    let tkns = (await contractCall({ instance:tokenRegistry, method:'get_all_tokens' })).decodedResult
     let res = (await Promise.all(tkns.map(async ( tkn ) => { 
-      let balance = (await tokenRegistry.methods.get_token_balance(tkn[0], publicKey)).decodedResult
-      let owner = (await tokenRegistry.methods.get_token_owner(tkn[0])).decodedResult
+      let balance = (await contractCall({ instance:tokenRegistry, method:'get_token_balance', params: [tkn[0], publicKey] })).decodedResult
+      let owner = (await contractCall({ instance:tokenRegistry, method:'get_token_owner', params: [tkn[0]] })).decodedResult
       let token
       if(typeof balance != 'undefined' || owner == publicKey) {
         token = {

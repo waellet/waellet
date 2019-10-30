@@ -29,7 +29,8 @@ import CreateFungibleTokenComponent from './pages/CreateFungibleToken';
 import LedgerSetupComponent from './pages/LedgerSetup';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
-
+import TokenMigration from './pages/TokenMigration';
+import TokenMigrationInfo from './pages/TokenMigrationInfo';
 export default [
   {
     path: '/',
@@ -173,6 +174,14 @@ export default [
   {
     path:'/privacyPolicy',
     component:PrivacyPolicy
+  },
+  {
+    path: '/token-migration',
+    component: TokenMigration
+  },
+  {
+    path: '/token-migration-info',
+    component: TokenMigrationInfo
   }
   
 ];
