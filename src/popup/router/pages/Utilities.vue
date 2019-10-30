@@ -21,6 +21,11 @@
                 <i class="arrowright"></i>
                 <p class="tabinfo">{{$t('pages.utilities.signAndVerifyMsgInfo')}}</p>
             </button>
+            <button class="sign-verify-messages" @click="openTokenMigration">
+                <span class="settings-li">{{$t('pages.utilities.tokenMigration')}}</span>
+                <i class="arrowright"></i>
+                <p class="tabinfo">{{$t('pages.utilities.prepareTokenMigration')}}</p>
+            </button>
         </ae-list>
         <Loader size="big" :loading="loading" type="transparent" ></Loader>
     </div>
@@ -59,6 +64,9 @@ export default {
     },
     openSignVerifyMsgPage() {
       this.$router.push('/signAndVerifyMsg');
+    },
+    openTokenMigration() {
+      this.$router.push('/token-migration-info')
     }
   }
 }

@@ -153,7 +153,8 @@ export default {
             }else {
                 this.loading = true
                 let contractInstance = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: this.token.contract })
-                let call = await contractInstance.methods.balance(this.account.publicKey)
+                let call = await this.$helpers.contractCall({ instance:contractInstance, method:'balance', params:[this.account.publicKey] })
+                
                 let balance = await call.decode()
                 this.loading = false
                 this.token.balance = balance == 'None' ? 0 : balance.Some[0]
@@ -172,7 +173,7 @@ export default {
             })
             this.$store.dispatch('setTokens', tokens).then(async () => {
                 this.loading = true
-                let find = (await this.tokenRegistry.methods.get_all_tokens()).decodedResult.find(t => t[0] == this.token.contract)
+                let find = (await this.$helpers.contractCall({ instance:this.tokenRegistry, method:'get_all_tokens' })).decodedResult.find(t => t[0] == this.token.contract)
                 
                 if(this.token.balance == 0) {
                     await browser.storage.sync.set({ tokens: this.tokens})
@@ -217,7 +218,7 @@ export default {
             this.loading = true
             try {
                 let contractInstance = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: address })
-                contractInstance.methods.meta_info()
+                this.$helpers.contractCall({ instance: contractInstance, method: 'meta_info', async: false })
                 .then((res) => {
                     res.decode()
                     .then(data => {
@@ -250,10 +251,11 @@ export default {
                 this.token.results = []
                 return
             }
-            this.token.results = (await this.tokenRegistry.methods.get_all_tokens()).decodedResult.filter(t => t[1].name.toLowerCase().includes(this.token.search) || 
-                t[1].name.toLowerCase().startsWith(this.token.search) || 
-                t[1].symbol.toLowerCase().startsWith(this.token.search) ||
-                t[0] == this.token.search )
+            let keyword = this.token.search.toLowerCase()
+            this.token.results = (await this.$helpers.contractCall({ instance:this.tokenRegistry, method:'get_all_tokens'})).decodedResult.filter(t => t[1].name.toLowerCase().includes(keyword) || 
+                t[1].name.toLowerCase().startsWith(keyword) || 
+                t[1].symbol.toLowerCase().startsWith(keyword) ||
+                t[0] == keyword )
         },
         resetToken() {
             this.token.precision = 1
