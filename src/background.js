@@ -4,6 +4,12 @@ import WalletContorller from './wallet-controller'
 import Notification from './notifications';
 
 
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import Wallet from '@aeternity/aepp-sdk/es/ae/wallet'
+// import BrowserRuntimeConnection from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/wallet-connection/browser-runtime'
+
+
+
 global.browser = require('webextension-polyfill');
 
 // listen for our browerAction to be clicked
@@ -17,7 +23,6 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 setInterval(() => {
     browser.windows.getAll({}).then((wins) => {
         if(wins.length == 0) {
-            console.log("remove")
             sessionStorage.removeItem("phishing_urls");
             browser.storage.sync.remove('isLogged')
             browser.storage.sync.remove('activeAccount')
@@ -259,7 +264,6 @@ browser.runtime.onConnect.addListener( ( port ) => {
     }
     if((port.name == 'popup' && port.sender.id == browser.runtime.id && port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && detectBrowser() != 'Firefox') || ( detectBrowser() == 'Firefox' && port.name == 'popup' && port.sender.id == browser.runtime.id ) ) {
         port.onMessage.addListener(({ type, payload, uuid}) => {
-            console.log(type)
             controller[type](payload).then((res) => {
                 port.postMessage({ uuid, res })
             })
@@ -267,6 +271,57 @@ browser.runtime.onConnect.addListener( ( port ) => {
     }
 })  
 
-
-
 const notification = new Notification();
+
+
+/** 
+ * AEX-2
+ */
+
+
+// const account =  MemoryAccount({
+//     keypair: {
+//         secretKey: "0eb8cefe04593f2960ddb7d731321b709cec5ce10625334542e410630f0b02d4d1a124ce191ef08e8d2d8fbf424504013c9b8aaecec6f71785f2ee20ddf3a688",
+//         publicKey: "ak_2bKhoFWgQ9os4x8CaeDTHZRGzUcSwcXYUrM12gZHKTdyreGRgG"
+//     }
+// })
+
+// const accounts = [
+//     account
+// ]
+
+
+// const NODE_URL = 'https://sdk-testnet.aepps.com'
+// const NODE_INTERNAL_URL = 'https://sdk-testnet.aepps.com'
+// const COMPILER_URL = 'https://compiler.aepps.com'
+
+// Wallet({
+//     url: NODE_URL,
+//     internalUrl: NODE_INTERNAL_URL,
+//     compilerUrl: COMPILER_URL,
+//     name: 'ExtensionWallet',
+//     accounts,
+//     onConnection (aepp, action) {
+//         if (confirm(`Client ${aepp.info.name} with id ${aepp.id} want to connect`)) {
+//             action.accept()
+//         }
+//     },
+//     onDisconnect (masg, client) {
+//       client.disconnect()
+//     },
+//     onSubscription (aepp, action) {
+//         if (confirm(`Aepp ${aepp.info.name} with id ${aepp.id} want to subscribe for accounts`)) {
+//             action.accept()
+//         } else { action.deny() }
+//     },
+//     onSign (aepp, action) {
+//         if (confirm(`Aepp ${aepp.info.name} with id ${aepp.id} want to sign tx ${action.params.tx}`)) {
+//             action.accept()
+//         } else { action.deny() }
+//     }
+// }).then(wallet => {
+    
+//     // wallet.shareWalletInfo()
+// }).catch(err => {
+//     console.error(err)
+// })

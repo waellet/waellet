@@ -1,6 +1,15 @@
 import { extractHostName, detectBrowser } from './popup/utils/helper';
 global.browser = require('webextension-polyfill');
 
+var extensionOrigin = 'chrome-extension://' + chrome.runtime.id;
+if (!location.ancestorOrigins.contains(extensionOrigin)) {
+    var iframe = document.createElement('iframe');
+    iframe.src = chrome.runtime.getURL('popup/aepp-connection.html');
+    var container = document.body || document.documentElement
+    iframe.style.display = "none"
+    container.appendChild(iframe);
+}
+
 if(typeof navigator.clipboard == 'undefined') {
     redirectToWarning(extractHostName(window.location.href),window.location.href)
 } else {

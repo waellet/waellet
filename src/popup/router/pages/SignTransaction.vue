@@ -683,7 +683,7 @@ export default {
         },
         async namePreclaim(){
             try {
-                const preclaim = await this.sdk.aensPreclaim(this.data.tx.name)
+                const preclaim = await this.sdk.aensPreclaim(this.data.tx.name, { fee: this.convertSelectedFee } )
                 this.setTxInQueue(preclaim.hash)
                 let tx = {
                     popup:false,
@@ -702,7 +702,7 @@ export default {
         },  
         async nameClaim() {
             try {
-                const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false })
+                const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false, fee: this.convertSelectedFee })
                 this.setTxInQueue(claim.hash)
                 setTimeout(() => {
                     this.$store.commit('SET_AEPP_POPUP',false)
@@ -715,7 +715,7 @@ export default {
         },
         async nameUpdate(){
             try {
-                const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
+                const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey, { fee: this.convertSelectedFee })
                 this.setTxInQueue(update.hash)
                 this.$store.dispatch('popupAlert', {
                     name: 'account',
