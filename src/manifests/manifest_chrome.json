@@ -39,8 +39,7 @@
     "phishing/phishing.html",
     "phishing/phishing.js",
     "aepp.js",
-    "popup/CameraRequestPermission.html",
-    "popup/aepp-connection.html"
+    "popup/CameraRequestPermission.html"
   ],
   "options_ui": {
     "page": "options/options.html",

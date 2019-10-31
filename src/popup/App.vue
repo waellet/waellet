@@ -167,7 +167,7 @@
     <div class="connect-error" v-if="connectError" >Unable to connect to choosen node</div>
   </ae-main>
 </template>
-
+ 
 <script>
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';

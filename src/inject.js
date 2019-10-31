@@ -1,28 +1,21 @@
 import { extractHostName, detectBrowser } from './popup/utils/helper';
 global.browser = require('webextension-polyfill');
 
-var extensionOrigin = 'chrome-extension://' + chrome.runtime.id;
-if (!location.ancestorOrigins.contains(extensionOrigin)) {
-    var iframe = document.createElement('iframe');
-    iframe.src = chrome.runtime.getURL('popup/aepp-connection.html');
-    var container = document.body || document.documentElement
-    iframe.style.display = "none"
-    container.appendChild(iframe);
-}
-
 if(typeof navigator.clipboard == 'undefined') {
     redirectToWarning(extractHostName(window.location.href),window.location.href)
 } else {
     sendToBackground('phishingCheck',{ hostname:extractHostName(window.location.href), href:window.location.href })    
 }
 let aepp = browser.runtime.getURL("aepp.js")
-fetch(aepp)
+fetch(aepp) 
 .then(res => res.text())
 .then(res => {
-    injectScript(res)
+    // injectScript(res)
 })
 // Subscribe from postMessages from page
 window.addEventListener("message", ({data}) => {
+    console.log(data)
+    return;
     let method = "pageMessage";
     if(typeof data.method != "undefined") {
         method = data.method
@@ -37,8 +30,6 @@ window.addEventListener("message", ({data}) => {
             }
         })
     }
-    
-    
 }, false)
 
 // Handle message from background and redirect to page

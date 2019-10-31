@@ -77,7 +77,6 @@ const config = {
         { from: 'phishing/phishing.html', to: `${platform}/phishing/phishing.html`, transform:transformHtml },
         { from: 'popup/CameraRequestPermission.html', to: `${platform}/popup/CameraRequestPermission.html`, transform:transformHtml },
         { from: 'icons/icon_48.png', to: `${platform}/popup/assets/logo-small.png` },
-        { from: 'popup/aepp-connection/aepp.html', to: `${platform}/popup/aepp-connection.html`, transform:transformHtml },
         {
           from: `manifests/manifest_${platform}.json`,
           to: `${platform}/manifest.json`,
@@ -131,8 +130,7 @@ function getPlatformFiles() {
       [`${platform}/main`]:'./main.js',
       [`${platform}/phishing/phishing`]:'./phishing/phishing.js',
       [`${platform}/aepp`]:'./aepp.js',
-      [`${platform}/popup/cameraPermission`]:'./popup/cameraPermission.js',
-      [`${platform}/popup/aepp-connection/aepp.js`]:'./popup/aepp-connection.js'
+      [`${platform}/popup/cameraPermission`]:'./popup/cameraPermission.js'
     }
   })
 
