@@ -6,15 +6,15 @@
     width="500px">
 </p>
 
-[![CircleCI](https://circleci.com/gh/aeternity/aepp-waellet/tree/master.svg?style=svg)](https://circleci.com/gh/aeternity/aepp-waellet/tree/master)
-[![GitHub version](https://badge.fury.io/gh/aeternity%2Faepp-waellet.svg)](https://badge.fury.io/gh/aeternity%2Faepp-waellet)
-<a href="https://github.com/aeternity/aepp-waellet">
-  <img src="https://tokei.rs/b1/github/aeternity/aepp-waellet?category=lines" alt="Current total lines.">
+[![CircleCI](https://circleci.com/gh/waellet/waellet/tree/master.svg?style=svg)](https://circleci.com/gh/waellet/waellet/tree/master)
+[![GitHub version](https://badge.fury.io/gh/waellet%2Fwaellet.svg)](https://badge.fury.io/gh/waellet%2Fwaellet)
+<a href="https://github.com/waellet/waellet">
+  <img src="https://tokei.rs/b1/github/waellet/waellet?category=lines" alt="Current total lines.">
 </a>
-<a href="https://github.com/aeternity/aepp-waellet/blob/master/LICENSE">
+<a href="https://github.com/waellet/waellet/blob/master/LICENSE">
   <img src="https://img.shields.io/badge/license-ISC-blue.svg" alt="License.">
 </a>
-<a href="https://github.com/aeternity/aepp-waellet/blob/master/LICENSE">
+<a href="https://github.com/waellet/waellet/blob/master/LICENSE">
   <img src="https://img.shields.io/badge/aeternity-aepp-%23F22F70.svg" alt="Aeternity aepp">
 </a>
 
