@@ -103,6 +103,15 @@
             "allowedAllowanceAmount": "Current allowed allowance amount is",
             "changeButton": "Change"
         },
+        "auctionBid": {
+            "backToAuctions": "Back to auctions",
+            "bidding": "Bidding",
+            "bidOn": "Bid on",
+            "requiredField": "This field is required",
+            "next": "Next",
+            "current-highest-bid": "Current highest bid",
+            "remaining-time": "Remaining Time"
+        },
         "connectConfirm": {
             "websiteRequestconnect": "would like to connect to your account",
             "websiteRequest": "This website is requesting access to view your current account address. Always make sure you trust the website you interact with. ",
@@ -150,18 +159,35 @@
             "enterAmount": "Invalid amount",
             "enterAddress": "Enter address"
         },
+        "namingSystemPage": {
+            "heading": "Naming System",
+            "registerNameRequirement": "Allowed only letters and numbers",
+            "registerName": "Register new name",
+            "registeredNames": "Your registered names",
+            "seeAllRegisteredNames": "See all registered names",
+            "OkButton": "OK",
+            "noNames": "No names found",
+            "activeAuctions": "All active auctions",
+            "auctionInfo": "Auction info",
+            "noAuctions": "No auctions found",
+            "yourNamesBtn": "Your names",
+            "allActiveAuctionsBtn": "All active auctions",
+            "AddNewBtn": "Add new",
+            "filterBySoonest": "Soonest",
+            "filterByCharLength": "Name length",
+            "filterByBid": "Bid",
+            "filtersBy": "Filters by",
+            "currentBid": "Current bid: ",
+            "previousBids": "Previous bids: ",
+            "noPreviousBids": "No previous bids",
+            "goBiddingBtn": "Go for bidding",
+            "backButton": "Back"
+        },
         "generalSettings": {
             "backToSettings": "Back to settings",
             "heading": "General",
-            "registerName": "Register Name",
-            "registerNameInfo": "A registered name can be used instead of the address",
-            "registerNameRequirement": "Allowed only letters and numbers",
-            "registeredNames": "Registered Names",
             "switchLanguage" : "Language",
-            "currentLanguage": "Current language",
-            "seeAllRegisteredNames": "See all registered names",
-            "OkButton": "OK",
-            "noNames": "No names found"
+            "currentLanguage": "Current language"
         },
         "index": {
             "term1": "I agree to the Waellet ",
@@ -402,6 +428,8 @@
             "heading": "Utilities",
             "backToAccount": "Back to account",
             "tipWebsite": "Tip website",
+            "namingSystem": "Naming System",
+            "namingSystemInfo": "Register name and it can be used instead of your public address",
             "allowances": "Allowances",
             "fungibleTokens":"Fungible Tokens",
             "signAndVerifyMsg": "Sign / Verify message",

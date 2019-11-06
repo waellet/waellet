@@ -6,6 +6,8 @@ import mutations from './mutations';
 import actions from './actions';
 import { POPUP_PROPS } from '../popup/utils/popup-messages';
 import { networks } from '../popup/utils/constants';
+import names from '../popup/utils/names'
+import observables from '../popup/utils/observables';
 
 Vue.use(Vuex);
 
@@ -51,4 +53,5 @@ export default new Vuex.Store({
   getters,
   mutations,
   actions,
+  plugins: [observables, names]
 });

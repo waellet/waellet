@@ -15,6 +15,7 @@ export const TX_TYPES = {
   'contractCreate':TX_TYPE.contractCreate,
   'namePreClaim': TX_TYPE.namePreClaim,
   'nameClaim': TX_TYPE.nameClaim,
+  'nameBid': TX_TYPE.nameClaim,
   'nameUpdate': TX_TYPE.nameUpdate
 }
 
@@ -68,7 +69,7 @@ export const networks = {
     url: 'https://sdk-testnet.aepps.com',
     internalUrl: 'https://sdk-testnet.aepps.com',
     networkId: 'ae_uat',
-    middlewareUrl: 'https://testnet.mdw.aepps.com/',
+    middlewareUrl: 'https://testnet.aeternal.io',
     explorerUrl: 'https://testnet.explorer.aepps.com',
     compilerUrl: 'https://latest.compiler.aepps.com',
     tokenRegistry: 'ct_Dnwribmd21YrxSQnqXCB5vTFPrgYJx2eg2TrbLvbdyEbTMejw'

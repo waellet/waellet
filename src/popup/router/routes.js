@@ -21,6 +21,8 @@ import ManageNetworksComponent from './pages/ManageNetworks';
 import FungibleTokensComponent from './pages/AddFungibleToken';
 import SignAndVerifyMsg from './pages/SignAndVerifyMsg';
 import FungibleTokensPageComponent from './pages/FungibleTokensPage';
+import AensComponent from './pages/NamingSystem';
+import AuctionBid from './pages/AuctionBid';
 import MintFungibleTokenComponent from './pages/MintFungibleToken';
 import AirGapSetup from './pages/AirGapSetup';
 import SignTransactionByQrCode from './pages/SignTransactionByQrCode';
@@ -131,6 +133,16 @@ export default [
   {
     path:'/fungible-tokens',
     component:FungibleTokensPageComponent
+  },
+  {
+    path:'/aens',
+    component:AensComponent
+  },
+  {
+    name:'auction-bid',
+    path: '/auction-bid',
+    component: AuctionBid,
+    props:true
   },
   {
     path:'/mint-token',

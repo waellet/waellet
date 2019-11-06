@@ -424,8 +424,6 @@ export default {
 .currenciesgroup .have-subDropdown.show .ae-button .ae-icon-left-more {
   transform: rotate(90deg);
 }
-.notround { border-radius: 0 !important; }
-.notround:not(.regbtn) {width: 100% !important;}
 .ae-list .ae-list-item:first-child {
   border-top:none !important
 }

@@ -1,45 +1,8 @@
 <template>
     <div class="popup">
-        <div class="seeAllRegisteredNames" v-if="seeAllRegisteredNames">
-            <div class="maindiv_input-group-addon">
-                <h4>{{$t('pages.generalSettings.registeredNames') }}</h4><hr>
-                <ae-list v-if="haveRegisteredNames">
-                    <ae-list-item fill="neutral" v-for="(name, key) in names" :key="key" >
-                        <ae-identicon class="subAccountIcon" v-bind:address="name.owner" size="base" />
-                        <div class="subAccountInfo">
-                            <div class="subAccountName">{{name.name}}</div>
-                            <ae-address :value="name.owner" length="short" />
-                        </div>
-                        <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="name.pending"/>
-                    </ae-list-item>
-                </ae-list>
-                <p v-if="!haveRegisteredNames">{{ $t('pages.generalSettings.noNames') }}</p>
-                <ae-button face="round" fill="primary" @click="seeAllRegisteredNames = false" extend>{{ $t('pages.generalSettings.OkButton') }}</ae-button>
-                <ae-button face="round" fill="primary" @click="seeAllRegisteredNames = false" class="closeAllAENS" extend>{{ $t('pages.generalSettings.OkButton') }}</ae-button>
-            </div>
-        </div>
-        <div v-if="!seeAllRegisteredNames">
             <div class="actions">
                 <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{$t('pages.generalSettings.backToSettings') }}</button>
             </div>
-            <h3 style='text-align:center;'>{{$t('pages.generalSettings.heading') }}</h3>
-            <ae-panel>
-                <div class="maindiv_input-group-addon">
-                    <h4>{{$t('pages.generalSettings.registerName') }}</h4><hr>
-                    <small class="sett_info">{{$t('pages.generalSettings.registerNameInfo') }}</small>
-                    <div class="checkName input-group-addon">
-                        <input v-model="name" class="addon-input" />
-                        <label class="addon-lbl" >.test</label>
-                    </div>
-                    <ae-button class="regbtn notround" face="icon" fill="primary" @click="registerName">
-                        <ae-icon name="plus" />
-                    </ae-button>
-                    <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{$t('pages.generalSettings.registerNameRequirement') }}</small>
-                    <ae-button class="seeAllRegisteredNamesBtn allAENS" face="flat" fill="primary" @click="seeAllRegisteredNames = true">{{$t('pages.generalSettings.seeAllRegisteredNames') }}</ae-button>
-                </div>
-            </ae-panel>
-            <Loader size="big" :loading="loading" type="transparent" content="" ></Loader>
-            
             <ae-panel>
                 <div class="maindiv_input-group-addon">
                     <h4>{{$t('pages.generalSettings.switchLanguage') }}</h4><hr>
@@ -65,7 +28,6 @@
                     </div>
                 </div>
             </ae-panel>
-        </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
 </template>
@@ -80,72 +42,20 @@ export default {
         return {
             locales: langs,
             loading: false,
-            name: '',
-            ak_address: '',
-            polling:null,
             dropdown: {
                 languages: false,
             },
-            seeAllRegisteredNames: ''
         }
     },
     computed: {
-        ...mapGetters(['current', 'popup', 'names', 'sdk']),
-        haveRegisteredNames() {
-            return this.names.length > 0;
-        }
+        ...mapGetters(['current', 'popup', 'names', 'sdk'])
     },
     created() {
         if (this.current.language == undefined) {
             this.current.language = 'en';
         }
-        this.polling = setInterval(() => {
-            this.$store.dispatch('getRegisteredNames')
-        },5000)
     },
     methods: {
-        async registerName() {
-            var onlyLettersAndNums = /^[A-Za-z0-9]+$/;
-            if (this.name == '') {
-                this.$store.dispatch('popupAlert', {
-                    name: 'account',
-                    type: 'requiredField'
-                });
-            }
-            else if (!onlyLettersAndNums.test(this.name)) {
-                this.$store.dispatch('popupAlert', {
-                    name: 'account',
-                    type: 'only_allowed_chars'
-                });
-            }
-            else {
-                this.loading = true;
-                let name = `${this.name}.test`
-                const query = this.sdk.aensQuery(name)
-                .then(async () => {
-                    this.loading = false;
-                    this.$store.dispatch('popupAlert', {
-                        name: 'account',
-                        type: 'name_exist'
-                    });
-                })
-                .catch(async err => {
-                    let tx = {
-                        popup:false,
-                        tx: {
-                            name,
-                            recipientId:''
-                        },
-                        type:'namePreClaim'
-                    }
-                    this.$store.commit('SET_AEPP_POPUP',true)
-                    this.$router.push({'name':'sign', params: {
-                        data:tx,
-                        type:tx.type
-                    }});
-                })
-            }
-        },
         toggleDropdown(event, parentClass) {
             if (typeof parentClass == 'undefined') {
                 parentClass = '.language-settings';
@@ -179,9 +89,6 @@ export default {
                 default: return "English";
             }
         }
-    },
-    beforeDestroy() {
-        window.clearTimeout(this.polling)
     }
 }
 </script>
@@ -205,30 +112,6 @@ export default {
 .maindiv_input-group-addon h4 {
     text-align: left;
     margin: 0 !important; 
-}
-.input-group-addon {
-    background: #ececec;
-    border: 1px solid #ccc;
-    width: 79%;
-    height: 56px;
-    float: left;
-}
-.addon-input {
-    width: 75%;
-    outline: none;
-    color: #828282;
-    padding: 0;
-    height: 55px;
-    text-indent: 5px;
-    caret-color: #ff0d6a;
-}
-.addon-lbl {
-    font-weight: 600;
-    color: #828282;
-}
-input:active,input:focus {
-    border: none;
-    outline: none;
 }
 .sett_info {
     color: #9c9c9c;
@@ -276,8 +159,4 @@ input:active,input:focus {
     transform: rotate(90deg);
 }
 .notround { border-radius: 0 !important; }
-.notround:not(.regbtn) {width: 100% !important;}
-.ae-list .ae-list-item:first-child {
-    border-top:none !important
-}
 </style>
