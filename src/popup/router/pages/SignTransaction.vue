@@ -92,6 +92,7 @@ import { mapGetters } from 'vuex';
 import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken  } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
+import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
 import BigNumber from 'bignumber.js';
 import { clearInterval, clearTimeout  } from 'timers';
@@ -196,16 +197,19 @@ export default {
                 return 'Name Claim'
             }else if(this.data.type == 'nameUpdate') {
                 return 'Name Update'
+            }else if(this.data.type == 'nameBid') {
+                return 'Name Claim'
             }
+            
         },
         isAddressShow() {
-            if(this.data.type == 'contractCreate' || this.data.type == 'namePreClaim' || this.data.type == 'nameClaim' || this.data.type == 'nameUpdate') {
+            if(this.data.type == 'contractCreate' || this.data.type == 'namePreClaim' || this.data.type == 'nameClaim' ||this.data.type == 'nameBid' || this.data.type == 'nameUpdate') {
                 return false
             }
             return true
         },
         isNameTx() {
-            return this.data.type == 'namePreClaim' || this.data.type == 'nameClaim' || this.data.type == 'nameUpdate'
+            return this.data.type == 'namePreClaim' || this.data.type == 'nameBid' || this.data.type == 'nameClaim' || this.data.type == 'nameUpdate'
         },
         convertSelectedFee() {
             return BigNumber(this.selectedFee).shiftedBy(MAGNITUDE)
@@ -370,6 +374,13 @@ export default {
                                 accountId:this.account.publicKey,
                                 name:"nm_2Wb2xdC9WMSnExyHd8aoDu2Ee8qHD94nvsFQsyiy1iEyUGPQp9",
                                 nameSalt:this.data.tx.preclaim.salt
+                            }
+                        }else if(this.data.type == 'nameBid') {
+                            this.txParams = { 
+                                ...this.txParams,
+                                accountId:this.account.publicKey,
+                                name:"nm_2Wb2xdC9WMSnExyHd8aoDu2Ee8qHD94nvsFQsyiy1iEyUGPQp9",
+                                nameSalt:0
                             }
                         }else if(this.data.type == 'nameUpdate') {
                             this.txParams = {
@@ -650,9 +661,11 @@ export default {
                 },1000)
             }else {
                 this.deployed = deployed.address
+
                 if(!this.data.tx.tokenRegistry) {
                     addRejectedToken(deployed.address)
                 }
+                
                 let msg = `Contract deployed at address <br> ${deployed.address}`
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect: this.data.tx.tokenRegistry })
                 .then(() => {
@@ -701,17 +714,30 @@ export default {
             
         },  
         async nameClaim() {
-            try {
-                const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false })
-                this.setTxInQueue(claim.hash)
-                setTimeout(() => {
-                    this.$store.commit('SET_AEPP_POPUP',false)
-                    this.$router.push('/generalSettings')
-                },1000)
-            } catch(err) {
-                this.setTxInQueue('error')
+            if (this.data.bid) {
+                try {
+                    const bid = await this.sdk.aensBid(
+                        this.data.tx.name, this.data.tx.BigNumberAmount);
+                        this.$router.push('/aens')
+                        this.$store.commit('SET_AEPP_POPUP',false)
+                } catch(err) {
+                    console.log('errorbid => ', err)
+                    this.setTxInQueue('error')
+                }
             }
-            
+            else {
+                try {
+                    const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false, fee: this.convertSelectedFee })
+                    this.setTxInQueue(claim.hash)
+                    setTimeout(() => {
+                        this.$store.commit('SET_AEPP_POPUP',false)
+                        this.$router.push('/aens')
+                    },1000)
+                } catch(err) {
+                    console.log('errorclaim => ', err)
+                    this.setTxInQueue('error')
+                }
+            }
         },
         async nameUpdate(){
             try {
@@ -791,6 +817,8 @@ export default {
                         this.nameClaim()
                     }else if(this.data.type == 'nameUpdate') {
                         this.nameUpdate()
+                    }else if(this.data.type == 'nameBid') {
+                        this.nameClaim()
                     }
                     
                 }catch(err) {

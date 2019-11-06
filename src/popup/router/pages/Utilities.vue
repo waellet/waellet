@@ -6,6 +6,11 @@
         <h3 style='text-align:center;'>{{$t('pages.utilities.heading')}}</h3>
         <br>
         <ae-list id="utilitiesPage" class="settingslist" face="primary">
+            <button class="aens-page" @click="openNamingSystemPage">
+                <span class="settings-li">{{$t('pages.utilities.namingSystem')}}</span>
+                <i class="arrowright"></i>
+                <p class="tabinfo">{{$t('pages.utilities.namingSystemInfo')}}</p>
+            </button>
             <button class="generalsett" @click="openTipPage">
                 <span class="settings-li">{{$t('pages.utilities.tipWebsite')}}</span>
                 <i class="arrowright"></i>
@@ -64,6 +69,9 @@ export default {
     },
     openSignVerifyMsgPage() {
       this.$router.push('/signAndVerifyMsg');
+    },
+    openNamingSystemPage() {
+      this.$router.push('/aens');
     },
     openTokenMigration() {
       this.$router.push('/token-migration-info')
