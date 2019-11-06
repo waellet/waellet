@@ -284,7 +284,7 @@ export default {
                         
                         window.clearTimeout(this.checkSDKReady)
                         await this.setContractInstance(this.data.tx.source, this.data.tx.address)
-                        let call = await this.contractInstance.methods[this.data.tx.method](...this.data.tx.params, this.data.tx.options)
+                        let call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, this.data.tx.options] })
                         this.sending = true
                         this.port.postMessage(call)
                         
@@ -560,7 +560,7 @@ export default {
                     tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(MAGNITUDE)
                     options = { ...options, ...tx.options }
                 }
-                let call = await this.contractInstance.methods[tx.method](...tx.params, options)
+                let call = await this.$helpers.contractCall({ instance:this.contractInstance, method:tx.method, params:[...tx.params, options] })
                 let decoded = await call.decode()
                 call.decoded = decoded
                 this.sending = true
@@ -588,7 +588,7 @@ export default {
                     options = { ...options, ...this.data.tx.options }
                 }
                 options= { ...options, fee:this.convertSelectedFee }
-                call = await this.contractInstance.methods[this.data.tx.method](...this.data.tx.params, options)
+                call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, options] })
                 this.setTxInQueue(call.hash)
                 let decoded = await call.decode()
                 call.decoded = decoded
@@ -661,6 +661,11 @@ export default {
                 },1000)
             }else {
                 this.deployed = deployed.address
+
+                if(!this.data.tx.tokenRegistry) {
+                    addRejectedToken(deployed.address)
+                }
+                
                 let msg = `Contract deployed at address <br> ${deployed.address}`
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect: this.data.tx.tokenRegistry })
                 .then(() => {
@@ -793,7 +798,7 @@ export default {
                         if(this.data.callType == 'pay') {
                             this.contractCall()
                         }else {
-                            let call = await this.contractInstance.methods[this.data.tx.method](...this.data.tx.params,{ fee:this.convertSelectedFee} )
+                            let call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params,{ fee:this.convertSelectedFee}] })
                             this.setTxInQueue(call.hash)
                             let decoded = await call.decode()
                             let msg = `You have sent ${this.data.tx.amount} ${this.data.tx.token}` 

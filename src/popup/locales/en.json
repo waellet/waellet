@@ -148,7 +148,8 @@
             "tokenInfo": "This allows you to add token from given deployed fungible token contract",
             "addTokenButton": "Add Token",
             "deployInfo": "This allows you to deploy your own fungible token contract",
-            "deployButton": "Deploy Token Contract"
+            "deployButton": "Deploy Token Contract",
+            "deployFungToken": "Deploy Token"
         },
         "mintTokenPage": {
             "mint": "Mint/Burn token",
@@ -436,7 +437,28 @@
             "tipWebsiteInfo": "Make a donation for any website you want",
             "allowancesInfo": "Give or take an allowance",
             "fungibleTokensInfo":"Add new token, or deploy token contract",
-            "signAndVerifyMsgInfo": "Sign a message with your private key or verify a signed message"
+            "signAndVerifyMsgInfo": "Sign a message with your private key or verify a signed message",
+            "tokenMigration": "Token Migration",
+            "prepareTokenMigration": "Prepare for Token Migration"
+        },
+        "tokenMigration": {
+            "heading": "Token Migration",
+            "addressLabel": "Your aeternity address",
+            "continue": "Continue",
+            "checkContinue": "I am certain my address and identicon are correct",
+            "ethPrivateKey": "Ethereum Private Key",
+            "migrateToken": "Migrate Token",
+            "migrations": "Migrations",
+            "seeMigrations": "See Migrations",
+            "migrationsInfo": "are in migration now. They will be available after the next hardfork. ",
+            "migrateTokenInfo": "The amount of tokens you choose to migrate, will be available on this address in the next scheduled hardfork release.",
+            "backToTokenMigration": "Back to token migration info",
+            "backendServiceUrl": "Backend Service Url"
+        },
+        "aeAddressInput": {
+            "label": "Aeternity Address",
+            "identicon": "Your identicon",
+            "error": "Invalid AE Address"
         }
     }
 }

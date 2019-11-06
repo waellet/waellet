@@ -199,7 +199,7 @@ export default {
                                             accountCurrentBalance: element.balance
                                         });
                                         let value = (this.createform.value).toString();
-                                        let create = await contract.methods.create_allowance(this.createform.to_account,value)
+                                        let create = await this.$helpers.contractCall({ instance:contract, method:'create_allowance', params:[this.createform.to_account, value] })
                                         let dec = await create.decode()
                                         this.$store.dispatch('popupAlert', { name: 'account', type: 'added_success'});
                                         this.loading = false;
@@ -318,7 +318,7 @@ export default {
             this.tokens.forEach(async element => {
                 if (element.key == this.selected) {
                     let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true})
-                    let checkAllAllowances = await contract.methods.allowances()
+                    let checkAllAllowances = await this.$helpers.contractCall({ instance:contract, method:'allowances' })
                     let all = await checkAllAllowances.decode()
                     if (all.length != 0) {
                         all.forEach(async singleAllowance => {
@@ -379,7 +379,7 @@ export default {
                         this.loading = false;
                     }
                     else {
-                        let change = await contract.methods.change_allowance(this.changeform.to_account,value)
+                        let change = await this.$helpers.contractCall({ instance:contract, method:'change_allowance', params:[this.changeform.to_account,value] })
                         let changeDec = await change.decode()
                         this.$store.dispatch('popupAlert', { name: 'fungible_token', type: 'allowance_change_success' })
                         .then(res => {

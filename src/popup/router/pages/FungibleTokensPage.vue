@@ -11,7 +11,7 @@
             <ae-button face="round" fill="primary" extend class="add-token" @click="navigateAddToken">{{$t('pages.fungibleTokensPage.addTokenButton') }}</ae-button>
         </ae-panel>
         <ae-panel>
-            <h4>{{$t('pages.fungibleTokensPage.addFungToken') }}</h4>
+            <h4>{{$t('pages.fungibleTokensPage.deployFungToken') }}</h4>
             <hr>
             <small class="sett_info">{{$t('pages.fungibleTokensPage.deployInfo') }}</small>
             <ae-button face="round" fill="primary" extend class="create-token" @click="navigateCreateToken">{{$t('pages.fungibleTokensPage.deployButton') }}</ae-button>

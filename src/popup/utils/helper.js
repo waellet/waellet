@@ -401,9 +401,25 @@ export const prefixedAmount = (value) => {
   return `${v}${name ? ' ' : ''}${name}`;
 };
 
+const contractCall = async ({ instance, method,  params = [], decode = false, async = true }) => {
+    let call
+    try {
+        if(params.length) {
+            call = await instance.methods[method](...params)
+        } else {
+            call = await instance.methods[method]()
+        }
+    }catch(e) {
+        if(e.message.indexOf("wrong_abi_version") > -1) {
+            instance.setOptions({ backend: 'aevm'})
+            return await contractCall({ instance, method, params, decode, async })
+        } else {
+            throw e.message
+        }
+    }
 
-  
-
+    return async ? (decode ? call.decodedResult : call ) : params.length ? instance.methods[method](...params) :  instance.methods[method]()
+}
 
 export { 
     shuffleArray, 
@@ -426,7 +442,8 @@ export {
     stringifyForStorage,
     parseFromStorage,
     escapeCallParams,
-    addRejectedToken
+    addRejectedToken,
+    contractCall
 }
 
 
