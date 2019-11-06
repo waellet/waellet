@@ -79,7 +79,6 @@ export default {
         ...mapGetters(['account','current','network' ,'popup', 'sdk'])
     },
     mounted() {
-        console.log('auctionInfo => ', this.auctionInfo)
         this.loading = true
 
         const id = setInterval(() => this.updateAuctionEntry() , 3000);

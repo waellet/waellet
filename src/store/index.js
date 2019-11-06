@@ -53,5 +53,5 @@ export default new Vuex.Store({
   getters,
   mutations,
   actions,
-  plugins: [observables, names]
+  plugins: [ names]
 });

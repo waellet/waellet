@@ -11,39 +11,11 @@ import { MAGNITUDE } from './constants';
 import {currencyAmount, prefixedAmount, fetchJson, handleUnknownError, isAccountNotFoundError } from './helper';
 
 export default (store) => {
-  console.log(store);
-  function watchAsObservable (expOrFn, options) {
-    const vm = this
-    const obs$ = new Observable(observer => {
-      let _unwatch
-      const watch = () => {
-        _unwatch = vm.$watch(expOrFn, (newValue, oldValue) => {
-          observer.next({ oldValue: oldValue, newValue: newValue })
-        }, options)
-      }
-  
-      // if $watchAsObservable is called inside the subscriptions function,
-      // because data hasn't been observed yet, the watcher will not work.
-      // in that case, wait until created hook to watch.
-      if (vm._data) {
-        watch()
-      } else {
-        vm.$once('hook:created', watch)
-      }
-  
-      // Returns function which disconnects the $watch expression
-      return new Subscription(() => {
-        _unwatch && _unwatch()
-      })
-    })
-  
-    return obs$
-  }
   // eslint-disable-next-line no-underscore-dangle
-  // const watchAsObservable = (getter, options) => store._watcherVM.$watchAsObservable(
-  //   () => getter(store.state, store.getters),
-  //   options,
-  // );
+  const watchAsObservable = (getter, options) => store._watcherVM.$watchAsObservable(
+    () => getter(store.state, store.getters),
+    options,
+  );
 
   const sdk$ = watchAsObservable(({ sdk }) => (sdk && sdk.then ? null : sdk), { immediate: true })
     .pipe(
