@@ -72,7 +72,8 @@ export const networks = {
     middlewareUrl: 'https://testnet.aeternal.io',
     explorerUrl: 'https://testnet.explorer.aepps.com',
     compilerUrl: 'https://latest.compiler.aepps.com',
-    tokenRegistry: 'ct_Dnwribmd21YrxSQnqXCB5vTFPrgYJx2eg2TrbLvbdyEbTMejw'
+    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
+    tokenRegistryLima: 'ct_Dnwribmd21YrxSQnqXCB5vTFPrgYJx2eg2TrbLvbdyEbTMejw'
   },
   Mainnet: {
     url: 'https://sdk-mainnet.aepps.com',
@@ -81,7 +82,8 @@ export const networks = {
     middlewareUrl: 'http://mdw.aepps.com/',
     explorerUrl: 'https://testnet.explorer.aepps.com',
     compilerUrl: 'https://compiler.aepps.com',
-    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
+    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
+    tokenRegistryLima: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
   }
 }
 

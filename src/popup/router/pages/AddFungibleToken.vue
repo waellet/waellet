@@ -84,8 +84,8 @@
 <script>
 import { mapGetters } from 'vuex';
 import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
-import { addRejectedToken } from '../../utils/helper'
-
+import { addRejectedToken, checkContractAbiVersion } from '../../utils/helper'
+import { uniqWith,isEqual } from 'lodash-es';
 export default {
     data() {
         return {
@@ -113,7 +113,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['sdk','account','tokens','popup', 'tokenRegistry', 'network', 'current'])
+        ...mapGetters(['sdk','account','tokens','popup', 'tokenRegistry', 'tokenRegistryLima', 'network', 'current'])
     },
     async created() {
     },
@@ -185,9 +185,11 @@ export default {
         },
         async checkIfTokenPresentInRegistry() {
             let find = (await this.$helpers.contractCall({ instance:this.tokenRegistry, method:'get_all_tokens' })).decodedResult.find(t => t[0] == this.token.contract)
-            if(typeof find == 'undefined') { 
+            let findLima = (await this.$helpers.contractCall({ instance:this.tokenRegistryLima, method:'get_all_tokens' })).decodedResult.find(t => t[0] == this.token.contract)
+            if(typeof find == 'undefined' && typeof findLima == 'undefined') { 
                 this.presentInRegistry = false
             }
+            return typeof find != 'undefined' || typeof findLima != 'undefined'
         },
         async addCustomToken() {
             
@@ -202,18 +204,21 @@ export default {
             })
             this.$store.dispatch('setTokens', tokens).then(async () => {
                 this.loading = true
-                let find = (await this.$helpers.contractCall({ instance:this.tokenRegistry, method:'get_all_tokens' })).decodedResult.find(t => t[0] == this.token.contract)
-                
+                let find = await this.checkIfTokenPresentInRegistry()
+            
                 if(this.token.balance == 0) {
                     await browser.storage.sync.set({ tokens: this.tokens})
                 }
-                
-                if(typeof find == 'undefined' && this.tokenRegistryFee) {
+
+                let abi_version = await checkContractAbiVersion({ address: this.token.contract, middleware: this.network[this.current.network].middlewareUrl} )
+
+                if(!find && this.tokenRegistryFee) {
                     let tx = {
                         popup:false,
                         tx: {
-                            source: this.network[this.current.network].networkId == 'ae_uat' ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT,
-                            address: this.network[this.current.network].tokenRegistry ,
+                            source: TOKEN_REGISTRY_CONTRACT_LIMA,
+                            address: abi_version == 3 ? this.network[this.current.network].tokenRegistryLima : this.network[this.current.network].tokenRegistry ,
+                            abi_version,
                             params: [this.token.contract],
                             method: 'add_token',
                             amount: 0,
@@ -292,10 +297,14 @@ export default {
                 return
             }
             let keyword = this.token.search.toLowerCase()
-            this.token.results = (await this.$helpers.contractCall({ instance:this.tokenRegistry, method:'get_all_tokens'})).decodedResult.filter(t => t[1].name.toLowerCase().includes(keyword) || 
+            let result = (await this.$helpers.contractCall({ instance:this.tokenRegistry, method:'get_all_tokens'})).decodedResult
+            let resultLima = (await this.$helpers.contractCall({ instance:this.tokenRegistryLima, method:'get_all_tokens'})).decodedResult
+            
+            let final = uniqWith(result.concat(resultLima), isEqual )
+            this.token.results = final.filter(t => t[1].name.toLowerCase().includes(keyword) || 
                 t[1].name.toLowerCase().startsWith(keyword) || 
                 t[1].symbol.toLowerCase().startsWith(keyword) ||
-                t[0] == keyword )
+                t[0] == keyword ) 
         },
         resetToken() {
             this.token.precision = 1

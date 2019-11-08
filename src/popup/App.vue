@@ -438,7 +438,24 @@ export default {
       let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
       
       if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
-        await this.$store.commit('SET_TOKEN_REGISTRY', await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) )
+        await this.$store.commit('SET_TOKEN_REGISTRY', 
+          await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
+          TOKEN_REGISTRY_CONTRACT_LIMA : 
+          TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) 
+        )
+
+        try {
+          await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
+            await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
+          )
+        } catch (e) {
+          console.log(e)
+        }
+        
+        
+        
+
+
         
         this.$store.dispatch('getAllUserTokens')
        

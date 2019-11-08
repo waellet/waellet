@@ -80,21 +80,21 @@ export default {
                 let { address } = this.web3.eth.accounts.privateKeyToAccount(this.ethPrivateKey);
                 
                 let url = this.customBackendService ? this.backendServiceUrl : MIGRATION_SERVICE_URL
-                axios.post(`${url}migrate`,{
-                    ethPubKey: address,
-                    aeAddress: this.address,
-                    signature
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(res => {
-                    this.$store.dispatch('popupAlert', { name: 'account', type: 'token_migration_success'});
-                })
-                .catch(err => {
-                    this.$store.dispatch('popupAlert', { name: 'account', type: 'token_migration_error'});
-                })
+                // axios.post(`${url}migrate`,{
+                //     ethPubKey: address,
+                //     aeAddress: this.address,
+                //     signature
+                // }, {
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     }
+                // })
+                // .then(res => {
+                //     this.$store.dispatch('popupAlert', { name: 'account', type: 'token_migration_success'});
+                // })
+                // .catch(err => {
+                //     this.$store.dispatch('popupAlert', { name: 'account', type: 'token_migration_error'});
+                // })
 
                 return;
             }
