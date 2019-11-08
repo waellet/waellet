@@ -1,8 +1,24 @@
 import { extractHostName, detectBrowser } from './popup/utils/helper';
 global.browser = require('webextension-polyfill');
 
+const redirectToWarning = (hostname,href,extUrl = '') => {
+    window.stop()
+    let extensionUrl = 'chrome-extension'
+    if(detectBrowser() == 'Firefox') {
+        extensionUrl = 'moz-extension'
+    }
+    let redirectUrl = ''
+    if(extUrl != '') {
+        redirectUrl = `${extUrl}phishing/phishing.html#hostname=${hostname}&href=${href}`
+    }else {
+        redirectUrl = `${extensionUrl}://${browser.runtime.id}/phishing/phishing.html#hostname=${hostname}&href=${href}`
+    }
+    window.location.href = redirectUrl
+    return
+}
+
 if(typeof navigator.clipboard == 'undefined') {
-    redirectToWarning(extractHostName(window.location.href),window.location.href)
+    // redirectToWarning(extractHostName(window.location.href),window.location.href)
 } else {
     sendToBackground('phishingCheck',{ hostname:extractHostName(window.location.href), href:window.location.href })    
 }
@@ -10,12 +26,10 @@ let aepp = browser.runtime.getURL("aepp.js")
 fetch(aepp) 
 .then(res => res.text())
 .then(res => {
-    // injectScript(res)
+    injectScript(res)
 })
 // Subscribe from postMessages from page
 window.addEventListener("message", ({data}) => {
-    console.log(data)
-    return;
     let method = "pageMessage";
     if(typeof data.method != "undefined") {
         method = data.method
@@ -41,21 +55,7 @@ browser.runtime.onMessage.addListener(({ data, method }, sender, sendResponse) =
     }
 })
 
-const redirectToWarning = (hostname,href,extUrl = '') => {
-    window.stop()
-    let extensionUrl = 'chrome-extension'
-    if(detectBrowser() == 'Firefox') {
-        extensionUrl = 'moz-extension'
-    }
-    let redirectUrl = ''
-    if(extUrl != '') {
-        redirectUrl = `${extUrl}phishing/phishing.html#hostname=${hostname}&href=${href}`
-    }else {
-        redirectUrl = `${extensionUrl}://${browser.runtime.id}/phishing/phishing.html#hostname=${hostname}&href=${href}`
-    }
-    window.location.href = redirectUrl
-    return
-}
+
 
 const injectScript = (content) => {
     try {

@@ -359,7 +359,7 @@ const addRejectedToken = async (token) => {
         rejected_token = []
     }
     rejected_token.push(token)
-    await browser.storage.sync.set({ rejected_token })
+    return await browser.storage.sync.set({ rejected_token })
 }
 
 export const handleUnknownError = error => console.warn('Unknown rejection', error);

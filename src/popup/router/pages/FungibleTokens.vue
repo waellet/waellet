@@ -162,33 +162,40 @@ export default {
         },
         searchTokenMetaInfo(address) {
             this.loading = true
-            try {
-                this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,address,'meta_info')
-                .then((res) => {
-                    res.decode()
-                    .then(data => {
-                        if(typeof data.decimals != 'undefined' && typeof data.symbol != 'undefined') {
-                            this.token.precision = data.decimals
-                            this.token.symbol = data.symbol
-                            this.token.name = data.name
-                            this.addToken = true
-                            this.token.precisionDisabled = true
-                        }
-                        this.loading = false
+            return new Promise((resolve, reject) => {
+                try {
+                    this.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT,address,'meta_info')
+                    .then((res) => {
+                        res.decode()
+                        .then(data => {
+                            if(typeof data.decimals != 'undefined' && typeof data.symbol != 'undefined') {
+                                this.token.precision = data.decimals
+                                this.token.symbol = data.symbol
+                                this.token.name = data.name
+                                this.addToken = true
+                                this.token.precisionDisabled = true
+                            }
+                            this.loading = false
+                            resolve(true)
+                        })
+                        .catch(e => {
+                            this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
+                            this.loading = false
+                            resolve(false)
+                        })
                     })
-                    .catch(e => {
+                    .catch(e => { 
                         this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                         this.loading = false
+                        resolve(false)
                     })
-                })
-                .catch(e => { 
+                }catch(e) {
                     this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                     this.loading = false
-                })
-            }catch(e) {
-                this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
-                this.loading = false
-            }
+                    resolve(false)
+                }
+            })
+            
             
         }
     }

@@ -4,12 +4,6 @@ import WalletContorller from './wallet-controller'
 import Notification from './notifications';
 
 
-import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
-import Wallet from '@aeternity/aepp-sdk/es/ae/wallet'
-// import BrowserRuntimeConnection from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/wallet-connection/browser-runtime'
-
-
-
 global.browser = require('webextension-polyfill');
 
 // listen for our browerAction to be clicked
@@ -272,10 +266,3 @@ browser.runtime.onConnect.addListener( ( port ) => {
 })  
 
 const notification = new Notification();
-
-
-/** 
- * AEX-2
- */
-
-

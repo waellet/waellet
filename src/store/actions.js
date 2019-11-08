@@ -165,12 +165,18 @@ export default {
           case 'signedMessage':
             commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'copyText', ...popupMessages.SIGNED_MESSAGE, msg: payload.msg, data: payload.data })
             break
-            case 'success_verifymessage':
-              commit(types.SHOW_POPUP, { show: true, ...popupMessages.SUCCESS_VERIFYMESSAGE })
-              break
-            case 'unsuccess_verifymessage':
-              commit(types.SHOW_POPUP, { show: true, ...popupMessages.UNSUCCESS_VERIFYMESSAGE })
-              break
+          case 'success_verifymessage':
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.SUCCESS_VERIFYMESSAGE })
+            break
+          case 'unsuccess_verifymessage':
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.UNSUCCESS_VERIFYMESSAGE })
+            break
+          case 'token_migration_error':
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.TOKEN_MIGRATION_ERROR })
+            break
+          case 'token_migration_success':
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.TOKEN_MIGRATION })
+          break
             
           default:
             break;

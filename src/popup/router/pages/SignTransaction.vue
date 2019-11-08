@@ -590,6 +590,7 @@ export default {
                 options= { ...options, fee:this.convertSelectedFee }
                 call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, options] })
                 this.setTxInQueue(call.hash)
+                console.log(call)
                 let decoded = await call.decode()
                 call.decoded = decoded
                 if (this.data.popup) {
@@ -598,6 +599,7 @@ export default {
                     this.port.postMessage({...res})
                 }
             }catch(err) {
+                console.log(err)
                 this.setTxInQueue('error')
                 this.errorTx.error.message = err.message
                 this.sending = true

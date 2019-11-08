@@ -28,7 +28,7 @@
 
             <ae-button face="round" fill="primary" @click="nextStep" v-if="step <= 2" :class="disabledButton ? 'disabled' : ''" extend >{{$t('pages.tokenMigration.continue') }}</ae-button>
         </ae-panel>
-        
+        <popup />
     </div>
 </template>
 
@@ -36,6 +36,8 @@
 import Web3 from 'web3';
 import { checkAddress } from '../../utils/helper';
 import { MIGRATION_SERVICE_URL } from '../../utils/constants';
+import axios from 'axios';
+
 export default {
     data() {
         return {
@@ -74,10 +76,27 @@ export default {
             }   
 
             if(this.step == 2) {
-                let signed_message = this.web3.eth.accounts.sign(this.address, this.ethPrivateKey)
+                let { signature } = this.web3.eth.accounts.sign(this.address, this.ethPrivateKey)
+                let { address } = this.web3.eth.accounts.privateKeyToAccount(this.ethPrivateKey);
+                
                 let url = this.customBackendService ? this.backendServiceUrl : MIGRATION_SERVICE_URL
-                let res = await fetch(`${url}`).then(res => res.json).catch(err => err)
-                this.migrationMessage = 'Token migration created. '
+                axios.post(`${url}migrate`,{
+                    ethPubKey: address,
+                    aeAddress: this.address,
+                    signature
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(res => {
+                    this.$store.dispatch('popupAlert', { name: 'account', type: 'token_migration_success'});
+                })
+                .catch(err => {
+                    this.$store.dispatch('popupAlert', { name: 'account', type: 'token_migration_error'});
+                })
+
+                return;
             }
             this.step += 1
         }

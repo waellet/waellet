@@ -88,7 +88,7 @@ export const networks = {
 export const TX_LIMIT_PER_DAY = 2000
 export const MIGRATION_STATUS_URL = `https://api.backendless.com/CBD0589C-4114-2D15-FF41-6FC7F3EE8800/39EBBD6D-5A94-0739-FF27-B17F3957B700/data/migrations?pageSize=100&where=pubKey%20%3D%20%27ADDRESS%27`
 export const MIGRATION_PHASE = 0
-export const MIGRATION_SERVICE_URL = ''
+export const MIGRATION_SERVICE_URL = 'https://token-migration.appspot.com/'
 
 export const TOKEN_REGISTRY_CONTRACT = 
 `contract Token =

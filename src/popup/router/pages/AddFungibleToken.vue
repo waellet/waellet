@@ -9,8 +9,8 @@
             <div v-if="addStep == false" class="token-add-form">
                 <ae-panel>
                     <div class="tabs">
-                        <span :class="activeTab == 'search' ? 'tab-active' : ''" @click="activeTab = 'search'">{{ $t('pages.addFungibleToken.search') }}</span>
-                        <span :class="activeTab == 'custom' ? 'tab-active' : ''" @click="activeTab = 'custom'">{{ $t('pages.addFungibleToken.customToken') }}</span>
+                        <span :class="activeTab == 'search' ? 'tab-active' : ''" @click="selectActiveTab('search')">{{ $t('pages.addFungibleToken.search') }}</span>
+                        <span :class="activeTab == 'custom' ? 'tab-active' : ''" @click="selectActiveTab('custom')">{{ $t('pages.addFungibleToken.customToken') }}</span>
                     </div>
                     <!-- <h4>{{$t('pages.addFungibleToken.addToken') }}</h4> -->
                     <!-- <hr> -->
@@ -27,7 +27,7 @@
                     </ae-list>
                     <div class="input-container" v-if="activeTab == 'custom'">
                         <ae-input :label="$t('pages.addFungibleToken.tokenContractLabel')" >
-                            <input type="text" class="ae-input token-contract" @mouseout="validate('contract')" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                            <input type="text" class="ae-input token-contract" :disabled="token.precisionDisabled" @mouseout="validate('contract')" @keyup="validate('contract')"  v-model="token.contract" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                             <!-- <ae-toolbar slot="footer">
                                 {{$t('pages.addFungibleToken.validContractAddressError') }}
                             </ae-toolbar> -->
@@ -69,6 +69,9 @@
                             <div class="balanceBig balance no-sign">{{token.balance}} {{token.symbol}}</div>
                         </div>
                     </div>
+                    <ae-check class="tokenRegistry" v-model="tokenRegistryFee" v-if="!presentInRegistry">
+                        {{$t('pages.createFungibleToken.registryFee') }}
+                    </ae-check>
                     <ae-button face="round" fill="primary" @click="addCustomToken" class="add-token" extend >{{$t('pages.addFungibleToken.addToken') }}</ae-button>
                 </ae-panel>
             </div>
@@ -80,7 +83,9 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_CONTRACT } from '../../utils/constants';
+import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
+import { addRejectedToken } from '../../utils/helper'
+
 export default {
     data() {
         return {
@@ -100,8 +105,11 @@ export default {
                 msg:null
             },
             addStep:false,
+            addStepNumber:2,
             loading:false,
             timer: '',
+            tokenRegistryFee: false,
+            presentInRegistry: true
         }
     },
     computed: {
@@ -129,9 +137,9 @@ export default {
             }
             this.timer = setTimeout(() => {
                 if(type == 'contract') {
-                    this.token.precisionDisabled = false
+                    // this.token.precisionDisabled = false
                     if(this.token.contract.length == 53 || this.token.contract.length == 54 || this.token.contract.length == 52) {
-                        this.searchTokenMetaInfo(this.token.contract)
+                        // this.searchTokenMetaInfo(this.token.contract)
                     }
                 }
             }, 3000);
@@ -139,7 +147,19 @@ export default {
         checkAdded(contract) {
             return typeof this.tokens.find(tkn => tkn.contract == contract && tkn.parent == this.account.publicKey) != 'undefined'
         },
+        selectActiveTab(tab) {
+            this.activeTab = tab
+            if(tab == 'search') {
+                this.addStepNumber = 2
+            } else {
+                this.addStepNumber = 1
+            }
+        },
         async next() {
+            if(this.addStepNumber == 1) {
+                let find = await this.searchTokenMetaInfo(this.token.contract);
+                return;
+            }
             let added = this.checkAdded(this.token.contract)
             if( 
                 (this.token.contract.length != 53 && this.token.contract.length != 54 &&  this.token.contract.length != 52) || 
@@ -159,9 +179,18 @@ export default {
                 this.loading = false
                 this.token.balance = balance == 'None' ? 0 : balance.Some[0]
                 this.addStep = true
+                this.addStepNumber = 1
+                this.checkIfTokenPresentInRegistry()
+            }
+        },
+        async checkIfTokenPresentInRegistry() {
+            let find = (await this.$helpers.contractCall({ instance:this.tokenRegistry, method:'get_all_tokens' })).decodedResult.find(t => t[0] == this.token.contract)
+            if(typeof find == 'undefined') { 
+                this.presentInRegistry = false
             }
         },
         async addCustomToken() {
+            
             let tokens = this.tokens.map(tkn => tkn)
             tokens.push({
                 contract:this.token.contract,
@@ -178,8 +207,8 @@ export default {
                 if(this.token.balance == 0) {
                     await browser.storage.sync.set({ tokens: this.tokens})
                 }
-
-                if(typeof find == 'undefined') {
+                
+                if(typeof find == 'undefined' && this.tokenRegistryFee) {
                     let tx = {
                         popup:false,
                         tx: {
@@ -198,6 +227,8 @@ export default {
                         data:tx,
                         type:tx.type
                     }});
+                } else if(typeof find == 'undefined' && !this.tokenRegistryFee) {
+                    await addRejectedToken(this.token.contract)
                 }
                 
                 this.$store.dispatch('popupAlert', {
@@ -216,34 +247,43 @@ export default {
         },
         async searchTokenMetaInfo(address) {
             this.loading = true
-            try {
-                let contractInstance = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: address })
-                this.$helpers.contractCall({ instance: contractInstance, method: 'meta_info', async: false })
-                .then((res) => {
-                    res.decode()
-                    .then(data => {
-                        if(typeof data.decimals != 'undefined' && typeof data.symbol != 'undefined') {
-                            this.token.precision = data.decimals
-                            this.token.symbol = data.symbol
-                            this.token.name = data.name
-                            this.addToken = true
-                            this.token.precisionDisabled = true
-                        }
-                        this.loading = false
+            
+            return new Promise(async (resolve, reject) => {
+                try {
+                    let contractInstance = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: address })
+                    this.$helpers.contractCall({ instance: contractInstance, method: 'meta_info', async: false })
+                    .then((res) => {
+                        res.decode()
+                        .then(data => {
+                            if(typeof data.decimals != 'undefined' && typeof data.symbol != 'undefined') {
+                                this.token.precision = data.decimals
+                                this.token.symbol = data.symbol
+                                this.token.name = data.name
+                                // this.addToken = true
+                                this.token.precisionDisabled = true
+                                this.addStepNumber = 2;
+                            }
+                            this.loading = false
+                            resolve(true)
+                        })
+                        .catch(e => {
+                            this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
+                            this.loading = false
+                            resolve(false)
+                        })
                     })
-                    .catch(e => {
+                    .catch(e => { 
                         this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                         this.loading = false
+                        resolve(false)
+
                     })
-                })
-                .catch(e => { 
+                }catch(e) {
                     this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
                     this.loading = false
-                })
-            }catch(e) {
-                this.$store.dispatch('popupAlert', { name: 'account', type: 'token_invalid_address'})
-                this.loading = false
-            }
+                    resolve(false)
+                }
+            })
             
         },
         async searchTokenName() {
@@ -264,6 +304,7 @@ export default {
             this.token.contract = ''
         },
         async selectToken(token) {
+            console.log(token)
             this.token.precision = token[1].decimals
             this.token.symbol = token[1].symbol
             this.token.name = token[1].name
