@@ -92,7 +92,7 @@ import { mapGetters } from 'vuex';
 import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken  } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
-import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
+import { computeAuctionEndBlock, computeBidFee, checkContractAbiVersion  } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
 import BigNumber from 'bignumber.js';
 import { clearInterval, clearTimeout  } from 'timers';
@@ -226,7 +226,16 @@ export default {
     methods: {
         async setContractInstance(source, contractAddress = null) {
             try {
-                this.contractInstance = await this.sdk.getContractInstance(source, { contractAddress });
+                let backend = "fate";
+                if(typeof this.data.tx.abi_version != "undefined" && this.data.tx._abi_version != 3) {
+                    backend = "aevm";
+                }
+                try {
+                    this.contractInstance = await this.sdk.getContractInstance(source, { contractAddress });
+                    this.contractInstance.setOptions({ backend })
+                }catch(e) {
+                    
+                }
                 return Promise.resolve(true)
             } catch(err) {
                 if(this.data.popup) {
@@ -631,12 +640,14 @@ export default {
                     deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
                     this.setTxInQueue(deployed.transaction)
                     if(this.data.tx.contractType == 'fungibleToken') {
+                        let abi_version = await checkContractAbiVersion({ address: deployed.address, middleware: this.network[this.current.network].middlewareUrl} )
                         let tx = {
                             popup:false,
                             tx: {
-                                source: this.network[this.current.network].networkId == 'ae_uat' ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT,
-                                address: this.network[this.current.network].tokenRegistry ,
+                                source: abi_version == 3 ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT,
+                                address: abi_version == 3 ? this.network[this.current.network].tokenRegistryLima : this.network[this.current.network].tokenRegistry ,
                                 params: [deployed.address],
+                                abi_version,
                                 method: 'add_token',
                                 amount: 0,
                                 contractType: 'fungibleToken'
@@ -647,7 +658,6 @@ export default {
                         this.redirectToTxConfirm(tx)
                     }
                 } catch(err) {
-                    console.log(err)
                     this.setTxInQueue('error')
                 }
                 
@@ -696,7 +706,7 @@ export default {
         },
         async namePreclaim(){
             try {
-                const preclaim = await this.sdk.aensPreclaim(this.data.tx.name)
+                const preclaim = await this.sdk.aensPreclaim(this.data.tx.name, { fee: this.convertSelectedFee } )
                 this.setTxInQueue(preclaim.hash)
                 let tx = {
                     popup:false,
@@ -741,7 +751,7 @@ export default {
         },
         async nameUpdate(){
             try {
-                const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey)
+                const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey, { fee: this.convertSelectedFee })
                 this.setTxInQueue(update.hash)
                 this.$store.dispatch('popupAlert', {
                     name: 'account',

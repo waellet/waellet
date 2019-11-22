@@ -37,6 +37,7 @@ export const LEDGER_ACCOUNT_ERROR = { type:'error', title:'Oops! Something went 
 export const UNSUCCESS_VERIFYMESSAGE = {type:'error', title:'Oops! Something went wrong', msg:'Verification failed!'}
 export const INTEGER_REQUIRED = {type:'error', title:'Oops! Something went wrong', msg:'To interact with fungible tokens, only integers. Decimal places are not allowed!'}
 export const TX_LIMIT_PER_DAY = {type:'error', title:'Oops! Something went wrong', msg:'You reach your daily limit for transactions! '}
+export const TOKEN_MIGRATION_ERROR = {type:'error', title:'Oops! Something went wrong', msg:'Token is not migrated! '}
 //success messages
 export const SIGNED_MESSAGE = {type:'success', title:'Signed message:', msg:'', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Copy', buttonsFillPrimary: 'neutral', buttonsFillSecondary: 'primary'};
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};
@@ -49,4 +50,4 @@ export const CONFIRM_TRANSACTION = {type:'success', title:'Confirm transaction?'
 export const ALLOWANCE_CHANGE_SUCCESS = {type:'success', title:'Change completed', msg:'Allowance for this account was successfuly changed!'}
 export const AIRGAP_CREATED = {type:'success', title:'Vault sync completed!', msg:'Find your AirGap Vault under your accounts.'}
 export const CONFIRM_PRIVACY_CLEAR = {type:'success', title:'Confirm clear', msg:'You are about to clear all connected Aepps! After this all Aepps must be granted access again ', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Confirm', buttonsFillPrimary: 'primary', buttonsFillSecondary: 'alternative'}
-
+export const TOKEN_MIGRATION = {type:'success', title:'Tokens migrated', msg:'Your tokens was successfully migrated! ' }

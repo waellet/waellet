@@ -48,6 +48,7 @@ export default new Vuex.Store({
     ledgerApi: null,
     background:null,
     tokenRegistry: null,
+    tokenRegistryLima:null,
     txAdvancedMode:false
   },
   getters,

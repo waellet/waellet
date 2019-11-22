@@ -1,9 +1,9 @@
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
-import { convertToAE, stringifyForStorage, parseFromStorage, contractCall } from '../popup/utils/helper';
+import { convertToAE, stringifyForStorage, parseFromStorage, contractCall, checkContractAbiVersion } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
-import { uniqBy, head, flatten, merge } from 'lodash-es';
+import { uniqBy, head, flatten, merge,  uniqWith,isEqual } from 'lodash-es';
 import router from '../popup/router/index'
 import Ledger from '../popup/utils/ledger/ledger';
 import { derivePasswordKey, genRandomBuffer } from '../popup/utils/hdWallet'
@@ -165,12 +165,18 @@ export default {
           case 'signedMessage':
             commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'copyText', ...popupMessages.SIGNED_MESSAGE, msg: payload.msg, data: payload.data })
             break
-            case 'success_verifymessage':
-              commit(types.SHOW_POPUP, { show: true, ...popupMessages.SUCCESS_VERIFYMESSAGE })
-              break
-            case 'unsuccess_verifymessage':
-              commit(types.SHOW_POPUP, { show: true, ...popupMessages.UNSUCCESS_VERIFYMESSAGE })
-              break
+          case 'success_verifymessage':
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.SUCCESS_VERIFYMESSAGE })
+            break
+          case 'unsuccess_verifymessage':
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.UNSUCCESS_VERIFYMESSAGE })
+            break
+          case 'token_migration_error':
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.TOKEN_MIGRATION_ERROR })
+            break
+          case 'token_migration_success':
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.TOKEN_MIGRATION })
+          break
             
           default:
             break;
@@ -439,13 +445,19 @@ export default {
     return passwordDerivedKey;
   },
 
-  async getAllUserTokens({ state: { tokenRegistry, account, tokens, sdk }, dispatch }) {
+  async getAllUserTokens({ state: { tokenRegistry, tokenRegistryLima, account, tokens, sdk, network, current }, dispatch }) {
     let { publicKey } = account
     
     let tkns = (await contractCall({ instance:tokenRegistry, method:'get_all_tokens' })).decodedResult
-    let res = (await Promise.all(tkns.map(async ( tkn ) => { 
-      let balance = (await contractCall({ instance:tokenRegistry, method:'get_token_balance', params: [tkn[0], publicKey] })).decodedResult
-      let owner = (await contractCall({ instance:tokenRegistry, method:'get_token_owner', params: [tkn[0]] })).decodedResult
+    let tknsLima = (await contractCall({ instance:tokenRegistryLima, method:'get_all_tokens' })).decodedResult
+    let res = (await Promise.all(uniqWith(tkns.concat(tknsLima), isEqual).map(async ( tkn ) => { 
+      let instance = tokenRegistry
+      if(await checkContractAbiVersion({ address: tkn[0], middleware: network[current.network].middlewareUrl }) == 3) {
+        instance= tokenRegistryLima
+      }
+      // console.log(instance)
+      let balance = (await contractCall({ instance, method:'get_token_balance', params: [tkn[0], publicKey] })).decodedResult
+      let owner = (await contractCall({ instance, method:'get_token_owner', params: [tkn[0]] })).decodedResult
       let token
       if(typeof balance != 'undefined' || owner == publicKey) {
         token = {

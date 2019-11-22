@@ -36,6 +36,7 @@
     "bip38": "^2.0.3",
     "bip38-network": "^3.0.0",
     "bitcoinjs-lib": "^4.0.3",
+    "bluebird": "^3.7.1",
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.4",
     "bs58check": "^2.1.2",

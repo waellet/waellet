@@ -3,6 +3,7 @@ import { getHdWalletAccount } from './hdWallet';
 import { Crypto } from '@aeternity/aepp-sdk/es';
 import { postMesssage } from './connection';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
+import axios from 'axios';
 
 import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
 
@@ -359,7 +360,7 @@ const addRejectedToken = async (token) => {
         rejected_token = []
     }
     rejected_token.push(token)
-    await browser.storage.sync.set({ rejected_token })
+    return await browser.storage.sync.set({ rejected_token })
 }
 
 export const handleUnknownError = error => console.warn('Unknown rejection', error);
@@ -421,6 +422,19 @@ const contractCall = async ({ instance, method,  params = [], decode = false, as
     return async ? (decode ? call.decodedResult : call ) : params.length ? instance.methods[method](...params) :  instance.methods[method]()
 }
 
+const checkContractAbiVersion = ({ address, middleware }) => {
+    return new Promise((resolve, reject) => {
+        axios.get(`${middleware}/middleware/contracts/transactions/address/${address}`)
+        .then(res => {
+            let { tx: { abi_version } } = res.data.transactions.find(({ tx: { type } }) => type == 'ContractCreateTx')
+            resolve(abi_version)
+        })
+        .catch(err => {
+            resolve(0)
+        })
+    })
+}
+
 export { 
     shuffleArray, 
     convertToAE, 
@@ -443,7 +457,8 @@ export {
     parseFromStorage,
     escapeCallParams,
     addRejectedToken,
-    contractCall
+    contractCall,
+    checkContractAbiVersion
 }
 
 
