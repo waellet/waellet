@@ -2,6 +2,10 @@ import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import { getHdWalletAccount } from './hdWallet';
 import { Crypto } from '@aeternity/aepp-sdk/es';
 import { postMesssage } from './connection';
+import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
+import axios from 'axios';
+
+import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
 
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -157,6 +161,31 @@ const redirectAfterLogin = (ctx) => {
   })
 }
 
+export const fetchJson = async (...args) => {
+    const response = await fetch(...args);
+    return response.json();
+};
+
+const swag = async (network, current) => {
+    const swag = await fetchJson(`${network[current.network].middlewareUrl}/middleware/api`);
+    swag.paths['/names/auctions/{name}/info'] = {
+        get: {
+        operationId: 'getAuctionInfoByName',
+        parameters: [{
+            in: 'path',
+            name: 'name',
+            required: true,
+            type: 'string',
+        }],
+        },
+    };
+    return Swagger.compose({
+        methods: {
+        urlFor: path => network[current.network].middlewareUrl + path,
+        axiosError: () => '',
+        },
+    })({ swag });
+}
 
 const initializeSDK = (ctx, { network, current, account, wallet, activeAccount = 0, background },backgr = false) => {
     if(!backgr) {
@@ -170,15 +199,14 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
                 } else {
                     res = parseFromStorage(res)
                     let sdk = await createSDKObject(ctx, { network, current, account, wallet, activeAccount, background, res },backgr)
+                    sdk.middleware = (await swag(network,current)).api;
                     resolve(sdk)
                 }
             })
         }else {
             let sdk = await createSDKObject(ctx, { network, current, account, activeAccount, background, res: account },backgr)
             resolve(sdk)
-        }
-        
-        
+        }       
     })
 }
 let countErr = 0;
@@ -332,8 +360,47 @@ const addRejectedToken = async (token) => {
         rejected_token = []
     }
     rejected_token.push(token)
-    await browser.storage.sync.set({ rejected_token })
+    return await browser.storage.sync.set({ rejected_token })
 }
+
+export const handleUnknownError = error => console.warn('Unknown rejection', error);
+
+export const isAccountNotFoundError = error => isNotFoundError(error)
+  && get(error, 'response.data.reason') === 'Account not found';
+
+export const getAddressByNameEntry = nameEntry => ((nameEntry.pointers
+&& nameEntry.pointers.find(({ key }) => key === 'account_pubkey')) || {}).id;
+
+const toFiatFixedValue = v => (v.e < -2 ? '0.01' : v.toFixed(2));
+
+export const currencyAmount = (value, { symbol, isCrypto = true }) => {
+  let v;
+  if (typeof value === 'string') v = value;
+  else v = isCrypto ? value.toFixed(8) : toFiatFixedValue(value);
+  return `${!isCrypto ? symbol : ''}${v}${isCrypto ? ` ${symbol}` : ''}`;
+};
+
+const prefixes = [
+  { name: 'Exa', magnitude: MAGNITUDE_EXA },
+  { name: 'Giga', magnitude: MAGNITUDE_GIGA },
+  { name: '', magnitude: 0 },
+  { name: 'Pico', magnitude: MAGNITUDE_PICO },
+];
+
+const getNearestPrefix = exponent => prefixes.reduce((p, n) => (
+  Math.abs(n.magnitude - exponent) < Math.abs(p.magnitude - exponent) ? n : p));
+
+const getLowerBoundPrefix = exponent => prefixes
+  .find(p => p.magnitude <= exponent) || prefixes[prefixes.length - 1];
+
+export const prefixedAmount = (value) => {
+  const { name, magnitude } = (value.e < 0 ? getNearestPrefix : getLowerBoundPrefix)(value.e);
+  const v = value
+    .shiftedBy(-magnitude)
+    .precision(9 + Math.min(value.e - magnitude, 0))
+    .toFixed();
+  return `${v}${name ? ' ' : ''}${name}`;
+};
 
 const contractCall = async ({ instance, method,  params = [], decode = false, async = true }) => {
     let call
@@ -353,6 +420,19 @@ const contractCall = async ({ instance, method,  params = [], decode = false, as
     }
 
     return async ? (decode ? call.decodedResult : call ) : params.length ? instance.methods[method](...params) :  instance.methods[method]()
+}
+
+const checkContractAbiVersion = ({ address, middleware }) => {
+    return new Promise((resolve, reject) => {
+        axios.get(`${middleware}/middleware/contracts/transactions/address/${address}`)
+        .then(res => {
+            let { tx: { abi_version } } = res.data.transactions.find(({ tx: { type } }) => type == 'ContractCreateTx')
+            resolve(abi_version)
+        })
+        .catch(err => {
+            resolve(0)
+        })
+    })
 }
 
 export { 
@@ -377,7 +457,8 @@ export {
     parseFromStorage,
     escapeCallParams,
     addRejectedToken,
-    contractCall
+    contractCall,
+    checkContractAbiVersion
 }
 
 

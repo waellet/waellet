@@ -75,6 +75,9 @@ export const getters = {
   tokenRegistry({ tokenRegistry }) {
     return tokenRegistry
   },
+  tokenRegistryLima({ tokenRegistryLima }) {
+    return tokenRegistryLima
+  },
   txAdvancedMode({ txAdvancedMode }) {
     return txAdvancedMode
   }

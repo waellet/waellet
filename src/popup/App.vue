@@ -167,7 +167,7 @@
     <div class="connect-error" v-if="connectError" >Unable to connect to choosen node</div>
   </ae-main>
 </template>
-
+ 
 <script>
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
@@ -181,6 +181,7 @@ import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from './utils/c
 import LedgerBridge from './utils/ledger/ledger-bridge'
 import { start, postMesssage } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
+import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
 export default {
   
@@ -437,9 +438,29 @@ export default {
       let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
       
       if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
-        await this.$store.commit('SET_TOKEN_REGISTRY', await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) )
+        await this.$store.commit('SET_TOKEN_REGISTRY', 
+          await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
+          TOKEN_REGISTRY_CONTRACT_LIMA : 
+          TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) 
+        )
+
+        try {
+          await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
+            await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
+          )
+        } catch (e) {
+          console.log(e)
+        }
+        
+        
+        
+
+
         
         this.$store.dispatch('getAllUserTokens')
+       
+        
+
       }
       
       if(typeof sdk.error != 'undefined') {

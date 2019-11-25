@@ -15,6 +15,7 @@ export const TX_TYPES = {
   'contractCreate':TX_TYPE.contractCreate,
   'namePreClaim': TX_TYPE.namePreClaim,
   'nameClaim': TX_TYPE.nameClaim,
+  'nameBid': TX_TYPE.nameClaim,
   'nameUpdate': TX_TYPE.nameUpdate
 }
 
@@ -68,10 +69,11 @@ export const networks = {
     url: 'https://sdk-testnet.aepps.com',
     internalUrl: 'https://sdk-testnet.aepps.com',
     networkId: 'ae_uat',
-    middlewareUrl: 'https://testnet.mdw.aepps.com/',
+    middlewareUrl: 'https://testnet.aeternal.io',
     explorerUrl: 'https://testnet.explorer.aepps.com',
     compilerUrl: 'https://latest.compiler.aepps.com',
-    tokenRegistry: 'ct_Dnwribmd21YrxSQnqXCB5vTFPrgYJx2eg2TrbLvbdyEbTMejw'
+    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
+    tokenRegistryLima: 'ct_Dnwribmd21YrxSQnqXCB5vTFPrgYJx2eg2TrbLvbdyEbTMejw'
   },
   Mainnet: {
     url: 'https://sdk-mainnet.aepps.com',
@@ -80,14 +82,15 @@ export const networks = {
     middlewareUrl: 'http://mdw.aepps.com/',
     explorerUrl: 'https://testnet.explorer.aepps.com',
     compilerUrl: 'https://compiler.aepps.com',
-    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
+    tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
+    tokenRegistryLima: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
   }
 }
 
 export const TX_LIMIT_PER_DAY = 2000
 export const MIGRATION_STATUS_URL = `https://api.backendless.com/CBD0589C-4114-2D15-FF41-6FC7F3EE8800/39EBBD6D-5A94-0739-FF27-B17F3957B700/data/migrations?pageSize=100&where=pubKey%20%3D%20%27ADDRESS%27`
 export const MIGRATION_PHASE = 0
-export const MIGRATION_SERVICE_URL = ''
+export const MIGRATION_SERVICE_URL = 'https://token-migration.appspot.com/'
 
 export const TOKEN_REGISTRY_CONTRACT = 
 `contract Token =

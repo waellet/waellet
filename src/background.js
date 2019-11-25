@@ -17,7 +17,6 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 setInterval(() => {
     browser.windows.getAll({}).then((wins) => {
         if(wins.length == 0) {
-            console.log("remove")
             sessionStorage.removeItem("phishing_urls");
             browser.storage.sync.remove('isLogged')
             browser.storage.sync.remove('activeAccount')
@@ -259,14 +258,11 @@ browser.runtime.onConnect.addListener( ( port ) => {
     }
     if((port.name == 'popup' && port.sender.id == browser.runtime.id && port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && detectBrowser() != 'Firefox') || ( detectBrowser() == 'Firefox' && port.name == 'popup' && port.sender.id == browser.runtime.id ) ) {
         port.onMessage.addListener(({ type, payload, uuid}) => {
-            console.log(type)
             controller[type](payload).then((res) => {
                 port.postMessage({ uuid, res })
             })
         })  
     }
 })  
-
-
 
 const notification = new Notification();
