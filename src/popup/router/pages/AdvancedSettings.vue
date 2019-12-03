@@ -1,5 +1,29 @@
 <template>
     <div class="popup">
+        <Modal :modal="modal">
+            <div slot="content">
+                <small v-if="privateKey == '' && !loading && type == '2'">{{$t('pages.securitySettings.privateKeyWarning')}}</small>
+                <h3 v-if="privateKey != '' && type == '2'">{{$t('pages.securitySettings.privateKey')}}</h3>
+                <Alert :fill="alert.fill" :show="alert.show && !loading">
+                    <div slot="content">
+                        {{alert.content}}
+                    </div>
+                </Alert>
+                <ae-toolbar fill="alternative" v-if="privateKey != ''" align="right">
+                    <ae-button face="toolbar" v-clipboard:copy="privateKey" @click="reset(privateKey)">
+                        <ae-icon name="copy" />
+                        {{$t('pages.securitySettings.copy')}}
+                    </ae-button>
+                </ae-toolbar>
+                <div v-if="privateKey == '' && !loading">
+                    <ae-input class="my-2" label="Password">
+                        <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                    </ae-input>
+                    <ae-button class="notround decrypt-btn" extend face="round" fill="primary" @click="decryptKeystore">{{$t('pages.securitySettings.showPrivateKey')}}</ae-button>
+                </div>
+                <Loader :loading="loading" size="small" :content="$t('pages.securitySettings.decryptingPrivateKey')"></Loader>
+            </div>
+        </Modal>
         <div class="actions">
             <button class="backbutton toAccount" @click="navigateToSettings"><ae-icon name="back" /> {{$t('pages.advancedSettings.backToSettings') }}</button>
         </div>
@@ -41,17 +65,44 @@ export default {
     data () {
         return {
             loading: false,
+            password: '',
         }
     },
     computed: {
         ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount', 'popup']),
     },
     methods: {
-        exportKeypair (type) {
+        async exportKeypair (type) {
             if(type == 'keypair') {
-                let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": this.account.secretKey});
-                let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
-                saveAs(blob, "keypair.json");
+                browser.storage.sync.get('userAccount').then(async (user) => {
+                    if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                        let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                        let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                        this.loading = false
+                        if(match) {
+                            this.privateKey = match
+                            this.setAlertData("alternative",true,match)
+                        }else {
+                            this.setAlertData("primary",true,this.$t('pages.securitySettings.incorrectPassword'))
+                        }
+                    }
+                })
+                // this.loading = true
+                // let encryptedPrivateKey = this.account.encryptedPrivateKey;
+                // console.log(encryptedPrivateKey); 
+                // let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,'Proba-123',encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                // console.log(match)
+                // this.loading = false
+                // if(match) {
+                //     this.privateKey = match
+                //     this.setAlertData("alternative",true,match)
+                //     console.log(this.account)
+                //     let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": match});
+                //     let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+                //     // saveAs(blob, "keypair.json");
+                // }else {
+                //     this.setAlertData("primary",true,this.$t('pages.securitySettings.incorrectPassword'))
+                // }
             }else if(type == 'keystore') {
                 let blobData = "";
                 try {

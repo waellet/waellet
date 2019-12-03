@@ -596,6 +596,10 @@ export default {
                     this.data.tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(MAGNITUDE)
                     options = { ...options, ...this.data.tx.options }
                 }
+                
+                console.log("[Debug]: Transaction parameters")
+                console.log(...this.data.tx.params)
+                
                 options= { ...options, fee:this.convertSelectedFee }
                 call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, options] })
                 this.setTxInQueue(call.hash)
