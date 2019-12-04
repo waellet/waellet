@@ -1,36 +1,6 @@
   <template>
   <div class="popup">
     <h3>{{ $t('pages.account.heading') }}</h3>
-    <div class="currenciesgroup">
-      <!-- <div class="inputGroup-currencies">
-        <div class="input-group-icon">$</div>
-        <div class="input-group-area"><input disabled type="text" :value=toUsd></div>
-      </div>
-      <div class="inputGroup-currencies">
-        <div class="input-group-icon">€</div>
-        <div class="input-group-area"><input disabled type="text" :value=toEur></div>
-      </div> -->
-      <li id="currencies" class="have-subDropdown" :class="dropdown.currencies ? 'show' : ''">
-        <div class="inputGroup-currencies">
-          <div class="input-group-icon"><ae-icon name="flip"/></div>
-            <div class="input-group-area">
-              <ae-button @click="toggleDropdown($event, '.have-subDropdown')">
-                {{ (this.current.currency && this.current.currencyRate ? currencyFullName +' '+ '('+this.current.currency.toUpperCase()+')' +' - '+ (this.current.currencyRate*tokenBalance).toFixed(3) +' '+ currencySign : 'Select currency') }}
-                <ae-icon style="margin:0" name="left-more"/>
-              </ae-button>
-            </div>
-        </div>
-        <!-- Currencies sub dropdown -->
-        <ul class="sub-dropdown">
-          <li class="single-currency" v-for="(index, item) in allCurrencies" v-bind:key="index">
-            <ae-button v-on:click="switchCurrency(index, item)" class="" :class="current.currency == item ? 'current' : ''">
-                {{ item.toUpperCase() }}
-                <i class="arrowrightCurrency"></i>
-            </ae-button>
-          </li>
-        </ul>
-      </li>
-    </div>
     <ae-card :fill="cardColor">
       <template slot="avatar">
         <ae-identicon :address="account.publicKey" />

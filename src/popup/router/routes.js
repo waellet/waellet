@@ -33,6 +33,7 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TokenMigration from './pages/TokenMigration';
 import TokenMigrationInfo from './pages/TokenMigrationInfo';
+import StateChannels from './pages/StateChannels';
 export default [
   {
     path: '/',
@@ -194,6 +195,10 @@ export default [
   {
     path: '/token-migration-info',
     component: TokenMigrationInfo
+  },
+  {
+    path: '/state-channels',
+    component: StateChannels
   }
   
 ];

@@ -184,6 +184,10 @@
             "goBiddingBtn": "Go for bidding",
             "backButton": "Back"
         },
+        "stateChannelsPage": {
+            "heading": "State Channels",
+            "openNewChannel": "Open new state channel"
+        },
         "generalSettings": {
             "backToSettings": "Back to settings",
             "heading": "General",
@@ -429,6 +433,8 @@
             "heading": "Utilities",
             "backToAccount": "Back to account",
             "tipWebsite": "Tip website",
+            "stateChannels": "State Channels",
+            "stateChannelsInfo": "Experimental",
             "namingSystem": "Naming System",
             "namingSystemInfo": "Register name and it can be used instead of your public address",
             "allowances": "Allowances",

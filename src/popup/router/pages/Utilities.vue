@@ -6,6 +6,11 @@
         <h3 style='text-align:center;'>{{$t('pages.utilities.heading')}}</h3>
         <br>
         <ae-list id="utilitiesPage" class="settingslist" face="primary">
+            <button class="state-channels" @click="openStateChannels">
+                <span class="settings-li">{{$t('pages.utilities.stateChannels')}}</span>
+                <i class="arrowright"></i>
+                <p class="tabinfo">{{$t('pages.utilities.stateChannelsInfo')}}</p>
+            </button>
             <button class="aens-page" @click="openNamingSystemPage">
                 <span class="settings-li">{{$t('pages.utilities.namingSystem')}}</span>
                 <i class="arrowright"></i>
@@ -75,6 +80,9 @@ export default {
     },
     openTokenMigration() {
       this.$router.push('/token-migration-info')
+    },
+    openStateChannels() {
+      this.$router.push('/state-channels')
     }
   }
 }
