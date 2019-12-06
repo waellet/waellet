@@ -304,7 +304,7 @@ const removeTxFromStorage = (id) => {
 }
 
 const checkAddress = (value) => {
-    return Crypto.isAddressValid(value);
+    return Crypto.isAddressValid(value, "ak") || Crypto.isAddressValid(value, "ct");
 }
 
 const isInt = (n) => {
