@@ -1,5 +1,5 @@
 import uuid from 'uuid';
-import { checkAddress, chekAensName } from './popup/utils/helper';
+import { checkAddress, chekAensName, stringifyForStorage } from './popup/utils/helper';
 
 const Aepp = {
     request: {
@@ -79,7 +79,7 @@ const Aepp = {
                     source,
                     address,
                     method,
-                    params,
+                    params:stringifyForStorage(params),
                     options
                 },
                 hostname:window.location.host
@@ -101,7 +101,7 @@ const Aepp = {
                   source,
                   address,
                   method,
-                  params,
+                  params:stringifyForStorage(params),
                   options
               },
               hostname:window.location.host
