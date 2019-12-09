@@ -20,7 +20,7 @@
 
 We see Waellet as user’s first choice wallet when it comes to interacting with dApps hosted on different blockchains. Build around aeternity, Waellet is to become a tool that enables users to pay for different services without the need to worry about the network of the particular dApp – this will happen in a decentralized and cryptographic secure way through integration with the WeiDex – decentralized exchange.
 
-Currently, Waellet is still in beta and under heavy development. Last week we on-boarded three more people to work along with Milen, pushing to bring you our best vision of the wallet as soon as possible.
+Currently, Waellet is still in beta and under heavy development pushing to bring you our best vision of the wallet as soon as possible.
 
 ## Download 
 
