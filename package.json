@@ -84,7 +84,7 @@
     "copy-webpack-plugin": "^4.5.3",
     "core-js": "^2.6.10",
     "cross-env": "^5.2.1",
-    "css-loader": "^0.28.11",
+    "css-loader": "^3.3.0",
     "cypress": "^3.4.1",
     "ejs": "^2.7.1",
     "eslint": "^5.16.0",
