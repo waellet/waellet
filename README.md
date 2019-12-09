@@ -63,19 +63,19 @@ $ npm install
 $ npm run test
 ```
 
-### Adding to browser via local build
+### Adding to browser via local build or release zip
 
 - Chromium based (Chrome, Brave, Opera)
 
 1. Open chrome/brave browser `Preferences -> More tools > Extensions`
 2. Make sure `Developer mode` is `On` in the right corner.
-3. Click `Load unpacked` button and select the generated `dist` folder in the cloned repo.
+3. Click `Load unpacked` button and select the generated `dist` folder in the cloned repo or the unacrhived release folder.
 
 - Firefox
 
 1. Open the Firefox menu and select `Add-ons` section.
 2. Click the `Tools for  all add-ons` button and select `Debug Add-ons`
-3. Click `Load a temorary add-on` navigate to the generated `dist` folder in the cloned repo and select the `manifest.json` file.
+3. Click `Load a temorary add-on` navigate to the generated `dist` folder in the cloned repo  or the unacrhived release folder and select the `manifest.json` file.
 
 ## Security
 If you discover a security vulnerability within this application, please send an e-mail to hello@waellet.com. All security vulnerabilities will be promptly addressed.
