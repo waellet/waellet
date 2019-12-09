@@ -9,13 +9,17 @@
             <div class="maindiv_input-group-addon">
                 <h4>{{$t('pages.stateChannelsPage.openNewChannel') }}</h4><hr>
                 <div class="checkName namingsystem-input-group-addon">
-                    <input v-model="channel_responder" class="namingsystem-addon-input" />
+                    <input v-model="port" class="namingsystem-addon-input" />
                 </div>
                 <ae-button class="regbtn notround" face="icon" fill="primary" @click="openStateChannel">
                     <ae-icon name="plus" />
                 </ae-button>
             </div>
         </div>
+
+        <ae-button class="regbtn notround" face="icon" fill="secondary" @click="getChannelId">
+            <ae-icon name="plus" />
+        </ae-button>
 
         <Loader size="big" :loading="loading" type="transparent" content="" ></Loader>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
@@ -35,6 +39,8 @@ export default {
             ak_address: '',
             polling:null,
             openChannel: true,
+            channel : null,
+            port: 3013
         }
     },
     computed: {
@@ -47,11 +53,14 @@ export default {
             this.expiration = res.expiration;
             this.bids = res.bids;
         },
+        async getChannelId() {
+            debugger
+        },
         async openStateChannel() {
 
-            console.log(`Opening a state channel with: ${this.channel_responder}`)
+            console.log(`Opening a state channel with: ${this.channel_responder} on port ${this.port}`)
 
-            let channel = await Channel({
+            this.channel = await Channel({
                 url: 'wss://testnet.aeternity.io/channel',
                 role: 'initiator',
                 initiatorId: this.account.publicKey,
@@ -62,11 +71,16 @@ export default {
                 channelReserve: 1,
                 ttl: 1000,
                 host: 'localhost',
-                port: 3002,
-                lockPeriod: 10
-                // async sign (tag, tx) { return await sdk.signTransaction(tx) }
+                port: this.port,
+                lockPeriod: 10,
+                sign: async (tag, tx) => {
+                    console.log(tag)
+                    console.log(tx)
+                    return this.sdk.signTransaction(tx)
+                }
             })
-            console.log(channel)
+
+            console.log(this.channel)
         },
         navigateUtilities(){
             this.$router.push('/utilities')
