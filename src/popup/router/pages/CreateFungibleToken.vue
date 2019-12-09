@@ -52,7 +52,7 @@ export default {
         return {
             token: {
                 name:'',
-                precision:0,
+                precision: 0,
                 symbol:'',
             },
             tokenRegistry:false,
@@ -83,7 +83,7 @@ export default {
                 this.err.symbol = true 
                 return
             }
-            if(this.token.precision < 1 || this.token.precision > 36 || !isInt(this.token.precision)) {
+            if(this.token.precision < 0 || this.token.precision > 36 || !isInt(this.token.precision)) {
                 this.err.precision = true
                 return
             }
