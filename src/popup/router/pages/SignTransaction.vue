@@ -278,6 +278,10 @@ export default {
             }
             if(this.data.tx.hasOwnProperty("options") && this.data.tx.options.hasOwnProperty("amount")) {
                 this.data.tx.amount = this.data.tx.options.amount
+                if(this.data.type == 'contractCall') {
+                    this.data.tx.amount = BigNumber(this.data.tx.options.amount).shiftedBy(-MAGNITUDE)
+                    this.data.tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(-MAGNITUDE)
+                }
             }
             if(this.data.popup) {
                 this.port = browser.runtime.connect({ name: this.data.id })
@@ -293,9 +297,15 @@ export default {
                         
                         window.clearTimeout(this.checkSDKReady)
                         await this.setContractInstance(this.data.tx.source, this.data.tx.address)
-                        let call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, this.data.tx.options] })
-                        this.sending = true
-                        this.port.postMessage(call)
+                        try {
+                            let call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, this.data.tx.options] })
+                            this.sending = true
+                            this.port.postMessage(call)
+                        } catch(e)  {
+                            this.errorTx.error.message = e
+                            this.sending = true
+                            this.port.postMessage(this.errorTx)
+                        }
                         
                         let list = await removeTxFromStorage(this.data.id)
                         
