@@ -122,7 +122,9 @@ const redirectAfterLogin = (ctx) => {
         if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
             browser.storage.sync.remove('showAeppPopup').then(() => {
                 ctx.$store.commit('SET_AEPP_POPUP',true)
-                
+                if(aepp.showAeppPopup.data.hasOwnProperty("tx") && aepp.showAeppPopup.data.tx.hasOwnProperty("params")) {
+                    aepp.showAeppPopup.data.tx.params = parseFromStorage(aepp.showAeppPopup.data.tx.params)
+                }
                 if(aepp.showAeppPopup.type == 'connectConfirm') {
                     aepp.showAeppPopup.data.popup = true
                     ctx.$router.push({'name':'connect-confirm', params: {
@@ -144,7 +146,7 @@ const redirectAfterLogin = (ctx) => {
                         data:aepp.showAeppPopup.data
                     }})
                 }
-            return;
+                return;
             });
         }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length > 0) {
             ctx.$store.commit('SET_AEPP_POPUP',true)
@@ -302,7 +304,7 @@ const removeTxFromStorage = (id) => {
 }
 
 const checkAddress = (value) => {
-    return Crypto.isAddressValid(value);
+    return Crypto.isAddressValid(value, "ak") || Crypto.isAddressValid(value, "ct");
 }
 
 const isInt = (n) => {
@@ -315,12 +317,50 @@ const chekAensName = (value) => {
 
 const stringifyForStorage = state =>  {
     return JSON.stringify(state, (key, value) => {
+        
         if (value instanceof ArrayBuffer) {
           return { type: 'ArrayBuffer', data: Array.from(new Uint8Array(value)) };
         }
         if (value instanceof Uint8Array) {
           return { type: 'Uint8Array', data: Array.from(value) };
         }
+
+        if (value instanceof Int8Array) {
+            return { type: 'Int8Array', data: Array.from(value) };
+        }
+
+        if (value instanceof Int16Array) {
+            return { type: 'Int16Array', data: Array.from(value) };
+        }
+
+        if (value instanceof Uint16Array) {
+            return { type: 'Uint16Array', data: Array.from(value) };
+        }
+
+        if (value instanceof Int32Array) {
+            return { type: 'Int32Array', data: Array.from(value) };
+        }
+
+        if (value instanceof Uint32Array) {
+            return { type: 'Uint32Array', data: Array.from(value) };
+        }
+
+        if (value instanceof Float32Array) {
+            return { type: 'Float32Array', data: Array.from(value) };
+        }
+
+        if (value instanceof Float64Array) {
+            return { type: 'Float64Array', data: Array.from(value) };
+        }
+
+        if (value instanceof BigInt64Array) {
+            return { type: 'BigInt64Array', data: Array.from(value) };
+        }
+
+        if (value instanceof BigUint64Array) {
+            return { type: 'BigUint64Array', data: Array.from(value) };
+        }
+        
         return value;
     })
 }
@@ -337,6 +377,41 @@ const parseFromStorage = state => {
           }
           if(value && value.type == 'Buffer' ) {
             return new Uint8Array(value.data);
+          }
+          if(value && value.type == 'Int8Array' ) {
+            return new Int8Array(value.data);
+          }
+
+          if(value && value.type == 'Int16Array' ) {
+            return new Int16Array(value.data);
+          }
+
+          if(value && value.type == 'Uint16Array' ) {
+            return new Uint16Array(value.data);
+          }
+
+          if(value && value.type == 'Int32Array' ) {
+            return new Int32Array(value.data);
+          }
+
+          if(value && value.type == 'Uint32Array' ) {
+            return new Uint32Array(value.data);
+          }
+
+          if(value && value.type == 'Float32Array' ) {
+            return new Float32Array(value.data);
+          }
+
+          if(value && value.type == 'Float64Array' ) {
+            return new Float64Array(value.data);
+          }
+
+          if(value && value.type == 'BigInt64Array' ) {
+            return new BigInt64Array(value.data);
+          }
+
+          if(value && value.type == 'BigUint64Array' ) {
+            return new BigUint64Array(value.data);
           }
           
           return value;

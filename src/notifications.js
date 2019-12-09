@@ -25,6 +25,10 @@ export default class Notification {
         setInterval(() => {
             this.checkTxReady();
         },2000)
+        browser.notifications.onButtonClicked.addListener((id) => {
+            console.log(id)
+            browser.tabs.create({url: id.split('?')[1], active: true});
+        })
 
     }
 
@@ -49,19 +53,19 @@ export default class Notification {
                 if (tx != "error") {
                     let res = await this.client.poll(tx)
                     let url = this.network.explorerUrl + '/#/tx/' + tx
-                    this.sendNoti({ title: 'Transaction ready', message: `You can expore your transaction by clicking button below`, contextMessage: url})
+                    await this.sendNoti({ title: 'Transaction ready', message: `You can expore your transaction by clicking button below`, contextMessage: url, error:false})
                 } else {
-                    this.sendNoti({ title: 'Transaction error', message: 'Transaction cannot be processed '})
+                    await this.sendNoti({ title: 'Transaction error', message: 'Transaction cannot be processed ', error:true })
                 }
-                
                 
                 await this.deleteNotification(tx)
             })
+            
         }
         
     }
     
-    async sendNoti ({ title, message, contextMessage }) {
+    async sendNoti ({ title, message, contextMessage, error }) {
         let params = {
             'type': 'basic',
             'title': title,
@@ -71,18 +75,20 @@ export default class Notification {
             
         }
         if(detectBrowser() != 'Firefox') {
-            params = {
-                ...params,
-                'buttons': [
-                    { title: 'See transaction details' }
-                ]
+            if(!error) {
+                params = {
+                    ...params,
+                    'buttons': [
+                        { title: 'See transaction details' }
+                    ]
+                }
             }
         }
 
-        let noti = browser.notifications.create(`popup.html?${contextMessage}`,params )
-        browser.notifications.onButtonClicked.addListener((id) => {
-            browser.tabs.create({url: id.split('?')[1], active: true});
-        })
+        let noti = await browser.notifications.create(`popup.html?${contextMessage}`,params )
+       
+        return Promise.resolve(true)
+
     }
     
 }
