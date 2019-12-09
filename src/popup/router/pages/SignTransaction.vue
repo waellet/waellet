@@ -278,10 +278,13 @@ export default {
             }
             if(this.data.tx.hasOwnProperty("options") && this.data.tx.options.hasOwnProperty("amount")) {
                 this.data.tx.amount = this.data.tx.options.amount
-                if(this.data.type == 'contractCall') {
+                if(this.data.type == 'contractCall' ) {
                     this.data.tx.amount = BigNumber(this.data.tx.options.amount).shiftedBy(-MAGNITUDE)
                     this.data.tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(-MAGNITUDE)
-                }
+                }  
+            }
+            if(this.data.type == 'txSign') {
+                this.data.tx.amount = BigNumber(this.data.tx.amount).shiftedBy(-MAGNITUDE)
             }
             if(this.data.popup) {
                 this.port = browser.runtime.connect({ name: this.data.id })
