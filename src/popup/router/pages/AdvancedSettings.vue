@@ -87,23 +87,7 @@ export default {
                         }
                     }
                 })
-                // this.loading = true
-                // let encryptedPrivateKey = this.account.encryptedPrivateKey;
-                // console.log(encryptedPrivateKey); 
-                // let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,'Proba-123',encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
-                // console.log(match)
-                // this.loading = false
-                // if(match) {
-                //     this.privateKey = match
-                //     this.setAlertData("alternative",true,match)
-                //     console.log(this.account)
-                //     let blobData = JSON.stringify({"publicKey": this.account.publicKey, "secretKey": match});
-                //     let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
-                //     // saveAs(blob, "keypair.json");
-                // }else {
-                //     this.setAlertData("primary",true,this.$t('pages.securitySettings.incorrectPassword'))
-                // }
-            }else if(type == 'keystore') {
+            } else if(type == 'keystore') {
                 let blobData = "";
                 try {
                     blobData = JSON.parse(this.account.encryptedPrivateKey);
