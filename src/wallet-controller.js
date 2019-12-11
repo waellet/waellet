@@ -2,6 +2,7 @@ import { decrypt } from './popup/utils/keystore';
 import { generateHdWallet, getHdWalletAccount } from './popup/utils/hdWallet';
 import { stringifyForStorage, parseFromStorage } from './popup/utils/helper';
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
+import WebCrypto from './popup/utils/webCrypto';
 
 export default class WalletController {
     constructor(tests = false) {
@@ -19,6 +20,7 @@ export default class WalletController {
                 });
             },5000);
         }
+        this.webCrypto = new WebCrypto();
     }
 
     unlockWallet({ accountPassword, encryptedPrivateKey }) {
