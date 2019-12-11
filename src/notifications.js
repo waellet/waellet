@@ -52,7 +52,7 @@ export default class Notification {
             noties.forEach(async (tx, index ) => {
                 if (tx != "error") {
                     let res = await this.client.poll(tx)
-                    let url = this.network.explorerUrl + '/#/tx/' + tx
+                    let url = this.network.explorerUrl + '/transactions/' + tx
                     await this.sendNoti({ title: 'Transaction ready', message: `You can expore your transaction by clicking button below`, contextMessage: url, error:false})
                 } else {
                     await this.sendNoti({ title: 'Transaction error', message: 'Transaction cannot be processed ', error:true })
