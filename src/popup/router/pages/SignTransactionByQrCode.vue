@@ -59,7 +59,7 @@ export default {
             const signed = getSignedTransactionByResponseUrl(content);
             let transaction = await this.sdk.sendTransaction(signed);
             let amount = transaction.tx['amount'] / 1000000000000000000;
-            let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + transaction.hash;
+            let txUrl = this.network[this.current.network].explorerUrl + '/transactions/' + transaction.hash;
             let msg = 'You have sent ' + amount + ' AE';
             this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl});
             this.$router.push('/account')

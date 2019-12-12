@@ -506,7 +506,7 @@ export default {
                         this.loading = false
                         this.hash = result.hash
                         this.setTxInQueue(result.hash)
-                        let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + result.hash
+                        let txUrl = this.network[this.current.network].explorerUrl + '/transactions/' + result.hash
                         let msg = 'You have sent ' + this.amount + ' AE'
                         if(this.data.popup) {
                             let res = {
@@ -560,7 +560,7 @@ export default {
             let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
             this.loading = false
             if(sign.success) {
-                let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + sign.res.hash
+                let txUrl = this.network[this.current.network].explorerUrl + '/transactions/' + sign.res.hash
                 let msg = 'You have sent ' + this.amount + ' AE'
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg,data:txUrl})
                 .then(async () => {
@@ -610,6 +610,10 @@ export default {
                     this.data.tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(MAGNITUDE)
                     options = { ...options, ...this.data.tx.options }
                 }
+                
+                console.log("[Debug]: Transaction parameters")
+                console.log(...this.data.tx.params)
+                
                 options= { ...options, fee:this.convertSelectedFee }
                 call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, options] })
                 this.setTxInQueue(call.hash)
@@ -826,7 +830,7 @@ export default {
                             this.setTxInQueue(call.hash)
                             let decoded = await call.decode()
                             let msg = `You have sent ${this.data.tx.amount} ${this.data.tx.token}` 
-                            let txUrl = this.network[this.current.network].explorerUrl + '/#/tx/' + call.hash
+                            let txUrl = this.network[this.current.network].explorerUrl + '/transactions/' + call.hash
                             this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_transfer',msg, data:txUrl})
                             .then(() => {
                                 this.$store.commit('SET_AEPP_POPUP',false)
