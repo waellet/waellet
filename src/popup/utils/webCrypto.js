@@ -13,18 +13,14 @@ export default class WebCrypto {
             key,
             encoded
         );       
-        console.log(ciphertext)
-        return Buffer.from(ciphertext).toString('hex')
+
+        return ciphertext
     }
 
     async decrypt(message, password, nonce, salt ) {
-        console.log(Buffer.from(message))
         message = Buffer.from(message, 'hex')
         nonce = Buffer.from(nonce, 'hex')
         salt = Buffer.from(salt, 'hex')
-        console.log(nonce)
-        console.log(salt)
-        console.log(message)
         let keyMaterial = await this.getKeyMaterial(password);
         let key = await this.getKey(keyMaterial, salt);
 
@@ -39,13 +35,11 @@ export default class WebCrypto {
             );
             let dec = new TextDecoder();
             let decoded = dec.decode(decrypted);
-            console.log(decrypted)
             return decoded
         } catch (e) {
-            console.log(e)
-            return e
+            return false
         }
-      }
+    }
 
     getKeyMaterial(password) {
         let enc = new TextEncoder();

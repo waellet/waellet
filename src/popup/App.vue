@@ -182,7 +182,6 @@ import LedgerBridge from './utils/ledger/ledger-bridge'
 import { start, postMesssage } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
 import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
-import WebCrypto from '../popup/utils/webCrypto';
 
 export default {
   
@@ -214,7 +213,6 @@ export default {
     }
   },
   created: async function () {
-      
       browser.storage.sync.get('language').then((data) => {
         this.language = langs[data.language];
         this.$store.state.current.language = data.language;
