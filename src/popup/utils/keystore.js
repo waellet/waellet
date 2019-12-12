@@ -3,6 +3,7 @@ const nacl = require('tweetnacl')
 const argon = require('./argon2.js');
 import uuid from 'uuid';
 import { encodeBase58Check } from '@aeternity/aepp-sdk/es/utils/crypto';
+import WebCrypto from './webCrypto';
 
 const DERIVED_KEY_FUNCTIONS = {
   argon2id: deriveKeyUsingArgon2id,
@@ -33,19 +34,21 @@ function encrypt(plaintext, key, nonce, algo = DEFAULTS.crypto.symmetric_alg) {
 }
 
 export async function decrypt(ciphertext,password,nonce, salt , options = {}) {
-  const opt = Object.assign({}, DEFAULTS.crypto, options);
-  ciphertext = Buffer.from(ciphertext,'hex');
-  nonce = Buffer.from(nonce,'hex');
-  salt = Buffer.from(salt,'hex');
-  let key = await deriveKey(password, salt, opt);
-  key = key.hash;
-  try {
-    let res = CRYPTO_FUNCTIONS[DEFAULTS.crypto.symmetric_alg].decrypt({ ciphertext, nonce, key });
+  let webCrypto = new WebCrypto();
+  return await webCrypto.decrypt(ciphertext, password, nonce, salt);
+  // const opt = Object.assign({}, DEFAULTS.crypto, options);
+  // ciphertext = Buffer.from(ciphertext,'hex');
+  // nonce = Buffer.from(nonce,'hex');
+  // salt = Buffer.from(salt,'hex');
+  // let key = await deriveKey(password, salt, opt);
+  // key = key.hash;
+  // try {
+  //   let res = CRYPTO_FUNCTIONS[DEFAULTS.crypto.symmetric_alg].decrypt({ ciphertext, nonce, key });
     
-    return Buffer.from(res).toString('hex');
-  }catch {
-    return false;
-  }
+  //   return Buffer.from(res).toString('hex');
+  // }catch {
+  //   return false;
+  // }
 }
 function marshal(name, derivedKey, privateKey, nonce, salt, options = {}) {
   const opt = Object.assign({}, DEFAULTS.crypto, options);
@@ -133,4 +136,31 @@ function decryptXsalsa20Poly1305({ ciphertext, key, nonce }) {
   const res = nacl.secretbox.open(ciphertext, nonce, key);
   if (!res) throw new Error('Invalid password or nonce');
   return res;
+}
+
+
+/**
+ * WebCrypto Support
+ */
+
+export async function generateEncryptedWallet(name, password, privateKey, nonce = window.crypto.getRandomValues(new Uint8Array(12)), salt = window.crypto.getRandomValues(new Uint8Array(16)), options = {}) {
+  const opt = Object.assign({}, DEFAULTS.crypto, options);
+  opt.kdf = "webCrypto";
+  let webCrypto = new WebCrypto();
+  let ciphertext =  Buffer.from(await webCrypto.encrypt(Buffer.from(privateKey).toString('hex'), password, nonce, salt)).toString('hex');
+  const encrypted = Object.assign(
+    { name, version: 1, public_key: getAddressFromPriv(privateKey), id: uuid.v4() },
+    {
+      crypto: Object.assign(
+        {
+          secret_type: opt.secret_type,
+          symmetric_alg: opt.symmetric_alg,
+          ciphertext,
+          cipher_params: { nonce: Buffer.from(nonce).toString('hex') },
+        },
+        { kdf: opt.kdf, kdf_params: { ...opt.kdf_params, salt: Buffer.from(salt).toString('hex') } }
+      ),
+    }
+  );
+  return encrypted;
 }

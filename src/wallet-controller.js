@@ -2,6 +2,8 @@ import { decrypt } from './popup/utils/keystore';
 import { generateHdWallet, getHdWalletAccount } from './popup/utils/hdWallet';
 import { stringifyForStorage, parseFromStorage } from './popup/utils/helper';
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
+import { addressGenerator } from './popup/utils/address-generator';
+
 
 export default class WalletController {
     constructor(tests = false) {
@@ -23,12 +25,7 @@ export default class WalletController {
 
     unlockWallet({ accountPassword, encryptedPrivateKey }) {
         return new Promise(async (resolve, reject) => {
-            let match = await decrypt(
-                encryptedPrivateKey.crypto.ciphertext,
-                accountPassword,
-                encryptedPrivateKey.crypto.cipher_params.nonce,
-                encryptedPrivateKey.crypto.kdf_params.salt
-            );
+            let match = await addressGenerator.decryptKeystore(encryptedPrivateKey, accountPassword)
             if(match != false) {
                 this.wallet = generateHdWallet(match)
                 if(this.tests) {

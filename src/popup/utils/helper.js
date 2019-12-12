@@ -353,13 +353,13 @@ const stringifyForStorage = state =>  {
             return { type: 'Float64Array', data: Array.from(value) };
         }
 
-        if (value instanceof BigInt64Array) {
-            return { type: 'BigInt64Array', data: Array.from(value) };
-        }
+        // if (value instanceof BigInt64Array) {
+        //     return { type: 'BigInt64Array', data: Array.from(value) };
+        // }
 
-        if (value instanceof BigUint64Array) {
-            return { type: 'BigUint64Array', data: Array.from(value) };
-        }
+        // if (value instanceof BigUint64Array) {
+        //     return { type: 'BigUint64Array', data: Array.from(value) };
+        // }
         
         return value;
     })
@@ -406,13 +406,13 @@ const parseFromStorage = state => {
             return new Float64Array(value.data);
           }
 
-          if(value && value.type == 'BigInt64Array' ) {
-            return new BigInt64Array(value.data);
-          }
+        //   if(value && value.type == 'BigInt64Array' ) {
+        //     return new BigInt64Array(value.data);
+        //   }
 
-          if(value && value.type == 'BigUint64Array' ) {
-            return new BigUint64Array(value.data);
-          }
+        //   if(value && value.type == 'BigUint64Array' ) {
+        //     return new BigUint64Array(value.data);
+        //   }
           
           return value;
         },

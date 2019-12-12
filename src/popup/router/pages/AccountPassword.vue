@@ -108,7 +108,7 @@ export default {
         importKeystore:async function importKeystore({accountPassword,data,termsAgreed}) {
             this.loading = true;
             const encryptedPrivateKey = JSON.parse(data);
-            let seed = await decrypt(encryptedPrivateKey.crypto.ciphertext,accountPassword,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+            let seed = await addressGenerator.decryptKeystore(encryptedPrivateKey, accountPassword)
             if(seed !== false) {
                 let address = await this.$store.dispatch('generateWallet', { seed })
                 

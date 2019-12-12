@@ -86,6 +86,7 @@ import { getHdWalletAccount } from '../../utils/hdWallet';
 import { decrypt } from '../../utils/keystore';
 const Cryptr = require('cryptr');
 const cryptr = new Cryptr('myTotalySecretKey');
+import { addressGenerator } from '../../utils/address-generator';
 
 export default {
     data () {
@@ -152,7 +153,7 @@ export default {
                 browser.storage.sync.get('userAccount').then(async (user) => {
                     if(user.userAccount && user.hasOwnProperty('userAccount')) {
                         let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-                        let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                        let match = await addressGenerator.decryptKeystore(encryptedPrivateKey, this.password)
                         this.loading = false
                         if(match) {
                             browser.storage.sync.get('encryptedSeed').then((res) => {
@@ -170,7 +171,7 @@ export default {
                 browser.storage.sync.get('userAccount').then(async (user) => {
                     if(user.userAccount && user.hasOwnProperty('userAccount')) {
                         let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-                        let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                        let match = await addressGenerator.decryptKeystore(encryptedPrivateKey, this.password)
                         this.loading = false
                         if(match) {
                             this.privateKey = match
