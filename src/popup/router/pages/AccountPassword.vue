@@ -133,9 +133,9 @@ export default {
                     keyPair.encryptedPrivateKey = JSON.stringify(encPrivateKey);
                 }
             }
-            browser.storage.sync.set({userAccount: keyPair}).then(() => {
-                browser.storage.sync.set({isLogged: true}).then(async () => {
-                    browser.storage.sync.set({ termsAgreed: termsAgreed }).then(() => {
+            browser.storage.local.set({userAccount: keyPair}).then(() => {
+                browser.storage.local.set({isLogged: true}).then(async () => {
+                    browser.storage.local.set({ termsAgreed: termsAgreed }).then(() => {
                         let sub = [];
                         sub.push({
                             name:'Main account',
@@ -143,8 +143,8 @@ export default {
                             balance:0,
                             root:true
                         });
-                        browser.storage.sync.set({subaccounts: sub}).then(() => {
-                            browser.storage.sync.set({activeAccount: 0}).then( () => {
+                        browser.storage.local.set({subaccounts: sub}).then(() => {
+                            browser.storage.local.set({activeAccount: 0}).then( () => {
                                 this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
                             });
                             this.$store.dispatch('setSubAccounts', sub).then(async () => {
@@ -162,7 +162,7 @@ export default {
         },
         generateAddress: async function generateAddress({ accountPassword, termsAgreed}) {
             this.loading = true;
-            browser.storage.sync.set({accountPassword: accountPassword}).then(() => {
+            browser.storage.local.set({accountPassword: accountPassword}).then(() => {
                 this.$router.push({
                     name: 'seed',
                     params: {

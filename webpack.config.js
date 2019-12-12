@@ -15,7 +15,8 @@ const config = {
   mode: process.env.NODE_ENV,
   context: __dirname + '/src',
   entry: {
-    ...getPlatformFiles()
+    ...getPlatformFiles(),
+    background: './background.js'
   
   },
   node: {
@@ -109,7 +110,11 @@ if (config.mode === 'production') {
 
 if (process.env.HMR === 'true') {
   config.plugins = (config.plugins || []).concat([
-    new ChromeExtensionReloader(),
+    new ChromeExtensionReloader({
+      entries: { 
+        background: 'background' 
+      }
+    }),
   ]);
 }
 

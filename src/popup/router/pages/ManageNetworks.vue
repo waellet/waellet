@@ -67,7 +67,7 @@ export default {
                     return d.name != networkName
                 });
                 this.$store.dispatch('setUserNetworks', un).then(() => {
-                    browser.storage.sync.set({ userNetworks: un}).then(() => {
+                    browser.storage.local.set({ userNetworks: un}).then(() => {
                     delete this.$store.state.network[networkName];
                     });
                 });
@@ -116,7 +116,7 @@ export default {
             });
             if (networkName != '' && networkURL != '' && !sameNameNetwork) {
                 this.$store.dispatch('setUserNetwork', newNetwork).then(() => {
-                    browser.storage.sync.set({ userNetworks: this.userNetworks}).then(() => {
+                    browser.storage.local.set({ userNetworks: this.userNetworks}).then(() => {
                         this.$store.dispatch('popupAlert', {
                             name: 'account',
                             type: 'added_success'

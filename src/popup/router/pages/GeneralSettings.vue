@@ -65,7 +65,7 @@ export default {
         },
         async switchLanguage(languageChoose) {
             fetchAndSetLocale(languageChoose);
-            browser.storage.sync.set({language: languageChoose}).then(() => {
+            browser.storage.local.set({language: languageChoose}).then(() => {
                 this.current.language = languageChoose;
                 this.dropdown.languages = false;
                 this.$store.state.current.language = languageChoose;

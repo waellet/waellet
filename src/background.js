@@ -18,8 +18,8 @@ setInterval(() => {
     browser.windows.getAll({}).then((wins) => {
         if(wins.length == 0) {
             sessionStorage.removeItem("phishing_urls");
-            browser.storage.sync.remove('isLogged')
-            browser.storage.sync.remove('activeAccount')
+            browser.storage.local.remove('isLogged')
+            browser.storage.local.remove('activeAccount')
         }
     });
 },5000);
@@ -107,11 +107,11 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                     })
                 break;
                 case 'getAddress':
-                    browser.storage.sync.get('userAccount').then((user)=> {
-                        browser.storage.sync.get('isLogged').then((data) => {
+                    browser.storage.local.get('userAccount').then((user)=> {
+                        browser.storage.local.get('isLogged').then((data) => {
                             if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                                browser.storage.sync.get('subaccounts').then((subaccounts) => {
-                                    browser.storage.sync.get('activeAccount').then((active) => {
+                                browser.storage.local.get('subaccounts').then((subaccounts) => {
+                                    browser.storage.local.get('activeAccount').then((active) => {
                                         let activeIdx = 0
                                         if(active.hasOwnProperty("activeAccount")) {
                                             activeIdx = active.activeAccount
@@ -187,8 +187,8 @@ const connectToPopup = (cb,type, id) => {
         });
         port.onDisconnect.addListener(async (event) => {
             let list = await removeTxFromStorage(event.name)
-            browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
-            browser.storage.sync.remove('showAeppPopup').then(() => {}); 
+            browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
+            browser.storage.local.remove('showAeppPopup').then(() => {}); 
             error.id = event.name
             if(event.name == id) {
                 if(type == 'txSign') {
@@ -210,13 +210,16 @@ const connectToPopup = (cb,type, id) => {
 
 const openAeppPopup = (msg,type) => {
     return new Promise((resolve,reject) => {
-        browser.storage.sync.set({showAeppPopup:{ data: msg.params, type } } ).then( () => {
+        browser.storage.local.set({showAeppPopup:{ data: msg.params, type } } ).then( () => {
+            // const popupWindow = window.open(`/popup/popup.html?t=${msg.params.id}`, `popup_id_${msg.params.id}`, 'width=420,height=680', false);
+
             browser.windows.create({
                 url: browser.runtime.getURL('./popup/popup.html'),
                 type: "popup",
                 height: 680,
                 width:420
             }).then((window) => {
+                
                 connectToPopup((res) => {
                     resolve(res)
                 }, type, msg.params.id)
@@ -227,7 +230,7 @@ const openAeppPopup = (msg,type) => {
 
 const checkPendingTx = () => {
     return new Promise((resolve,reject) => {
-        browser.storage.sync.get('pendingTransaction').then((tx) => {
+        browser.storage.local.get('pendingTransaction').then((tx) => {
             if(tx.hasOwnProperty("pendingTransaction")) {
                 resolve(false)
             }else {

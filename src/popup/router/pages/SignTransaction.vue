@@ -252,7 +252,7 @@ export default {
             return Promise.resolve(false)
         },
         async setTxInQueue(tx) {
-            let { processingTx } = await browser.storage.sync.get('processingTx')
+            let { processingTx } = await browser.storage.local.get('processingTx')
             let list = [];
             if(typeof processingTx != 'undefined' && processingTx.length) {
                 list = [
@@ -261,7 +261,7 @@ export default {
                 ]
             }
             list.push(tx)
-            await browser.storage.sync.set({ processingTx: list })
+            await browser.storage.local.set({ processingTx: list })
         },
         async init() {
             this.setReceiver()
@@ -298,11 +298,13 @@ export default {
                 
                 this.checkSDKReady = setInterval(async () => {
                     if(this.sdk != null) {
-                        
                         window.clearTimeout(this.checkSDKReady)
                         await this.setContractInstance(this.data.tx.source, this.data.tx.address)
                         try {
                             let call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, this.data.tx.options] })
+                            
+                            // console.log(call)
+                            // return ;
                             this.sending = true
                             this.port.postMessage(call)
                         } catch(e)  {
@@ -313,7 +315,7 @@ export default {
                         
                         let list = await removeTxFromStorage(this.data.id)
                         
-                        browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                        browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
                         setTimeout(() => {
                             window.close()
                         },1000)
@@ -321,13 +323,13 @@ export default {
                 },500)
             }else {
                 if(this.data.popup) {
-                    browser.storage.sync.get('pendingTransaction').then((tx) => {
+                    browser.storage.local.get('pendingTransaction').then((tx) => {
                         let list = {}
                         if(tx.hasOwnProperty('pendingTransaction') && tx.pendingTransaction.hasOwnProperty("list")) { 
                             list = tx.pendingTransaction.list
                         }
                         list[this.data.id] = this.data
-                        browser.storage.sync.set({pendingTransaction:{ list }}).then(() => { })
+                        browser.storage.local.set({pendingTransaction:{ list }}).then(() => { })
                     })
                 }   
                 this.checkSDKReady = setInterval(async () => {
@@ -468,16 +470,16 @@ export default {
             if(!this.data.popup) {
                 if(this.data.type == 'nameUpdate') {
                     this.$store.dispatch('removePendingName', { hash: this.data.tx.hash }).then(() => {
-                        browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                        browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
                         this.redirectInExtensionAfterAction()
                     })
                 }else {
-                    browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                    browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
                     this.redirectInExtensionAfterAction()
                 }   
                 
             }else {
-                browser.storage.sync.set({pendingTransaction: { list } }).then(() => {
+                browser.storage.local.set({pendingTransaction: { list } }).then(() => {
                     this.errorTx.error.message = "Transaction rejected by user"
                     this.sending = true
                     this.port.postMessage(this.errorTx)
@@ -488,7 +490,7 @@ export default {
             } 
         },
         redirectInExtensionAfterAction() {
-            browser.storage.sync.get('pendingTransaction').then((data) => {
+            browser.storage.local.get('pendingTransaction').then((data) => {
                 if(data.hasOwnProperty('pendingTransaction') && data.pendingTransaction.hasOwnProperty('list') && Object.keys(data.pendingTransaction.list).length > 0) {
                     let tx = data.pendingTransaction.list[Object.keys(data.pendingTransaction.list)[0]];
                     tx.popup = false
@@ -519,7 +521,7 @@ export default {
                             this.sending = true
                             this.port.postMessage(res)
                             let list = await removeTxFromStorage(this.data.id)
-                            browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                            browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
                             
                             setTimeout(() => {
                                 window.close()
@@ -529,7 +531,7 @@ export default {
                             .then(async () => {
                                 this.$store.commit('SET_AEPP_POPUP',false)
                                 let list = await removeTxFromStorage(this.data.id)
-                                browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                                browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
                                 this.redirectInExtensionAfterAction()
                             })
                         }
@@ -544,7 +546,7 @@ export default {
                         this.sending = true
                         this.port.postMessage(this.errorTx)
                         let list = await removeTxFromStorage(this.data.id)
-                        browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+                        browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
                         setTimeout(() => {
                             window.close()
                         },1000)
@@ -594,7 +596,7 @@ export default {
                 this.port.postMessage(this.errorTx)
             }
             let list = await removeTxFromStorage(this.data.id)
-            browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+            browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
             setTimeout(() => {
                 window.close()
             },1000)
@@ -632,7 +634,7 @@ export default {
                 
             }
             let list = await removeTxFromStorage(this.data.id)
-            browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+            browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
             if(this.data.popup) {
                 setInterval(() => {
                     window.close()
@@ -786,7 +788,7 @@ export default {
                 this.loading = true
                 let amount = BigNumber(this.amount).shiftedBy(MAGNITUDE);
                 try {
-                    let { tx_count } = await browser.storage.sync.get('tx_count')
+                    let { tx_count } = await browser.storage.local.get('tx_count')
                     if(typeof tx_count == 'undefined') {
                         tx_count = {}
                     }
@@ -802,7 +804,7 @@ export default {
                         tx_count[new Date().toDateString()][this.account.publicKey]++
                     }
 
-                    await browser.storage.sync.set({ tx_count: tx_count })
+                    await browser.storage.local.set({ tx_count: tx_count })
                     if(tx_count[[new Date().toDateString()]] > TX_LIMIT_PER_DAY) {
 
                         return this.$store.dispatch('popupAlert', { name: 'spend', type: 'tx_limit_per_day'})
@@ -871,7 +873,7 @@ export default {
             }   
         }
         let list = await removeTxFromStorage(this.data.id)
-        browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
+        browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
     },
     beforeRouteUpdate (to, from, next) {
         next()

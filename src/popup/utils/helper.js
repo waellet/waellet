@@ -82,14 +82,14 @@ const fetchData = (url, method, fetchedData) => {
 
 const setConnectedAepp = (host) => {
     return new Promise((resolve, reject) => {
-        browser.storage.sync.get('connectedAepps').then((aepps) => {
+        browser.storage.local.get('connectedAepps').then((aepps) => {
 
             let list = []
             if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
                 list = aepps.connectedAepps.list
             }
             list.push({host})
-            browser.storage.sync.set({connectedAepps: { list }}).then(() => {
+            browser.storage.local.set({connectedAepps: { list }}).then(() => {
                 resolve()
             })
         })
@@ -98,7 +98,7 @@ const setConnectedAepp = (host) => {
 
 const checkAeppConnected = (host) => {
     return new Promise((resolve, reject) => {
-        browser.storage.sync.get('connectedAepps').then((aepps) => {
+        browser.storage.local.get('connectedAepps').then((aepps) => {
             if(!aepps.hasOwnProperty('connectedAepps')) {
                 return resolve(false)
             }
@@ -117,10 +117,10 @@ const checkAeppConnected = (host) => {
 
 
 const redirectAfterLogin = (ctx) => {
-  browser.storage.sync.get('showAeppPopup').then((aepp) => {
-    browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
+  browser.storage.local.get('showAeppPopup').then((aepp) => {
+    browser.storage.local.get('pendingTransaction').then((pendingTx) => {
         if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
-            browser.storage.sync.remove('showAeppPopup').then(() => {
+            browser.storage.local.remove('showAeppPopup').then(() => {
                 ctx.$store.commit('SET_AEPP_POPUP',true)
                 if(aepp.showAeppPopup.data.hasOwnProperty("tx") && aepp.showAeppPopup.data.tx.hasOwnProperty("params")) {
                     aepp.showAeppPopup.data.tx.params = parseFromStorage(aepp.showAeppPopup.data.tx.params)
@@ -250,25 +250,25 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
 
 
 const  currencyConv = async (ctx) => {
-    browser.storage.sync.get('convertTimer').then(async result => {
+    browser.storage.local.get('convertTimer').then(async result => {
         var time = new Date().getTime();
       if ( !result.hasOwnProperty('convertTimer') || (result.hasOwnProperty('convertTimer') && (result.convertTimer == '' || result.convertTimer == 'undefined' || result.convertTimer <= time)) ) {
         const fetched = await fetchData('https://api.coingecko.com/api/v3/simple/price?ids=aeternity&vs_currencies=usd,eur,aud,ron,brl,cad,chf,cny,czk,dkk,gbp,hkd,hrk,huf,idr,ils,inr,isk,jpy,krw,mxn,myr,nok,nzd,php,pln,ron,rub,sek,sgd,thb,try,zar,xau','get','');
-        browser.storage.sync.set({ rateUsd : fetched.aeternity.usd}).then(() => { });
-        browser.storage.sync.set({ rateEur : fetched.aeternity.eur}).then(() => { });
-        browser.storage.sync.set({ convertTimer : time+3600000}).then(() => { });
-        browser.storage.sync.set({ allCurrencies : JSON.stringify(fetched.aeternity)}).then(() => { });
+        browser.storage.local.set({ rateUsd : fetched.aeternity.usd}).then(() => { });
+        browser.storage.local.set({ rateEur : fetched.aeternity.eur}).then(() => { });
+        browser.storage.local.set({ convertTimer : time+3600000}).then(() => { });
+        browser.storage.local.set({ allCurrencies : JSON.stringify(fetched.aeternity)}).then(() => { });
       }
 
-      browser.storage.sync.get('rateUsd').then(resusd => {
+      browser.storage.local.get('rateUsd').then(resusd => {
         ctx.usdRate = resusd.rateUsd;
         ctx.toUsd = resusd.rateUsd * ctx.balance;
       });
-      browser.storage.sync.get('rateEur').then(reseur => {
+      browser.storage.local.get('rateEur').then(reseur => {
         ctx.eurRate = reseur.rateEur;
         ctx.toEur = reseur.rateEur * ctx.balance;
       });
-      browser.storage.sync.get('allCurrencies').then(resall => {
+      browser.storage.local.get('allCurrencies').then(resall => {
         let ar = JSON.parse(resall.allCurrencies)
         ctx.allCurrencies = ar;
       });
@@ -290,8 +290,8 @@ const contractDecodeData = async (sdk,source, fn, callValue, callResults, option
 
 const removeTxFromStorage = (id) => {
     return new Promise((resolve,reject) => {
-        browser.storage.sync.get('pendingTransaction').then((data) => {
-            browser.storage.sync.remove('showAeppPopup').then(() => {
+        browser.storage.local.get('pendingTransaction').then((data) => {
+            browser.storage.local.remove('showAeppPopup').then(() => {
                 let list = {}
                 if(data.hasOwnProperty("pendingTransaction") && data.pendingTransaction.hasOwnProperty("list")) {
                     list = data.pendingTransaction.list
@@ -430,12 +430,12 @@ const escapeCallParams = params => {
 }
 
 const addRejectedToken = async (token) => {
-    let { rejected_token } = await browser.storage.sync.get('rejected_token')
+    let { rejected_token } = await browser.storage.local.get('rejected_token')
     if (typeof rejected_token == 'undefined') {
         rejected_token = []
     }
     rejected_token.push(token)
-    return await browser.storage.sync.set({ rejected_token })
+    return await browser.storage.local.set({ rejected_token })
 }
 
 export const handleUnknownError = error => console.warn('Unknown rejection', error);
