@@ -68,6 +68,7 @@ import { Crypto } from '@aeternity/aepp-sdk/es';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { decrypt, str2buf } from '../../utils/keystore';
 import { getHdWalletAccount, generateHdWallet } from '../../utils/hdWallet';
+import { addressGenerator } from '../../utils/address-generator';
 
 export default {
     data() {
@@ -103,7 +104,7 @@ export default {
                 browser.storage.sync.get('userAccount').then(async (user) => {
                     if(user.userAccount && user.hasOwnProperty('userAccount')) {
                         let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-                        let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);
+                        let match = await addressGenerator.decryptKeystore(encryptedPrivateKey, this.password)
                         this.loading = false
                         if(match) {
                             this.requirePass = false;
