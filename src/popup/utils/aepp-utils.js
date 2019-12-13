@@ -1,3 +1,8 @@
+import { networks } from './constants'
+import Universal from '@aeternity/aepp-sdk/es/ae/universal';
+
+let sdk;
+
 export const getActiveAccount  = () => {
     return new Promise((resolve, rejet) => {
         browser.storage.local.get('isLogged').then((data) => {
@@ -9,7 +14,7 @@ export const getActiveAccount  = () => {
                             activeIdx = active.activeAccount
                         }
                         let address = subaccounts.subaccounts[activeIdx].publicKey
-                        resolve(address)
+                        resolve({ account: { publicKey: address }, activeAccount: activeIdx })
                     })
                 })
             } else {
@@ -17,5 +22,28 @@ export const getActiveAccount  = () => {
             }
         })
     })
+}
+
+export const getActiveNetwork = async () => {
+    const { activeNetwork } = await browser.storage.local.get('activeNetwork')
+    return networks[activeNetwork ? activeNetwork : 'Testnet']
+}
+
+export const getSDK = async (keypair) => {
+    if(!sdk) {
+        try {
+            let network = getActiveNetwork();
+            sdk = await Universal({
+                url: network.url , 
+                internalUrl: network.internalUrl,
+                keypair,
+                networkId: network.networkId, 
+                nativeMode: true,
+                compilerUrl: network.compilerUrl
+            })
+        } catch(e) { } 
+    } 
+
+    return sdk
     
 }

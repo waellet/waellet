@@ -1,8 +1,8 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
-import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser } from './popup/utils/helper';
+import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser, parseFromStorage } from './popup/utils/helper';
 import WalletContorller from './wallet-controller'
 import Notification from './notifications';
-import { getActiveAccount } from './popup/utils/aepp-utils'
+// import { getActiveAccount, getActiveNetwork, getSDK } from './popup/utils/aepp-utils'
 
 global.browser = require('webextension-polyfill');
 
@@ -49,7 +49,10 @@ const error = {
     "jsonrpc": "2.0"
 }
 
+const controller = new WalletContorller()
+
 browser.runtime.onMessage.addListener(async (msg, sender,sendResponse) => {
+    let { activeAccount, account } = await getActiveAccount();
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
@@ -125,8 +128,10 @@ browser.runtime.onMessage.addListener(async (msg, sender,sendResponse) => {
                 break;
                         
                 case 'contractCall':
-                    let account = await getActiveAccount()
+                    // let keypair = parseFromStorage(await controller.getKeypair({ activeAccount, account }))
                     
+                    // let sdk = await getSDK(keypair)
+                    // console.log(sdk)
                     checkAeppConnected(msg.params.hostname).then((check) => {
                         if(check) {
                             openAeppPopup(msg,'contractCall')
@@ -248,7 +253,7 @@ const postToContent = (data, tabId) => {
     browser.tabs.sendMessage(tabId, message)
 }
 
-const controller = new WalletContorller()
+
 
 browser.runtime.onConnect.addListener( ( port ) => {
     let extensionUrl = 'chrome-extension'
