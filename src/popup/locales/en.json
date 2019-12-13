@@ -123,6 +123,7 @@
             "heading": "Create Fungible Token",
             "tokenName":"Token Name",
             "tokenSymbolLabel":"Token Symbol",
+            "initialSupply":"Initial Supply",
             "tokenPrecision":"Decimals of Precision",
             "deployTokenContract": "Deploy Token Contract",
             "registryFee": "Include token in global TokenRegistry (tx fees apply)"
@@ -133,6 +134,7 @@
             "addToken":"Add token",
             "tokenContractLabel":"Token Contract Address",
             "tokenSymbolLabel":"Token Symbol",
+            "initialSupply":"Initial Supply",
             "tokenPrecision":"Decimals of Precision",
             "next":"Next",
             "validContractAddressError": "Valid token contract address",

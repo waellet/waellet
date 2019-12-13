@@ -25,6 +25,14 @@
                     </ae-input>
                 </div>
                 <div class="input-container token-precision-holder">
+                    <ae-input :label="$t('pages.createFungibleToken.initialSupply') " >
+                        <input class="ae-input token-initialSupply" v-model.number="token.initialSupply" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                        <ae-toolbar slot="footer" v-if="err.initialSupply">
+                            Invalid initial supply
+                        </ae-toolbar>
+                    </ae-input>
+                </div>
+                <div class="input-container token-precision-holder">
                     <ae-input :label="$t('pages.createFungibleToken.tokenPrecision') " >
                         <input type="number" min="0" max="36" step="1" class="ae-input token-precision" v-model.number="token.precision" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                         <ae-toolbar slot="footer" v-if="err.precision">
@@ -52,14 +60,16 @@ export default {
         return {
             token: {
                 name:'',
-                precision: 0,
+                precision: 18,
                 symbol:'',
+                initialSupply: undefined
             },
             tokenRegistry:false,
             err:{
                 name:false,
                 symbol:false,
-                precision:false
+                precision:false,
+                initialSupply: false
             }
         }
     },
@@ -111,6 +121,7 @@ export default {
             this.err.name = false
             this.err.symbol = false
             this.err.precision = false
+            this.err.initialSupply = false
         }
     }
 }

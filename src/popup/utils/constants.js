@@ -70,7 +70,7 @@ export const networks = {
     internalUrl: 'https://sdk-testnet.aepps.com',
     networkId: 'ae_uat',
     middlewareUrl: 'https://testnet.aeternal.io',
-    explorerUrl: 'https://testnet.explorer.aepps.com',
+    explorerUrl: 'https://testnet.aeternal.io',
     compilerUrl: 'https://latest.compiler.aepps.com',
     tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
     tokenRegistryLima: 'ct_Dnwribmd21YrxSQnqXCB5vTFPrgYJx2eg2TrbLvbdyEbTMejw'
@@ -79,8 +79,8 @@ export const networks = {
     url: 'https://sdk-mainnet.aepps.com',
     internalUrl: 'https://sdk-mainnet.aepps.com',
     networkId: 'ae_mainnet',
-    middlewareUrl: 'http://mdw.aepps.com/',
-    explorerUrl: 'https://testnet.explorer.aepps.com',
+    middlewareUrl: 'http://mainnet.aeternal.io/',
+    explorerUrl: 'https://mainnet.aeternal.io',
     compilerUrl: 'https://compiler.aepps.com',
     tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
     tokenRegistryLima: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
@@ -153,75 +153,76 @@ contract TokenRegistry =
   entrypoint get_token_owner(token : Token) : address = token.owner()
   entrypoint get_token_total_supply(token : Token) : int = token.total_supply()`
 
-
-export const FUNGIBLE_TOKEN_CONTRACT = 
-`contract FungibleToken =
-  
+  export const FUNGIBLE_TOKEN_CONTRACT =
+  `@compiler >= 4
+include "Option.aes"
+contract FungibleTokenFull =
   record state =
     { owner        : address      // the smart contract's owner address
     , total_supply : int          // total token supply
     , balances     : balances     // balances for each account
+    , meta_info    : meta_info    // token meta info (name, symbol, decimals)
     , allowances   : allowances   // owner of account approves the transfer of an amount to another account
-    , meta_info    : meta_info }  // token meta info (name, symbol, decimals)
-
-  record allowance_accounts = { from_account : address, for_account : address }
-
+    , swapped      : map(address, int) }
+  
   record meta_info =
     { name     : string
     , symbol   : string
     , decimals : int }
 
-  type allowances = map(allowance_accounts, int)
-
+  record allowance_accounts = { from_account : address, for_account : address }
   type balances = map(address, int)
-
+  type allowances = map(allowance_accounts, int)
   datatype event =
-    Transfer(indexed address, indexed address, indexed int)
-    | Allowance(indexed address, indexed address, indexed int)
-    | Burn(indexed address, indexed int)
-    | Mint(indexed address, indexed int)
+    Transfer(address, address, int)
+    | Allowance(address, address, int)
+    | Burn(address, int)
+    | Mint(address, int)
+    | Swap(address, int)
 
-  entrypoint init(name: string, decimals : int, symbol : string) =
+  entrypoint aex9_extensions() : list(string) = ["allowances", "mintable", "burnable", "swappable"]
+
+  entrypoint init(name: string, decimals : int, symbol : string, initial_owner_balance : option(int)) =
     require(String.length(name) >= 1, "STRING_TOO_SHORT_NAME")
     require(String.length(symbol) >= 1, "STRING_TOO_SHORT_SYMBOL")
     require_non_negative_value(decimals)
-    { owner        = Call.caller,
-      total_supply = 0,
-      balances     = {},
-      allowances   = {},
-      meta_info    = { name = name, symbol = symbol, decimals = decimals } }
+    let initial_supply = Option.default(0, initial_owner_balance)
+    require_non_negative_value(initial_supply)
 
-  // Get the token meta info
+    let owner = Call.caller
+    { owner        = owner,
+      total_supply = initial_supply,
+      balances     = Option.match({}, (balance) => { [owner] = balance }, initial_owner_balance),
+      meta_info    = { name = name, symbol = symbol, decimals = decimals },
+      allowances   = {},
+      swapped      = {} }
+
   entrypoint meta_info() : meta_info =
     state.meta_info
 
-  // Get the token total supply
   entrypoint total_supply() : int =
     state.total_supply
 
-  // Get the token owner address
   entrypoint owner() : address =
     state.owner
 
-  // Get the balances state
   entrypoint balances() : balances =
     state.balances
 
-  // Get the allowances state
+  entrypoint balance(account: address) : option(int) =
+    Map.lookup(account, state.balances)
+
+  entrypoint swapped() : map(address, int) =
+    state.swapped
+
   entrypoint allowances() : allowances =
     state.allowances
-
-  entrypoint balance(owner: address) : option(int) =
-    Map.lookup(owner, state.balances)
 
   entrypoint allowance(allowance_accounts : allowance_accounts) : option(int) =
     Map.lookup(allowance_accounts, state.allowances)
 
   entrypoint allowance_for_caller(from_account: address) : option(int) =
     allowance({ from_account = from_account, for_account = Call.caller })
-
-  stateful entrypoint transfer(to_account: address, value: int) =
-    internal_transfer(Call.caller, to_account, value)
 
   stateful entrypoint transfer_allowance(from_account: address, to_account: address, value: int) =
     let allowance_accounts = { from_account = from_account, for_account = Call.caller }
@@ -239,11 +240,12 @@ export const FUNGIBLE_TOKEN_CONTRACT =
     let allowance_accounts = { from_account =  Call.caller, for_account = for_account }
     internal_change_allowance(allowance_accounts, value_change)
 
-  stateful entrypoint mint(account: address, value: int) =
-    require_owner()
-    require_non_negative_value(value)
-    put(state{ total_supply = state.total_supply + value, balances[account = 0] @ b = b + value })
-    Chain.event(Mint(account, value))
+  stateful entrypoint reset_allowance(for_account: address) =
+    let allowance_accounts = { from_account = Call.caller, for_account = for_account }
+    internal_change_allowance(allowance_accounts, - state.allowances[allowance_accounts])
+
+  stateful entrypoint transfer(to_account: address, value: int) =
+    internal_transfer(Call.caller, to_account, value)
 
   stateful entrypoint burn(value: int) =
     require_balance(Call.caller, value)
@@ -251,25 +253,28 @@ export const FUNGIBLE_TOKEN_CONTRACT =
     put(state{ total_supply = state.total_supply - value, balances[Call.caller] @ b = b - value })
     Chain.event(Burn(Call.caller, value))
 
+  stateful entrypoint mint(account: address, value: int) =
+    require_owner()
+    require_non_negative_value(value)
+    put(state{ total_supply = state.total_supply + value, balances[account = 0] @ b = b + value })
+    Chain.event(Mint(account, value))
+
+  stateful entrypoint swap() =
+    let balance = Map.lookup_default(Call.caller, state.balances, 0)
+    burn(balance)
+    put(state{ swapped[Call.caller] = balance })
+    Chain.event(Swap(Call.caller, balance))
+
+  stateful entrypoint check_swap(account: address) : int =
+    Map.lookup_default(account, state.swapped, 0)
+
   // INTERNAL FUNCTIONS
 
   function require_owner() =
     require(Call.caller == state.owner, "ONLY_OWNER_CALL_ALLOWED")
 
-  function require_allowance_not_existent(allowance_accounts : allowance_accounts) =
-    switch(allowance(allowance_accounts))
-      None => None
-      Some(_) => abort("ALLOWANCE_ALREADY_EXISTENT")
-
   function require_non_negative_value(value : int) =
     require(value >= 0, "NON_NEGATIVE_VALUE_REQUIRED")
-
-  function require_allowance(allowance_accounts : allowance_accounts, value : int) : int =
-    switch(allowance(allowance_accounts))
-      Some(allowance) =>
-        require_non_negative_value(allowance + value)
-        allowance
-      None => abort("ALLOWANCE_NOT_EXISTENT")
 
   function require_balance(account : address, value : int) =
     switch(balance(account))
@@ -284,9 +289,21 @@ export const FUNGIBLE_TOKEN_CONTRACT =
     put(state{ balances[to_account = 0] @ b = b + value })
     Chain.event(Transfer(from_account, to_account, value))
 
+  function require_allowance_not_existent(allowance_accounts : allowance_accounts) =
+    switch(allowance(allowance_accounts))
+      None => None
+      Some(_) => abort("ALLOWANCE_ALREADY_EXISTENT")
+
+  function require_allowance(allowance_accounts : allowance_accounts, value : int) : int =
+    switch(allowance(allowance_accounts))
+      Some(allowance) =>
+        require_non_negative_value(allowance + value)
+        allowance
+      None => abort("ALLOWANCE_NOT_EXISTENT")
+
   stateful function internal_change_allowance(allowance_accounts : allowance_accounts, value_change : int) =
     let allowance = require_allowance(allowance_accounts, value_change)
     let new_allowance = allowance + value_change
     require_non_negative_value(new_allowance)
     put(state{ allowances[allowance_accounts] = new_allowance })
-    Chain.event(Allowance(allowance_accounts.from_account, allowance_accounts.for_account, new_allowance))`;
+    Chain.event(Allowance(allowance_accounts.from_account, allowance_accounts.for_account, new_allowance))`
