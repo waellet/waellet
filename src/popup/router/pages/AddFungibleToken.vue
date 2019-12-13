@@ -207,7 +207,7 @@ export default {
                 let find = await this.checkIfTokenPresentInRegistry()
             
                 if(this.token.balance == 0) {
-                    await browser.storage.sync.set({ tokens: this.tokens})
+                    await browser.storage.local.set({ tokens: this.tokens})
                 }
 
                 let abi_version = await checkContractAbiVersion({ address: this.token.contract, middleware: this.network[this.current.network].middlewareUrl} )

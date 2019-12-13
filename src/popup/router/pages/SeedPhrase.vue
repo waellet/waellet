@@ -88,7 +88,7 @@ export default {
     },
     mounted() {
         this.generateSeeds();
-        browser.storage.sync.set({confirmSeed: false}).then(() => {});
+        browser.storage.local.set({confirmSeed: false}).then(() => {});
     },
     computed: {
         ...mapGetters(['popup']),
@@ -114,12 +114,12 @@ export default {
     methods: { 
         generateSeeds() {
             let mnemonic;
-            browser.storage.sync.get('mnemonic').then(data => {
+            browser.storage.local.get('mnemonic').then(data => {
                 if(data.hasOwnProperty("mnemonic") && data.mnemonic != "" ) {
                     mnemonic = data.mnemonic;
                 }else {
                     mnemonic = generateMnemonic();
-                    browser.storage.sync.set({mnemonic: mnemonic}).then(() => {});
+                    browser.storage.local.set({mnemonic: mnemonic}).then(() => {});
                 }
                 mnemonic = mnemonic.split(" ");
                 this.seeds.forEach(function(item, index) {
@@ -162,7 +162,7 @@ export default {
                     }else {
                         this.seedError = {};
                         this.loading = true;
-                        browser.storage.sync.get('accountPassword').then(async pass => {
+                        browser.storage.local.get('accountPassword').then(async pass => {
                             if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
                                 originalSeed = originalSeed.replace(/,/g, ' ');
                                 let seed = mnemonicToSeed(originalSeed);
@@ -170,10 +170,10 @@ export default {
                                 let address = await this.$store.dispatch('generateWallet', { seed })
                                 const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,seed.toString('hex'), address);
                                 if(keyPair) {
-                                    browser.storage.sync.set({encryptedSeed: encryptedSeed}).then(async () => {
-                                        browser.storage.sync.set({isLogged: true}).then(async () => {
-                                            browser.storage.sync.set({userAccount: keyPair}).then(() => {
-                                                browser.storage.sync.set({termsAgreed: termsAgreed}).then(() => {
+                                    browser.storage.local.set({encryptedSeed: encryptedSeed}).then(async () => {
+                                        browser.storage.local.set({isLogged: true}).then(async () => {
+                                            browser.storage.local.set({userAccount: keyPair}).then(() => {
+                                                browser.storage.local.set({termsAgreed: termsAgreed}).then(() => {
                                                     this.loading = false;
                                                     let sub = [];
                                                     sub.push({
@@ -182,12 +182,12 @@ export default {
                                                         balance:0,
                                                         root:true
                                                     });
-                                                    browser.storage.sync.set({accountPassword: ''}).then(() => {});
-                                                    browser.storage.sync.set({mnemonic: ''}).then(() => {});
-                                                    browser.storage.sync.set({confirmSeed: true}).then(() => {});
-                                                    browser.storage.sync.set({subaccounts: sub}).then(() => {
+                                                    browser.storage.local.set({accountPassword: ''}).then(() => {});
+                                                    browser.storage.local.set({mnemonic: ''}).then(() => {});
+                                                    browser.storage.local.set({confirmSeed: true}).then(() => {});
+                                                    browser.storage.local.set({subaccounts: sub}).then(() => {
                                                         this.$store.dispatch('setSubAccounts', sub);
-                                                        browser.storage.sync.set({activeAccount: 0}).then(async () => {
+                                                        browser.storage.local.set({activeAccount: 0}).then(async () => {
                                                             this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
                                                             this.$store.commit('UPDATE_ACCOUNT', keyPair);
                                                             this.$store.commit('SWITCH_LOGGED_IN', true);

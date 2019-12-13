@@ -113,13 +113,9 @@ export default {
         ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','popup']),
     },
     created() {
-        browser.storage.sync.get('allowTracking').then((result) => {
-            this.onoff = result.allowTracking;
-        })
-        
-                            // browser.storage.sync.get('encryptedSeed').then((res) => {
-                            //     console.log('res', res)
-                            // });
+        // browser.storage.local.get('encryptedSeed').then((res) => {
+        //     console.log('res', res)
+        // });
     },
     methods: {
         navigateToSettings() {
@@ -133,7 +129,7 @@ export default {
         },
         clearPrivacyData( ) {
             this.type = '1';
-            browser.storage.sync.remove('connectedAepps')
+            browser.storage.local.remove('connectedAepps')
         },
         revealPrivateKey() {
             this.type = '2';
@@ -150,13 +146,13 @@ export default {
         decryptKeystore() {
             if (this.type == '3') {
                 this.loading = true
-                browser.storage.sync.get('userAccount').then(async (user) => {
+                browser.storage.local.get('userAccount').then(async (user) => {
                     if(user.userAccount && user.hasOwnProperty('userAccount')) {
                         let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                         let match = await addressGenerator.decryptKeystore(encryptedPrivateKey, this.password)
                         this.loading = false
                         if(match) {
-                            browser.storage.sync.get('encryptedSeed').then((res) => {
+                            browser.storage.local.get('encryptedSeed').then((res) => {
                                 let decryptedSeed = cryptr.decrypt(res.encryptedSeed);
                                 this.seedPhrase = decryptedSeed;
                                 this.setAlertData("alternative",true,decryptedSeed)
@@ -168,7 +164,7 @@ export default {
                 })
             } else if (this.type == '2') {
                 this.loading = true
-                browser.storage.sync.get('userAccount').then(async (user) => {
+                browser.storage.local.get('userAccount').then(async (user) => {
                     if(user.userAccount && user.hasOwnProperty('userAccount')) {
                         let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                         let match = await addressGenerator.decryptKeystore(encryptedPrivateKey, this.password)

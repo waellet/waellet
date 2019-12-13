@@ -54,7 +54,7 @@ export default {
             this.decodedContent = content;
             try {
                 const publicKey = getPublicKeyByResponseUrl(content);
-                browser.storage.sync.set({ airGapGeneratedKey: publicKey}).then(() => {});
+                browser.storage.local.set({ airGapGeneratedKey: publicKey}).then(() => {});
                 const address = Crypto.aeEncodeKey(publicKey);
                 if (address.includes('ak_')) {
                     this.subaccounts.forEach(element => {
@@ -79,13 +79,13 @@ export default {
                             balance:0
                         }).then(() => {
                             this.loading = false;
-                            browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {
+                            browser.storage.local.set({ subaccounts: this.subaccounts}).then(() => {
                                 this.$store.dispatch('popupAlert', {
                                     name: 'account',
                                     type: 'airgap_created'
                                 }).then(() => {
                                     let index =  this.subaccounts.length - 1;
-                                    browser.storage.sync.set({activeAccount: index }).then(() => {
+                                    browser.storage.local.set({activeAccount: index }).then(() => {
                                         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:public_K,index:index});
                                     });
                                     this.$router.push('/account')

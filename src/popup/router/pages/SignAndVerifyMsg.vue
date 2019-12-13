@@ -101,7 +101,7 @@ export default {
         openSignPage() {
             this.loading = true;
             if (this.password != '') {
-                browser.storage.sync.get('userAccount').then(async (user) => {
+                browser.storage.local.get('userAccount').then(async (user) => {
                     if(user.userAccount && user.hasOwnProperty('userAccount')) {
                         let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                         let match = await addressGenerator.decryptKeystore(encryptedPrivateKey, this.password)

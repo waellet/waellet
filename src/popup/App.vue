@@ -213,14 +213,14 @@ export default {
     }
   },
   created: async function () {
-      browser.storage.sync.get('language').then((data) => {
+      browser.storage.local.get('language').then((data) => {
         this.language = langs[data.language];
         this.$store.state.current.language = data.language;
         if (typeof data.language != 'undefined') {
           fetchAndSetLocale(data.language);
         }
       });
-      browser.storage.sync.get('activeNetwork').then((data) => {
+      browser.storage.local.get('activeNetwork').then((data) => {
         if (data.hasOwnProperty('activeNetwork') && data.activeNetwork != 0) {
           this.$store.state.current.network = data.activeNetwork;
         }
@@ -272,7 +272,7 @@ export default {
     },
     changeAccount (index,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
-      browser.storage.sync.set({activeAccount: index}).then(() => {
+      browser.storage.local.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
         this.initSDK();
         this.dropdown.account = false;
@@ -323,9 +323,9 @@ export default {
       }); 
     },
     logout () {
-      browser.storage.sync.remove('isLogged').then(() => {
+      browser.storage.local.remove('isLogged').then(() => {
         browser.storage.local.remove('wallet').then(() => {
-          browser.storage.sync.remove('activeAccount').then(() => {
+          browser.storage.local.remove('activeAccount').then(() => {
             this.dropdown.settings = false;
             this.dropdown.languages = false;
             this.dropdown.account = false;
@@ -464,8 +464,8 @@ export default {
       }
       
       if(typeof sdk.error != 'undefined') {
-          await browser.storage.sync.remove('isLogged')
-          await browser.storage.sync.remove('activeAccount')
+          await browser.storage.local.remove('isLogged')
+          await browser.storage.local.remove('activeAccount')
           this.hideLoader()
           this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
           this.$store.commit('UNSET_SUBACCOUNTS');
@@ -485,7 +485,7 @@ export default {
     },
     checkPendingTx() {
       this.checkPendingTxInterval = setInterval(() => {
-        browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
+        browser.storage.local.get('pendingTransaction').then((pendingTx) => {
           if(!pendingTx.hasOwnProperty('pendingTransaction') || ( pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length <= 0 )) {
             clearInterval(this.checkPendingTxInterval)
             if(this.$router.currentRoute.path.includes("/sign-transaction") &&  this.$router.currentRoute.params.data.popup == false) {

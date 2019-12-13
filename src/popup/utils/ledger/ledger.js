@@ -35,7 +35,7 @@ export default  {
                     balance:0
                 }).then(() => {
                     commit('SET_ACTIVE_ACCOUNT', { publicKey:address, index:state.subaccounts.length - 1 })
-                    browser.storage.sync.set({ subaccounts: state.subaccounts}).then(() => {
+                    browser.storage.local.set({ subaccounts: state.subaccounts}).then(() => {
                         dispatch('popupAlert', {
                             name: 'account',
                             type: 'added_success'

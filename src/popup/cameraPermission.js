@@ -3,7 +3,7 @@ if(navigator.userAgent.indexOf("Firefox") != -1 ) {
     if (navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: true })
         .then((result) => {
-            browser.storage.sync.set({ firefoxCameraAllowed: true}).then(() => {
+            browser.storage.local.set({ firefoxCameraAllowed: true}).then(() => {
                 let extensionUrl = browser.extension.getURL ('./')
                 browser.tabs.create({url: extensionUrl+'/popup/popup.html#/qrCodeReader', active: true});
             });

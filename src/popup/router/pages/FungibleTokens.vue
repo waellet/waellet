@@ -146,7 +146,7 @@ export default {
                 parent:this.account.publicKey
             })
             this.$store.dispatch('setTokens', tokens).then(() => {
-                browser.storage.sync.set({ tokens: this.tokens}).then(() => { 
+                browser.storage.local.set({ tokens: this.tokens}).then(() => { 
                     this.$store.dispatch('popupAlert', {
                             name: 'account',
                             type: 'added_success'
