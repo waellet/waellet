@@ -2,7 +2,7 @@ import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils
 import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser } from './popup/utils/helper';
 import WalletContorller from './wallet-controller'
 import Notification from './notifications';
-
+import { getActiveAccount } from './popup/utils/aepp-utils'
 
 global.browser = require('webextension-polyfill');
 
@@ -211,15 +211,12 @@ const connectToPopup = (cb,type, id) => {
 const openAeppPopup = (msg,type) => {
     return new Promise((resolve,reject) => {
         browser.storage.local.set({showAeppPopup:{ data: msg.params, type } } ).then( () => {
-            // const popupWindow = window.open(`/popup/popup.html?t=${msg.params.id}`, `popup_id_${msg.params.id}`, 'width=420,height=680', false);
-
             browser.windows.create({
                 url: browser.runtime.getURL('./popup/popup.html'),
                 type: "popup",
                 height: 680,
                 width:420
             }).then((window) => {
-                
                 connectToPopup((res) => {
                     resolve(res)
                 }, type, msg.params.id)

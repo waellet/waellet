@@ -302,9 +302,6 @@ export default {
                         await this.setContractInstance(this.data.tx.source, this.data.tx.address)
                         try {
                             let call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, this.data.tx.options] })
-                            
-                            // console.log(call)
-                            // return ;
                             this.sending = true
                             this.port.postMessage(call)
                         } catch(e)  {

@@ -234,9 +234,6 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
                 ctx.hideLoader()
                 ctx.showConnectError()
             }
-            console.log(err)
-            // reject(err)
-            
             if(countErr < 3) {
                 createSDKObject(ctx, { network, current, account, activeAccount, background, res },backgr)
             }else {
@@ -245,7 +242,6 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
             countErr++
         })
     })
-    
 }
 
 
