@@ -113,13 +113,9 @@ export default {
         ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','popup']),
     },
     created() {
-        browser.storage.local.get('allowTracking').then((result) => {
-            this.onoff = result.allowTracking;
-        })
-        
-                            // browser.storage.local.get('encryptedSeed').then((res) => {
-                            //     console.log('res', res)
-                            // });
+        // browser.storage.local.get('encryptedSeed').then((res) => {
+        //     console.log('res', res)
+        // });
     },
     methods: {
         navigateToSettings() {
