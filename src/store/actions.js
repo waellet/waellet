@@ -23,7 +23,7 @@ export default {
     commit(types.SET_SUBACCOUNTS, payload);
   },
   switchNetwork({ commit }, payload) {
-    browser.storage.sync.set({ activeNetwork: payload });
+    browser.storage.local.set({ activeNetwork: payload });
     return new Promise((resolve, reject) => {
       commit(types.SWITCH_NETWORK, payload);
       resolve();
@@ -278,7 +278,7 @@ export default {
       ]))
       names = flatten(names)
       if (names.length) commit(types.SET_ACCOUNT_AENS, { account: index, name: names[0].name, pending: names[0].pending ? true : false })
-      browser.storage.sync.get('pendingNames').then(pNames => {
+      browser.storage.local.get('pendingNames').then(pNames => {
         let pending = []
         if (pNames.hasOwnProperty("pendingNames") && pNames.pendingNames.hasOwnProperty('list')) {
           pending = pNames.pendingNames.list
@@ -290,7 +290,7 @@ export default {
         })
 
         if (pending.length) {
-          browser.storage.sync.set({ pendingNames: { list: pending } })
+          browser.storage.local.set({ pendingNames: { list: pending } })
           commit(types.SET_PENDING_NAMES, { names: pending })
         }
       })
@@ -333,7 +333,7 @@ export default {
     return new Promise((resolve, reject) => {
       let pending = state.pendingNames
       pending = pending.filter(p => p.hash != hash)
-      browser.storage.sync.set({ pendingNames: { list: pending } }).then(() => {
+      browser.storage.local.set({ pendingNames: { list: pending } }).then(() => {
         commit(types.SET_PENDING_NAMES, { names: pending })
         setTimeout(() => {
           resolve()
@@ -472,7 +472,7 @@ export default {
       return token
       // console.log(tokens)
     }))).filter(t => typeof t != 'undefined')
-    let savedTokens = await browser.storage.sync.get('tokens')
+    let savedTokens = await browser.storage.local.get('tokens')
     res = tokens.concat(res)
     let userTokens = res
     

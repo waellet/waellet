@@ -113,7 +113,7 @@ export default {
       return this.isLedger ? 'neutral' : 'primary'
     },
     currs(){
-      browser.storage.sync.get('allCurrencies').then(resall => {
+      browser.storage.local.get('allCurrencies').then(resall => {
         let allCurrencies = JSON.parse(resall.allCurrencies)
         this.allCurrencies = allCurrencies;
         return allCurrencies;
@@ -180,7 +180,7 @@ export default {
     setAccountName(e) {
       this.$store.dispatch('setAccountName', e.target.value)
       .then(() => {
-         browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {});
+         browser.storage.local.set({ subaccounts: this.subaccounts}).then(() => {});
       });
     },
     showTransaction() {
@@ -195,8 +195,8 @@ export default {
 
     },
     async switchCurrency(index, item) {
-      browser.storage.sync.set({currency: item}).then(() => {
-        browser.storage.sync.set({currencyRate: index}).then(() => {
+      browser.storage.local.set({currency: item}).then(() => {
+        browser.storage.local.set({currencyRate: index}).then(() => {
           switch (item) {
             case 'aud':
               this.currencySign = '$';

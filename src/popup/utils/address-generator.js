@@ -26,10 +26,10 @@ async function generateKeyPair (passphrase, privateKey, address) {
   const hexStr = await Crypto.hexStringToByte(privateKey.trim())
   const keys = await Crypto.generateKeyPairFromSecret(hexStr)
   // SDK keystore
-  const keystore = await dump('keystore', passphrase, keys.secretKey);
+  // const keystore = await dump('keystore', passphrase, keys.secretKey);
 
   // webCrypto
-  // const keystore = await generateEncryptedWallet('keystore', passphrase, keys.secretKey)
+  const keystore = await generateEncryptedWallet('keystore', passphrase, keys.secretKey)
   keystore.public_key = address;
   return {
     publicKey: keystore.public_key,
@@ -42,10 +42,10 @@ async function importPrivateKey (passphrase, secretKey, address) {
   const keys = await Crypto.generateKeyPairFromSecret(hexStr)
 
   // SDK keystore
-  const keystore = await dump('keystore', passphrase, keys.secretKey);
+  // const keystore = await dump('keystore', passphrase, keys.secretKey);
 
-  // web Crypt
-  // const keystore = await generateEncryptedWallet('keystore', passphrase, keys.secretKey)
+  // web Crypto
+  const keystore = await generateEncryptedWallet('keystore', passphrase, keys.secretKey)
   keystore.public_key = address;
   return {
     publicKey: keystore.public_key,

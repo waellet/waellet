@@ -166,7 +166,7 @@ export default {
   },
   mounted() {},
   created() {
-    browser.storage.sync.get('termsAgreed').then(res => {
+    browser.storage.local.get('termsAgreed').then(res => {
       this.termsAgreedOrNot = res.termsAgreed;
     });
     this.init();
@@ -180,21 +180,21 @@ export default {
     },
     init() {
       // check if there is an account generated already
-      // browser.storage.sync.set({userAccount: ''}).then(() => {});
-      // browser.storage.sync.set({isLogged: ''}).then(() => {});
-      // browser.storage.sync.set({confirmSeed: true}).then(() => {});
-      // browser.storage.sync.set({mnemonic: ''}).then(() => {});
-      browser.storage.sync.remove('processingTx').then(() => {});
+      // browser.storage.local.set({userAccount: ''}).then(() => {});
+      // browser.storage.local.set({isLogged: ''}).then(() => {});
+      // browser.storage.local.set({confirmSeed: true}).then(() => {});
+      // browser.storage.local.set({mnemonic: ''}).then(() => {});
+      browser.storage.local.remove('processingTx').then(() => {});
       var newTab = false;
-      browser.storage.sync.get('allowTracking').then(result => {
+      browser.storage.local.get('allowTracking').then(result => {
         if (result.hasOwnProperty('allowTracking')) {
           this.modalAskVisible = false;
         }
       });
-      browser.storage.sync.get('showAeppPopup').then(aepp => {
-        browser.storage.sync.get('pendingTransaction').then(pendingTx => {
-          browser.storage.sync.get('isLogged').then(data => {
-            browser.storage.sync.get('userAccount').then(async user => {
+      browser.storage.local.get('showAeppPopup').then(aepp => {
+        browser.storage.local.get('pendingTransaction').then(pendingTx => {
+          browser.storage.local.get('isLogged').then(data => {
+            browser.storage.local.get('userAccount').then(async user => {
               if (user.userAccount && user.hasOwnProperty('userAccount')) {
                 try {
                   user.userAccount.encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
@@ -203,7 +203,7 @@ export default {
                 }
                 this.$store.commit('UPDATE_ACCOUNT', user.userAccount);
                 if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                  browser.storage.sync.get('subaccounts').then(subaccounts => {
+                  browser.storage.local.get('subaccounts').then(subaccounts => {
                     let sub = [];
                     if (
                       !subaccounts.hasOwnProperty('subaccounts') ||
@@ -223,7 +223,7 @@ export default {
                       });
                     }
                     this.$store.dispatch('setSubAccounts', sub);
-                    browser.storage.sync.get('activeAccount').then(active => {
+                    browser.storage.local.get('activeAccount').then(active => {
                       if (active.hasOwnProperty('activeAccount')) {
                         this.$store.commit('SET_ACTIVE_ACCOUNT', { publicKey: sub[active.activeAccount].publicKey, index: active.activeAccount });
                       }
@@ -231,7 +231,7 @@ export default {
                   });
 
                   // Get user networks
-                  browser.storage.sync.get('userNetworks').then(usernetworks => {
+                  browser.storage.local.get('userNetworks').then(usernetworks => {
                     if (usernetworks.hasOwnProperty('userNetworks')) {
                       usernetworks.userNetworks.forEach(data => {
                         this.$store.state.network[data.name] = data;
@@ -241,7 +241,7 @@ export default {
                   });
                 }
               }
-              browser.storage.sync.get('confirmSeed').then(seed => {
+              browser.storage.local.get('confirmSeed').then(seed => {
                 if (seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
                   this.$router.push('/seed');
                   return;
@@ -369,7 +369,7 @@ export default {
       let context = this;
       if (accountPassword.length >= 4) {
         context.loading = true;
-        browser.storage.sync.get('userAccount').then(async user => {
+        browser.storage.local.get('userAccount').then(async user => {
           this.errorMsg = '';
           if (user.userAccount && user.hasOwnProperty('userAccount')) {
             let encPrivateKey = user.userAccount.encryptedPrivateKey;
@@ -394,14 +394,14 @@ export default {
                 balance: 0,
                 root: true,
               };
-              browser.storage.sync.set({ isLogged: true }).then(() => {
+              browser.storage.local.set({ isLogged: true }).then(() => {
                   if (address !== user.userAccount.publicKey) {
                     user.userAccount.publicKey = address;
                     user.userAccount.encryptedPrivateKey = encPrivateKey;
-                    browser.storage.sync.set({ userAccount: user.userAccount }).then(() => {
+                    browser.storage.local.set({ userAccount: user.userAccount }).then(() => {
                       sub.push(account);
-                      browser.storage.sync.set({ subaccounts: sub }).then(() => {
-                        browser.storage.sync.set({ activeAccount: 0 }).then(async () => {
+                      browser.storage.local.set({ subaccounts: sub }).then(() => {
+                        browser.storage.local.set({ activeAccount: 0 }).then(async () => {
                           this.$store.commit('SET_ACTIVE_ACCOUNT', { publicKey: account.publicKey, index: 0 });
                           this.$store.dispatch('setSubAccounts', sub);
                           this.$store.commit('SWITCH_LOGGED_IN', true);
@@ -411,11 +411,11 @@ export default {
                     });
                     return;
                   }
-                  browser.storage.sync.get('subaccounts').then(subaccounts => {
+                  browser.storage.local.get('subaccounts').then(subaccounts => {
                     if ((subaccounts.hasOwnProperty('subaccounts') && subaccounts.subaccounts == '') || !subaccounts.hasOwnProperty('subaccounts')) {
                       sub.push(account);
-                      browser.storage.sync.set({ subaccounts: sub }).then(() => {
-                        browser.storage.sync.set({ activeAccount: 0 }).then(() => {
+                      browser.storage.local.set({ subaccounts: sub }).then(() => {
+                        browser.storage.local.set({ activeAccount: 0 }).then(() => {
                           this.$store.commit('SET_ACTIVE_ACCOUNT', { publicKey: account.publicKey, index: 0 });
                         });
                       });
