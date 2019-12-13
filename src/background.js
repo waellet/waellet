@@ -52,7 +52,7 @@ const error = {
 const controller = new WalletContorller()
 
 browser.runtime.onMessage.addListener(async (msg, sender,sendResponse) => {
-    let { activeAccount, account } = await getActiveAccount();
+    // let { activeAccount, account } = await getActiveAccount();
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
