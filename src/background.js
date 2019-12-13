@@ -52,7 +52,7 @@ const error = {
     "jsonrpc": "2.0"
 }
 
-browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
+browser.runtime.onMessage.addListener(async (msg, sender,sendResponse) => {
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
@@ -128,6 +128,8 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                 break;
                         
                 case 'contractCall':
+                    let account = await getActiveAccount()
+                    
                     checkAeppConnected(msg.params.hostname).then((check) => {
                         if(check) {
                             openAeppPopup(msg,'contractCall')
