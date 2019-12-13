@@ -49,9 +49,9 @@ const error = {
     "jsonrpc": "2.0"
 }
 
-const controller = new WalletContorller()
 
-browser.runtime.onMessage.addListener(async (msg, sender,sendResponse) => {
+
+browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
     // let { activeAccount, account } = await getActiveAccount();
     switch(msg.method) {
         case 'phishingCheck':
@@ -128,10 +128,6 @@ browser.runtime.onMessage.addListener(async (msg, sender,sendResponse) => {
                 break;
                         
                 case 'contractCall':
-                    // let keypair = parseFromStorage(await controller.getKeypair({ activeAccount, account }))
-                    
-                    // let sdk = await getSDK(keypair)
-                    // console.log(sdk)
                     checkAeppConnected(msg.params.hostname).then((check) => {
                         if(check) {
                             openAeppPopup(msg,'contractCall')
@@ -253,7 +249,7 @@ const postToContent = (data, tabId) => {
     browser.tabs.sendMessage(tabId, message)
 }
 
-
+const controller = new WalletContorller()
 
 browser.runtime.onConnect.addListener( ( port ) => {
     let extensionUrl = 'chrome-extension'
