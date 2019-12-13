@@ -24,9 +24,6 @@ setInterval(() => {
     });
 },5000);
 
-chrome.browserAction.setBadgeText({ 'text': 'beta' });
-chrome.browserAction.setBadgeBackgroundColor({ color: "#FF004D"});
-
 function getAccount() {
     return new Promise(resolve => {
         chrome.storage.sync.get('userAccount', data => {
