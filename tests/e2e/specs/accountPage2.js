@@ -131,7 +131,7 @@ describe("Tests cases for Account Page 2", () => {
         login();
         cy
         .visit("popup/popup.html",{onBeforeLoad})
-        .request("https://testnet.mdw.aepps.com/middleware/transactions/account/" + account.publicKey + '?limit=3')
+        .request("https://testnet.aeternal.io/middleware/transactions/account/" + account.publicKey + '?limit=3')
         .then(res => {
             cy.get('.transactionList .list-item-transaction').each((el,index) => {
                 let data = res.body[index];
