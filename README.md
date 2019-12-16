@@ -23,7 +23,11 @@ Currently, Waellet is still in beta and under heavy development pushing to bring
 
 ## Download 
 
-We recommend installing the stable release via your browser's add-on store.
+You can find the latest version on [our official website](https://waellet.com).
+
+Currently waellet supports FireFox, Google Chrome, and Chromium-based browsers. 
+
+We recommend installing the latest stable release via your browser's add-on store.
 
 | <img src="https://unpkg.com/@browser-logos/firefox@2.0.0/firefox_16x16.png" width="16" height="16"> [Firefox](https://www.mozilla.org/firefox/new/) | <img src="https://unpkg.com/@browser-logos/chrome@1.0.4/chrome_16x16.png" width="16" height="16"> [Chrome](https://www.google.com/chrome/) / <img src="https://unpkg.com/@browser-logos/brave@3.0.0/brave_16x16.png" width="16" height="16"> [Brave](https://brave.com/) / <img src="https://unpkg.com/@browser-logos/opera@1.1.1/opera_16x16.png" width="16" height="16"> [Opera](https://www.opera.com/)  / <img src="https://unpkg.com/@browser-logos/edge@1.0.6/edge_16x16.png" width="16" height="16"> [Edge](https://www.microsoftedgeinsider.com/)
 |------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
