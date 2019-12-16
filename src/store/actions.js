@@ -177,7 +177,9 @@ export default {
           case 'token_migration_success':
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.TOKEN_MIGRATION })
           break
-            
+          case 'reveal_seed_phrase_impossible':
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.REVEAL_SEED_IMPOSSIBLE})
+          break;
           default:
             break;
         }

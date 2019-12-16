@@ -51,6 +51,7 @@
                     <ae-button class="notround decrypt-btn" extend face="round" fill="primary" @click="decryptKeystore">{{$t('pages.securitySettings.showPrivateKey')}}</ae-button>
                 </div>
                 <Loader :loading="loading" size="small" :content="$t('pages.securitySettings.decryptingPrivateKey')"></Loader>
+                <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
             </div>
         </Modal>
         <Modal v-if="type == 3" :modal="modal">
@@ -75,6 +76,7 @@
                     <ae-button class="notround decrypt-btn" extend face="round" fill="primary" @click="decryptKeystore">{{$t('pages.securitySettings.showSeedPhrase')}}</ae-button>
                 </div>
                 <Loader :loading="loading" size="small" :content="$t('pages.securitySettings.decryptingPrivateKey')"></Loader>
+                <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
             </div>
         </Modal>
     </div>
@@ -113,9 +115,6 @@ export default {
         ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','popup']),
     },
     created() {
-        // browser.storage.local.get('encryptedSeed').then((res) => {
-        //     console.log('res', res)
-        // });
     },
     methods: {
         navigateToSettings() {
@@ -153,9 +152,13 @@ export default {
                         this.loading = false
                         if(match) {
                             browser.storage.local.get('encryptedSeed').then((res) => {
-                                let decryptedSeed = cryptr.decrypt(res.encryptedSeed);
-                                this.seedPhrase = decryptedSeed;
-                                this.setAlertData("alternative",true,decryptedSeed)
+                                if (res.encryptedSeed && res.hasOwnProperty('encryptedSeed')) {
+                                    let decryptedSeed = cryptr.decrypt(res.encryptedSeed);
+                                    this.seedPhrase = decryptedSeed;
+                                    this.setAlertData("alternative",true,decryptedSeed)
+                                } else {
+                                    this.$store.dispatch('popupAlert', { name: 'account', type: 'reveal_seed_phrase_impossible'});
+                                }
                             });
                         }else {
                             this.setAlertData("primary",true,this.$t('pages.securitySettings.incorrectPassword'))

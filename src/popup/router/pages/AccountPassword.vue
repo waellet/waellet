@@ -34,6 +34,8 @@ import { MINPASSWORDLENGTH } from '../../utils/constants';
 import Password from 'vue-password-strength-meter';
 import { mapGetters } from 'vuex'
 import { redirectAfterLogin } from '../../utils/helper';
+const Cryptr = require('cryptr');
+const cryptr = new Cryptr('myTotalySecretKey');
 
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title', 'termsAgreed'],
@@ -99,10 +101,13 @@ export default {
         importSeedPhrase: async function importSeedPhrase({accountPassword,data,termsAgreed}) {
             this.loading = true;
             let seed = mnemonicToSeed(data)
+            let encryptedSeed = cryptr.encrypt(data);
             let address = await this.$store.dispatch('generateWallet', { seed })
             const keyPair = await addressGenerator.generateKeyPair(accountPassword,seed.toString('hex'),address);
             if(keyPair) {
-                this.setLogin(keyPair, false, termsAgreed, accountPassword);
+                browser.storage.local.set({encryptedSeed: encryptedSeed}).then(async () => {
+                    this.setLogin(keyPair, false, termsAgreed, accountPassword);
+                });
             }
         },
         importKeystore:async function importKeystore({accountPassword,data,termsAgreed}) {
