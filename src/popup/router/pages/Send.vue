@@ -242,7 +242,7 @@ export default {
           let tx = {
             popup:false,
             tx: {
-              amount:this.form.amount,
+              amount:amount,
               recipientId:receiver
             },
             type:'txSign'
@@ -252,7 +252,8 @@ export default {
             data:tx
           }});
         }
-     } 
+     }
+     
     },
     init() {
       let calculatedMaxValue = this.balance - this.maxFee

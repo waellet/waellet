@@ -136,7 +136,6 @@ export default {
     },
     props:['data'],
     async created(){
-        // console.log(this.data)
         await this.init()
     },
    
