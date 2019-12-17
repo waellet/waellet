@@ -83,15 +83,7 @@ const fetchData = (url, method, fetchedData) => {
 const setConnectedAepp = (host, account) => {
     return new Promise((resolve, reject) => {
         browser.storage.local.get('connectedAepps').then((aepps) => {
-
-            // let list = []
-            // if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
-            //     list = aepps.connectedAepps.list
-            // }
-            // list.push({host})
-            // browser.storage.local.set({connectedAepps: { list }}).then(() => {
-            //     resolve()
-            // })
+            
             let list = []
             if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
                 list = aepps.connectedAepps.list
