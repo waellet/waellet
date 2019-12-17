@@ -506,6 +506,26 @@ const checkContractAbiVersion = ({ address, middleware }) => {
     })
 }
 
+const setContractInstance = async (tx, sdk, contractAddress = null) => {
+    let contractInstance = false;
+    try {
+        let backend = "fate";
+        if(typeof tx.abi_version != "undefined" && tx._abi_version != 3) {
+            backend = "aevm";
+        }
+        try {
+            contractInstance = await sdk.getContractInstance(tx.source, { contractAddress });
+            contractInstance.setOptions({ backend })
+        }catch(e) {
+            console.log(e)
+        }
+        return Promise.resolve(contractInstance)
+    } catch(e) {
+        console.log(e)
+    }
+    return Promise.resolve(contractInstance)
+}
+
 export { 
     shuffleArray, 
     convertToAE, 
@@ -529,7 +549,8 @@ export {
     escapeCallParams,
     addRejectedToken,
     contractCall,
-    checkContractAbiVersion
+    checkContractAbiVersion,
+    setContractInstance
 }
 
 

@@ -70,4 +70,8 @@ export default class WalletController {
             })
         })
     }
+
+    isLoggedIn() {
+        return typeof this.wallet != "undefined" && this.wallet != null
+    }
 }
