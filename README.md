@@ -6,7 +6,7 @@
     width="500px">
 </p>
 
-[![CircleCI](https://circleci.com/gh/waellet/waellet/tree/master.svg?style=svg)](https://circleci.com/gh/waellet/waellet/tree/master)
+[![CircleCI](https://circleci.com/gh/waellet/waellet/tree/develop.svg?style=svg)](https://circleci.com/gh/waellet/waellet/tree/master)
 [![GitHub version](https://badge.fury.io/gh/waellet%2Fwaellet.svg)](https://badge.fury.io/gh/waellet%2Fwaellet)
 <a href="https://github.com/waellet/waellet/blob/master/LICENSE">
   <img src="https://img.shields.io/badge/license-ISC-blue.svg" alt="License.">
