@@ -452,15 +452,7 @@ export default {
           console.log(e)
         }
         
-        
-        
-
-
-        
         this.$store.dispatch('getAllUserTokens')
-       
-        
-
       }
       
       if(typeof sdk.error != 'undefined') {

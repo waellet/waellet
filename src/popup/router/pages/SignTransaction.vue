@@ -225,7 +225,7 @@ export default {
         }
     },
     methods: {
-        async setContractInstance(source, contractAddress = null) {
+        async setContractInstance(source, contractAddress = null, options = {}) {
             try {
                 let backend = "fate";
                 if(typeof this.data.tx.abi_version != "undefined" && this.data.tx._abi_version != 3) {
@@ -234,6 +234,9 @@ export default {
                 try {
                     this.contractInstance = await this.sdk.getContractInstance(source, { contractAddress });
                     this.contractInstance.setOptions({ backend })
+                    if(typeof options.waitMined != "undefined") {
+                        this.contractInstance.setOptions({ waitMined: options.waitMined })
+                    }
                 }catch(e) {
                     
                 }
@@ -355,7 +358,7 @@ export default {
                                 contractId:this.data.tx.address,
                                 callerId:this.account.publicKey
                             }
-                            await this.setContractInstance(this.data.tx.source, this.data.tx.address)
+                            await this.setContractInstance(this.data.tx.source, this.data.tx.address, this.data.tx.options)
                         }else if(this.data.type == 'txSign') {
                             let recipientId 
                             if(this.data.tx.recipientId.substring(0,3) == 'ak_') {
@@ -492,7 +495,9 @@ export default {
                     let tx = data.pendingTransaction.list[Object.keys(data.pendingTransaction.list)[0]];
                     tx.popup = false
                     tx.countTx =  Object.keys(data.pendingTransaction.list).length
-                    this.redirectToTxConfirm(tx)
+                    // this.redirectToTxConfirm(tx)
+                    this.$store.commit('SET_AEPP_POPUP',false)
+                    this.$router.push('/account')
                 }else {
                     this.$store.commit('SET_AEPP_POPUP',false)
                     this.$router.push('/account')
@@ -613,7 +618,7 @@ export default {
                 console.log("[Debug]: Transaction parameters")
                 console.log(...this.data.tx.params)
                 
-                options= { ...options, fee:this.convertSelectedFee }
+                options = { ...options, fee:this.convertSelectedFee }
                 call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, options] })
                 this.setTxInQueue(call.hash)
                 let decoded = await call.decode()
@@ -677,9 +682,7 @@ export default {
                 } catch(err) {
                     this.setTxInQueue('error')
                 }
-                
             }
-            
             
             this.loading = false
             if(this.data.popup) {

@@ -1,122 +1,115 @@
+const path = require('path')
 const webpack = require('webpack');
 const ejs = require('ejs');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 const { VueLoaderPlugin } = require('vue-loader');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { version } = require('./package.json');
 const platforms = [
   "chrome",
   "firefox"
 ];
+const distFolder = path.resolve(__dirname, 'dist')
 
-
-const config = {
-  mode: process.env.NODE_ENV,
-  context: __dirname + '/src',
-  entry: {
-    ...getPlatformFiles(),
-    background: './background.js'
-  
-  },
-  node: {
-    fs: 'empty', net: 'empty', tls: 'empty'
-  },
-  output: {
-    path: __dirname + '/dist',
-    filename: '[name].js',
-  },
-  resolve: {
-    extensions: ['.js', '.vue'],
-  },
-  module: {
-    rules: [
-      {
-        test: /\.vue$/,
-        loaders: 'vue-loader',
-      },
-      {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
-      },
-      {
-        test: /\.scss$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
-      },
-      {
-        test: /\.sass$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader?indentedSyntax'],
-      },
-      {
-        test: /\.(html|png|jpg|gif|svg|ico)$/,
-        loader: 'file-loader',
-        options: {
-          name: '[name].[ext]?emitFile=false',
-        },
-      },
+const config = [
+  {
+    name: "chrome",
+    mode: process.env.NODE_ENV,
+    context: __dirname + '/src',
+    entry: {
+      ...getPlatformFiles('chrome')
+    
+    },
+    node: {
+      fs: 'empty', net: 'empty', tls: 'empty'
+    },
+    output: {
+      path: __dirname + '/dist/chrome',
+      filename: '[name].js',
+    },
+    resolve: {
+      extensions: ['.js', '.vue'],
+    },
+    optimization: {
+      splitChunks: {
+        cacheGroups: {
+          commons: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'initial'
+          }
+        }
+      }
+    },
+    module: {
+      rules: [
+        ...getRules()
+      ],
+    },
+    plugins: [
+      ...getPlugins('chrome')
     ],
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      global: 'window',
-    }),
-    new VueLoaderPlugin(),
-    new MiniCssExtractPlugin({
-      filename: '[name].css',
-    }),
-    ...platforms.map((platform) => {
-      return new CopyWebpackPlugin([
-        { from: '../node_modules/argon2-browser', to: `${platform}/argon2` },
-        { from: 'icons', to: `${platform}/icons`, ignore: ['icon.xcf'] },
-        { from: 'popup/popup.html', to: `${platform}/popup/popup.html`, transform: transformHtml },
-        { from: 'options/options.html', to: `${platform}/options/options.html`, transform: transformHtml },
-        { from: 'phishing/phishing.html', to: `${platform}/phishing/phishing.html`, transform:transformHtml },
-        { from: 'popup/CameraRequestPermission.html', to: `${platform}/popup/CameraRequestPermission.html`, transform:transformHtml },
-        { from: 'icons/icon_48.png', to: `${platform}/popup/assets/logo-small.png` },
-        {
-          from: `manifests/manifest_${platform}.json`,
-          to: `${platform}/manifest.json`,
-          transform: content => {
-            const jsonContent = JSON.parse(content);
-            jsonContent.version = version;
-  
-            if (config.mode === 'development') {
-              jsonContent['content_security_policy'] = "script-src 'self' 'unsafe-eval'; object-src 'self'";
-            }
-  
-            return JSON.stringify(jsonContent, null, 2);
-          },
-        },
-      ])
-    }),
-
-  ],
-};
-
-if (config.mode === 'production') {
-  config.plugins = (config.plugins || []).concat([
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: '"production"',
+  {
+    name: "firefox",
+    mode: process.env.NODE_ENV,
+    context: __dirname + '/src',
+    entry: {
+      ...getPlatformFiles('firefox')
+    
+    },
+    node: {
+      fs: 'empty', net: 'empty', tls: 'empty'
+    },
+    output: {
+      path: __dirname + '/dist/firefox',
+      filename: '[name].js',
+    },
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
       },
-    }),
-  ]);
-}
+    },
+    resolve: {
+      extensions: ['.js', '.vue'],
+    },
+    module: {
+      rules: [
+        ...getRules()
+      ],
+    },
+    plugins: [
+      ...getPlugins('firefox')
+    ],
+  }
+  
+]
+
+config.forEach((c) => {
+  if (c.mode === 'production') {
+    c.plugins = (c.plugins || []).concat([
+      new webpack.DefinePlugin({
+        'process.env': {
+          NODE_ENV: '"production"',
+        },
+      }),
+    ]);
+  }
+
+  
+})
 
 if (process.env.HMR === 'true') {
-  config.plugins = (config.plugins || []).concat([
+  config[0].plugins = (config[0].plugins || []).concat([
     new ChromeExtensionReloader({
-      entries: { 
-        background: 'background' 
-      }
+      port: 9099
     }),
   ]);
 }
+
+
 
 function transformHtml(content) {
   return ejs.render(content.toString(), {
@@ -124,19 +117,10 @@ function transformHtml(content) {
   });
 }
 
-function getPlatformFiles() {
+function getPlatformFiles(platform) {
   let files = {}
   let pl = platforms.map((platform) => {
-    return {
-      [`${platform}/background`]: './background.js',
-      [`${platform}/inject`]: './inject.js',
-      [`${platform}/popup/popup`]: './popup/popup.js',
-      [`${platform}/options/options`]: './options/options.js',
-      [`${platform}/main`]:'./main.js',
-      [`${platform}/phishing/phishing`]:'./phishing/phishing.js',
-      [`${platform}/aepp`]:'./aepp.js',
-      [`${platform}/popup/cameraPermission`]:'./popup/cameraPermission.js'
-    }
+    
   })
 
   pl.forEach(p => {
@@ -145,8 +129,86 @@ function getPlatformFiles() {
       ...p
     }
   })
-  return files
+  return {
+    [`background`]: './background.js',
+    [`inject`]: './inject.js',
+    [`popup/popup`]: './popup/popup.js',
+    [`options/options`]: './options/options.js',
+    [`main`]:'./main.js',
+    [`phishing/phishing`]:'./phishing/phishing.js',
+    [`aepp`]:'./aepp.js',
+    [`popup/cameraPermission`]:'./popup/cameraPermission.js'
+  }
 }
 
+function getPlugins(platform) {
+  return [
+    new webpack.DefinePlugin({
+      global: 'window',
+    }),
+    new VueLoaderPlugin(),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css',
+      ignoreOrder: false,
+    }),
+    new CopyWebpackPlugin([
+      { from: 'icons', to: `icons`, ignore: ['icon.xcf'] },
+      { from: 'popup/popup.html', to: `popup/popup.html`, transform: transformHtml },
+      { from: 'options/options.html', to: `options/options.html`, transform: transformHtml },
+      { from: 'phishing/phishing.html', to: `phishing/phishing.html`, transform:transformHtml },
+      { from: 'popup/CameraRequestPermission.html', to: `popup/CameraRequestPermission.html`, transform:transformHtml },
+      { from: 'icons/icon_48.png', to: `popup/assets/logo-small.png` },
+      {
+        from: `manifests/manifest_${platform}.json`,
+        to: `manifest.json`,
+        transform: content => {
+          const jsonContent = JSON.parse(content);
+          jsonContent.version = version;
+
+          if (config.mode === 'development') {
+            jsonContent['content_security_policy'] = "script-src 'self' 'unsafe-eval'; object-src 'self'";
+          }
+
+          return JSON.stringify(jsonContent, null, 2);
+        },
+      },
+    ]),
+    
+  ]
+}
+
+function getRules() {
+  return [
+    {
+      test: /\.vue$/,
+      loaders: 'vue-loader',
+    },
+    {
+      test: /\.js$/,
+      loader: 'babel-loader',
+      exclude: /node_modules/,
+    },
+    {
+      test: /\.css$/,
+      use: [MiniCssExtractPlugin.loader, 'css-loader'],
+    },
+    {
+      test: /\.scss$/,
+      use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+    },
+    {
+      test: /\.sass$/,
+      use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader?indentedSyntax'],
+    },
+    {
+      test: /\.(html|png|jpg|gif|svg|ico)$/,
+      loader: 'file-loader',
+      options: {
+        name: '[name].[ext]?emitFile=false',
+      },
+    },
+  ]
+}
 
 module.exports = config;
