@@ -121,7 +121,8 @@ export default {
                     root:false,
                     balance:0
                 }).then(() => {
-                    browser.storage.local.set({ subaccounts: this.subaccounts}).then(() => {
+                    
+                    browser.storage.local.set({ subaccounts: JSON.parse(JSON.stringify(this.subaccounts)) }).then(() => {
                         this.$store.dispatch('popupAlert', {
                             name: 'account',
                             type: 'added_success'

@@ -2,7 +2,7 @@ import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils
 import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser, parseFromStorage } from './popup/utils/helper';
 import WalletContorller from './wallet-controller'
 import Notification from './notifications';
-// import { getActiveAccount, getActiveNetwork, getSDK } from './popup/utils/aepp-utils'
+import { setController, contractCallStatic } from './popup/utils/aepp-utils'
 
 global.browser = require('webextension-polyfill');
 
@@ -49,10 +49,10 @@ const error = {
     "jsonrpc": "2.0"
 }
 
+const controller = new WalletContorller()
 
-
-browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
-    // let { activeAccount, account } = await getActiveAccount();
+browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
+    setController(controller)
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
@@ -86,12 +86,13 @@ browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
                                 sendResponse(res)
                             })
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }
                     });
                 break;
+
                 case 'connectConfirm':
                     checkAeppConnected(msg.params.params.hostname).then((check) => {
                         if(!check) {
@@ -106,6 +107,7 @@ browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
                         }
                     })
                 break;
+
                 case 'getAddress':
                     browser.storage.local.get('userAccount').then((user)=> {
                         browser.storage.local.get('isLogged').then((data) => {
@@ -126,22 +128,37 @@ browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
                         })
                     })
                 break;
-                        
+                
                 case 'contractCall':
                     checkAeppConnected(msg.params.hostname).then((check) => {
                         if(check) {
-                            openAeppPopup(msg,'contractCall')
-                            .then(res => {
-                                sendResponse(res)
-                            })
+                            if(typeof msg.params.callType != "undefined" && msg.params.callType == 'static') {
+                                if(msg.params.hasOwnProperty("tx") && msg.params.tx.hasOwnProperty("params")) {
+                                    msg.params.tx.params = parseFromStorage(msg.params.tx.params)
+                                }
+                                contractCallStatic(msg.params).then(res => {
+                                    res.id = msg.id
+                                    sendResponse(res)
+                                }).catch(err => {
+                                    error.error.message = err
+                                    error.id = msg.id
+                                    sendResponse(error)
+                                });
+                            } else {
+                                openAeppPopup(msg,'contractCall')
+                                .then(res => {
+                                    sendResponse(res)
+                                })
+                            }
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }
                     })
+                    
                 break;
-
+                
                 case 'signMessage':
                     checkAeppConnected(msg.params.hostname).then((check) => {
                         if(check) {
@@ -150,7 +167,7 @@ browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
                                 sendResponse(res)
                             })
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }
@@ -165,7 +182,7 @@ browser.runtime.onMessage.addListener((msg, sender,sendResponse) => {
                                 sendResponse(res)
                             })
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }
@@ -249,7 +266,7 @@ const postToContent = (data, tabId) => {
     browser.tabs.sendMessage(tabId, message)
 }
 
-const controller = new WalletContorller()
+
 
 browser.runtime.onConnect.addListener( ( port ) => {
     let extensionUrl = 'chrome-extension'

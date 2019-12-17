@@ -1,7 +1,13 @@
 import { networks } from './constants'
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
+import { setContractInstance, contractCall, parseFromStorage } from './helper'
 
 let sdk;
+let controller;
+
+export const setController = (contr) => {
+    controller = contr;
+}
 
 export const getActiveAccount  = () => {
     return new Promise((resolve, rejet) => {
@@ -32,7 +38,7 @@ export const getActiveNetwork = async () => {
 export const getSDK = async (keypair) => {
     if(!sdk) {
         try {
-            let network = getActiveNetwork();
+            let network = await getActiveNetwork();
             sdk = await Universal({
                 url: network.url , 
                 internalUrl: network.internalUrl,
@@ -46,4 +52,28 @@ export const getSDK = async (keypair) => {
 
     return sdk
     
+}
+
+export const contractCallStatic = async ({ tx, callType }) => {
+    
+    return new Promise(async (resolve, reject) => {
+        try {
+            let { activeAccount, account } = await getActiveAccount();
+            if(controller.isLoggedIn() && typeof callType != "undefined" && callType == 'static' ) {
+                let keypair = parseFromStorage(await controller.getKeypair({ activeAccount, account }));
+                let sdk = await getSDK(keypair);
+                let contractInstance = await setContractInstance(tx, sdk, tx.address)
+                let call = await contractCall({ instance:contractInstance, method:tx.method, params:[...tx.params, tx.options] })
+                if(call) {
+                    resolve(call)
+                } else {
+                    reject("Contract call failed")
+                }
+            } else if(!controller.isLoggedIn() && typeof callType != "undefined" && callType == 'static') { 
+                reject("You need to unlock the wallet first")
+            }
+        } catch(e) {
+            reject(e)
+        }
+    })
 }

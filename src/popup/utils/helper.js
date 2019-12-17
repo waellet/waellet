@@ -80,15 +80,33 @@ const fetchData = (url, method, fetchedData) => {
     }
 }
 
-const setConnectedAepp = (host) => {
+const setConnectedAepp = (host, account) => {
     return new Promise((resolve, reject) => {
         browser.storage.local.get('connectedAepps').then((aepps) => {
-
+            
             let list = []
             if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
                 list = aepps.connectedAepps.list
             }
-            list.push({host})
+
+            if (list.length && typeof list.find(l => l.host == host) != "undefined") {
+                let hst = list.find(h => h.host == host)
+                let index = list.findIndex(h => h.host == host)
+                if(typeof hst == "undefined") {
+                    resolve()
+                    return 
+                }
+                if(hst.accounts.includes(account)) {
+                    resolve()
+                    return
+                }
+
+                list[index].accounts = [...hst.accounts, account]
+
+            } else {
+                list.push({ host, accounts: [account] })
+            }   
+
             browser.storage.local.set({connectedAepps: { list }}).then(() => {
                 resolve()
             })
@@ -99,18 +117,29 @@ const setConnectedAepp = (host) => {
 const checkAeppConnected = (host) => {
     return new Promise((resolve, reject) => {
         browser.storage.local.get('connectedAepps').then((aepps) => {
-            if(!aepps.hasOwnProperty('connectedAepps')) {
-                return resolve(false)
-            }
-            if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
-                let list = aepps.connectedAepps.list
-                if(list.find(ae => ae.host == host)) {
-                    return resolve(true)
-                }
-                return resolve(false)
-            }
-    
-            return resolve(false)
+            browser.storage.local.get('subaccounts').then((subaccounts) => {
+                browser.storage.local.get('activeAccount').then((active) => {
+                    let activeIdx = 0
+                    if(active.hasOwnProperty("activeAccount")) {
+                        activeIdx = active.activeAccount
+                    }
+                    let address = subaccounts.subaccounts[activeIdx].publicKey
+
+                    if(!aepps.hasOwnProperty('connectedAepps')) {
+                        return resolve(false)
+                    }
+                    if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
+                        let list = aepps.connectedAepps.list
+                        if(list.find(ae => ae.host == host && ae.accounts.includes(address))) {
+                            return resolve(true)
+                        }
+                        return resolve(false)
+                    }
+            
+                    return resolve(false)
+                })
+            })
+            
         })
     })
 }
@@ -506,6 +535,26 @@ const checkContractAbiVersion = ({ address, middleware }) => {
     })
 }
 
+const setContractInstance = async (tx, sdk, contractAddress = null) => {
+    let contractInstance = false;
+    try {
+        let backend = "fate";
+        if(typeof tx.abi_version != "undefined" && tx._abi_version != 3) {
+            backend = "aevm";
+        }
+        try {
+            contractInstance = await sdk.getContractInstance(tx.source, { contractAddress });
+            contractInstance.setOptions({ backend })
+        }catch(e) {
+            console.log(e)
+        }
+        return Promise.resolve(contractInstance)
+    } catch(e) {
+        console.log(e)
+    }
+    return Promise.resolve(contractInstance)
+}
+
 export { 
     shuffleArray, 
     convertToAE, 
@@ -529,7 +578,8 @@ export {
     escapeCallParams,
     addRejectedToken,
     contractCall,
-    checkContractAbiVersion
+    checkContractAbiVersion,
+    setContractInstance
 }
 
 

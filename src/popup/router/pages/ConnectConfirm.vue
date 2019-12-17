@@ -64,7 +64,7 @@ export default {
             
         },
         connect() {
-            setConnectedAepp(this.data.params.hostname)
+            setConnectedAepp(this.data.params.hostname, this.account.publicKey)
             .then(() => {
                 if(this.data.popup) {
                     this.port.postMessage({id:null,jsonrpc:"2.0",message:"Connection established"})

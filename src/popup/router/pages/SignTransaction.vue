@@ -89,10 +89,10 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken  } from '../../utils/helper';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken, checkContractAbiVersion, parseFromStorage  } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
-import { computeAuctionEndBlock, computeBidFee, checkContractAbiVersion, parseFromStorage  } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
+import { computeAuctionEndBlock, computeBidFee  } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
 import BigNumber from 'bignumber.js';
 import { clearInterval, clearTimeout  } from 'timers';
@@ -480,7 +480,7 @@ export default {
                     this.errorTx.error.message = "Transaction rejected by user"
                     this.sending = true
                     this.port.postMessage(this.errorTx)
-                    setTimeout(() => {
+                    setInterval(() => {
                         window.close()
                     },1000)
                 })
