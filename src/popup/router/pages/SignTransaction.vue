@@ -480,7 +480,7 @@ export default {
                     this.errorTx.error.message = "Transaction rejected by user"
                     this.sending = true
                     this.port.postMessage(this.errorTx)
-                    setTimeout(() => {
+                    setInterval(() => {
                         window.close()
                     },1000)
                 })

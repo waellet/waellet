@@ -447,7 +447,7 @@ export default {
 
   async getAllUserTokens({ state: { tokenRegistry, tokenRegistryLima, account, tokens, sdk, network, current }, dispatch }) {
     let { publicKey } = account
-    
+
     let tkns = (await contractCall({ instance:tokenRegistry, method:'get_all_tokens' })).decodedResult
     let tknsLima = (await contractCall({ instance:tokenRegistryLima, method:'get_all_tokens' })).decodedResult
     let res = (await Promise.all(uniqWith(tkns.concat(tknsLima), isEqual).map(async ( tkn ) => { 

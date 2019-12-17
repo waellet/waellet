@@ -86,13 +86,13 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                                 sendResponse(res)
                             })
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }
                     });
                 break;
-                
+
                 case 'connectConfirm':
                     checkAeppConnected(msg.params.params.hostname).then((check) => {
                         if(!check) {
@@ -130,32 +130,33 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                 break;
                 
                 case 'contractCall':
-                    if(typeof msg.params.callType != "undefined" && msg.params.callType == 'static') {
-                        if(msg.params.hasOwnProperty("tx") && msg.params.tx.hasOwnProperty("params")) {
-                            msg.params.tx.params = parseFromStorage(msg.params.tx.params)
-                        }
-                        contractCallStatic(msg.params).then(res => {
-                            res.id = msg.id
-                            sendResponse(res)
-                        }).catch(err => {
-                            error.error.message = err
-                            error.id = msg.id
-                            sendResponse(error)
-                        });
-                    } else {
-                        checkAeppConnected(msg.params.hostname).then((check) => {
-                            if(check) {
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            if(typeof msg.params.callType != "undefined" && msg.params.callType == 'static') {
+                                if(msg.params.hasOwnProperty("tx") && msg.params.tx.hasOwnProperty("params")) {
+                                    msg.params.tx.params = parseFromStorage(msg.params.tx.params)
+                                }
+                                contractCallStatic(msg.params).then(res => {
+                                    res.id = msg.id
+                                    sendResponse(res)
+                                }).catch(err => {
+                                    error.error.message = err
+                                    error.id = msg.id
+                                    sendResponse(error)
+                                });
+                            } else {
                                 openAeppPopup(msg,'contractCall')
                                 .then(res => {
                                     sendResponse(res)
                                 })
-                            }else {
-                                error.error.message = "Aepp not registered. Establish connection first"
-                                error.id = msg.id
-                                sendResponse(error)
                             }
-                        })
-                    }
+                        }else {
+                            error.error.message = "Account not connected. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    })
+                    
                 break;
                 
                 case 'signMessage':
@@ -166,7 +167,7 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                                 sendResponse(res)
                             })
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }
@@ -181,7 +182,7 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                                 sendResponse(res)
                             })
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }

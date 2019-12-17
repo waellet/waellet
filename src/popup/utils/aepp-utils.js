@@ -70,7 +70,7 @@ export const contractCallStatic = async ({ tx, callType }) => {
                     reject("Contract call failed")
                 }
             } else if(!controller.isLoggedIn() && typeof callType != "undefined" && callType == 'static') { 
-                reject("You need to unlock the wallet before")
+                reject("You need to unlock the wallet first")
             }
         } catch(e) {
             reject(e)
