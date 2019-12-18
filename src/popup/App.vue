@@ -452,7 +452,6 @@ export default {
           console.log(e)
         }
         
-        
         this.$store.dispatch('getAllUserTokens')
       }
       

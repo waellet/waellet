@@ -141,7 +141,7 @@ export default {
     },
    
     computed: {
-        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger','popup', 'tokenRegistry']),
+        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger','popup', 'tokenRegistry', 'tokenRegistryLima']),
         maxValue() {
             let calculatedMaxValue = this.balance - this.fee
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -228,7 +228,7 @@ export default {
         async setContractInstance(source, contractAddress = null, options = {}) {
             try {
                 let backend = "fate";
-                if(typeof this.data.tx.abi_version != "undefined" && this.data.tx._abi_version != 3) {
+                if(typeof this.data.tx.abi_version != "undefined" && this.data.tx.abi_version != 3) {
                     backend = "aevm";
                 }
                 try {
@@ -238,7 +238,6 @@ export default {
                         this.contractInstance.setOptions({ waitMined: options.waitMined })
                     }
                 }catch(e) {
-                    
                 }
                 return Promise.resolve(true)
             } catch(err) {
@@ -617,8 +616,9 @@ export default {
                 
                 console.log("[Debug]: Transaction parameters")
                 console.log(...this.data.tx.params)
-                
+            
                 options = { ...options, fee:this.convertSelectedFee }
+
                 call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, options] })
                 this.setTxInQueue(call.hash)
                 let decoded = await call.decode()
@@ -678,8 +678,6 @@ export default {
                         })
                         this.$store.dispatch('setTokens', tokens)
                         await browser.storage.local.set({ tokens: tokens})
-                        
-                        console.log(tokens)
                         let abi_version = await checkContractAbiVersion({ address: deployed.address, middleware: this.network[this.current.network].middlewareUrl}, true )
                         let tx = {
                             popup:false,
@@ -698,8 +696,8 @@ export default {
                         this.redirectToTxConfirm(tx)
                     }
                 } catch(err) {
-                    console.log(err)
                     this.setTxInQueue('error')
+                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
                 }
             }
             
@@ -709,9 +707,14 @@ export default {
                     window.close()
                 },1000)
             }else {
-                this.deployed = deployed.address
-                let msg = `Contract deployed at address <br> ${deployed.address}`
-                this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect: this.data.tx.tokenRegistry })
+                if(deployed) {
+                    this.deployed = deployed.address
+                    let msg = `Contract deployed at address <br> ${deployed.address}`
+                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect: this.data.tx.tokenRegistry })
+                }
+                if(!this.data.tx.tokenRegistry) {
+                    this.redirectInExtensionAfterAction()
+                }
             }
         },
         copyAddress() {
