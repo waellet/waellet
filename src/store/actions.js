@@ -485,8 +485,6 @@ export default {
       userTokens = savedTokens.tokens.concat(res)
     } 
     userTokens = uniqBy(userTokens, (elem) => ( [elem.contract, elem.parent].join() ))
-
-    console.log("set user tokens", userTokens)
     dispatch('setTokens', userTokens)
   },
 

@@ -64,10 +64,6 @@ export const contractCallStatic = async ({ tx, callType }) => {
                 let sdk = await getSDK(keypair);
                 let contractInstance = await setContractInstance(tx, sdk, tx.address)
                 let call = await contractCall({ instance:contractInstance, method:tx.method, params:[...tx.params, tx.options] })
-                // console.log(await call.decode('string'))
-                // tx.params[0] = '#' + tx.params[0]
-                // let c = sdk.contractCall(tx.source, tx.address, tx.method, [...tx.params])
-                // console.log(c)
                 if(call) {
                     resolve(call)
                 } else {
