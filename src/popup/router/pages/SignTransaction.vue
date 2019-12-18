@@ -661,8 +661,26 @@ export default {
                 try {
                     deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
                     this.setTxInQueue(deployed.transaction)
+                    
                     if(this.data.tx.contractType == 'fungibleToken') {
-                        let abi_version = await checkContractAbiVersion({ address: deployed.address, middleware: this.network[this.current.network].middlewareUrl} )
+                        if(!this.data.tx.tokenRegistry) {
+                            addRejectedToken(deployed.address)
+                        }
+
+                        let tokens = this.tokens.map(tkn => tkn)
+                        tokens.push({
+                            contract:deployed.address,
+                            name:this.data.tx.init[0].split('"').join(''),
+                            symbol:this.data.tx.init[2].split('"').join(''),
+                            precision:this.data.tx.init[1],
+                            balance:0,
+                            parent:this.account.publicKey
+                        })
+                        this.$store.dispatch('setTokens', tokens)
+                        await browser.storage.local.set({ tokens: tokens})
+                        
+                        console.log(tokens)
+                        let abi_version = await checkContractAbiVersion({ address: deployed.address, middleware: this.network[this.current.network].middlewareUrl}, true )
                         let tx = {
                             popup:false,
                             tx: {
@@ -680,6 +698,7 @@ export default {
                         this.redirectToTxConfirm(tx)
                     }
                 } catch(err) {
+                    console.log(err)
                     this.setTxInQueue('error')
                 }
             }
@@ -691,25 +710,8 @@ export default {
                 },1000)
             }else {
                 this.deployed = deployed.address
-
-                if(!this.data.tx.tokenRegistry) {
-                    addRejectedToken(deployed.address)
-                }
-                
                 let msg = `Contract deployed at address <br> ${deployed.address}`
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect: this.data.tx.tokenRegistry })
-                .then(() => {
-                    let tokens = this.tokens.map(tkn => tkn)
-                    tokens.push({
-                        contract:deployed.address,
-                        name:this.data.tx.init[0].split('"').join(''),
-                        symbol:this.data.tx.init[2].split('"').join(''),
-                        precision:this.data.tx.init[1],
-                        balance:0,
-                        parent:this.account.publicKey
-                    })
-                    this.$store.dispatch('setTokens', tokens)
-                })
             }
         },
         copyAddress() {
