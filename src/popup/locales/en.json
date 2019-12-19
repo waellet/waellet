@@ -372,7 +372,9 @@
             "heading": "Tip website",
             "selectTip": "Select amount to tip",
             "tipDomain": "Tip Domain",
-            "claim": "Claim Tips"
+            "claim": "Claim Tips",
+            "tipsForDomain": "Tips for domain",
+            "tips": "Tips"
         },
         "transactionDetails": {
             "heading": "Transactions Details",

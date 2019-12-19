@@ -30,7 +30,6 @@
                             </div>
                             <span class="verifyBtn" @click="checkDomain"> {{$t('pages.tipPage.check')}}</span>
                         </p> -->
-                        
                         <div class="small-checkbox">
                             <ae-check v-model="tipDomain" @change="tipWebsiteType">
                                 {{$t('pages.tipPage.tipDomain') }}
@@ -39,9 +38,13 @@
                     </div>
                     
                 </div>
-                <ae-button face="round" fill="primary" extend class="claimTips" @click="claimTips">{{$t('pages.tipPage.claim')}}</ae-button>
+                <ae-button-group class="claimTips">
+                    <ae-button face="round" fill="primary"  @click="claimTips">{{ $t('pages.tipPage.claim') }}</ae-button>
+                    <ae-button face="round" fill="secondary" @click="showTips" >{{ $t('pages.tipPage.tips') }}</ae-button>
+                </ae-button-group>
+                
             </ae-panel>
-            <ae-panel>
+            <ae-panel v-if="mode == 'details'">
                 <h4>{{ $t('pages.tipPage.tipDetails') }}</h4>
                 <hr>
                 <ae-input label="More info" class="my-2">
@@ -88,6 +91,11 @@
                 </div>
                 <ae-button face="round" fill="alternative" extend class="sendTip" @click="sendTip">{{$t('pages.tipPage.sendTipBtn')}}</ae-button>
             </ae-panel>
+
+            <ae-panel v-if="mode == 'tips'">
+                <h4>{{ $t('pages.tipPage.tipsForDomain') }}</h4>
+                <hr>
+            </ae-panel>
         </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
@@ -96,6 +104,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import { extractHostName, convertToAE } from '../../utils/helper';
+import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, TIPPING_CONTRACT, toMicro } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 
@@ -116,7 +125,9 @@ export default {
             txFee:MIN_SPEND_TX_FEE,
             tipDomain: true,
             note:undefined,
-            unpaid:0
+            unpaid:0,
+            domainDataInterval:null,
+            mode: 'details'
         }
     },
     computed: {
@@ -135,25 +146,31 @@ export default {
         }
     },
     created() {
-
-        chrome.tabs.query({active:true,currentWindow:true},async (tabs) => {
-            var currentTabUrl = tabs[0].url;
-            this.favicon = tabs[0].favIconUrl;
-            this.title = tabs[0].title
-            this.url = tabs[0].url
-            this.domain = extractHostName(currentTabUrl);
-            this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
-            setTimeout(() => {
-                this.loadFavicon = false;
-            },1500)
-            
-        });
+        this.getDomainData()
+        this.domainDataInterval = setInterval(() => {
+            this.getDomainData()
+        }, 5000)
+        
     },
     mounted() {
         let elem = this.$refs["tipSlider"];
         this.setSliderBackground(elem);
     },  
     methods: {
+        getDomainData() {
+            chrome.tabs.query({active:true,currentWindow:true},async (tabs) => {
+                var currentTabUrl = tabs[0].url;
+                this.favicon = tabs[0].favIconUrl;
+                this.title = tabs[0].title
+                this.url = tabs[0].url
+                this.domain = extractHostName(currentTabUrl);
+                this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
+                let tips = await this.tipping.methods['tips_for_url'](this.domain)
+                setTimeout(() => {
+                    this.loadFavicon = false;
+                },1500)
+            });
+        },
         navigateUtilities() {
             this.$router.push('/utilities')
         },
@@ -211,11 +228,13 @@ export default {
             const bg = `linear-gradient(90deg, #FF0D6A ${percentage}%, #d7dcdf ${percentage+0.1}%)`;
             slider.style.background = bg;
         },
-        tipWebsiteType() {
+        async tipWebsiteType() {
             if(this.tipDomain) {
                 this.domain = extractHostName(this.url);
+                this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
             } else {
                 this.domain = this.url
+                this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
             }
         },
         claimTips() {
@@ -234,8 +253,14 @@ export default {
             return this.$router.push({'name':'sign', params: {
                 data:tx
             }});
+        },
+        showTips() {
+            this.mode = 'tips'
         }
-    }
+    },
+    beforeDestroy () {
+        clearInterval(this.domainDataInterval)
+    },
 }
 </script>
 
