@@ -366,7 +366,12 @@
             "amountToTip": "Amount to tip",
             "transactionFee": "Transaction fee",
             "balance": "Balance",
-            "sendTipBtn": "Send tip"
+            "sendTipBtn": "Send tip",
+            "tipDetails": "Details",
+            "tipWebsite":"Website",
+            "heading": "Tip website",
+            "selectTip": "Select amount to tip",
+            "tipDomain": "Tip Domain"
         },
         "transactionDetails": {
             "heading": "Transactions Details",

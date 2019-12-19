@@ -4,60 +4,87 @@
             <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" /> {{$t('pages.tipPage.backToUtilities')}}</button>
         </div>
         <div>
-            <div class="tipWebsiteHeader flex flex-align-center ">
-                <Loader size="small" class="loader" v-if="loadFavicon" :loading="loadFavicon" v-bind="{'content':''}"></Loader>
-                <img :src="favicon" v-if="!loadFavicon && typeof favicon !== 'undefined'" class="domainFavicon"/>
-                <div v-if="!loadFavicon && typeof favicon == 'undefined' " class="domainFavicon noFavicon">{{$t('pages.tipPage.noImage')}}</div>
-                <div class="domainInfo text-left">
-                    <h3>{{domain}}</h3>
-                    <p>
-                        <div v-if="domainVerified" class="verified verifyRow">
-                            <ae-icon fill="alternative" face="round" name="check" /> 
-                            {{$t('pages.tipPage.domainVerified')}}
+            <h3>{{$t('pages.tipPage.heading') }}</h3>
+            <ae-panel>
+                <div class="tipWebsiteHeader flex flex-align-center ">
+                    <Loader size="small" class="loader" v-if="loadFavicon" :loading="loadFavicon" v-bind="{'content':''}"></Loader>
+                    <img :src="favicon" v-if="!loadFavicon && typeof favicon !== 'undefined'" class="domainFavicon"/>
+                    <div v-if="!loadFavicon && typeof favicon == 'undefined' " class="domainFavicon noFavicon">{{$t('pages.tipPage.noImage')}}</div>
+                    <div class="domainInfo text-left">
+                        <h3>{{ domain }}</h3>
+                        <h6>{{ title }}</h6>
+                        <p>
+                            <div v-if="domainVerified" class="verified verifyRow">
+                                <ae-icon fill="alternative" face="round" name="check" /> 
+                                {{$t('pages.tipPage.domainVerified')}}
+                            </div>
+                            <div v-else class="notVerified verifyRow">
+                                <ae-icon fill="alternative"  face="round" name="close" /> 
+                                {{$t('pages.tipPage.domainNotVerified')}}
+                            </div>
+                            <!-- <span class="verifyBtn" @click="checkDomain"> {{$t('pages.tipPage.check')}}</span> -->
+                        </p>
+                        
+                        
+                        <div class="small-checkbox">
+                            <ae-check v-model="tipDomain" @change="tipWebsiteType">
+                                {{$t('pages.tipPage.tipDomain') }}
+                            </ae-check>
                         </div>
-                        <div v-else class="notVerified verifyRow">
-                            <ae-icon fill="alternative"  face="round" name="close" /> 
-                            {{$t('pages.tipPage.domainNotVerified')}}
-                        </div>
-                        <span class="verifyBtn" @click="checkDomain"> {{$t('pages.tipPage.check')}}</span>
-                    </p>
+                        
+                        
+                    </div>
+                    
                 </div>
-            </div>
-            <ae-input label="More info" class="my-2">
-                <textarea class="ae-input textarea" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-            </ae-input>
-            <h3> {{$t('pages.tipPage.sendHeading')}}</h3>
-            <h4>{{$t('pages.tipPage.selectAmount')}}</h4>
-            <div class="flex flex-justify-between tipWebisteAmount">  
-                <ae-badge :class="selectedTip == index ? 'primary' : ''" @click.native="selectTip(index)" v-for="(tip,index) in tips" :key="index">{{tip == 0 ? 'other' : `${tip} ${tokenSymbol}`}} </ae-badge>
-            </div>
-            <div class="range-slider" :class="!showSlider ? 'hideSlider' : '' ">
-                <div class="sliderOver"></div>
-                <span class="tipMin tipAmount">1 {{tokenSymbol}}</span>
-                <span class="tipMax tipAmount">100 {{tokenSymbol}}</span>
-                <input class="range-slider__range" type="range"  min="1" max="100" step="1"  v-model="finalAmount" @input="setTip" ref="tipSlider">
-            </div>
-            <h4>{{$t('pages.tipPage.amountToTip')}}</h4>
-            <ae-input label="Tip amount" placeholder="0.0" aemount v-model="finalAmount" disabled="true" class="finalAmount">
-                <ae-text slot="header" fill="black">{{tokenSymbol}}</ae-text>
-                <ae-toolbar slot="footer" class="flex-justify-between">
-                   <div>
-                       {{$t('pages.tipPage.transactionFee')}}
-                    </div>
-                    <div>
-                        {{txFee}} AE
-                    </div>
-                </ae-toolbar>
-            </ae-input>
-            <div class="flex flex-justify-between balanceInfo">
+                
+            </ae-panel>
+            <ae-panel>
+                <h4>{{ $t('pages.tipPage.tipDetails') }}</h4>
+                <hr>
+                <ae-input label="More info" class="my-2">
+                    <textarea class="ae-input textarea" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                </ae-input>
+                <h4> {{$t('pages.tipPage.sendHeading')}}</h4>
+                <hr>
+                <!-- <h4>{{$t('pages.tipPage.selectAmount')}}</h4> -->
+                <div class="flex flex-justify-between tipWebisteAmount">  
+                    <ae-badge :class="selectedTip == index ? 'alternative' : ''" @click.native="selectTip(index)" v-for="(tip,index) in tips" :key="index">{{tip == 0 ? 'other' : `${tip} ${tokenSymbol}`}} </ae-badge>
+                </div>
                 <div>
-                    {{$t('pages.tipPage.balance')}}
+                    <div class="range-slider" :class="!showSlider ? 'hideSlider' : '' ">
+                        <div class="sliderOver"></div>
+                        <span class="tipMin tipAmount">1 {{tokenSymbol}}</span>
+                        <span class="tipMax tipAmount">100 {{tokenSymbol}}</span>
+                        <input class="range-slider__range" type="range"  min="1" max="100" step="1"  v-model="finalAmount" @input="setTip" ref="tipSlider">
+                    </div>
+                    
+                    <div class="amount-container" :class="!showSlider ? 'hideSlider' : '' ">
+                        <!-- <h4>{{$t('pages.tipPage.amountToTip')}}</h4> -->
+                        <div class="sliderOver"></div>
+                        <ae-input label="Tip amount" placeholder="0.0" aemount v-model="finalAmount" disabled="true" class="finalAmount">
+                            <ae-text slot="header" fill="black">{{tokenSymbol}}</ae-text>
+                            <ae-toolbar slot="footer" class="flex-justify-between">
+                            <div>
+                                {{$t('pages.tipPage.transactionFee')}}
+                                </div>
+                                <div>
+                                    {{txFee}} AE
+                                </div>
+                            </ae-toolbar>
+                        </ae-input>
+                    </div>
+                    
                 </div>
-                <div class="balance no-sign">
-                    {{tokenBalance}} {{tokenSymbol}}
+                <div class="flex flex-justify-between balanceInfo">
+                    <div>
+                        {{$t('pages.tipPage.balance')}}
+                    </div>
+                    <div class="balance no-sign">
+                        {{tokenBalance}} {{tokenSymbol}}
+                    </div>
                 </div>
-            </div>
-            <ae-button face="round" fill="alternative" extend class="sendTip" @click="sendTip">{{$t('pages.tipPage.sendTipBtn')}}</ae-button>
+                <ae-button face="round" fill="alternative" extend class="sendTip" @click="sendTip">{{$t('pages.tipPage.sendTipBtn')}}</ae-button>
+            </ae-panel>
         </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
     </div>
@@ -74,14 +101,17 @@ export default {
         return {
             domain:'',
             favicon:undefined,
+            title:'',
+            url:'',
             loadFavicon:true,
-            domainVerified:false,
+            domainVerified:true,
             tips: [1,5,10,0],
             selectedTip:0,
             tipAmount:0,
             finalAmount:1,
             showSlider:false,
-            txFee:MIN_SPEND_TX_FEE
+            txFee:MIN_SPEND_TX_FEE,
+            tipDomain: true
         }
     },
     computed: {
@@ -103,7 +133,10 @@ export default {
         chrome.tabs.query({active:true,currentWindow:true},(tabs) => {
             var currentTabUrl = tabs[0].url;
             this.favicon = tabs[0].favIconUrl;
+            this.title = tabs[0].title
+            this.url = tabs[0].url
             this.domain = extractHostName(currentTabUrl);
+            // this.domain = currentTabUrl
             setTimeout(() => {
                 this.loadFavicon = false;
             },1500)
@@ -153,6 +186,13 @@ export default {
             const percentage = 100*(slider.value-slider.min)/(slider.max-slider.min);
             const bg = `linear-gradient(90deg, #FF0D6A ${percentage}%, #d7dcdf ${percentage+0.1}%)`;
             slider.style.background = bg;
+        },
+        tipWebsiteType() {
+            if(this.tipDomain) {
+                this.domain = extractHostName(this.url);
+            } else {
+                this.domain = this.url
+            }
         }
     }
 }
@@ -167,7 +207,7 @@ export default {
 }
 
 .tipWebsiteHeader  {
-    margin-top:15px;
+    // margin-top:15px;
 }
 .tipWebsiteHeader .loader {
     
@@ -184,8 +224,17 @@ export default {
 .domainInfo {
     flex-grow:1;
     h3{
-        font-size:1.5rem;
+        // font-size:1.5rem;
         margin:0;
+        word-break: break-word;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        width: 220px;
+        white-space: nowrap;
+    }
+    h6{
+        margin:0;
+        word-break: break-word;
     }
     p {
         margin:0;
@@ -193,9 +242,11 @@ export default {
     }
     .ae-icon {
         color: #fff !important;
-        width: 14px !important;
-        height: 14px !important;
+        width: 20px !important;
+        height: 20px !important;
         font-size: 0.8rem;
+        margin-right: 2px;
+        border: 2px solid #dae1ea;
     }
     .verifyRow {
         display:inline-block;
@@ -233,6 +284,10 @@ export default {
         background:$primary-color;
         color:#fff;
     }
+    .ae-badge.alternative {
+        background:$color-alternative;
+        color:#fff;
+    }
 }
 .sendTip { 
     margin-top:25px;
@@ -242,6 +297,9 @@ export default {
 }
 .hideSlider {
     opacity: 0.3;
+}
+.amount-container{
+    position:relative;
 }
 .hideSlider .sliderOver {
     position:absolute;

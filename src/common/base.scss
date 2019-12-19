@@ -238,7 +238,7 @@ main {
   .ae-badge {
       background:#929CA6;
       color:#fff !important;
-      font-size:.8rem;
+      font-size:.7rem;
   }
 }
 .allTransactions .ae-identicon {
@@ -575,4 +575,28 @@ input::-moz-focus-outer {
   word-break: break-word;
   text-align: left;
   margin-bottom:1rem;
+}
+
+.small-checkbox .ae-check-button:after,.small-checkbox .ae-check-button:before{
+  left:0;
+}
+.small-checkbox .ae-check-button:after {
+  width: 16px;
+  height: 16px;
+  top: 0px;
+  background-size: 0.6rem;
+  padding:2px;
+}
+.small-checkbox .ae-check-button:before {
+  top:0px;
+  width:16px;
+  height:16px;
+}
+.small-checkbox .ae-check-button { 
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  padding-left:25px;
+  word-break: break-word;
+  text-align: left;
+  margin-bottom:0;
+  font-size:1rem;
 }
