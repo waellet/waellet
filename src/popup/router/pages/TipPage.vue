@@ -11,9 +11,15 @@
                     <img :src="favicon" v-if="!loadFavicon && typeof favicon !== 'undefined'" class="domainFavicon"/>
                     <div v-if="!loadFavicon && typeof favicon == 'undefined' " class="domainFavicon noFavicon">{{$t('pages.tipPage.noImage')}}</div>
                     <div class="domainInfo text-left">
-                        <h3>{{ domain }}</h3>
+                        <div class="domain">
+                            <h3>
+                                {{ domain }}
+                                <span class="full-domain">{{ domain }}</span>
+                            </h3>
+                        </div>
                         <h6>{{ title }}</h6>
-                        <p>
+                        <p class="balance">{{ unpaid }}</p>
+                        <!-- <p>
                             <div v-if="domainVerified" class="verified verifyRow">
                                 <ae-icon fill="alternative" face="round" name="check" /> 
                                 {{$t('pages.tipPage.domainVerified')}}
@@ -22,27 +28,24 @@
                                 <ae-icon fill="alternative"  face="round" name="close" /> 
                                 {{$t('pages.tipPage.domainNotVerified')}}
                             </div>
-                            <!-- <span class="verifyBtn" @click="checkDomain"> {{$t('pages.tipPage.check')}}</span> -->
-                        </p>
-                        
+                            <span class="verifyBtn" @click="checkDomain"> {{$t('pages.tipPage.check')}}</span>
+                        </p> -->
                         
                         <div class="small-checkbox">
                             <ae-check v-model="tipDomain" @change="tipWebsiteType">
                                 {{$t('pages.tipPage.tipDomain') }}
                             </ae-check>
                         </div>
-                        
-                        
                     </div>
                     
                 </div>
-                
+                <ae-button face="round" fill="primary" extend class="claimTips" @click="claimTips">{{$t('pages.tipPage.claim')}}</ae-button>
             </ae-panel>
             <ae-panel>
                 <h4>{{ $t('pages.tipPage.tipDetails') }}</h4>
                 <hr>
                 <ae-input label="More info" class="my-2">
-                    <textarea class="ae-input textarea" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                    <textarea class="ae-input textarea" v-model="note" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
                 </ae-input>
                 <h4> {{$t('pages.tipPage.sendHeading')}}</h4>
                 <hr>
@@ -92,8 +95,8 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { extractHostName } from '../../utils/helper';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO } from '../../utils/constants';
+import { extractHostName, convertToAE } from '../../utils/helper';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, TIPPING_CONTRACT, toMicro } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
 
 export default {
@@ -111,11 +114,13 @@ export default {
             finalAmount:1,
             showSlider:false,
             txFee:MIN_SPEND_TX_FEE,
-            tipDomain: true
+            tipDomain: true,
+            note:undefined,
+            unpaid:0
         }
     },
     computed: {
-        ...mapGetters(['balance','account','tokenSymbol','tokenBalance','popup']),
+        ...mapGetters(['balance','account','tokenSymbol','tokenBalance','popup', 'network', 'tipping', 'current']),
         maxValue() {
             let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -130,13 +135,14 @@ export default {
         }
     },
     created() {
-        chrome.tabs.query({active:true,currentWindow:true},(tabs) => {
+
+        chrome.tabs.query({active:true,currentWindow:true},async (tabs) => {
             var currentTabUrl = tabs[0].url;
             this.favicon = tabs[0].favIconUrl;
             this.title = tabs[0].title
             this.url = tabs[0].url
             this.domain = extractHostName(currentTabUrl);
-            // this.domain = currentTabUrl
+            this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
             setTimeout(() => {
                 this.loadFavicon = false;
             },1500)
@@ -174,8 +180,26 @@ export default {
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
                 return;
             } 
-            amount = BigNumber(amount).shiftedBy(MAGNITUDE);
-            
+            amount = BigNumber(amount).shiftedBy(MAGNITUDE)
+            this.confirmTip(this.domain,amount, this.note)
+        },
+        confirmTip(domain, amount, note) {
+            let tx = {
+                popup:false,
+                tx: {
+                    source: TIPPING_CONTRACT,
+                    address: this.network[this.current.network].tipContract,
+                    params: [ domain, note ],
+                    method: 'tip',
+                    options: { amount },
+                },
+                callType: 'pay',
+                type:'contractCall'
+            }
+            this.$store.commit('SET_AEPP_POPUP',true)
+            return this.$router.push({'name':'sign', params: {
+                data:tx
+            }});
         },
         setTip(e) {
             this.finalAmount = e.target.value;
@@ -193,6 +217,23 @@ export default {
             } else {
                 this.domain = this.url
             }
+        },
+        claimTips() {
+            let tx = {
+                popup:false,
+                tx: {
+                    source: TIPPING_CONTRACT,
+                    address: this.network[this.current.network].tipContract,
+                    params: [ this.domain ],
+                    method: 'claim',
+                },
+                callType: 'pay',
+                type:'contractCall'
+            }
+            this.$store.commit('SET_AEPP_POPUP',true)
+            return this.$router.push({'name':'sign', params: {
+                data:tx
+            }});
         }
     }
 }
@@ -232,6 +273,43 @@ export default {
         width: 220px;
         white-space: nowrap;
     }
+    .domain { 
+        position:relative;
+        cursor: pointer;
+    }
+    .domain:hover .full-domain{
+        display:block;
+
+    }
+    .full-domain {
+        display:none;
+        position:absolute;
+        left:0;
+        right: 0;
+        top: 115%;
+        background: #001833;
+        color: #fff;
+        padding: 5px;
+        border-radius: 6px;
+        word-break: break-word;
+        white-space: normal;
+        z-index: 15;
+        font-size: 0.8rem;
+    }
+    .full-domain:after {
+        content:"";
+        border: solid black;
+        border-width: 0 3px 3px 0;
+        display: inline-block;
+        padding: 3px;
+        transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+        -ms-transform: rotate(-135deg);
+        position: absolute;
+        top: -4px;
+        left: 23px;
+        background: inherit;
+    }
     h6{
         margin:0;
         word-break: break-word;
@@ -267,6 +345,9 @@ export default {
         font-size:1rem;
         cursor: pointer;
     }
+}
+.claimTips {
+    margin-top:30px;
 }
 .textarea {
     min-height: 60px;

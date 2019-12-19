@@ -80,5 +80,8 @@ export const getters = {
   },
   txAdvancedMode({ txAdvancedMode }) {
     return txAdvancedMode
+  },
+  tipping({ tipping }) {
+    return tipping
   }
 };

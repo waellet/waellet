@@ -177,7 +177,7 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK, contractCall } from './utils/helper';
-import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from './utils/constants'
+import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
 import { start, postMesssage } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
@@ -447,6 +447,9 @@ export default {
         try {
           await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
             await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
+          )
+          await this.$store.commit('SET_TIPPING', 
+            await sdk.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
           )
         } catch (e) {
           console.log(e)

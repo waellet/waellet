@@ -280,13 +280,14 @@ export default {
                 })
             }
             if(this.data.tx.hasOwnProperty("options") && this.data.tx.options.hasOwnProperty("amount")) {
+                console.log("here")
                 this.data.tx.amount = this.data.tx.options.amount
                 if(this.data.type == 'contractCall' ) {
                     this.data.tx.amount = BigNumber(this.data.tx.options.amount).shiftedBy(-MAGNITUDE)
                     this.data.tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(-MAGNITUDE)
                 }  
             }
-            if(this.data.type == 'txSign') {
+            if(this.data.type == 'txSign' && this.data.popup) {
                 this.data.tx.amount = BigNumber(this.data.tx.amount).shiftedBy(-MAGNITUDE)
             }
             if(this.data.popup) {

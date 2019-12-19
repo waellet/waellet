@@ -49,7 +49,8 @@ export default new Vuex.Store({
     background:null,
     tokenRegistry: null,
     tokenRegistryLima:null,
-    txAdvancedMode:false
+    txAdvancedMode:false,
+    tipping:null
   },
   getters,
   mutations,
