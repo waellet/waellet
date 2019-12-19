@@ -10,13 +10,14 @@
                     <h4>{{$t('pages.mintTokenPage.mint') }}</h4>
                     <hr>
                     <select class="dropdown-menu" @change="onChangeType($event)">
+                        <option value="select_action">Select action</option>
                         <option value="mint">Mint</option>
                         <option value="burn">Burn</option>
                     </select>
                     <select class="dropdown-menu" @change="onChange($event)">
                         <option value="default" disabled>{{$t('pages.allowances.chooseToken')}}</option>
                         <option 
-                            v-for="(tok, key) in fungibleTokens" 
+                            v-for="(tok, key) in fungTokens" 
                             :key="key" 
                             :value="key">
                             {{tok.name}}
@@ -56,20 +57,14 @@ export default {
             address:null,
             errorAddress:null,
             errorAmount: null,
-            type:'mint'
+            type:'select_action',
+            fungTokens: null
         }
     },
     computed: {
         ...mapGetters(['sdk','account','tokens','popup']),
-        fungibleTokens() {
-            return this.tokens.filter((t,index) => {
-                t.key = index;
-                return t.parent == this.account.publicKey && t.name != 'AE'
-            });
-        }
     },
     async created() {
-
     },
     methods:{
         navigateFungibleTokens() {
@@ -79,7 +74,52 @@ export default {
             this.token = event.target.value;
         },
         onChangeType(event) {
+            this.loading = true;
             this.type = event.target.value;
+            switch (this.type) {
+                case 'mint':
+                    let mintTokens = [];
+                    Object.entries(this.tokens).forEach(async ([key, val]) => {
+                        if (val.name != 'AE' && val.contract != '') {
+                            try {
+                                const contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
+                                let aex9_extensions = await contract.methods.aex9_extensions();
+                                const extensions = aex9_extensions.decodedResult;
+                                if (extensions.includes('mintable')) {
+                                    mintTokens.push(val);
+                                }
+                                this.loading = false;
+                            } catch (error) {
+                                console.log('error ', error)
+                            }
+                        }
+                    });
+                    this.fungTokens = mintTokens;
+                break;
+                case 'burn':
+                    this.fungTokens = this.loading;
+                    let burnTokens = [];
+                    Object.entries(this.tokens).forEach(async ([key, val]) => {
+                        if (val.name != 'AE' && val.contract != '') {
+                            try {
+                                const contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
+                                let aex9_extensions = await contract.methods.aex9_extensions();
+                                const extensions = aex9_extensions.decodedResult;
+                                if (extensions.includes('burnable')) {
+                                    burnTokens.push(val);
+                                }
+                                this.loading = false;
+                            } catch (error) {
+                                console.log('error ', error)
+                            }
+                        }
+                    });
+                    this.fungTokens = burnTokens;
+                break;
+                default:
+                    this.fungTokens = null;
+                break;
+            }
         },
         mint() {
             if(!this.amount || isNaN(this.amount)) {
@@ -104,7 +144,7 @@ export default {
                     popup:false,
                     tx: {
                         source:     FUNGIBLE_TOKEN_CONTRACT,
-                        address:    this.fungibleTokens[this.token].contract,
+                        address:    this.fungTokens[this.token].contract,
                         method:     this.type, 
                         params,
                         amount:     0

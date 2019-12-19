@@ -576,3 +576,42 @@ input::-moz-focus-outer {
   text-align: left;
   margin-bottom:1rem;
 }
+
+.token-action-holder {
+  background-color: #ececec;
+}
+.custom-ae-input-header {
+  position: relative;
+    display: flex;
+    flex: 0 0;
+    justify-content: space-between;
+    align-items: center;
+    align-self: flex-start;
+    width: 100%;
+    padding: 0.5rem 1rem 0 1rem;
+}
+.custom-ae-input-label {
+  color: #76818C;
+    font-family: "Inter UI", sans-serif;
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    line-height: 1rem;
+}
+.tokenExtensions .ae-check-button:after {
+  width: 29px;
+  height: 26px;
+  top:7px;
+}
+.tokenExtensions .ae-check-button:before {
+  top:7px;
+}
+.tokenExtensions {
+  width: 100%;
+}
+.tokenExtensions .ae-check-button { 
+  padding-top: 0.8rem;
+  padding-left:3rem;
+  word-break: break-word;
+  text-align: left;
+  margin-bottom:1rem;
+}

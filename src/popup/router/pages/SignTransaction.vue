@@ -89,10 +89,10 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken  } from '../../utils/helper';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken, checkContractAbiVersion, parseFromStorage   } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
-import { computeAuctionEndBlock, computeBidFee, checkContractAbiVersion, parseFromStorage  } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
+import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
 import BigNumber from 'bignumber.js';
 import { clearInterval, clearTimeout  } from 'timers';
@@ -234,10 +234,12 @@ export default {
                     this.contractInstance = await this.sdk.getContractInstance(source, { contractAddress });
                     this.contractInstance.setOptions({ backend })
                 }catch(e) {
+                    console.log('e=>',e)
                     
                 }
                 return Promise.resolve(true)
             } catch(err) {
+                    console.log(err)
                 if(this.data.popup) {
                     this.errorTx.error.message = err
                     this.sending = true
@@ -344,7 +346,8 @@ export default {
                                 ownerId:this.account.publicKey,
                                 code:this.data.tx.contract.bytecode
                             } 
-                            await this.setContractInstance(FUNGIBLE_TOKEN_CONTRACT)
+                            // here new contract na mqstoto na fugible token contract
+                            await this.setContractInstance(this.data.tx.source)
                             
                         }else if(this.data.type == 'contractCall') {
                             this.data.tx.call = {}
@@ -651,10 +654,10 @@ export default {
                 let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
                 
             }else {
-                
                 try {
                     deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
                     this.setTxInQueue(deployed.transaction)
+
                     if(this.data.tx.contractType == 'fungibleToken') {
                         let abi_version = await checkContractAbiVersion({ address: deployed.address, middleware: this.network[this.current.network].middlewareUrl} )
                         let tx = {
@@ -674,6 +677,7 @@ export default {
                         this.redirectToTxConfirm(tx)
                     }
                 } catch(err) {
+                    console.log(err)
                     this.setTxInQueue('error')
                 }
                 
