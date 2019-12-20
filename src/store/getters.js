@@ -83,5 +83,8 @@ export const getters = {
   },
   tipping({ tipping }) {
     return tipping
+  },
+  tippingReceiver({ tippingReceiver }) {
+    return tippingReceiver
   }
 };

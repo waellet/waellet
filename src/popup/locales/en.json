@@ -359,7 +359,7 @@
             "backToUtilities": "Back to utilities",
             "noImage": "No Image",
             "domainVerified":"Verified",
-            "domainNotVerified":"Not yet verified",
+            "domainNotVerified":"Not verified",
             "sendHeading":"Send a tip",
             "check":"Check",
             "selectAmount": "Select amount",
@@ -375,7 +375,8 @@
             "claim": "Claim Tips",
             "tipsForDomain": "Tips",
             "tips": "Tips",
-            "noTips": "No tips for this url"
+            "noTips": "No tips for this url",
+            "claimInfo": "If you are verified you can claim the amount of tokens by click the button below"
         },
         "transactionDetails": {
             "heading": "Transactions Details",

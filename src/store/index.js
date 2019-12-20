@@ -50,7 +50,8 @@ export default new Vuex.Store({
     tokenRegistry: null,
     tokenRegistryLima:null,
     txAdvancedMode:false,
-    tipping:null
+    tipping:null,
+    tippingReceiver: {}
   },
   getters,
   mutations,

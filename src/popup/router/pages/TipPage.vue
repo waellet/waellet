@@ -18,9 +18,13 @@
                             </h3>
                         </div>
                         <h6>{{ title }}</h6>
-                        <p class="balance">{{ unpaid }}</p>
-                        <!-- <p>
-                            <div v-if="domainVerified" class="verified verifyRow">
+                        <!-- <p class="balance"></p> -->
+                        <p>
+                            <!-- <div class="verifyRow">
+                                <ae-icon fill="alternative" face="round" name="aeternity" /> 
+                                {{ unpaid }}
+                            </div> -->
+                            <div v-if="canClaim" class="verified verifyRow">
                                 <ae-icon fill="alternative" face="round" name="check" /> 
                                 {{$t('pages.tipPage.domainVerified')}}
                             </div>
@@ -28,20 +32,23 @@
                                 <ae-icon fill="alternative"  face="round" name="close" /> 
                                 {{$t('pages.tipPage.domainNotVerified')}}
                             </div>
-                            <span class="verifyBtn" @click="checkDomain"> {{$t('pages.tipPage.check')}}</span>
-                        </p> -->
+                            <!-- <span class="verifyBtn" @click="checkDomain"> {{$t('pages.tipPage.check')}}</span> -->
+                        </p>
                         <div class="small-checkbox">
                             <ae-check v-model="tipDomain" @change="tipWebsiteType">
                                 {{$t('pages.tipPage.tipDomain') }}
                             </ae-check>
                         </div>
                     </div>
-                    
                 </div>
-                <ae-button-group class="claimTips">
-                    <ae-button face="round" fill="primary" @click="claimTips">{{ $t('pages.tipPage.claim') }}</ae-button>
-                </ae-button-group>
-                
+                <ae-divider />
+                <div class="claim-info">
+                    <div class="balance">{{ unpaid }}</div>
+                    <small>  {{ $t('pages.tipPage.claimInfo') }} </small>
+                    <ae-button-group class="claimTips">
+                        <ae-button face="round" fill="primary" :class="!canClaim ? 'disabled' : ''" @click="claimTips">{{ $t('pages.tipPage.claim') }}</ae-button>
+                    </ae-button-group>
+                </div>
             </ae-panel>
             <ae-panel>
                 <div class="tabs">
@@ -101,7 +108,7 @@
                         <ae-list v-if="websiteTips && websiteTips.length">
                             <ae-list-item fill="neutral" v-for="(tip,index) in websiteTips" :key="index">
                                 <ae-identicon class="identicon" :address="tip.sender" size="base" />
-                                <div class="text-left mr-auto">
+                                <div class="text-left mr-auto tip-content">
                                     <ae-address :value="tip.sender" length="short" />
                                     <ae-text face="mono-xs" class="transactionDate">{{ new Date(tip.received_at).toLocaleString() }}</ae-text>
                                     <ae-text face="mono-xs"> {{ tip.note }} </ae-text>
@@ -111,9 +118,9 @@
                                 </div>
                             </ae-list-item>
                         </ae-list>
-                        <ae-text v-else>
+                        <p v-else>
                             {{ $t('pages.tipPage.noTips') }}
-                        </ae-text>
+                        </p>
                     </div>
                 </div>
             </ae-panel>
@@ -150,11 +157,12 @@ export default {
             domainDataInterval:null,
             websiteTips:undefined,
             loadingTips: true,
-            activeTab:'details'
+            activeTab:'details',
+            canClaim: false
         }
     },
     computed: {
-        ...mapGetters(['balance','account','tokenSymbol','tokenBalance','popup', 'network', 'tipping', 'current']),
+        ...mapGetters(['balance','account','tokenSymbol','tokenBalance','popup', 'network', 'tipping', 'current', 'tippingReceiver']),
         maxValue() {
             let calculatedMaxValue = this.balance - MIN_SPEND_TX_FEE
             return calculatedMaxValue > 0 ? calculatedMaxValue.toString() : 0;
@@ -173,7 +181,6 @@ export default {
         this.domainDataInterval = setInterval(() => {
             this.getDomainData()
         }, 5000)
-        
     },
     mounted() {
         let elem = this.$refs["tipSlider"];
@@ -192,6 +199,9 @@ export default {
                 this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
                 if(this.activeTab == 'tips') {
                     this.fetchTips()
+                }
+                if(this.tippingReceiver && this.tippingReceiver.address == this.account.publicKey && extractHostName(this.tippingReceiver.host) == extractHostName(currentTabUrl)) {
+                    this.canClaim = true
                 }
                 setTimeout(() => {
                     this.loadFavicon = false;
@@ -265,25 +275,29 @@ export default {
             }
         },
         claimTips() {
-            let tx = {
-                popup:false,
-                tx: {
-                    source: TIPPING_CONTRACT,
-                    address: this.network[this.current.network].tipContract,
-                    params: [ this.domain ],
-                    method: 'claim',
-                },
-                callType: 'pay',
-                type:'contractCall'
+            if(this.canClaim) {
+                let tx = {
+                    popup:false,
+                    tx: {
+                        source: TIPPING_CONTRACT,
+                        address: this.network[this.current.network].tipContract,
+                        params: [ this.domain ],
+                        method: 'claim',
+                    },
+                    callType: 'pay',
+                    type:'contractCall'
+                }
+                this.$store.commit('SET_AEPP_POPUP',true)
+                return this.$router.push({'name':'sign', params: {
+                    data:tx
+                }});
             }
-            this.$store.commit('SET_AEPP_POPUP',true)
-            return this.$router.push({'name':'sign', params: {
-                data:tx
-            }});
+            
         },
         async fetchTips() {
             this.websiteTips = (await this.tipping.methods['tips_for_url'](this.domain)).decodedResult
             this.websiteTips = this.websiteTips.map(i => ({ ...i, amount:convertToAE(i.amount)}))
+                                                .sort((a,b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime())
             this.loadingTips = false
         },
         selectActiveTab(tab) {
@@ -308,10 +322,10 @@ export default {
 }
 
 .tipWebsiteHeader  {
-    // margin-top:15px;
+    margin-bottom:20px;
 }
-.tipWebsiteHeader .loader {
-    
+.ae-divider {
+    background-color: #bbbbbb !important;
 }
 .domainFavicon {
     width:32px;
@@ -411,7 +425,10 @@ export default {
     font-weight:bold;
 }
 .claimTips {
-    margin-top:30px;
+    margin-top:10px;
+    button.disabled {
+        opacity: 0.5;
+    }
 }
 .textarea {
     min-height: 60px;
@@ -462,6 +479,7 @@ export default {
 }
 .ae-address {
     font-weight: bold !important;
+    color:#000;
 }
 .tabs {
     margin-top:1rem;
@@ -469,4 +487,23 @@ export default {
 .tabs span {
     width:49%;
 }
+.claim-info {
+    margin-top:20px;
+    .balance {
+        font-weight: bold;
+        font-size:3rem;
+        color:#000;
+    }
+    .balance:after {
+        font-size:1.5rem;
+        content:'AE'
+    }
+    small {
+        font-size:.8rem;
+    }
+}
+.tip-content {
+    width:60%;
+}
+
 </style>

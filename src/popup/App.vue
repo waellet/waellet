@@ -179,7 +179,7 @@ import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK, contractCall } from './utils/helper';
 import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
-import { start, postMesssage } from './utils/connection'
+import { start, postMesssage, readWebPageDom } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
 import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
@@ -227,7 +227,11 @@ export default {
       });
       let background = await start(browser)
       this.$store.commit( 'SET_BACKGROUND', background )
-      
+      readWebPageDom((receiver,sendResponse ) => {
+        this.$store.commit('SET_TIPPING_RECEIVER', receiver)
+        sendResponse({ host:receiver.host, received: true })
+      })
+
       //init SDK
       this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {

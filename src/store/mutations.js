@@ -120,5 +120,8 @@ export default {
   },
   [types.SET_TIPPING] (state, payload) {
     state.tipping = payload
+  },
+  [types.SET_TIPPING_RECEIVER] (state, payload) {
+    state.tippingReceiver = payload
   }
 }; 
