@@ -371,10 +371,11 @@
             "tipWebsite":"Website",
             "heading": "Tip website",
             "selectTip": "Select amount to tip",
-            "tipDomain": "Tip Domain",
+            "tipDomain": "Tip domain",
             "claim": "Claim Tips",
-            "tipsForDomain": "Tips for domain",
-            "tips": "Tips"
+            "tipsForDomain": "Tips",
+            "tips": "Tips",
+            "noTips": "No tips for this url"
         },
         "transactionDetails": {
             "heading": "Transactions Details",

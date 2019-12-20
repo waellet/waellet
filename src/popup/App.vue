@@ -556,7 +556,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account .ae-dropdown-button .dropdown-button-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .subAccountInfo { margin-right:auto; margin-bottom:0 !important; max-width: 155px; }
 #network .subAccountInfo { max-width: 195px; }
-.subAccountIcon { margin-right: 10px; }
+.subAccountIcon, .identicon { margin-right: 10px; }
 .subAccountName { text-align: left; color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
 .subAccountBalance { font-family: monospace; margin-bottom:0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;}
 .name-pending { width:24px !important; height:24px !important; margin-right:5px; font-size:.8rem; }

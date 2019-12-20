@@ -39,62 +39,83 @@
                     
                 </div>
                 <ae-button-group class="claimTips">
-                    <ae-button face="round" fill="primary"  @click="claimTips">{{ $t('pages.tipPage.claim') }}</ae-button>
-                    <ae-button face="round" fill="secondary" @click="showTips" >{{ $t('pages.tipPage.tips') }}</ae-button>
+                    <ae-button face="round" fill="primary" @click="claimTips">{{ $t('pages.tipPage.claim') }}</ae-button>
                 </ae-button-group>
                 
             </ae-panel>
-            <ae-panel v-if="mode == 'details'">
-                <h4>{{ $t('pages.tipPage.tipDetails') }}</h4>
-                <hr>
-                <ae-input label="More info" class="my-2">
-                    <textarea class="ae-input textarea" v-model="note" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
-                </ae-input>
-                <h4> {{$t('pages.tipPage.sendHeading')}}</h4>
-                <hr>
-                <!-- <h4>{{$t('pages.tipPage.selectAmount')}}</h4> -->
-                <div class="flex flex-justify-between tipWebisteAmount">  
-                    <ae-badge :class="selectedTip == index ? 'alternative' : ''" @click.native="selectTip(index)" v-for="(tip,index) in tips" :key="index">{{tip == 0 ? 'other' : `${tip} ${tokenSymbol}`}} </ae-badge>
+            <ae-panel>
+                <div class="tabs">
+                    <span :class="activeTab == 'details' ? 'tab-active' : ''" @click="selectActiveTab('details')">{{ $t('pages.tipPage.sendHeading') }}</span>
+                    <span :class="activeTab == 'tips' ? 'tab-active' : ''" @click="selectActiveTab('tips')">{{ $t('pages.tipPage.tipsForDomain') }}</span>
                 </div>
-                <div>
-                    <div class="range-slider" :class="!showSlider ? 'hideSlider' : '' ">
-                        <div class="sliderOver"></div>
-                        <span class="tipMin tipAmount">1 {{tokenSymbol}}</span>
-                        <span class="tipMax tipAmount">100 {{tokenSymbol}}</span>
-                        <input class="range-slider__range" type="range"  min="1" max="100" step="1"  v-model="finalAmount" @input="setTip" ref="tipSlider">
+                <div v-if="activeTab == 'details'">
+                    <ae-input label="More info" class="my-2">
+                        <textarea class="ae-input textarea" v-model="note" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                    </ae-input>
+                    <!-- <h4> {{$t('pages.tipPage.sendHeading')}}</h4>
+                    <hr> -->
+                    <div class="flex flex-justify-between tipWebisteAmount">  
+                        <ae-badge :class="selectedTip == index ? 'alternative' : ''" @click.native="selectTip(index)" v-for="(tip,index) in tips" :key="index">{{tip == 0 ? 'other' : `${tip} ${tokenSymbol}`}} </ae-badge>
                     </div>
-                    
-                    <div class="amount-container" :class="!showSlider ? 'hideSlider' : '' ">
-                        <!-- <h4>{{$t('pages.tipPage.amountToTip')}}</h4> -->
-                        <div class="sliderOver"></div>
-                        <ae-input label="Tip amount" placeholder="0.0" aemount v-model="finalAmount" disabled="true" class="finalAmount">
-                            <ae-text slot="header" fill="black">{{tokenSymbol}}</ae-text>
-                            <ae-toolbar slot="footer" class="flex-justify-between">
-                            <div>
-                                {{$t('pages.tipPage.transactionFee')}}
+                    <div>
+                        <div class="range-slider" :class="!showSlider ? 'hideSlider' : '' ">
+                            <div class="sliderOver"></div>
+                            <span class="tipMin tipAmount">1 {{tokenSymbol}}</span>
+                            <span class="tipMax tipAmount">100 {{tokenSymbol}}</span>
+                            <input class="range-slider__range" type="range"  min="1" max="100" step="1"  v-model="finalAmount" @input="setTip" ref="tipSlider">
+                        </div>
+                        
+                        <div class="amount-container" :class="!showSlider ? 'hideSlider' : '' ">
+                            <!-- <h4>{{$t('pages.tipPage.amountToTip')}}</h4> -->
+                            <div class="sliderOver"></div>
+                            <ae-input label="Tip amount" placeholder="0.0" aemount v-model="finalAmount" disabled="true" class="finalAmount">
+                                <ae-text slot="header" fill="black">{{tokenSymbol}}</ae-text>
+                                <ae-toolbar slot="footer" class="flex-justify-between">
+                                <div>
+                                    {{$t('pages.tipPage.transactionFee')}}
+                                    </div>
+                                    <div>
+                                        {{txFee}} AE
+                                    </div>
+                                </ae-toolbar>
+                            </ae-input>
+                        </div>
+                        
+                    </div>
+                    <div class="flex flex-justify-between balanceInfo">
+                        <div>
+                            {{$t('pages.tipPage.balance')}}
+                        </div>
+                        <div class="balance no-sign">
+                            {{tokenBalance}} {{tokenSymbol}}
+                        </div>
+                    </div>
+                    <ae-button face="round" fill="alternative" extend class="sendTip" @click="sendTip">{{$t('pages.tipPage.sendTipBtn')}}</ae-button>
+                </div>
+
+                <div v-if="activeTab == 'tips'">   
+                    <div v-if="loadingTips" class="text-center">
+                        <Loader size="small" :loading="loadingTips"></Loader>
+                    </div>
+                    <div v-else>
+                        <ae-list v-if="websiteTips && websiteTips.length">
+                            <ae-list-item fill="neutral" v-for="(tip,index) in websiteTips" :key="index">
+                                <ae-identicon class="identicon" :address="tip.sender" size="base" />
+                                <div class="text-left mr-auto">
+                                    <ae-address :value="tip.sender" length="short" />
+                                    <ae-text face="mono-xs" class="transactionDate">{{ new Date(tip.received_at).toLocaleString() }}</ae-text>
+                                    <ae-text face="mono-xs"> {{ tip.note }} </ae-text>
                                 </div>
                                 <div>
-                                    {{txFee}} AE
+                                    <span class="balance">{{ tip.amount }}</span>
                                 </div>
-                            </ae-toolbar>
-                        </ae-input>
-                    </div>
-                    
-                </div>
-                <div class="flex flex-justify-between balanceInfo">
-                    <div>
-                        {{$t('pages.tipPage.balance')}}
-                    </div>
-                    <div class="balance no-sign">
-                        {{tokenBalance}} {{tokenSymbol}}
+                            </ae-list-item>
+                        </ae-list>
+                        <ae-text v-else>
+                            {{ $t('pages.tipPage.noTips') }}
+                        </ae-text>
                     </div>
                 </div>
-                <ae-button face="round" fill="alternative" extend class="sendTip" @click="sendTip">{{$t('pages.tipPage.sendTipBtn')}}</ae-button>
-            </ae-panel>
-
-            <ae-panel v-if="mode == 'tips'">
-                <h4>{{ $t('pages.tipPage.tipsForDomain') }}</h4>
-                <hr>
             </ae-panel>
         </div>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
@@ -127,7 +148,9 @@ export default {
             note:undefined,
             unpaid:0,
             domainDataInterval:null,
-            mode: 'details'
+            websiteTips:undefined,
+            loadingTips: true,
+            activeTab:'details'
         }
     },
     computed: {
@@ -163,9 +186,13 @@ export default {
                 this.favicon = tabs[0].favIconUrl;
                 this.title = tabs[0].title
                 this.url = tabs[0].url
-                this.domain = extractHostName(currentTabUrl);
+                if(this.tipDomain) {
+                    this.domain = extractHostName(currentTabUrl);
+                }
                 this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
-                let tips = await this.tipping.methods['tips_for_url'](this.domain)
+                if(this.activeTab == 'tips') {
+                    this.fetchTips()
+                }
                 setTimeout(() => {
                     this.loadFavicon = false;
                 },1500)
@@ -254,8 +281,16 @@ export default {
                 data:tx
             }});
         },
-        showTips() {
-            this.mode = 'tips'
+        async fetchTips() {
+            this.websiteTips = (await this.tipping.methods['tips_for_url'](this.domain)).decodedResult
+            this.websiteTips = this.websiteTips.map(i => ({ ...i, amount:convertToAE(i.amount)}))
+            this.loadingTips = false
+        },
+        selectActiveTab(tab) {
+            this.activeTab = tab
+            if(tab == 'tips') {
+                this.fetchTips()
+            }
         }
     },
     beforeDestroy () {
@@ -371,6 +406,10 @@ export default {
         cursor: pointer;
     }
 }
+.balance {
+    color: $color-alternative;
+    font-weight:bold;
+}
 .claimTips {
     margin-top:30px;
 }
@@ -415,13 +454,19 @@ export default {
     bottom:0;
     top:0;
 }
-
-
 .balanceInfo {
     margin-top:15px;
-    .balance {
-        font-weight:bold;
-    }
 }
-
+.btn-50 {
+    width:50%;
+}
+.ae-address {
+    font-weight: bold !important;
+}
+.tabs {
+    margin-top:1rem;
+}
+.tabs span {
+    width:49%;
+}
 </style>
