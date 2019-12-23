@@ -177,9 +177,9 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK, contractCall } from './utils/helper';
-import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from './utils/constants'
+import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
-import { start, postMesssage } from './utils/connection'
+import { start, postMesssage, readWebPageDom } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
 import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
@@ -227,7 +227,11 @@ export default {
       });
       let background = await start(browser)
       this.$store.commit( 'SET_BACKGROUND', background )
-      
+      readWebPageDom((receiver,sendResponse ) => {
+        this.$store.commit('SET_TIPPING_RECEIVER', receiver)
+        sendResponse({ host:receiver.host, received: true })
+      })
+
       //init SDK
       this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {
@@ -448,19 +452,14 @@ export default {
           await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
             await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
           )
+          await this.$store.commit('SET_TIPPING', 
+            await sdk.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
+          )
         } catch (e) {
           console.log(e)
         }
         
-        
-        
-
-
-        
         this.$store.dispatch('getAllUserTokens')
-       
-        
-
       }
       
       if(typeof sdk.error != 'undefined') {
@@ -561,7 +560,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account .ae-dropdown-button .dropdown-button-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .subAccountInfo { margin-right:auto; margin-bottom:0 !important; max-width: 155px; }
 #network .subAccountInfo { max-width: 195px; }
-.subAccountIcon { margin-right: 10px; }
+.subAccountIcon, .identicon { margin-right: 10px; }
 .subAccountName { text-align: left; color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
 .subAccountBalance { font-family: monospace; margin-bottom:0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;}
 .name-pending { width:24px !important; height:24px !important; margin-right:5px; font-size:.8rem; }

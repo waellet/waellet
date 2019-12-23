@@ -522,14 +522,18 @@ const contractCall = async ({ instance, method,  params = [], decode = false, as
     return async ? (decode ? call.decodedResult : call ) : params.length ? instance.methods[method](...params) :  instance.methods[method]()
 }
 
-const checkContractAbiVersion = ({ address, middleware }) => {
+const checkContractAbiVersion = ({ address, middleware }, test = false) => {
     return new Promise((resolve, reject) => {
         axios.get(`${middleware}/middleware/contracts/transactions/address/${address}`)
         .then(res => {
+            if(!res.data.transactions.length) {
+                return resolve(3)
+            }
             let { tx: { abi_version } } = res.data.transactions.find(({ tx: { type } }) => type == 'ContractCreateTx')
-            resolve(abi_version)
+            return resolve(abi_version)
         })
         .catch(err => {
+            console.log(err)
             resolve(0)
         })
     })

@@ -447,6 +447,11 @@ export default {
 
   async getAllUserTokens({ state: { tokenRegistry, tokenRegistryLima, account, tokens, sdk, network, current }, dispatch }) {
     let { publicKey } = account
+    let savedTokens = await browser.storage.local.get('tokens')
+    
+    if(savedTokens.hasOwnProperty("tokens")) {
+      dispatch('setTokens', savedTokens.tokens)
+    }
 
     let tkns = (await contractCall({ instance:tokenRegistry, method:'get_all_tokens' })).decodedResult
     let tknsLima = (await contractCall({ instance:tokenRegistryLima, method:'get_all_tokens' })).decodedResult
@@ -472,7 +477,7 @@ export default {
       return token
       // console.log(tokens)
     }))).filter(t => typeof t != 'undefined')
-    let savedTokens = await browser.storage.local.get('tokens')
+    
     res = tokens.concat(res)
     let userTokens = res
     

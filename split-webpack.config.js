@@ -1,14 +1,20 @@
+const path = require('path')
 const webpack = require('webpack');
 const ejs = require('ejs');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 const { VueLoaderPlugin } = require('vue-loader');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { version } = require('./package.json');
 const platforms = [
   "chrome",
   "firefox"
 ];
+const distFolder = path.resolve(__dirname, 'dist')
+
+
 
 const config = [
   {
@@ -17,7 +23,6 @@ const config = [
     context: __dirname + '/src',
     entry: {
       ...getPlatformFiles('chrome')
-    
     },
     node: {
       fs: 'empty', net: 'empty', tls: 'empty'
@@ -25,6 +30,12 @@ const config = [
     output: {
       path: __dirname + '/dist/chrome',
       filename: '[name].js',
+    },
+    optimization: {
+      splitChunks: {
+        // include all types of chunks
+        chunks: 'all'
+      }
     },
     resolve: {
       extensions: ['.js', '.vue'],
@@ -52,6 +63,11 @@ const config = [
     output: {
       path: __dirname + '/dist/firefox',
       filename: '[name].js',
+    },
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+      },
     },
     resolve: {
       extensions: ['.js', '.vue'],
@@ -124,6 +140,9 @@ function getPlatformFiles(platform) {
 
 function getPlugins(platform) {
   return [
+    new CleanWebpackPlugin({
+      cleanAfterEveryBuildPatterns: ['dist']
+    }),
     new webpack.DefinePlugin({
       global: 'window',
     }),
@@ -134,9 +153,8 @@ function getPlugins(platform) {
       ignoreOrder: false,
     }),
     new CopyWebpackPlugin([
-      { from: '../node_modules/argon2-browser', to: `argon2` },
       { from: 'icons', to: `icons`, ignore: ['icon.xcf'] },
-      { from: 'popup/popup.html', to: `popup/popup.html`, transform: transformHtml },
+      // { from: 'popup/popup.html', to: `popup/popup.html`, transform: transformHtml },
       { from: 'options/options.html', to: `options/options.html`, transform: transformHtml },
       { from: 'phishing/phishing.html', to: `phishing/phishing.html`, transform:transformHtml },
       { from: 'popup/CameraRequestPermission.html', to: `popup/CameraRequestPermission.html`, transform:transformHtml },
@@ -156,7 +174,11 @@ function getPlugins(platform) {
         },
       },
     ]),
-    
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "popup", "popup.html"),
+      filename: "popup/popup.html",
+      chunks: ["popup/popup"]
+    }),
   ]
 }
 
@@ -184,7 +206,7 @@ function getRules() {
       use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader?indentedSyntax'],
     },
     {
-      test: /\.(html|png|jpg|gif|svg|ico)$/,
+      test: /\.(png|jpg|gif|svg|ico)$/,
       loader: 'file-loader',
       options: {
         name: '[name].[ext]?emitFile=false',

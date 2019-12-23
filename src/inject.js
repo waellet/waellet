@@ -1,4 +1,4 @@
-import { extractHostName, detectBrowser } from './popup/utils/helper';
+import { extractHostName, detectBrowser, checkAddress } from './popup/utils/helper';
 global.browser = require('webextension-polyfill');
 
 const redirectToWarning = (hostname,href,extUrl = '') => {
@@ -82,18 +82,32 @@ function sendToBackground(method, params) {
     })
 }
 
-// Render
-function render(data) {
-    // @TODO create list with sdks and his transaction with ability to accept/decline signing
-}
+// setInterval(() => {
+//     browser.runtime.sendMessage({
+//         from: "content",
+//         type: "readDom",
+//         data: "as"
+//     })
+// }, 5000)
 
-function clickSign({target, value}) {
-    const [sdkId, tx] = target.id.split['-'];
-    signResponse({value, sdkId, tx})
-}
+window.addEventListener("load", () => {
+    
+    var address = document.all[0].outerHTML.match(/(ak\_[A-Za-z0-9]{50})/g)
+    if(address) {
+        var sendInterval = setInterval(() => {
+            browser.runtime.sendMessage({
+                from: "content",
+                type: "readDom",
+                data: address
+            }).then(res => {
+                if(res && res.host == window.origin && res.received) {
+                    clearInterval(sendInterval)
+                }
+            })
+        }, 5000)
+    }
 
-function signResponse({value, sdkId, tx}) {
-    sendToBackground('txSign', {value, sdkId, tx})
-}
+});
+
 
 
