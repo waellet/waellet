@@ -68,7 +68,7 @@ const config = [
             chunks (chunk) {
               return chunk.name == 'popup/popup';
             },
-            maxSize:2000
+            maxSize:3999999
           },
         },
       }
@@ -86,7 +86,8 @@ const config = [
       new HtmlWebpackPlugin({
         template: path.join(__dirname, "src", "popup", "popup.html"),
         filename: "popup/popup.html",
-        chunks: ["popup/popup", "vendor"]
+        excludeChunks: ["background", "inject", "options/options","phishing/phishing","aepp","popup/cameraPermission"]
+
       }),
       new HtmlWebpackPlugin({
         template: path.join(__dirname, "src", "options", "options.html"),
