@@ -450,14 +450,14 @@ export default {
   async getAllUserTokens({ state: { tokenRegistry, tokenRegistryLima, account, tokens, sdk, network, current }, dispatch }) {
     let { publicKey } = account
     let savedTokens = await browser.storage.local.get('tokens')
-
-    if (savedTokens.hasOwnProperty("tokens")) {
+    
+    if(savedTokens.hasOwnProperty("tokens")) {
       dispatch('setTokens', savedTokens.tokens)
     }
 
-    let tkns = (await contractCall({ instance: tokenRegistry, method: 'get_all_tokens' })).decodedResult
-    let tknsLima = (await contractCall({ instance: tokenRegistryLima, method: 'get_all_tokens' })).decodedResult
-    let res = (await Promise.all(uniqWith(tkns.concat(tknsLima), isEqual).map(async (tkn) => {
+    let tkns = (await contractCall({ instance:tokenRegistry, method:'get_all_tokens' })).decodedResult
+    let tknsLima = (await contractCall({ instance:tokenRegistryLima, method:'get_all_tokens' })).decodedResult
+    let res = (await Promise.all(uniqWith(tkns.concat(tknsLima), isEqual).map(async ( tkn ) => { 
       let instance = tokenRegistry
       if (await checkContractAbiVersion({ address: tkn[0], middleware: network[current.network].middlewareUrl }) == 3) {
         instance = tokenRegistryLima
