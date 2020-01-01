@@ -188,7 +188,7 @@ export default {
     },  
     methods: {
         getDomainData() {
-            chrome.tabs.query({active:true,currentWindow:true},async (tabs) => {
+            browser.tabs.query({active:true,currentWindow:true}).then( async (tabs) => {
                 var currentTabUrl = tabs[0].url;
                 this.favicon = tabs[0].favIconUrl;
                 this.title = tabs[0].title
@@ -295,10 +295,13 @@ export default {
             
         },
         async fetchTips() {
-            this.websiteTips = (await this.tipping.methods['tips_for_url'](this.domain)).decodedResult
-            this.websiteTips = this.websiteTips.map(i => ({ ...i, amount:convertToAE(i.amount)}))
-                                                .sort((a,b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime())
-            this.loadingTips = false
+            if(this.tipping) {
+                this.websiteTips = (await this.tipping.methods['tips_for_url'](this.domain)).decodedResult
+                this.websiteTips = this.websiteTips.map(i => ({ ...i, amount:convertToAE(i.amount)}))
+                                                    .sort((a,b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime())
+                this.loadingTips = false
+            }
+            
         },
         selectActiveTab(tab) {
             this.activeTab = tab
