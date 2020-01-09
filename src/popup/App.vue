@@ -439,7 +439,6 @@ export default {
       return ae;
     },
     async initSDK() {
-
       let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
       if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
         try {

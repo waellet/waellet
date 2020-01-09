@@ -479,7 +479,7 @@ export default {
         return token
         // console.log(tokens)
       }))).filter(t => typeof t != 'undefined')
-    
+      
       res = tokens.concat(res)
       let userTokens = res
       
@@ -488,7 +488,7 @@ export default {
       } 
       userTokens = uniqBy(userTokens, (elem) => ( [elem.contract, elem.parent].join() ))
       dispatch('setTokens', userTokens)
-    } catch(e) {
+    } catch(e){
 
     }
   },
