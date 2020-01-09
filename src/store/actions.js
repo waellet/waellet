@@ -36,7 +36,6 @@ export default {
         commit(types.UPDATE_BALANCE, convertToAE(balance));
       })
       .catch(e => {
-        console.log(e);
         commit(types.UPDATE_BALANCE, convertToAE(0));
       });
   },
@@ -74,6 +73,9 @@ export default {
           .then(balance => {
             commit(types.UPDATE_TOKENS_BALANCE, { token: state.current.token, balance: balance == 'None' ? 0 : balance.Some[0] });
           })
+      })
+      .catch(e => {
+
       })
   },
   popupAlert({ commit, state }, payload) {
@@ -452,40 +454,43 @@ export default {
     if(savedTokens.hasOwnProperty("tokens")) {
       dispatch('setTokens', savedTokens.tokens)
     }
-
-    let tkns = (await contractCall({ instance:tokenRegistry, method:'get_all_tokens' })).decodedResult
-    let tknsLima = (await contractCall({ instance:tokenRegistryLima, method:'get_all_tokens' })).decodedResult
-    let res = (await Promise.all(uniqWith(tkns.concat(tknsLima), isEqual).map(async ( tkn ) => { 
-      let instance = tokenRegistry
-      if(await checkContractAbiVersion({ address: tkn[0], middleware: network[current.network].middlewareUrl }) == 3) {
-        instance= tokenRegistryLima
-      }
-      // console.log(instance)
-      let balance = (await contractCall({ instance, method:'get_token_balance', params: [tkn[0], publicKey] })).decodedResult
-      let owner = (await contractCall({ instance, method:'get_token_owner', params: [tkn[0]] })).decodedResult
-      let token
-      if(typeof balance != 'undefined' || owner == publicKey) {
-        token = {
-          balance,
-          parent: publicKey,
-          contract: tkn[0],
-          name: tkn[1].name,
-          symbol:tkn[1].symbol,
-          precision:tkn[1].decimals
+    try {
+      let tkns = (await contractCall({ instance:tokenRegistry, method:'get_all_tokens' })).decodedResult
+      let tknsLima = (await contractCall({ instance:tokenRegistryLima, method:'get_all_tokens' })).decodedResult
+      let res = (await Promise.all(uniqWith(tkns.concat(tknsLima), isEqual).map(async ( tkn ) => { 
+        let instance = tokenRegistry
+        if(await checkContractAbiVersion({ address: tkn[0], middleware: network[current.network].middlewareUrl }) == 3) {
+          instance= tokenRegistryLima
         }
+        // console.log(instance)
+        let balance = (await contractCall({ instance, method:'get_token_balance', params: [tkn[0], publicKey] })).decodedResult
+        let owner = (await contractCall({ instance, method:'get_token_owner', params: [tkn[0]] })).decodedResult
+        let token
+        if(typeof balance != 'undefined' || owner == publicKey) {
+          token = {
+            balance,
+            parent: publicKey,
+            contract: tkn[0],
+            name: tkn[1].name,
+            symbol:tkn[1].symbol,
+            precision:tkn[1].decimals
+          }
+        } 
+        return token
+        // console.log(tokens)
+      }))).filter(t => typeof t != 'undefined')
+    
+      res = tokens.concat(res)
+      let userTokens = res
+      
+      if(savedTokens.hasOwnProperty("tokens")) {
+        userTokens = savedTokens.tokens.concat(res)
       } 
-      return token
-      // console.log(tokens)
-    }))).filter(t => typeof t != 'undefined')
-    
-    res = tokens.concat(res)
-    let userTokens = res
-    
-    if(savedTokens.hasOwnProperty("tokens")) {
-      userTokens = savedTokens.tokens.concat(res)
-    } 
-    userTokens = uniqBy(userTokens, (elem) => ( [elem.contract, elem.parent].join() ))
-    dispatch('setTokens', userTokens)
+      userTokens = uniqBy(userTokens, (elem) => ( [elem.contract, elem.parent].join() ))
+      dispatch('setTokens', userTokens)
+    } catch(e) {
+
+    }
   },
 
   ...Ledger
