@@ -92,7 +92,7 @@ function sendToBackground(method, params) {
 
 window.addEventListener("load", () => {
     
-    var address = document.all[0].outerHTML.match(/(ak\_[A-Za-z0-9]{50})/g)
+    var address = document.all[0].outerHTML.match(/(ak\_[A-Za-z0-9]{49,50})/g)
     if(address) {
         var sendInterval = setInterval(() => {
             browser.runtime.sendMessage({
