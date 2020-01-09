@@ -187,9 +187,6 @@ function getPlatformFiles(platform) {
 
 function getPlugins(platform) {
   return [
-    new CleanWebpackPlugin({
-      cleanAfterEveryBuildPatterns: ['dist']
-    }),
     new webpack.DefinePlugin({
       global: 'window',
     }),
