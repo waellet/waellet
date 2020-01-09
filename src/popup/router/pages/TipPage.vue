@@ -34,11 +34,11 @@
                             </div>
                             <!-- <span class="verifyBtn" @click="checkDomain"> {{$t('pages.tipPage.check')}}</span> -->
                         </p>
-                        <div class="small-checkbox">
+                        <!-- <div class="small-checkbox">
                             <ae-check v-model="tipDomain" @change="tipWebsiteType">
                                 {{$t('pages.tipPage.tipDomain') }}
                             </ae-check>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <ae-divider />
@@ -151,7 +151,7 @@ export default {
             finalAmount:1,
             showSlider:false,
             txFee:MIN_SPEND_TX_FEE,
-            tipDomain: true,
+            tipDomain: false,
             note:undefined,
             unpaid:0,
             domainDataInterval:null,
@@ -193,15 +193,21 @@ export default {
                 this.favicon = tabs[0].favIconUrl;
                 this.title = tabs[0].title
                 this.url = tabs[0].url
-                if(this.tipDomain) {
-                    this.domain = extractHostName(currentTabUrl);
-                }
+                
+                await this.tipWebsiteType();
+
                 this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
                 if(this.activeTab == 'tips') {
                     this.fetchTips()
                 }
-                if(this.tippingReceiver && this.tippingReceiver.address == this.account.publicKey && extractHostName(this.tippingReceiver.host) == extractHostName(currentTabUrl)) {
-                    this.canClaim = true
+
+                if(this.tippingReceiver && 
+                    (this.tippingReceiver.address == this.account.publicKey || 
+                        (Array.isArray(this.tippingReceiver.address) && 
+                        this.tippingReceiver.address.includes(this.account.publicKey))) 
+                    && extractHostName(this.tippingReceiver.host) == extractHostName(currentTabUrl))
+                {
+                  this.canClaim = true
                 }
                 setTimeout(() => {
                     this.loadFavicon = false;
