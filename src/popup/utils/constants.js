@@ -84,8 +84,7 @@ export const networks = {
     explorerUrl: 'https://mainnet.aeternal.io',
     compilerUrl: 'https://compiler.aepps.com',
     tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
-    tokenRegistryLima: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
-    tipContract:'ct_cT9mSpx9989Js39ag45fih2daephb7YsicsvNdUdEB156gT5C'
+    tokenRegistryLima: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV'
   }
 }
 
