@@ -200,8 +200,14 @@ export default {
                 if(this.activeTab == 'tips') {
                     this.fetchTips()
                 }
-                if(this.tippingReceiver && this.tippingReceiver.address == this.account.publicKey && extractHostName(this.tippingReceiver.host) == extractHostName(currentTabUrl)) {
-                    this.canClaim = true
+
+                if(this.tippingReceiver && 
+                    (this.tippingReceiver.address == this.account.publicKey || 
+                        (Array.isArray(this.tippingReceiver.address) && 
+                        this.tippingReceiver.address.includes(this.account.publicKey))) 
+                    && extractHostName(this.tippingReceiver.host) == extractHostName(currentTabUrl))
+                {
+                  this.canClaim = true
                 }
                 setTimeout(() => {
                     this.loadFavicon = false;
