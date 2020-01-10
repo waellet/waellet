@@ -7,9 +7,9 @@ import { setController, contractCallStatic } from './popup/utils/aepp-utils'
 global.browser = require('webextension-polyfill');
 
 // listen for our browerAction to be clicked
-chrome.browserAction.onClicked.addListener(function (tab) {
+browser.browserAction.onClicked.addListener(function (tab) {
     // for the current tab, inject the "inject.js" file & execute it
-	chrome.tabs.executeScript(tab.id, {
+	browser.tabs.executeScript(tab.id, {
         file: 'inject.js'
 	}); 
 });
@@ -26,7 +26,7 @@ setInterval(() => {
 
 function getAccount() {
     return new Promise(resolve => {
-        chrome.storage.sync.get('userAccount', data => {
+        browser.storage.sync.get('userAccount', data => {
             if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
                 resolve({ keypair: {
                     publicKey: data.userAccount.publicKey,
