@@ -280,7 +280,6 @@ export default {
                 })
             }
             if(this.data.tx.hasOwnProperty("options") && this.data.tx.options.hasOwnProperty("amount")) {
-                console.log("here")
                 this.data.tx.amount = this.data.tx.options.amount
                 if(this.data.type == 'contractCall' ) {
                     this.data.tx.amount = BigNumber(this.data.tx.options.amount).shiftedBy(-MAGNITUDE)
@@ -681,22 +680,25 @@ export default {
                         })
                         this.$store.dispatch('setTokens', tokens)
                         await browser.storage.local.set({ tokens: tokens})
-                        let abi_version = await checkContractAbiVersion({ address: deployed.address, middleware: this.network[this.current.network].middlewareUrl}, true )
-                        let tx = {
-                            popup:false,
-                            tx: {
-                                source: abi_version == 3 ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT,
-                                address: abi_version == 3 ? this.network[this.current.network].tokenRegistryLima : this.network[this.current.network].tokenRegistry ,
-                                params: [deployed.address],
-                                abi_version,
-                                method: 'add_token',
-                                amount: 0,
-                                contractType: 'fungibleToken'
-                            },
-                            callType: 'pay',
-                            type:'contractCall'
+                        if(this.data.tx.tokenRegistry) {
+                            let abi_version = await checkContractAbiVersion({ address: deployed.address, middleware: this.network[this.current.network].middlewareUrl}, true )
+                            let tx = {
+                                popup:false,
+                                tx: {
+                                    source: abi_version == 3 ? TOKEN_REGISTRY_CONTRACT_LIMA : TOKEN_REGISTRY_CONTRACT,
+                                    address: abi_version == 3 ? this.network[this.current.network].tokenRegistryLima : this.network[this.current.network].tokenRegistry ,
+                                    params: [deployed.address],
+                                    abi_version,
+                                    method: 'add_token',
+                                    amount: 0,
+                                    contractType: 'fungibleToken'
+                                },
+                                callType: 'pay',
+                                type:'contractCall'
+                            }
+                            this.redirectToTxConfirm(tx)
                         }
-                        this.redirectToTxConfirm(tx)
+                        
                     }
                 } catch(err) {
                     this.setTxInQueue('error')
@@ -713,16 +715,20 @@ export default {
                 if(deployed) {
                     this.deployed = deployed.address
                     let msg = `Contract deployed at address <br> ${deployed.address}`
-                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect: this.data.tx.tokenRegistry })
+                    let noRedirect = this.data.tx.contractType == 'fungibleToken'
+                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect, data:deployed.address })    
+                    
                 }
-                if(!this.data.tx.tokenRegistry) {
+                if(this.data.tx.contractType != 'fungibleToken') {
                     this.redirectInExtensionAfterAction()
                 }
             }
         },
         copyAddress() {
-            this.$copyText(this.deployed)
-            
+            this.$copyText(this.popup.data)
+            if(this.data.type == 'contractCreate' && !this.data.tx.tokenRegistry) {
+                this.redirectInExtensionAfterAction()
+            }
         },
         redirectToTxConfirm(tx) {
             this.$store.commit('SET_AEPP_POPUP',true)
