@@ -235,7 +235,7 @@ export default {
       //init SDK
       this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {
-          
+
           this.initLedger()
           this.initSDK()
           

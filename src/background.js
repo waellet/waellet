@@ -50,9 +50,9 @@ const error = {
 }
 
 const controller = new WalletContorller()
-
+setController(controller)
 browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
-    setController(controller)
+    // setController(controller)
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };

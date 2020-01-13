@@ -80,7 +80,7 @@ export const networks = {
     url: 'https://sdk-mainnet.aepps.com',
     internalUrl: 'https://sdk-mainnet.aepps.com',
     networkId: 'ae_mainnet',
-    middlewareUrl: 'http://mainnet.aeternal.io/',
+    middlewareUrl: 'https://mainnet.aeternal.io/',
     explorerUrl: 'https://mainnet.aeternal.io',
     compilerUrl: 'https://compiler.aepps.com',
     tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
