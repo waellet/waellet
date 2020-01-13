@@ -101,7 +101,7 @@ window.addEventListener("load", () => {
                 data: address
             }).then(res => {
                 if(res && res.host == window.origin && res.received) {
-                    clearInterval(sendInterval)
+                    // clearInterval(sendInterval)
                 }
             })
         }, 5000)

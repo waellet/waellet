@@ -128,7 +128,7 @@ if (process.env.HMR === 'true') {
       port: 9099
     }),
   ]);
-}
+} 
 
 
 
@@ -187,6 +187,9 @@ function getPlatformFiles(platform) {
 
 function getPlugins(platform) {
   return [
+    new CleanWebpackPlugin({
+      cleanStaleWebpackAssets: false
+    }),
     new webpack.DefinePlugin({
       global: 'window',
     }),
