@@ -19,8 +19,11 @@ export const langs = {
   en: {
     getMessages: () => require('../locales/en.json'),
   },
-  ru: {
-    getMessages: () => require(/* webpackChunkName: "locale-en" */ '../locales/ru.json'),
+  de: {
+    getMessages: () => require(/* webpackChunkName: "locale-en" */ '../locales/de.json'),
+  },
+  it: {
+    getMessages: () => require(/* webpackChunkName: "locale-en" */ '../locales/it.json'),
   },
   es: {
     getMessages: () => require(/* webpackChunkName: "locale-en" */ '../locales/es.json'),

@@ -53,10 +53,8 @@ import { mapGetters } from 'vuex';
 
 import {shuffleArray, fetchData} from '../../utils/helper';
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
-import { addressGenerator } from '../../utils/address-generator';
+import { addressGenerator, encryptMnemonic } from '../../utils/address-generator';
 import { generateHdWallet } from '../../utils/hdWallet'
-const Cryptr = require('cryptr');
-const cryptr = new Cryptr('myTotalySecretKey');
 
 export default {
     props: ['termsAgreed'],
@@ -166,7 +164,8 @@ export default {
                             if(pass.hasOwnProperty('accountPassword') && pass.accountPassword != "") {
                                 originalSeed = originalSeed.replace(/,/g, ' ');
                                 let seed = mnemonicToSeed(originalSeed);
-                                let encryptedSeed = cryptr.encrypt(originalSeed);
+                                // let encryptedSeed = cryptr.encrypt(originalSeed);
+                                let encryptedSeed = await encryptMnemonic(originalSeed, pass.accountPassword)
                                 let address = await this.$store.dispatch('generateWallet', { seed })
                                 const keyPair = await addressGenerator.generateKeyPair(pass.accountPassword,seed.toString('hex'), address);
                                 if(keyPair) {

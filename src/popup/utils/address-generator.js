@@ -75,3 +75,15 @@ async function decryptKeystore(encryptedKeystore, key) {
     return false
   }
 }
+
+export const encryptMnemonic = async (mnemonic, password, nonce = new Uint8Array(12), salt = new Uint8Array(16) ) => {
+  return Buffer.from(await webCrypto.encrypt(mnemonic, password, nonce, salt)).toString('hex');
+}
+
+export const decryptMnemonic = async (mnemonic, password, nonce = new Uint8Array(12), salt = new Uint8Array(16)) => {
+  let dec = await webCrypto.decrypt(mnemonic, password, nonce, salt)
+  if(dec) {
+    return dec
+  }
+  return false
+}

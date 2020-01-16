@@ -435,7 +435,6 @@
             "createTx": "create tx",
             "clear": "Clear filter",
             "apply": "Apply filter"
-            
         },
         "utilities": {
             "heading": "Utilities",

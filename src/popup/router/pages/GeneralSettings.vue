@@ -17,10 +17,10 @@
 
                             <!-- Language sub dropdown -->
                             <ul class="sub-dropdown">
-                                <li v-for="(value, name) in locales" v-bind:key="name">
+                                <li style="width: 30%;text-align: center;margin: auto;" v-for="(value, name) in locales" v-bind:key="name">
                                 <ae-button v-on:click="switchLanguage(name)" class="" :class="current.language == name ? 'current' : ''">
                                     <img :src="'../icons/flag_'+name+'.png'" />
-                                    {{ languageFullName(name) }}
+                                    <span style="margin-left: auto;">{{ languageFullName(name) }}</span>
                                 </ae-button>
                                 </li>
                             </ul>
@@ -80,12 +80,14 @@ export default {
                     return "English";
                 case 'es':
                     return "Spanish";
-                case 'ru':
-                    return "Russian";
+                case 'de':
+                    return "German";
                 case 'fr':
                     return "French";
                 case 'cn':
                     return "Chinese";
+                case 'it':
+                    return "Italian";
                 default: return "English";
             }
         }
@@ -153,7 +155,7 @@ export default {
 }
 .language-settings .have-subDropdown.show ul.sub-dropdown {
     visibility: visible;
-    max-height: 165px;
+    max-height: 210px;
 }
 .language-settings .have-subDropdown.show .ae-button .ae-icon-left-more {
     transform: rotate(90deg);

@@ -252,7 +252,8 @@ export default {
             data:tx
           }});
         }
-     } 
+     }
+     
     },
     init() {
       let calculatedMaxValue = this.balance - this.maxFee

@@ -93,7 +93,6 @@ import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
 import { computeAuctionEndBlock, computeBidFee  } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
-
 import BigNumber from 'bignumber.js';
 import { clearInterval, clearTimeout  } from 'timers';
 
@@ -136,7 +135,6 @@ export default {
     },
     props:['data'],
     async created(){
-        // console.log(this.data)
         await this.init()
     },
    
@@ -238,9 +236,11 @@ export default {
                         this.contractInstance.setOptions({ waitMined: options.waitMined })
                     }
                 }catch(e) {
+                    console.log('e=>',e)
                 }
                 return Promise.resolve(true)
             } catch(err) {
+                    console.log(err)
                 if(this.data.popup) {
                     this.errorTx.error.message = err
                     this.sending = true
@@ -347,7 +347,8 @@ export default {
                                 ownerId:this.account.publicKey,
                                 code:this.data.tx.contract.bytecode
                             } 
-                            await this.setContractInstance(FUNGIBLE_TOKEN_CONTRACT)
+                            // here new contract na mqstoto na fugible token contract
+                            await this.setContractInstance(this.data.tx.source)
                             
                         }else if(this.data.type == 'contractCall') {
                             this.data.tx.call = {}
@@ -659,11 +660,9 @@ export default {
                 let sign = await this.$store.dispatch('ledgerSignTransaction', { tx })  
                 
             }else {
-                
                 try {
                     deployed = await this.contractInstance.deploy([...this.data.tx.init], { fee: this.convertSelectedFee })
                     this.setTxInQueue(deployed.transaction)
-                    
                     if(this.data.tx.contractType == 'fungibleToken') {
                         if(!this.data.tx.tokenRegistry) {
                             addRejectedToken(deployed.address)
@@ -701,6 +700,7 @@ export default {
                         
                     }
                 } catch(err) {
+                    console.log(err)
                     this.setTxInQueue('error')
                     this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
                 }

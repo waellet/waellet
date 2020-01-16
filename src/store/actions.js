@@ -3,7 +3,7 @@ import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
 import { convertToAE, stringifyForStorage, parseFromStorage, contractCall, checkContractAbiVersion } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
-import { uniqBy, head, flatten, merge,  uniqWith,isEqual } from 'lodash-es';
+import { uniqBy, head, flatten, merge, uniqWith, isEqual } from 'lodash-es';
 import router from '../popup/router/index'
 import Ledger from '../popup/utils/ledger/ledger';
 import { derivePasswordKey, genRandomBuffer } from '../popup/utils/hdWallet'
@@ -98,7 +98,7 @@ export default {
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.INCORRECT_ADDRESS });
             break;
           case 'tx_limit_per_day':
-              commit(types.SHOW_POPUP, { show: true, ...popupMessages.TX_LIMIT_PER_DAY });
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.TX_LIMIT_PER_DAY });
             break;
           case 'incorrect_amount':
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.INCORRECT_AMOUNT });
@@ -177,8 +177,10 @@ export default {
             break
           case 'token_migration_success':
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.TOKEN_MIGRATION })
-          break
-            
+            break
+          case 'reveal_seed_phrase_impossible':
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.REVEAL_SEED_IMPOSSIBLE })
+            break;
           default:
             break;
         }
@@ -343,65 +345,65 @@ export default {
     })
   },
 
-  async unlockHdWallet({ state, dispatch, commit }, { accountPassword, wallet } ) {
-    
+  async unlockHdWallet({ state, dispatch, commit }, { accountPassword, wallet }) {
+
     return new Promise(async (resolve, reject) => {
       browser.storage.local.get('encryptedWallet').then(async ({ encryptedWallet }) => {
-        if(!encryptedWallet) {
-          commit("SET_WALLET",wallet )
+        if (!encryptedWallet) {
+          commit("SET_WALLET", wallet)
           await dispatch('encryptHdWallet', accountPassword)
           encryptedWallet = parseFromStorage(await dispatch('getEncryptedWallet'))
-        }else {
+        } else {
           encryptedWallet = parseFromStorage(encryptedWallet)
         }
-        
+
         commit('SET_ENCRYPTED_WALLET', encryptedWallet);
         try {
           const passwordDerivedKey = await dispatch('deriveAndCheckPasswordKey', accountPassword);
           const aes = new AES(passwordDerivedKey);
-          
+
           let wallet = {
             privateKey: new Uint8Array(await aes.decrypt(encryptedWallet.privateKey)),
             chainCode: new Uint8Array(await aes.decrypt(encryptedWallet.chainCode)),
           }
-          commit("SET_WALLET",wallet )
-          
-          browser.storage.local.set({ wallet: stringifyForStorage(wallet) }).then(() =>{
+          commit("SET_WALLET", wallet)
+
+          browser.storage.local.set({ wallet: stringifyForStorage(wallet) }).then(() => {
             resolve()
           });
-        }catch(err) {
+        } catch (err) {
           reject(err)
         }
       })
     })
   },
 
-  async unlockWallet({ state: { background }, dispatch, commit }, payload ) {
+  async unlockWallet({ state: { background }, dispatch, commit }, payload) {
     return new Promise(async (resolve, reject) => {
-      let msg = await postMesssage(background,  { type: 'unlockWallet' , payload })
+      let msg = await postMesssage(background, { type: 'unlockWallet', payload })
       resolve(msg.res)
     })
   },
 
-  async getAccount({ state: { background } }, { idx } ) {
+  async getAccount({ state: { background } }, { idx }) {
     return new Promise(async (resolve, reject) => {
-      let { res: { address } } = await postMesssage(background, { type: 'getAccount' , payload: { idx } } )
+      let { res: { address } } = await postMesssage(background, { type: 'getAccount', payload: { idx } })
       resolve(address)
     })
   },
 
-  async getKeyPair({ state: { background, account } }, { idx }){
+  async getKeyPair({ state: { background, account } }, { idx }) {
     return new Promise(async (resolve, reject) => {
-      
-      let { res } = await postMesssage(background, { type: 'getKeypair' , payload: { activeAccount:idx, account: { publicKey: account.publicKey } } } )
+
+      let { res } = await postMesssage(background, { type: 'getKeypair', payload: { activeAccount: idx, account: { publicKey: account.publicKey } } })
       res = parseFromStorage(res)
-      resolve({publicKey:res.publicKey, secretKey:res.secretKey})
+      resolve({ publicKey: res.publicKey, secretKey: res.secretKey })
     })
   },
 
-  async generateWallet({ state: { background } }, { seed } ) {
+  async generateWallet({ state: { background } }, { seed }) {
     return new Promise(async (resolve, reject) => {
-      let { res: { address } } = await postMesssage(background, { type: 'generateWallet' , payload: { seed:stringifyForStorage(seed) } } )
+      let { res: { address } } = await postMesssage(background, { type: 'generateWallet', payload: { seed: stringifyForStorage(seed) } })
       resolve(address)
     })
   },
@@ -409,7 +411,7 @@ export default {
   async getEncryptedWallet() {
     return new Promise((resolve, reject) => {
       browser.storage.local.get('encryptedWallet').then(async ({ encryptedWallet }) => {
-          resolve(encryptedWallet)
+        resolve(encryptedWallet)
       });
     })
   },
@@ -417,7 +419,7 @@ export default {
     return new Promise(async (resolve, reject) => {
       const salt = genRandomBuffer(16)
       const passwordDerivedKey = await derivePasswordKey(password, salt)
-      const aes = new AES(passwordDerivedKey); 
+      const aes = new AES(passwordDerivedKey);
       const encryptedWallet = {
         privateKey: await aes.encrypt(wallet.privateKey),
         chainCode: await aes.encrypt(wallet.chainCode),
@@ -428,12 +430,12 @@ export default {
       commit('SET_ENCRYPTED_WALLET', encryptedWallet);
 
       browser.storage.local.set({ encryptedWallet: stringifyForStorage(encryptedWallet) }).then(() => {
-        browser.storage.local.set({ wallet: stringifyForStorage(wallet) }).then(() =>{
+        browser.storage.local.set({ wallet: stringifyForStorage(wallet) }).then(() => {
           resolve()
         })
       });
     })
-    
+
   },
 
   async deriveAndCheckPasswordKey({ state: { encryptedWallet } }, password) {
@@ -488,7 +490,7 @@ export default {
       userTokens = uniqBy(userTokens, (elem) => ( [elem.contract, elem.parent].join() ))
       dispatch('setTokens', userTokens)
     } catch(e){
-
+      console.log(e)
     }
   },
 
