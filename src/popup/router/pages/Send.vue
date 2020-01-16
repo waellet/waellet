@@ -242,7 +242,7 @@ export default {
           let tx = {
             popup:false,
             tx: {
-              amount:amount,
+              amount:this.form.amount,
               recipientId:receiver
             },
             type:'txSign'

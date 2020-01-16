@@ -86,9 +86,7 @@
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { decrypt } from '../../utils/keystore';
-const Cryptr = require('cryptr');
-const cryptr = new Cryptr('myTotalySecretKey');
-import { addressGenerator } from '../../utils/address-generator';
+import { addressGenerator, decryptMnemonic } from '../../utils/address-generator';
 
 export default {
     data () {
@@ -151,9 +149,10 @@ export default {
                         let match = await addressGenerator.decryptKeystore(encryptedPrivateKey, this.password)
                         this.loading = false
                         if(match) {
-                            browser.storage.local.get('encryptedSeed').then((res) => {
+                            browser.storage.local.get('encryptedSeed').then(async (res) => {
                                 if (res.encryptedSeed && res.hasOwnProperty('encryptedSeed')) {
-                                    let decryptedSeed = cryptr.decrypt(res.encryptedSeed);
+                                    // let decryptedSeed = cryptr.decrypt(res.encryptedSeed);
+                                    let decryptedSeed = await decryptMnemonic(res.encryptedSeed, this.password);
                                     this.seedPhrase = decryptedSeed;
                                     this.setAlertData("alternative",true,decryptedSeed)
                                 } else {

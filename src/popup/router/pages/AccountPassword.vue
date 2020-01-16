@@ -26,7 +26,7 @@
     </div> 
 </template>
 <script>
-import { addressGenerator } from '../../utils/address-generator';
+import { addressGenerator, encryptMnemonic } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import { mnemonicToSeed } from '@aeternity/bip39';
 import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet';
@@ -34,8 +34,6 @@ import { MINPASSWORDLENGTH } from '../../utils/constants';
 import Password from 'vue-password-strength-meter';
 import { mapGetters } from 'vuex'
 import { redirectAfterLogin } from '../../utils/helper';
-const Cryptr = require('cryptr');
-const cryptr = new Cryptr('myTotalySecretKey');
 
 export default {
     props: ['data','confirmPassword','buttonTitle','type','title', 'termsAgreed'],
@@ -94,6 +92,7 @@ export default {
             let address = await this.$store.dispatch('generateWallet', { seed: data })
             const keyPair = await addressGenerator.importPrivateKey(accountPassword, data, address);
             if(keyPair) {
+                browser.storage.local.remove('encryptedSeed')
                 this.setLogin(keyPair, false, termsAgreed, accountPassword);
             }
             
@@ -101,7 +100,8 @@ export default {
         importSeedPhrase: async function importSeedPhrase({accountPassword,data,termsAgreed}) {
             this.loading = true;
             let seed = mnemonicToSeed(data)
-            let encryptedSeed = cryptr.encrypt(data);
+            // let encryptedSeed = cryptr.encrypt(data);
+            let encryptedSeed = await encryptMnemonic(data, accountPassword)
             let address = await this.$store.dispatch('generateWallet', { seed })
             const keyPair = await addressGenerator.generateKeyPair(accountPassword,seed.toString('hex'),address);
             if(keyPair) {
@@ -116,7 +116,7 @@ export default {
             let seed = await addressGenerator.decryptKeystore(encryptedPrivateKey, accountPassword)
             if(seed !== false) {
                 let address = await this.$store.dispatch('generateWallet', { seed })
-                
+                browser.storage.local.remove('encryptedSeed')
                 let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),publicKey:encryptedPrivateKey.public_key};
                 this.setLogin(keyPair,true,termsAgreed, accountPassword);
             }else {
