@@ -184,7 +184,8 @@
             "previousBids": "Previous bids: ",
             "noPreviousBids": "No previous bids",
             "goBiddingBtn": "Go for bidding",
-            "backButton": "Back"
+            "backButton": "Back",
+            "extend": "Extend"
         },
         "generalSettings": {
             "backToSettings": "Back to settings",

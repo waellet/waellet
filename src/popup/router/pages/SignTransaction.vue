@@ -622,7 +622,6 @@ export default {
 
                 call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, options] })
                 
-                console.log(call);
                 this.setTxInQueue(call.hash)
                 let decoded = await call.decode()
                 call.decoded = decoded
@@ -791,7 +790,6 @@ export default {
                 }
                 options = { ...options, fee:this.convertSelectedFee }
                 const update = await this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey, options )
-                console.log(update)
                 this.setTxInQueue(update.hash)
                 this.$store.dispatch('popupAlert', {
                     name: 'account',
@@ -804,6 +802,8 @@ export default {
                 })
             } catch(err) {
                 this.setTxInQueue('error')
+                this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                this.redirectInExtensionAfterAction()
             }
             
         },
