@@ -289,14 +289,18 @@ export default {
         },
         async extend({ name }) {
             try {
-                let { id, pointers } = await this.sdk.getName(name)
+                let { id, pointers, ttl } = await this.sdk.getName(name)
                 let tx = {
                     popup:false,
                     tx: {
+                        name,
                         claim:{
                             id,
                             name,
                             pointers
+                        },
+                        options: {
+                            nameTtl: ttl
                         }
                     },
                     type:'nameUpdate'

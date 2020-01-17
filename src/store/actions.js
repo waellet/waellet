@@ -278,6 +278,11 @@ export default {
           )).json(),
           'name',
         ))(),
+        (
+          async () => (
+            await state.sdk.middleware.getActiveNames({ owner: publicKey })
+          )
+        )()
       ]))
       names = flatten(names)
       if (names.length) commit(types.SET_ACCOUNT_AENS, { account: index, name: names[0].name, pending: names[0].pending ? true : false })

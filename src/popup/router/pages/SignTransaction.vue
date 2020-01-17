@@ -790,7 +790,6 @@ export default {
                     options = { ...this.data.tx.options }
                 }
                 options = { ...options, fee:this.convertSelectedFee }
-
                 const update = await this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey, options )
                 console.log(update)
                 this.setTxInQueue(update.hash)
