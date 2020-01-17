@@ -21,7 +21,7 @@
                             <div class="subAccountName">{{name.name}}</div>
                             <ae-address :value="name.owner" length="short" />
                         </div>
-                        <ae-button face="flat" fill="primary" @click="extend(name)">Extend</ae-button>
+                        <ae-button face="flat" fill="primary" @click="extend(name)">{{$t('pages.namingSystemPage.extend') }}</ae-button>
                         <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="name.pending"/>
                     </ae-list-item>
                 </ae-list>
