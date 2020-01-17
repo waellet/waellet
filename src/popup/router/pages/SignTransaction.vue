@@ -622,7 +622,6 @@ export default {
 
                 call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, options] })
                 
-                console.log(call);
                 this.setTxInQueue(call.hash)
                 let decoded = await call.decode()
                 call.decoded = decoded
