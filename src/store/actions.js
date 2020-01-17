@@ -279,9 +279,14 @@ export default {
           'name',
         ))(),
         (
-          async () => (
-            await state.sdk.middleware.getActiveNames({ owner: publicKey })
-          )
+          async () => {
+            try {
+              return await state.sdk.middleware.getActiveNames({ owner: publicKey })
+            } catch(e) {
+              
+            }
+            return []
+          }
         )()
       ]))
       
