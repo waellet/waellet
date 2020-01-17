@@ -309,7 +309,7 @@ export default {
                 this.$router.push({'name':'sign', params: {
                     data:tx,
                     type:tx.type
-                }});
+                }}).catch(err => {});
             } catch(e) {
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
             }
