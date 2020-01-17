@@ -771,7 +771,7 @@ export default {
             }
             else {
                 try {
-                    const claim =  this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false, fee: this.convertSelectedFee })
+                    const claim = await this.sdk.aensClaim(this.data.tx.name, this.data.tx.preclaim.salt, { waitMined: false, fee: this.convertSelectedFee })
                     this.setTxInQueue(claim.hash)
                     setTimeout(() => {
                         this.$store.commit('SET_AEPP_POPUP',false)
@@ -785,7 +785,14 @@ export default {
         },
         async nameUpdate(){
             try {
-                const update = this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey, { fee: this.convertSelectedFee })
+                let options
+                if(this.data.tx.hasOwnProperty("options")) {
+                    options = { ...this.data.tx.options }
+                }
+                options = { ...options, fee:this.convertSelectedFee }
+
+                const update = await this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey, options )
+                console.log(update)
                 this.setTxInQueue(update.hash)
                 this.$store.dispatch('popupAlert', {
                     name: 'account',
@@ -793,7 +800,7 @@ export default {
                 }).then(() => {
                     this.$store.dispatch('removePendingName',{ hash: this.data.tx.hash }).then(() => {
                         this.$store.commit('SET_AEPP_POPUP',false)
-                        this.$router.push('/generalSettings')
+                        this.$router.push('/aens')
                     })  
                 })
             } catch(err) {

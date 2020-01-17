@@ -50,7 +50,7 @@ export default class Notification {
         let noties = await this.getAllNotifications()
         if(noties) {
             noties.forEach(async (tx, index ) => {
-                if (tx != "error") {
+                if (tx != "error" && tx) {
                     let res = await this.client.poll(tx)
                     let url = this.network.explorerUrl + '/transactions/' + tx
                     await this.sendNoti({ title: 'Transaction ready', message: `You can expore your transaction by clicking button below`, contextMessage: url, error:false})
