@@ -298,9 +298,6 @@ export default {
                             id,
                             name,
                             pointers
-                        },
-                        options: {
-                            nameTtl: ttl
                         }
                     },
                     type:'nameUpdate'
