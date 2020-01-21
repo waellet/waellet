@@ -82,7 +82,7 @@ export default {
                     Object.entries(this.tokens).forEach(async ([key, val]) => {
                         if (val.name != 'AE' && val.contract != '') {
                             try {
-                                const contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
+                                const contract = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
                                 let aex9_extensions = await contract.methods.aex9_extensions();
                                 const extensions = aex9_extensions.decodedResult;
                                 if (extensions.includes('mintable')) {
@@ -102,7 +102,7 @@ export default {
                     Object.entries(this.tokens).forEach(async ([key, val]) => {
                         if (val.name != 'AE' && val.contract != '') {
                             try {
-                                const contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
+                                const contract = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
                                 let aex9_extensions = await contract.methods.aex9_extensions();
                                 const extensions = aex9_extensions.decodedResult;
                                 if (extensions.includes('burnable')) {

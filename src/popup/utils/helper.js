@@ -4,8 +4,10 @@ import { Crypto } from '@aeternity/aepp-sdk/es';
 import { postMesssage } from './connection';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
 import axios from 'axios';
-
 import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import Node from '@aeternity/aepp-sdk/es/node'
+
 
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -242,11 +244,14 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
 }
 let countErr = 0;
 const createSDKObject = (ctx, { network, current, account, wallet, activeAccount = 0, background, res }, backgr ) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+        const account = MemoryAccount({ keypair: { ...res} })
+        const node = await Node({ url: network[current.network].internalUrl, internalUrl:  network[current.network].internalUrl })
         Universal({
-            url: (typeof network != 'undefined' ? network[current.network].url : "https://sdk-testnet.aepps.com" ) , 
-            internalUrl:(typeof network != 'undefined' ? network[current.network].internalUrl : "https://sdk-testnet.aepps.com" ),
-            keypair:{ ...res },
+            nodes: [
+                { name: current.network, instance: node },
+            ],
+            accounts:[account],
             networkId: (typeof network != 'undefined' ? network[current.network].networkId : "ae_uat" ), 
             nativeMode: true,
             compilerUrl: (typeof network != 'undefined' ? network[current.network].compilerUrl : "https://compiler.aepps.com" )
@@ -547,7 +552,7 @@ const setContractInstance = async (tx, sdk, contractAddress = null) => {
             backend = "aevm";
         }
         try {
-            contractInstance = await sdk.getContractInstance(tx.source, { contractAddress });
+            contractInstance = await sdk.getContractInstance(tx.source, { contractAddress, forceCodeCheck: true });
             contractInstance.setOptions({ backend })
         }catch(e) {
             console.log(e)
@@ -557,6 +562,16 @@ const setContractInstance = async (tx, sdk, contractAddress = null) => {
         console.log(e)
     }
     return Promise.resolve(contractInstance)
+}
+
+const getContractInstance = async (source, options = {}) => {
+    try {
+        let store = await import('../../store');
+        store = store.default
+        return await store.state.sdk.getContractInstance(source, { ...options, forceCodeCheck: true });
+    } catch(e) {
+        return { }
+    }
 }
 
 export { 
@@ -583,7 +598,8 @@ export {
     addRejectedToken,
     contractCall,
     checkContractAbiVersion,
-    setContractInstance
+    setContractInstance,
+    getContractInstance
 }
 
 
