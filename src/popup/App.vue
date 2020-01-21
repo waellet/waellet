@@ -449,21 +449,21 @@ export default {
             TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistry }) 
           )
         } catch (e) {
-          console.log(e)
+
         }
         try {
           await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
             await this.$helpers.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
           )
         } catch(e) {
-          console.log(e)
+
         }
         try {
           await this.$store.commit('SET_TIPPING', 
             await this.$helpers.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
           )
         } catch(e) {
-          console.log("tipping",e)
+          
         }
         
         this.$store.dispatch('getAllUserTokens')
