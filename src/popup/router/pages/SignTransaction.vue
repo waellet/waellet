@@ -230,7 +230,7 @@ export default {
                     backend = "aevm";
                 }
                 try {
-                    this.contractInstance = await this.sdk.getContractInstance(source, { contractAddress });
+                    this.contractInstance = await this.$helpers.getContractInstance(source, { contractAddress });
                     this.contractInstance.setOptions({ backend })
                     if(typeof options.waitMined != "undefined") {
                         this.contractInstance.setOptions({ waitMined: options.waitMined })
@@ -714,9 +714,8 @@ export default {
                 if(deployed) {
                     this.deployed = deployed.address
                     let msg = `Contract deployed at address <br> ${deployed.address}`
-                    let noRedirect = this.data.tx.contractType == 'fungibleToken'
+                    let noRedirect = this.data.tx.contractType == 'fungibleToken' && this.data.tx.tokenRegistry
                     this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect, data:deployed.address })    
-                    
                 }
                 if(this.data.tx.contractType != 'fungibleToken') {
                     this.redirectInExtensionAfterAction()
