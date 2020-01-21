@@ -454,6 +454,10 @@ export default {
           await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
             await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
           )
+        } catch(e) {
+          
+        }
+        try {
           await this.$store.commit('SET_TIPPING', 
             await sdk.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
           )

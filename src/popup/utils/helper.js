@@ -4,8 +4,9 @@ import { Crypto } from '@aeternity/aepp-sdk/es';
 import { postMesssage } from './connection';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
 import axios from 'axios';
-
 import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import Node from '@aeternity/aepp-sdk/es/node'
 
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -243,19 +244,22 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
 let countErr = 0;
 const createSDKObject = (ctx, { network, current, account, wallet, activeAccount = 0, background, res }, backgr ) => {
     return new Promise((resolve, reject) => {
+        const account = MemoryAccount({ keypair: { ...res} })
         Universal({
             url: (typeof network != 'undefined' ? network[current.network].url : "https://sdk-testnet.aepps.com" ) , 
             internalUrl:(typeof network != 'undefined' ? network[current.network].internalUrl : "https://sdk-testnet.aepps.com" ),
-            keypair:{ ...res },
+            accounts:[account],
             networkId: (typeof network != 'undefined' ? network[current.network].networkId : "ae_uat" ), 
             nativeMode: true,
             compilerUrl: (typeof network != 'undefined' ? network[current.network].compilerUrl : "https://compiler.aepps.com" )
-        }).then((sdk) => {
+        }).then(async (sdk) => {
             if(!backgr) {
                 ctx.$store.dispatch('initSdk',sdk).then(() => {
                     ctx.hideLoader()
                 })
             }
+            const node = await Node({ url: network[current.network].internalUrl, internalUrl:  network[current.network].internalUrl })
+            await sdk.addNode(current.network, node, true)
             resolve(sdk)
         })
         .catch(err => {
