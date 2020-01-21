@@ -572,7 +572,6 @@ const getContractInstance = async (source, options = {}) => {
         store = store.default
         return await store.state.sdk.getContractInstance(source, { ...options, forceCodeCheck: true });
     } catch(e) {
-        console.log(e)
         return { }
     }
 }
