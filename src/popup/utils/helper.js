@@ -247,7 +247,6 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
     return new Promise(async (resolve, reject) => {
         const account = MemoryAccount({ keypair: { ...res} })
         const node = await Node({ url: network[current.network].internalUrl, internalUrl:  network[current.network].internalUrl })
-        console.log(node)
         Universal({
             nodes: [
                 { name: current.network, instance: node },
@@ -262,7 +261,6 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
                     ctx.hideLoader()
                 })
             }
-            console.log(sdk)
             resolve(sdk)
         })
         .catch(err => {
