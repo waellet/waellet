@@ -3,12 +3,14 @@ import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser, 
 import WalletContorller from './wallet-controller'
 import Notification from './notifications';
 import { setController, contractCallStatic } from './popup/utils/aepp-utils'
+import rpcWallet from './lib/rpcWallet'
+import { 
+    HDWALLET_METHODS
+} from './popup/utils/constants'
 
 global.browser = require('webextension-polyfill');
 
-// listen for our browerAction to be clicked
 browser.browserAction.onClicked.addListener(function (tab) {
-    // for the current tab, inject the "inject.js" file & execute it
 	browser.tabs.executeScript(tab.id, {
         file: 'inject.js'
 	}); 
@@ -77,6 +79,9 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
             setPhishingUrl(urls);
         break;
         case 'aeppMessage':
+            /**
+             * This should be deprecated
+             */
             switch(msg.params.type) {
                 case "txSign":
                     checkAeppConnected(msg.params.hostname).then((check) => {
@@ -195,7 +200,9 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
     return true
 })
 
-
+/**
+ * This should be deprecated
+ */
 const connectToPopup = (cb,type, id) => {
     browser.runtime.onConnect.addListener((port) => {
         port.onMessage.addListener((msg,sender) => {
@@ -225,6 +232,9 @@ const connectToPopup = (cb,type, id) => {
    })
 }
 
+/**
+ * This should be deprecated
+ */
 const openAeppPopup = (msg,type) => {
     return new Promise((resolve,reject) => {
         browser.storage.local.set({showAeppPopup:{ data: msg.params, type } } ).then( () => {
@@ -266,20 +276,36 @@ const postToContent = (data, tabId) => {
     browser.tabs.sendMessage(tabId, message)
 }
 
+const connectToExtPopup = (onMessage) => {
+    browser.runtime.onConnect.addListener( ( port ) => {
+        let extensionUrl = 'chrome-extension'
+        if(detectBrowser() == 'Firefox') {
+            extensionUrl = 'moz-extension'
+        }
+        if((port.name == 'popup' && port.sender.id == browser.runtime.id && port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && detectBrowser() != 'Firefox') || ( detectBrowser() == 'Firefox' && port.name == 'popup' && port.sender.id == browser.runtime.id ) ) {
+            port.onMessage.addListener(({ type, payload, uuid}) => {
+                let hdwallet = false
+                if(HDWALLET_METHODS.includes(type)) {
+                    hdwallet = true
+                    
+                } 
+                onMessage({ hdwallet, port, type, payload, uuid })
+            })  
+        }
+    }) 
+}
 
-
-browser.runtime.onConnect.addListener( ( port ) => {
-    let extensionUrl = 'chrome-extension'
-    if(detectBrowser() == 'Firefox') {
-        extensionUrl = 'moz-extension'
+connectToExtPopup(({ hdwallet, port, type, payload, uuid }) => {
+    if(hdwallet) {
+        controller[type](payload).then((res) => {
+            port.postMessage({ uuid, res })
+        })
     }
-    if((port.name == 'popup' && port.sender.id == browser.runtime.id && port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && detectBrowser() != 'Firefox') || ( detectBrowser() == 'Firefox' && port.name == 'popup' && port.sender.id == browser.runtime.id ) ) {
-        port.onMessage.addListener(({ type, payload, uuid}) => {
-            controller[type](payload).then((res) => {
-                port.postMessage({ uuid, res })
-            })
-        })  
-    }
-})  
+})
 
 const notification = new Notification();
+
+/** 
+ * AEX-2 RpcWallet Init
+ */
+rpcWallet(connectToExtPopup, controller)

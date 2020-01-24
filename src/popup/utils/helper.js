@@ -194,6 +194,64 @@ const redirectAfterLogin = (ctx) => {
   })
 }
 
+const getAeppAccountPermission = (host, account) => {
+    return new Promise((resolve, reject) => {
+        browser.storage.sync.get('connectedAepps').then((aepps) => {
+            if(!aepps.hasOwnProperty('connectedAepps')) {
+                return resolve(false)
+            }
+            if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
+                let list = aepps.connectedAepps.list
+                if(list.find(ae => ae.host == host && ae.accounts.includes(account))) {
+                    return resolve(true)
+                }
+                return resolve(false)
+            }
+
+            return resolve(false)
+        })
+    })
+}
+
+const setPermissionForAccount = (host, account) => {
+    return new Promise((resolve, reject) => {
+        browser.storage.sync.get('connectedAepps').then((aepps) => {
+
+            let list = []
+            if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
+                list = aepps.connectedAepps.list
+            }
+
+            if (list.length && typeof list.find(l => l.host == host) != "undefined") {
+                let hst = list.find(h => h.host == host)
+                let index = list.findIndex(h => h.host == host)
+                if(typeof hst == "undefined") {
+                    console.log("here 1")
+                    resolve()
+                    return 
+                }
+                if(hst.accounts.includes(account)) {
+                    console.log("here 2")
+                    resolve()
+                    return
+                }
+
+                list[index].accounts = [...hst.accounts, account]
+
+            } else {
+                list.push({ host, accounts: [account] })
+            }   
+            console.log("here 3")
+            // return;
+            browser.storage.sync.set({connectedAepps: { list }}).then(() => {
+                console.log("save")
+                console.log("here 4")
+                resolve()
+            })
+        })
+    })
+}
+
 export const fetchJson = async (...args) => {
     const response = await fetch(...args);
     return response.json();
@@ -599,7 +657,9 @@ export {
     contractCall,
     checkContractAbiVersion,
     setContractInstance,
-    getContractInstance
+    getContractInstance,
+    getAeppAccountPermission,
+    setPermissionForAccount
 }
 
 

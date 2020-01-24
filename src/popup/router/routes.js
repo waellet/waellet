@@ -7,6 +7,7 @@ import SeedPhraseComponent from './pages/SeedPhrase';
 import TransactionsComponent from './pages/Transactions';
 import TransactionDetailsComponent from './pages/TransactionDetails';
 import SignTransactionComponent from './pages/SignTransaction';
+import PopupSignTransactionComponent from './pages/PopupSignTx';
 import ManageAccountComponent from './pages/ManageAccounts';
 import SettingsComponent from './pages/Settings';
 import GeneralSettingsComponent from './pages/GeneralSettings';
@@ -79,7 +80,12 @@ export default [
     path:'/sign-transaction/:type?',
     component:SignTransactionComponent,
     props:true
-
+  },
+  {
+    name:'popup-sign-tx',
+    path:'/popup-sign-tx',
+    component:PopupSignTransactionComponent,
+    props:true
   },
   {
     name:'connect-confirm',
