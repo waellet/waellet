@@ -248,7 +248,6 @@ export default {
                 }
               });
               if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                  console.log("i tukaa vlizaaa")
                   this.$store.commit('SWITCH_LOGGED_IN', true);
                   redirectAfterLogin(this);
               }

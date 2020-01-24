@@ -148,12 +148,9 @@ const checkAeppConnected = (host) => {
 
 
 const redirectAfterLogin = (ctx) => {
-    console.log("vliza tuk")
   browser.storage.local.get('showAeppPopup').then((aepp) => {
     browser.storage.local.get('pendingTransaction').then((pendingTx) => {
-        console.log(process.env.RUNNING_IN_POPUP )
         if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
-            console.log("1")
             browser.storage.local.remove('showAeppPopup').then(() => {
                 ctx.$store.commit('SET_AEPP_POPUP',true)
                 if(aepp.showAeppPopup.data.hasOwnProperty("tx") && aepp.showAeppPopup.data.tx.hasOwnProperty("params")) {
@@ -183,7 +180,6 @@ const redirectAfterLogin = (ctx) => {
                 return;
             });
         }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length > 0) {
-            console.log("2")
             ctx.$store.commit('SET_AEPP_POPUP',true)
             let tx = pendingTx.pendingTransaction.list[Object.keys(pendingTx.pendingTransaction.list)[0]];
             tx.popup = false
@@ -192,11 +188,8 @@ const redirectAfterLogin = (ctx) => {
                 data:tx
             }});
         } else if(process.env.RUNNING_IN_POPUP ) {
-            console.log("3")
-            console.log(process.env.RUNNING_IN_POPUP)
             ctx.$store.commit('SET_AEPP_POPUP',true)
             if(window.hasOwnProperty("name") && window.name.includes("popup")) {
-                console.log(window.props.type)
                 if(window.props.type == "connectConfirm") {
                     ctx.$router.push('/connect');
                 }else if(window.props.type == "sign") {
@@ -204,7 +197,6 @@ const redirectAfterLogin = (ctx) => {
                 }
             }
         } else {
-            console.log("4")
             ctx.$router.push('/account');
         }
     })
@@ -243,12 +235,10 @@ const setPermissionForAccount = (host, account) => {
                 let hst = list.find(h => h.host == host)
                 let index = list.findIndex(h => h.host == host)
                 if(typeof hst == "undefined") {
-                    console.log("here 1")
                     resolve()
                     return 
                 }
                 if(hst.accounts.includes(account)) {
-                    console.log("here 2")
                     resolve()
                     return
                 }
@@ -258,11 +248,8 @@ const setPermissionForAccount = (host, account) => {
             } else {
                 list.push({ host, accounts: [account] })
             }   
-            console.log("here 3")
             // return;
             browser.storage.sync.set({connectedAepps: { list }}).then(() => {
-                console.log("save")
-                console.log("here 4")
                 resolve()
             })
         })

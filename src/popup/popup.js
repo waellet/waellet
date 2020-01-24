@@ -23,7 +23,6 @@ const closingWrapper = f => (...args) => {
     window.close();
   },1000)
 };
-console.log(process.env.RUNNING_IN_POPUP)
 if( process.env.RUNNING_IN_POPUP ) {
   window.addEventListener('beforeunload', unloadHandler);
   window.props.resolve = closingWrapper(window.props.resolve)

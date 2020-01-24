@@ -308,7 +308,6 @@ browser.runtime.onConnect.addListener( async ( port ) => {
     } else {
         port.onMessage.addListener(({ type, payload, uuid }, sender) => {
             if(HDWALLET_METHODS.includes(type)) {
-                console.log("HDWALLET_METHODS")
                 controller[type](payload).then((res) => {
                     port.postMessage({ uuid, res })
                 })

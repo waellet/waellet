@@ -112,7 +112,7 @@ window.addEventListener("load", () => {
     }
 });
 
-console.log("here1234")
+
 /**
  * Aex-2 Aepp communication
  */

@@ -253,7 +253,6 @@ export default {
           }
         },500)
       } else {
-        console.log("valiza tuk")
         this.hideLoader()
       }
 
