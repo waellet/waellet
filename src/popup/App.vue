@@ -232,27 +232,32 @@ export default {
         sendResponse({ host:receiver.host, received: true })
       })
 
-      //init SDK
-      this.checkSDKReady = setInterval(() => {
-        if(this.isLoggedIn && this.sdk == null) {
+      if(!process.env.RUNNING_IN_POPUP) {
+        //init SDK
+        this.checkSDKReady = setInterval(() => {
+          if(this.isLoggedIn && this.sdk == null) {
 
-          this.initLedger()
-          this.initSDK()
-          
-          this.pollData()
-          clearInterval(this.checkSDKReady)
-        }
-      },500)
+            this.initLedger()
+            this.initSDK()
+            
+            this.pollData()
+            clearInterval(this.checkSDKReady)
+          }
+        },500)
 
-      setTimeout(() => {
-        if(this.isLoggedIn) {
-          this.pollData()
-        }else {
-          this.hideLoader()
-        }
-      },500)
+        setTimeout(() => {
+          if(this.isLoggedIn) {
+            this.pollData()
+          }else {
+            this.hideLoader()
+          }
+        },500)
+      } else {
+        console.log("valiza tuk")
+        this.hideLoader()
+      }
 
-      this.checkPendingTx()
+      // this.checkPendingTx()
       window.addEventListener('resize', () => {
         
         if(window.innerWidth <= 480) {
@@ -498,6 +503,7 @@ export default {
             clearInterval(this.checkPendingTxInterval)
             if(this.$router.currentRoute.path.includes("/sign-transaction") &&  this.$router.currentRoute.params.data.popup == false) {
               this.$store.commit('SET_AEPP_POPUP',false)
+              console.log("tukk 1111")
               this.$router.push('/account')
             }
           }

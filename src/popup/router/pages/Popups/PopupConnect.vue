@@ -2,9 +2,10 @@
     <div class="popup">
         <div class="flex identiconContainer">
             <div class="identicon">
-                <img :src="faviconUrl" >
-                <div class="accountName">{{data.params.title}}</div>
-                <div class="hostname">{{data.params.hostname}}</div>
+                <img :src="faviconUrl" @error="imageError = true" v-if="!imageError">
+                <ae-identicon :address="data.host" size="base"  v-if="imageError"/>
+                <div class="accountName">{{ data.name }}</div>
+                <div class="hostname">{{ data.host }}</div>
             </div>
             <div class="separator">
                 <ae-icon name="check" />
@@ -15,8 +16,23 @@
             </div>
         </div>
         
-        <h2><span class="primary">{{data.params.title}}</span> {{$t('pages.connectConfirm.websiteRequestconnect') }} </h2>
-        <p>{{$t('pages.connectConfirm.websiteRequest') }}</p>
+        <h2>
+            <span class="primary">{{ data.host }} ({{ data.name }}) </span> 
+            {{$t('pages.connectConfirm.websiteRequestconnect') }} 
+            <ae-identicon class="send-account-icon" :address="account.publicKey" size="s" />  
+            {{ activeAccountName }} 
+        </h2>
+        <ul>
+            <ae-list-item fill="neutral" class="permission-set">
+                <h4> {{ $t('pages.connectConfirm.addressLabel') }} </h4>
+                <p> {{ $t('pages.connectConfirm.addressRequest') }} </p>
+            </ae-list-item>
+            <ae-list-item fill="neutral" class="permission-set">
+                <h4> {{ $t('pages.connectConfirm.transactionLabel') }} </h4>
+                <p> {{ $t('pages.connectConfirm.transactionRequest') }} </p>
+            </ae-list-item>
+        </ul>
+        <!-- <p>{{$t('pages.connectConfirm.websiteRequest') }}</p> -->
         <ae-button-group class="btnFixed">
             <ae-button face="round" fill="primary" @click="cancel">{{$t('pages.connectConfirm.cancelButton') }}</ae-button>
             <ae-button face="round" fill="alternative" @click="connect">{{$t('pages.connectConfirm.confirmButton') }}</ae-button>
@@ -26,60 +42,35 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { setConnectedAepp, checkAeppConnected } from '../../../utils/helper';
+import { setConnectedAepp, checkAeppConnected, setPermissionForAccount } from '../../../utils/helper';
 
 export default {
     data(){
         return {
-            port:null,
-            errorTx:  {
-                "error": {
-                    "code": 1,
-                    "data": {
-                        "request": {}
-                    },
-                    "message": "Transaction verification failed"
-                },
-                "id": null,
-                "jsonrpc": "2.0"
-            }
-        }
-    },
-    props:['data'],
-    created() {
-        if(this.data.popup) {
-            this.port = browser.runtime.connect({ name: this.data.id })
-            this.port.onMessage.addListener((msg, sender,sendResponse) => {})
+            data: window.props,
+            imageError: false
         }
     },
     methods: {
         cancel() {
-            if(this.data.popup) {
-                this.errorTx.error.message = "Connection canceled"
-                this.port.postMessage(this.errorTx)
+            if(Object.keys( this.data.action).length) {
+                this.data.action.deny()
             }
-            setTimeout(() => {
-                window.close()
-            },1000)
-            
+           
+            this.data.reject()
         },
-        connect() {
-            setConnectedAepp(this.data.params.hostname, this.account.publicKey)
-            .then(() => {
-                if(this.data.popup) {
-                    this.port.postMessage({id:null,jsonrpc:"2.0",message:"Connection established"})
-                }
-                setTimeout(() => {
-                    window.close()
-                },1000)
-            })
-            
+        async connect() {
+            await setPermissionForAccount(this.data.host, this.account.publicKey)
+            if(Object.keys( this.data.action).length) {
+                this.data.action.accept()
+            }
+            this.data.resolve()
         }
     },
     computed: {
         ...mapGetters(['account','activeAccountName']),
         faviconUrl() {
-            return `${this.data.params.protocol}//${this.data.params.hostname}/favicon.ico`
+            return typeof this.data.icons != "undefined" ? this.data.icons : `${this.data.protocol}//${this.data.host}/favicon.ico`
         }
     }
 }
@@ -161,7 +152,25 @@ p{
             border-radius: 50%;
         }
     }
+}
 
+.permission-set {
+    flex-direction: column;
+    text-align: left;
+
+    h4{ 
+        display: block;
+        width:100%;
+        margin:0;
+    }
+    p {
+        display: block;
+        width:100%;
+        margin:0;
+    }
+}
+ul {
+    padding:0;
 }
 
 

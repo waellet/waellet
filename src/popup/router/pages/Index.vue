@@ -166,6 +166,7 @@ export default {
   },
   mounted() {},
   created() {
+    console.log("tukkk")
     browser.storage.local.get('termsAgreed').then(res => {
       this.termsAgreedOrNot = res.termsAgreed;
     });
@@ -191,7 +192,9 @@ export default {
           this.modalAskVisible = false;
         }
       });
+      console.log("1111")
       browser.storage.local.get('showAeppPopup').then(aepp => {
+        console.log("2222")
         browser.storage.local.get('pendingTransaction').then(pendingTx => {
           browser.storage.local.get('isLogged').then(data => {
             browser.storage.local.get('userAccount').then(async user => {
@@ -248,6 +251,7 @@ export default {
                 }
               });
               if (data.isLogged && data.hasOwnProperty('isLogged')) {
+                  console.log("i tukaa vlizaaa")
                   this.$store.commit('SWITCH_LOGGED_IN', true);
                   redirectAfterLogin(this);
               }

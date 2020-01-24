@@ -103,7 +103,7 @@ const rpcWallet = {
 
     async checkAeppPermissions (aepp, action, caller, cb )  {
         let { connection: { port: {  sender: { url } } } } = aepp
-        let isConnected = await getAeppAccountPermission(extractHostName(url), activeAccount)
+        let isConnected = await getAeppAccountPermission(extractHostName(url), this.activeAccount)
 
         if(!isConnected) {
             try {
