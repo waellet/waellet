@@ -5,16 +5,17 @@ import Notification from './notifications';
 import { setController, contractCallStatic } from './popup/utils/aepp-utils'
 import rpcWallet from './lib/rpcWallet'
 import { 
-    HDWALLET_METHODS
+    HDWALLET_METHODS,
+    AEX2_METHODS
 } from './popup/utils/constants'
 
 global.browser = require('webextension-polyfill');
 
-browser.browserAction.onClicked.addListener(function (tab) {
-	browser.tabs.executeScript(tab.id, {
-        file: 'inject.js'
-	}); 
-});
+// browser.browserAction.onClicked.addListener(function (tab) {
+// 	browser.tabs.executeScript(tab.id, {
+//         file: 'inject.js'
+// 	}); 
+// });
 
 setInterval(() => {
     browser.windows.getAll({}).then((wins) => {
@@ -276,42 +277,46 @@ const postToContent = (data, tabId) => {
     browser.tabs.sendMessage(tabId, message)
 }
 
-const connectToExtPopup = (onMessage) => {
-    // browser.runtime.onConnect.addListener( ( port ) => {
-    //     let extensionUrl = 'chrome-extension'
-    //     if(detectBrowser() == 'Firefox') {
-    //         extensionUrl = 'moz-extension'
-    //     }
-        
-    //     if((port.name == 'popup' && port.sender.id == browser.runtime.id && port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && detectBrowser() != 'Firefox') || ( detectBrowser() == 'Firefox' && port.name == 'popup' && port.sender.id == browser.runtime.id ) ) {
-    //         port.onMessage.addListener((msg) => {
-    //             console.log("msg", msg)
 
-    //             return
-    //             console.log(payload)
-    //             console.log(uuid)
-    //             let hdwallet = false
-    //             if(HDWALLET_METHODS.includes(type)) {
-    //                 hdwallet = true
-                    
-    //             } 
-    //             onMessage({ hdwallet, port, type, payload, uuid })
-    //         })  
-    //     }
-    // }) 
-}
-
-// connectToExtPopup(({ hdwallet, port, type, payload, uuid }) => {
-//     if(hdwallet) {
-//         controller[type](payload).then((res) => {
-//             port.postMessage({ uuid, res })
-//         })
-//     }
-// })
-
-const notification = new Notification();
 
 /** 
  * AEX-2 RpcWallet Init
  */
-rpcWallet(connectToExtPopup, controller)
+rpcWallet.init(controller)
+
+browser.runtime.onConnect.addListener( async ( port ) => {
+    let extensionUrl = 'chrome-extension'
+    if(detectBrowser() == 'Firefox') {
+        extensionUrl = 'moz-extension'
+    }
+
+    const popupSender = Boolean((port.name == 'popup' && 
+                                port.sender.id == browser.runtime.id && 
+                                port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && 
+                                detectBrowser() != 'Firefox') || 
+                                (detectBrowser() == 'Firefox' && 
+                                port.name == 'popup' && 
+                                port.sender.id == browser.runtime.id ))
+    
+    if(!popupSender) {
+        if(rpcWallet.sdk) {
+            rpcWallet.addConnection(port)
+        } 
+    } else {
+        port.onMessage.addListener(({ type, payload, uuid }, sender) => {
+            if(HDWALLET_METHODS.includes(type)) {
+                console.log("HDWALLET_METHODS")
+                controller[type](payload).then((res) => {
+                    port.postMessage({ uuid, res })
+                })
+            } else if(AEX2_METHODS.includes(type)) {
+                rpcWallet[type](payload)
+            }
+        })  
+    }
+}) 
+
+
+const notification = new Notification();
+
+

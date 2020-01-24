@@ -10,91 +10,68 @@ import { detectBrowser } from '../popup/utils/helper'
 
 global.browser = require('webextension-polyfill');
 
-export default async (connection, walletController) => {
+const rpcWallet = {
+    sdk: null,
+    network: DEFAULT_NETWORK,
+    compiler: networks[DEFAULT_NETWORK].compilerUrl,
+    internalUrl: networks[DEFAULT_NETWORK].internalUrl,
+    activeAccount: null,
+    subaccounts: null,
+    accounts: [],
+    accountKeyPairs: [],
+    created: false,
+    createInterval: null,
+    controller: null,
+    async init(walletController) {
+        this.controller = walletController
+        let { subaccounts } = await getAccounts()
+        this.subaccounts = subaccounts
 
-    let network = DEFAULT_NETWORK
-    let compiler = networks[network].compilerUrl
-    let internalUrl = networks[network].internalUrl
-    const account = ""
-    let activeAccount = ""
-    const { subaccounts } = await getAccounts()
-    let accounts = []
-    let accountKeyPairs = []
-    let wallet 
-    console.log("hereeee")
-    let seed = {
-        seed:stringifyForStorage("3c9ed46b5da9b5686abcbd85870adc66c1706c62d2000857820870b960593a6dcb9734abe47a122a2917462ede5994a0a7eff304cab6aeb66d6c1ad021b6eb6c")
-    }
-    await walletController.generateWallet(seed)
-
-    connection(async ({ hdwallet, port, type, payload, uuid }) => {
-        if(!hdwallet) {
-            if(type == "changeAccount") {
-                wallet.selectAccount(payload)
-                activeAccount = payload
-                console.log("change account")
-            } else if( type == "addAccount") {
-                console.log("add new account")
-                let account = {
-                    publicKey: payload.address
+        this.createInterval = setInterval(async () => {
+            if(this.controller.isLoggedIn()) {
+                if(!this.created) {
+                    this.recreateWallet()
+                    clearInterval(this.createInterval)
                 }
-                let newAccount =  MemoryAccount({
-                    keypair: parseFromStorage(await walletController.getKeypair({ activeAccount: payload.idx, account }))
-                })
-                wallet.addAccount(newAccount, { select: true })
-                activeAccount = payload.address
-            } else if( type == "switchNetwork" ) {
-                console.log("switch network")
-                network = payload
-                compiler = networks[network].compilerUrl
-                internalUrl = networks[network].internalUrl
-                const node = await Node({ url:internalUrl, internalUrl: internalUrl })
-                try {
-                    await wallet.addNode(payload, node, true)
-                } catch(e) {
-                    console.log(e)
-                }
-                wallet.selectNode(internalUrl)
+                this.created = true
             }
-        }
-    })
-
-
-    const createWallet = async () => {
-        accountKeyPairs = await Promise.all(subaccounts.map(async (a, index) => (
-            parseFromStorage(await walletController.getKeypair({ activeAccount: index, account: a}))
+        }, 5000)
+    },
+    async createWallet() {
+        this.accountKeyPairs = await Promise.all(this.subaccounts.map(async (a, index) => (
+            parseFromStorage(await this.controller.getKeypair({ activeAccount: index, account: a}))
         )))
         
         let activeIdx = await browser.storage.sync.get('activeAccount') 
         
-        accounts = accountKeyPairs.map((a) => {
+        this.accounts = this.accountKeyPairs.map((a) => {
             return MemoryAccount({
                 keypair: a
             })
         })
-
+        const context = this
         try {
-            const node = await Node({ url: internalUrl, internalUrl: internalUrl })
-            wallet  = await RpcWallet({
+            const node = await Node({ url: this.internalUrl, internalUrl: this.internalUrl })
+            this.sdk  = await RpcWallet({
                 nodes: [
                     { name: DEFAULT_NETWORK, instance: node },
                 ],
-                compilerUrl: compiler,
+                compilerUrl: this.compiler,
                 name: 'Waellet',
-                accounts,
+                accounts:this.accounts,
                 async onConnection (aepp, action) {
-                    checkAeppPermissions(aepp, action, "connection")
+                    context.checkAeppPermissions(aepp, action, "connection")
                 },
-                onDisconnect (masg, client) {
+                onDisconnect (msg, client) {
                     client.disconnect()
                 },
                 async onSubscription (aepp, action) {
-                    checkAeppPermissions(aepp, action, "subscription")
+                    context.checkAeppPermissions(aepp, action, "subscription")
                 },
                 async onSign (aepp, action) {
-                    checkAeppPermissions(aepp, action, "sign", () => {
+                    context.checkAeppPermissions(aepp, action, "sign", () => {
                         setTimeout(() => {
-                            showConnectionPopup({ aepp, action, type: "sign" })
+                            context.showConnectionPopup({ aepp, action, type: "sign" })
                         }, 2000)
                         
                     })
@@ -109,37 +86,29 @@ export default async (connection, walletController) => {
             })
 
             if (activeIdx.hasOwnProperty("activeAccount") && !isNaN(activeIdx.activeAccount)) {
-                wallet.selectAccount(accountKeyPairs[activeIdx.activeAccount].publicKey)
-                activeAccount = accountKeyPairs[activeIdx.activeAccount].publicKey
+                this.sdk.selectAccount(this.accountKeyPairs[activeIdx.activeAccount].publicKey)
+                this.activeAccount = this.accountKeyPairs[activeIdx.activeAccount].publicKey
             } else {
-                wallet.selectAccount(accountKeyPairs[0].publicKey)
-                activeAccount = accountKeyPairs[0].publicKey
+                this.sdk.selectAccount(this.accountKeyPairs[0].publicKey)
+                this.activeAccount = this.accountKeyPairs[0].publicKey
             }
-            
-            browser.runtime.onConnect.addListener(async (port) => { 
-                console.log("conect",port)
-                const connection = await BrowserRuntimeConnection({ connectionInfo: { id: port.sender.frameId }, port })
-                wallet.addRpcClient(connection)
 
-                wallet.shareWalletInfo(port.postMessage.bind(port))
-                setInterval(() => wallet.shareWalletInfo(port.postMessage.bind(port)), 3000)
-            })
         } catch(e) {
             console.error(e)
         }
-       
-        console.log(wallet)
-        return wallet
-    }
+        
+        console.log(this.sdk)
+        return this.sdk
+    },
 
-    const checkAeppPermissions = async (aepp, action, caller, cb ) => {
+    async checkAeppPermissions (aepp, action, caller, cb )  {
         let { connection: { port: {  sender: { url } } } } = aepp
         let isConnected = await getAeppAccountPermission(extractHostName(url), activeAccount)
 
         if(!isConnected) {
             try {
                 let a = caller == "connection" ? action : {}
-                let res = await showConnectionPopup({ action: a, aepp, type: "connectConfirm" })
+                let res = await this.showConnectionPopup({ action: a, aepp, type: "connectConfirm" })
                 if(typeof cb != "undefined") {
                     cb()
                 }
@@ -153,9 +122,9 @@ export default async (connection, walletController) => {
                 cb()
             }
         }
-    }
+    },
 
-    const showConnectionPopup = ({ action, aepp, type = "connectConfirm" }) => {
+    showConnectionPopup ({ action, aepp, type = "connectConfirm" })  {
         const popupWindow = window.open(`/popup/popup.html?t=${action.id}`, `popup_id_${action.id}`, 'width=420,height=680', false);
         if (!popupWindow) action.deny()
         let { connection: { port: {  sender: { url } } }, info: { icons, name} } = aepp
@@ -163,39 +132,45 @@ export default async (connection, walletController) => {
         return new Promise((resolve, reject) => {
             popupWindow.window.props = { type, resolve, reject, action, host: extractHostName(url), icons, name, protocol };
         });
-    }
-  
+    },
 
-    const postMessageToContent = (data) => {
-        if(detectBrowser() == 'Firefox') {
-            browser.tabs.query({}).then( tabs => { 
-                const message = { method: 'pageMessage', data };
-                tabs.forEach(({ id }) => browser.tabs.sendMessage(id, message))
-            });
-        } else {
-            chrome.tabs.query({}, function(tabs) { 
-                const message = { method: 'pageMessage', data };
-                tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, message))
-            });
+    async addConnection(port) {
+        const connection = await BrowserRuntimeConnection({ connectionInfo: { id: port.sender.frameId }, port })
+        this.sdk.addRpcClient(connection)
+        this.sdk.shareWalletInfo(port.postMessage.bind(port))
+        setTimeout(() => this.sdk.shareWalletInfo(port.postMessage.bind(port)), 3000)
+    },
+
+    changeAccount(payload) {
+        this.activeAccount = payload
+        this.sdk.selectAccount(payload)
+    },
+    async addAccount(payload) {
+        let account = {
+            publicKey: payload.address
         }
-        
-    }
-
-    const recreateWallet = async () => {
-        await createWallet()
-    }
-
-    let created = false
-    let lastNetwork
-    let createInterval = setInterval(async () => {
-        console.log("logged in", walletController.isLoggedIn())
-        if(walletController.isLoggedIn()) {
-            if(!created) {
-                recreateWallet()
-                clearInterval(createInterval)
-            }
-            created = true
+        let newAccount =  MemoryAccount({
+            keypair: parseFromStorage(await this.controller.getKeypair({ activeAccount: payload.idx, account }))
+        })
+        this.sdk.addAccount(newAccount, { select: true })
+        this.activeAccount = payload.address
+    },
+    async switchNetwork(payload) {
+        this.network = payload
+        this.compiler = networks[this.network].compilerUrl
+        this.internalUrl = networks[this.network].internalUrl
+        const node = await Node({ url:this.internalUrl, internalUrl: this.internalUrl })
+        try {
+            await this.sdk.addNode(payload, node, true)
+        } catch(e) {
+            // console.log(e)
         }
-    }, 5000)
+        this.sdk.selectNode(this.network)
+    },
 
+    async recreateWallet() {
+        await this.createWallet()
+    }
 }
+
+export default rpcWallet
