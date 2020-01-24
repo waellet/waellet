@@ -4,8 +4,10 @@ import { Crypto } from '@aeternity/aepp-sdk/es';
 import { postMesssage } from './connection';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
 import axios from 'axios';
-
 import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import Node from '@aeternity/aepp-sdk/es/node'
+
 
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -185,11 +187,73 @@ const redirectAfterLogin = (ctx) => {
             ctx.$router.push({'name':'sign', params: {
                 data:tx
             }});
-        }else {
+        } else if(process.env.RUNNING_IN_POPUP ) {
+            ctx.$store.commit('SET_AEPP_POPUP',true)
+            if(window.hasOwnProperty("name") && window.name.includes("popup")) {
+                if(window.props.type == "connectConfirm") {
+                    ctx.$router.push('/connect');
+                }else if(window.props.type == "sign") {
+                    ctx.$router.push('/popup-sign-tx');
+                }
+            }
+        } else {
             ctx.$router.push('/account');
         }
     })
   })
+}
+
+const getAeppAccountPermission = (host, account) => {
+    return new Promise((resolve, reject) => {
+        browser.storage.sync.get('connectedAepps').then((aepps) => {
+            if(!aepps.hasOwnProperty('connectedAepps')) {
+                return resolve(false)
+            }
+            if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
+                let list = aepps.connectedAepps.list
+                if(list.find(ae => ae.host == host && ae.accounts.includes(account))) {
+                    return resolve(true)
+                }
+                return resolve(false)
+            }
+
+            return resolve(false)
+        })
+    })
+}
+
+const setPermissionForAccount = (host, account) => {
+    return new Promise((resolve, reject) => {
+        browser.storage.sync.get('connectedAepps').then((aepps) => {
+
+            let list = []
+            if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
+                list = aepps.connectedAepps.list
+            }
+
+            if (list.length && typeof list.find(l => l.host == host) != "undefined") {
+                let hst = list.find(h => h.host == host)
+                let index = list.findIndex(h => h.host == host)
+                if(typeof hst == "undefined") {
+                    resolve()
+                    return 
+                }
+                if(hst.accounts.includes(account)) {
+                    resolve()
+                    return
+                }
+
+                list[index].accounts = [...hst.accounts, account]
+
+            } else {
+                list.push({ host, accounts: [account] })
+            }   
+            // return;
+            browser.storage.sync.set({connectedAepps: { list }}).then(() => {
+                resolve()
+            })
+        })
+    })
 }
 
 export const fetchJson = async (...args) => {
@@ -242,11 +306,14 @@ const initializeSDK = (ctx, { network, current, account, wallet, activeAccount =
 }
 let countErr = 0;
 const createSDKObject = (ctx, { network, current, account, wallet, activeAccount = 0, background, res }, backgr ) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+        const account = MemoryAccount({ keypair: { ...res} })
+        const node = await Node({ url: network[current.network].internalUrl, internalUrl:  network[current.network].internalUrl })
         Universal({
-            url: (typeof network != 'undefined' ? network[current.network].url : "https://sdk-testnet.aepps.com" ) , 
-            internalUrl:(typeof network != 'undefined' ? network[current.network].internalUrl : "https://sdk-testnet.aepps.com" ),
-            keypair:{ ...res },
+            nodes: [
+                { name: current.network, instance: node },
+            ],
+            accounts:[account],
             networkId: (typeof network != 'undefined' ? network[current.network].networkId : "ae_uat" ), 
             nativeMode: true,
             compilerUrl: (typeof network != 'undefined' ? network[current.network].compilerUrl : "https://compiler.aepps.com" )
@@ -547,7 +614,7 @@ const setContractInstance = async (tx, sdk, contractAddress = null) => {
             backend = "aevm";
         }
         try {
-            contractInstance = await sdk.getContractInstance(tx.source, { contractAddress });
+            contractInstance = await sdk.getContractInstance(tx.source, { contractAddress, forceCodeCheck: true });
             contractInstance.setOptions({ backend })
         }catch(e) {
             console.log(e)
@@ -557,6 +624,16 @@ const setContractInstance = async (tx, sdk, contractAddress = null) => {
         console.log(e)
     }
     return Promise.resolve(contractInstance)
+}
+
+const getContractInstance = async (source, options = {}) => {
+    try {
+        let store = await import('../../store');
+        store = store.default
+        return await store.state.sdk.getContractInstance(source, { ...options, forceCodeCheck: true });
+    } catch(e) {
+        return { }
+    }
 }
 
 export { 
@@ -583,7 +660,10 @@ export {
     addRejectedToken,
     contractCall,
     checkContractAbiVersion,
-    setContractInstance
+    setContractInstance,
+    getContractInstance,
+    getAeppAccountPermission,
+    setPermissionForAccount
 }
 
 

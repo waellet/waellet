@@ -232,27 +232,31 @@ export default {
         sendResponse({ host:receiver.host, received: true })
       })
 
-      //init SDK
-      this.checkSDKReady = setInterval(() => {
-        if(this.isLoggedIn && this.sdk == null) {
+      if(!process.env.RUNNING_IN_POPUP) {
+        //init SDK
+        this.checkSDKReady = setInterval(() => {
+          if(this.isLoggedIn && this.sdk == null) {
 
-          this.initLedger()
-          this.initSDK()
-          
-          this.pollData()
-          clearInterval(this.checkSDKReady)
-        }
-      },500)
+            this.initLedger()
+            this.initSDK()
+            
+            this.pollData()
+            clearInterval(this.checkSDKReady)
+          }
+        },500)
 
-      setTimeout(() => {
-        if(this.isLoggedIn) {
-          this.pollData()
-        }else {
-          this.hideLoader()
-        }
-      },500)
+        setTimeout(() => {
+          if(this.isLoggedIn) {
+            this.pollData()
+          }else {
+            this.hideLoader()
+          }
+        },500)
+      } else {
+        this.hideLoader()
+      }
 
-      this.checkPendingTx()
+      // this.checkPendingTx()
       window.addEventListener('resize', () => {
         
         if(window.innerWidth <= 480) {
@@ -277,6 +281,7 @@ export default {
     changeAccount (index,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
       browser.storage.local.set({activeAccount: index}).then(() => {
+        postMesssage(this.background, { type: 'changeAccount' , payload: subaccount.publicKey } )
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
         this.initSDK();
         this.dropdown.account = false;
@@ -318,6 +323,7 @@ export default {
     switchNetwork (network) {
       this.dropdown.network = false;
       this.$store.dispatch('switchNetwork', network).then(() => {
+        postMesssage(this.background, { type: 'switchNetwork' , payload: network } )
         this.initSDK();
         this.$store.dispatch('updateBalance');
         let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
@@ -441,9 +447,10 @@ export default {
     async initSDK() {
       let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
       if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
+       
         try {
           await this.$store.commit('SET_TOKEN_REGISTRY', 
-            await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
+            await this.$helpers.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
             TOKEN_REGISTRY_CONTRACT_LIMA : 
             TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistry }) 
           )
@@ -452,10 +459,14 @@ export default {
         }
         try {
           await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
-            await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
+            await this.$helpers.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
           )
+        } catch(e) {
+
+        }
+        try {
           await this.$store.commit('SET_TIPPING', 
-            await sdk.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
+            await this.$helpers.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
           )
         } catch(e) {
           
@@ -491,6 +502,7 @@ export default {
             clearInterval(this.checkPendingTxInterval)
             if(this.$router.currentRoute.path.includes("/sign-transaction") &&  this.$router.currentRoute.params.data.popup == false) {
               this.$store.commit('SET_AEPP_POPUP',false)
+              console.log("tukk 1111")
               this.$router.push('/account')
             }
           }
