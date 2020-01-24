@@ -55,6 +55,10 @@ router.beforeEach((to, from, next) => {
     browser.storage.local.get('showAeppPopup').then(aepp => {
       browser.storage.local.get('pendingTransaction').then(pendingTx => {
         browser.storage.local.get('isLogged').then(data => {
+          if (!data.isLogged && !data.hasOwnProperty('isLogged')) {
+            next();
+            return;
+          }
           browser.storage.local.get('userAccount').then(async user => {
             if (user.userAccount && user.hasOwnProperty('userAccount')) {
               try {
@@ -63,7 +67,6 @@ router.beforeEach((to, from, next) => {
                 user.userAccount.encryptedPrivateKey = JSON.stringify(user.userAccount.encryptedPrivateKey);
               }
               router.app.$store.commit('UPDATE_ACCOUNT', user.userAccount);
-              if (data.isLogged && data.hasOwnProperty('isLogged')) {
                 browser.storage.local.get('subaccounts').then(subaccounts => {
                   let sub = [];
                   if (
@@ -100,7 +103,6 @@ router.beforeEach((to, from, next) => {
                     router.app.$store.dispatch('setUserNetworks', usernetworks.userNetworks);
                   }
                 });
-              }
             }
             browser.storage.local.get('confirmSeed').then(seed => {
               if (seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
