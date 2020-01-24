@@ -20,7 +20,7 @@ export default async (connection, walletController) => {
     const { subaccounts } = await getAccounts()
     let accounts = []
     let accountKeyPairs = []
-    let sdk 
+    let wallet 
     console.log("hereeee")
     let seed = {
         seed:stringifyForStorage("3c9ed46b5da9b5686abcbd85870adc66c1706c62d2000857820870b960593a6dcb9734abe47a122a2917462ede5994a0a7eff304cab6aeb66d6c1ad021b6eb6c")
@@ -30,7 +30,7 @@ export default async (connection, walletController) => {
     connection(async ({ hdwallet, port, type, payload, uuid }) => {
         if(!hdwallet) {
             if(type == "changeAccount") {
-                sdk.selectAccount(payload)
+                wallet.selectAccount(payload)
                 activeAccount = payload
                 console.log("change account")
             } else if( type == "addAccount") {
@@ -41,7 +41,7 @@ export default async (connection, walletController) => {
                 let newAccount =  MemoryAccount({
                     keypair: parseFromStorage(await walletController.getKeypair({ activeAccount: payload.idx, account }))
                 })
-                sdk.addAccount(newAccount, { select: true })
+                wallet.addAccount(newAccount, { select: true })
                 activeAccount = payload.address
             } else if( type == "switchNetwork" ) {
                 console.log("switch network")
@@ -50,11 +50,11 @@ export default async (connection, walletController) => {
                 internalUrl = networks[network].internalUrl
                 const node = await Node({ url:internalUrl, internalUrl: internalUrl })
                 try {
-                    await sdk.addNode(payload, node, true)
+                    await wallet.addNode(payload, node, true)
                 } catch(e) {
                     console.log(e)
                 }
-                sdk.selectNode(internalUrl)
+                wallet.selectNode(internalUrl)
             }
         }
     })
@@ -75,7 +75,7 @@ export default async (connection, walletController) => {
 
         try {
             const node = await Node({ url: internalUrl, internalUrl: internalUrl })
-            sdk  = await RpcWallet({
+            wallet  = await RpcWallet({
                 nodes: [
                     { name: DEFAULT_NETWORK, instance: node },
                 ],
@@ -107,30 +107,29 @@ export default async (connection, walletController) => {
                     }
                 }
             })
-            
-            browser.runtime.onConnectExternal.addListener(async (port) => { 
-                const connection = await BrowserRuntimeConnection({ connectionInfo: { id: port.sender.frameId }, port })
-                sdk.addRpcClient(connection)
-            })
-
-            console.log(accountKeyPairs)
 
             if (activeIdx.hasOwnProperty("activeAccount") && !isNaN(activeIdx.activeAccount)) {
-                sdk.selectAccount(accountKeyPairs[activeIdx.activeAccount].publicKey)
+                wallet.selectAccount(accountKeyPairs[activeIdx.activeAccount].publicKey)
                 activeAccount = accountKeyPairs[activeIdx.activeAccount].publicKey
             } else {
-                sdk.selectAccount(accountKeyPairs[0].publicKey)
+                wallet.selectAccount(accountKeyPairs[0].publicKey)
                 activeAccount = accountKeyPairs[0].publicKey
             }
+            
+            browser.runtime.onConnect.addListener(async (port) => { 
+                console.log("conect",port)
+                const connection = await BrowserRuntimeConnection({ connectionInfo: { id: port.sender.frameId }, port })
+                wallet.addRpcClient(connection)
 
-            setInterval(() => sdk.shareWalletInfo(postMessageToContent), 5000)
-
+                wallet.shareWalletInfo(port.postMessage.bind(port))
+                setInterval(() => wallet.shareWalletInfo(port.postMessage.bind(port)), 3000)
+            })
         } catch(e) {
             console.error(e)
         }
        
-        console.log(sdk)
-        return sdk
+        console.log(wallet)
+        return wallet
     }
 
     const checkAeppPermissions = async (aepp, action, caller, cb ) => {
@@ -191,7 +190,6 @@ export default async (connection, walletController) => {
     let createInterval = setInterval(async () => {
         console.log("logged in", walletController.isLoggedIn())
         if(walletController.isLoggedIn()) {
-            
             if(!created) {
                 recreateWallet()
                 clearInterval(createInterval)

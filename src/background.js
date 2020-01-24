@@ -277,31 +277,37 @@ const postToContent = (data, tabId) => {
 }
 
 const connectToExtPopup = (onMessage) => {
-    browser.runtime.onConnect.addListener( ( port ) => {
-        let extensionUrl = 'chrome-extension'
-        if(detectBrowser() == 'Firefox') {
-            extensionUrl = 'moz-extension'
-        }
-        if((port.name == 'popup' && port.sender.id == browser.runtime.id && port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && detectBrowser() != 'Firefox') || ( detectBrowser() == 'Firefox' && port.name == 'popup' && port.sender.id == browser.runtime.id ) ) {
-            port.onMessage.addListener(({ type, payload, uuid}) => {
-                let hdwallet = false
-                if(HDWALLET_METHODS.includes(type)) {
-                    hdwallet = true
+    // browser.runtime.onConnect.addListener( ( port ) => {
+    //     let extensionUrl = 'chrome-extension'
+    //     if(detectBrowser() == 'Firefox') {
+    //         extensionUrl = 'moz-extension'
+    //     }
+        
+    //     if((port.name == 'popup' && port.sender.id == browser.runtime.id && port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && detectBrowser() != 'Firefox') || ( detectBrowser() == 'Firefox' && port.name == 'popup' && port.sender.id == browser.runtime.id ) ) {
+    //         port.onMessage.addListener((msg) => {
+    //             console.log("msg", msg)
+
+    //             return
+    //             console.log(payload)
+    //             console.log(uuid)
+    //             let hdwallet = false
+    //             if(HDWALLET_METHODS.includes(type)) {
+    //                 hdwallet = true
                     
-                } 
-                onMessage({ hdwallet, port, type, payload, uuid })
-            })  
-        }
-    }) 
+    //             } 
+    //             onMessage({ hdwallet, port, type, payload, uuid })
+    //         })  
+    //     }
+    // }) 
 }
 
-connectToExtPopup(({ hdwallet, port, type, payload, uuid }) => {
-    if(hdwallet) {
-        controller[type](payload).then((res) => {
-            port.postMessage({ uuid, res })
-        })
-    }
-})
+// connectToExtPopup(({ hdwallet, port, type, payload, uuid }) => {
+//     if(hdwallet) {
+//         controller[type](payload).then((res) => {
+//             port.postMessage({ uuid, res })
+//         })
+//     }
+// })
 
 const notification = new Notification();
 

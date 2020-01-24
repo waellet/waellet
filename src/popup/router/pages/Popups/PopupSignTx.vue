@@ -110,8 +110,8 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken  } from '../../utils/helper';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken  } from '../../../utils/helper';
+import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
 import BigNumber from 'bignumber.js';
 import { clearInterval, clearTimeout  } from 'timers';
@@ -202,7 +202,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
+@import '../../../../common/base';
 .balanceSpend {
     font-size:2rem;
     color:#001833;

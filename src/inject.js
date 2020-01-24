@@ -119,7 +119,8 @@ const readyStateCheckInterval = setInterval(function () {
     if (document.readyState === 'complete') {
         clearInterval(readyStateCheckInterval)
         const port = getBrowserAPI().runtime.connect()
-
+        console.log(port)
+        console.log(getBrowserAPI())
         const extConnection = BrowserRuntimeConnection({
         connectionInfo: {
             description: 'Content Script to Extension connection',
