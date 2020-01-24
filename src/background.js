@@ -299,9 +299,12 @@ browser.runtime.onConnect.addListener( async ( port ) => {
                                 port.sender.id == browser.runtime.id ))
     
     if(!popupSender) {
-        if(rpcWallet.sdk) {
+        let check = rpcWallet.sdkReady(() => {
             rpcWallet.addConnection(port)
-        } 
+        })
+        port.onDisconnect.addListener((p) => {
+            clearInterval(check)
+        })
     } else {
         port.onMessage.addListener(({ type, payload, uuid }, sender) => {
             if(HDWALLET_METHODS.includes(type)) {

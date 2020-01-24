@@ -96,11 +96,17 @@ const rpcWallet = {
         } catch(e) {
             console.error(e)
         }
-        
-        console.log(this.sdk)
         return this.sdk
     },
-
+    sdkReady(cb) {
+        let check = setInterval(() => {
+            if(this.sdk) {
+                cb()
+                clearInterval(check)
+            }
+        },1000)
+        return check
+    },
     async checkAeppPermissions (aepp, action, caller, cb )  {
         let { connection: { port: {  sender: { url } } } } = aepp
         let isConnected = await getAeppAccountPermission(extractHostName(url), this.activeAccount)
