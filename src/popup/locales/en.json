@@ -123,6 +123,7 @@
             "heading": "Create Fungible Token",
             "tokenName":"Token Name",
             "tokenSymbolLabel":"Token Symbol",
+            "initialSupply":"Initial Supply",
             "tokenPrecision":"Decimals of Precision",
             "deployTokenContract": "Deploy Token Contract",
             "registryFee": "Include token in global TokenRegistry (tx fees apply)"
@@ -133,6 +134,7 @@
             "addToken":"Add token",
             "tokenContractLabel":"Token Contract Address",
             "tokenSymbolLabel":"Token Symbol",
+            "initialSupply":"Initial Supply",
             "tokenPrecision":"Decimals of Precision",
             "next":"Next",
             "validContractAddressError": "Valid token contract address",
@@ -182,7 +184,8 @@
             "previousBids": "Previous bids: ",
             "noPreviousBids": "No previous bids",
             "goBiddingBtn": "Go for bidding",
-            "backButton": "Back"
+            "backButton": "Back",
+            "extend": "Extend"
         },
         "generalSettings": {
             "backToSettings": "Back to settings",
@@ -357,14 +360,24 @@
             "backToUtilities": "Back to utilities",
             "noImage": "No Image",
             "domainVerified":"Verified",
-            "domainNotVerified":"Not yet verified",
+            "domainNotVerified":"Not verified",
             "sendHeading":"Send a tip",
             "check":"Check",
             "selectAmount": "Select amount",
             "amountToTip": "Amount to tip",
             "transactionFee": "Transaction fee",
             "balance": "Balance",
-            "sendTipBtn": "Send tip"
+            "sendTipBtn": "Send tip",
+            "tipDetails": "Details",
+            "tipWebsite":"Website",
+            "heading": "Tip website",
+            "selectTip": "Select amount to tip",
+            "tipDomain": "Tip domain",
+            "claim": "Claim Tips",
+            "tipsForDomain": "Tips",
+            "tips": "Tips",
+            "noTips": "No tips for this url",
+            "claimInfo": "If you are verified you can claim the amount of tokens by click the button below"
         },
         "transactionDetails": {
             "heading": "Transactions Details",
@@ -423,7 +436,6 @@
             "createTx": "create tx",
             "clear": "Clear filter",
             "apply": "Apply filter"
-            
         },
         "utilities": {
             "heading": "Utilities",

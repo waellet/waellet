@@ -26,7 +26,7 @@
     </div> 
 </template>
 <script>
-import { addressGenerator } from '../../utils/address-generator';
+import { addressGenerator, encryptMnemonic } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import { mnemonicToSeed } from '@aeternity/bip39';
 import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet';
@@ -92,6 +92,7 @@ export default {
             let address = await this.$store.dispatch('generateWallet', { seed: data })
             const keyPair = await addressGenerator.importPrivateKey(accountPassword, data, address);
             if(keyPair) {
+                browser.storage.local.remove('encryptedSeed')
                 this.setLogin(keyPair, false, termsAgreed, accountPassword);
             }
             
@@ -99,10 +100,14 @@ export default {
         importSeedPhrase: async function importSeedPhrase({accountPassword,data,termsAgreed}) {
             this.loading = true;
             let seed = mnemonicToSeed(data)
+            // let encryptedSeed = cryptr.encrypt(data);
+            let encryptedSeed = await encryptMnemonic(data, accountPassword)
             let address = await this.$store.dispatch('generateWallet', { seed })
             const keyPair = await addressGenerator.generateKeyPair(accountPassword,seed.toString('hex'),address);
             if(keyPair) {
-                this.setLogin(keyPair, false, termsAgreed, accountPassword);
+                browser.storage.local.set({encryptedSeed: encryptedSeed}).then(async () => {
+                    this.setLogin(keyPair, false, termsAgreed, accountPassword);
+                });
             }
         },
         importKeystore:async function importKeystore({accountPassword,data,termsAgreed}) {
@@ -111,7 +116,7 @@ export default {
             let seed = await addressGenerator.decryptKeystore(encryptedPrivateKey, accountPassword)
             if(seed !== false) {
                 let address = await this.$store.dispatch('generateWallet', { seed })
-                
+                browser.storage.local.remove('encryptedSeed')
                 let keyPair = {encryptedPrivateKey:JSON.stringify(encryptedPrivateKey),publicKey:encryptedPrivateKey.public_key};
                 this.setLogin(keyPair,true,termsAgreed, accountPassword);
             }else {
@@ -133,9 +138,9 @@ export default {
                     keyPair.encryptedPrivateKey = JSON.stringify(encPrivateKey);
                 }
             }
-            browser.storage.sync.set({userAccount: keyPair}).then(() => {
-                browser.storage.sync.set({isLogged: true}).then(async () => {
-                    browser.storage.sync.set({ termsAgreed: termsAgreed }).then(() => {
+            browser.storage.local.set({userAccount: keyPair}).then(() => {
+                browser.storage.local.set({isLogged: true}).then(async () => {
+                    browser.storage.local.set({ termsAgreed: termsAgreed }).then(() => {
                         let sub = [];
                         sub.push({
                             name:'Main account',
@@ -143,8 +148,8 @@ export default {
                             balance:0,
                             root:true
                         });
-                        browser.storage.sync.set({subaccounts: sub}).then(() => {
-                            browser.storage.sync.set({activeAccount: 0}).then( () => {
+                        browser.storage.local.set({subaccounts: sub}).then(() => {
+                            browser.storage.local.set({activeAccount: 0}).then( () => {
                                 this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:keyPair.publicKey,index:0});
                             });
                             this.$store.dispatch('setSubAccounts', sub).then(async () => {
@@ -162,7 +167,7 @@ export default {
         },
         generateAddress: async function generateAddress({ accountPassword, termsAgreed}) {
             this.loading = true;
-            browser.storage.sync.set({accountPassword: accountPassword}).then(() => {
+            browser.storage.local.set({accountPassword: accountPassword}).then(() => {
                 this.$router.push({
                     name: 'seed',
                     params: {

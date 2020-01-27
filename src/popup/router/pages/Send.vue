@@ -232,7 +232,7 @@ export default {
       }
       else {
         if (isAirGapAcc) {
-          browser.storage.sync.get('airGapGeneratedKey').then(async publicKHex => {
+          browser.storage.local.get('airGapGeneratedKey').then(async publicKHex => {
             const spendTx = await this.sdk.spendTx({senderId: this.account.publicKey, recipientId: receiver, amount: amount});
             const generated = generateSignRequestUrl(this.network[this.current.network].networkId, spendTx, publicKHex.airGapGeneratedKey);
             this.$router.push({'name': 'signTransactionByQrCode', params:{url:generated}})
@@ -252,7 +252,8 @@ export default {
             data:tx
           }});
         }
-     } 
+     }
+     
     },
     init() {
       let calculatedMaxValue = this.balance - this.maxFee

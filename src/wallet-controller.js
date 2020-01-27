@@ -16,7 +16,7 @@ export default class WalletController {
                 browser.windows.getAll({}).then((wins) => {
                     if(wins.length == 0) {
                         this.wallet = null
-                        browser.storage.sync.remove('isLogged')
+                        browser.storage.local.remove('isLogged')
                     }
                 });
             },5000);
@@ -69,5 +69,9 @@ export default class WalletController {
                 address: getHdWalletAccount(this.wallet, idx).address
             })
         })
+    }
+
+    isLoggedIn() {
+        return typeof this.wallet != "undefined" && this.wallet != null
     }
 }

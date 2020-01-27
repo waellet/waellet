@@ -63,7 +63,7 @@ export default {
   methods: {
     continueHost(e) {
       if(this.href != "" && this.href != null) {
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
           method:'setPhishingUrl',
           params: {
               hostname:this.hostname

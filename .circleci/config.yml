@@ -53,7 +53,7 @@ workflows:
   build:
     jobs:
     - cypress/install
-    - cypress/run:
-        requires:
-        - cypress/install
+    # - cypress/run:
+    #     requires:
+    #     - cypress/install
   version: 2

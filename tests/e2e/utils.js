@@ -45,7 +45,7 @@ export const transaction2 = {
 export const connectObj = {
   type:"connectConfirm",
   params: {
-    hostname:"testnet.explorer.aepps.com",
+    hostname:"testnet.aeternal.io",
     protocol:"https:",
     title:"aeternity explorer"
   }
@@ -55,15 +55,15 @@ export const network = {
     url: 'https://sdk-testnet.aepps.com',
     internalUrl: 'https://sdk-testnet.aepps.com',
     networkId: 'ae_uat',
-    middlewareUrl: 'https://testnet.mdw.aepps.com/',
-    explorerUrl:'https://testnet.explorer.aepps.com'
+    middlewareUrl: 'https://testnet.aeternal.io/',
+    explorerUrl:'https://testnet.aeternal.io'
   },
   Mainnet: {
     url: 'https://sdk-mainnet.aepps.com',
     internalUrl: 'https://sdk-mainnet.aepps.com',
     networkId: 'ae_mainnet',
-    middlewareUrl: 'http://mdw.aepps.com/',
-    explorerUrl:'https://testnet.explorer.aepps.com'
+    middlewareUrl: 'https://mainnet.aeternal.io/',
+    explorerUrl:'https://mainnet.aeternal.io'
   }
 };
 export const current = {

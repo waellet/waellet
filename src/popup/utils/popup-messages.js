@@ -38,6 +38,7 @@ export const UNSUCCESS_VERIFYMESSAGE = {type:'error', title:'Oops! Something wen
 export const INTEGER_REQUIRED = {type:'error', title:'Oops! Something went wrong', msg:'To interact with fungible tokens, only integers. Decimal places are not allowed!'}
 export const TX_LIMIT_PER_DAY = {type:'error', title:'Oops! Something went wrong', msg:'You reach your daily limit for transactions! '}
 export const TOKEN_MIGRATION_ERROR = {type:'error', title:'Oops! Something went wrong', msg:'Token is not migrated! '}
+export const REVEAL_SEED_IMPOSSIBLE = {type:'error', title:'Аttention to security', msg:'This is only available after generating an account or after importing a phrase. '}
 //success messages
 export const SIGNED_MESSAGE = {type:'success', title:'Signed message:', msg:'', buttonsTextPrimary: 'Cancel', buttonsTextSecondary: 'Copy', buttonsFillPrimary: 'neutral', buttonsFillSecondary: 'primary'};
 export const PUBLIC_KEY_COPIED = { type:'success', title:'Copied to clipboard' ,msg:''};

@@ -177,9 +177,9 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK, contractCall } from './utils/helper';
-import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from './utils/constants'
+import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
-import { start, postMesssage } from './utils/connection'
+import { start, postMesssage, readWebPageDom } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
 import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
@@ -213,25 +213,29 @@ export default {
     }
   },
   created: async function () {
-      browser.storage.sync.get('language').then((data) => {
+      browser.storage.local.get('language').then((data) => {
         this.language = langs[data.language];
         this.$store.state.current.language = data.language;
         if (typeof data.language != 'undefined') {
           fetchAndSetLocale(data.language);
         }
       });
-      browser.storage.sync.get('activeNetwork').then((data) => {
+      browser.storage.local.get('activeNetwork').then((data) => {
         if (data.hasOwnProperty('activeNetwork') && data.activeNetwork != 0) {
           this.$store.state.current.network = data.activeNetwork;
         }
       });
       let background = await start(browser)
       this.$store.commit( 'SET_BACKGROUND', background )
-      
+      readWebPageDom((receiver,sendResponse ) => {
+        this.$store.commit('SET_TIPPING_RECEIVER', receiver)
+        sendResponse({ host:receiver.host, received: true })
+      })
+
       //init SDK
       this.checkSDKReady = setInterval(() => {
         if(this.isLoggedIn && this.sdk == null) {
-          
+
           this.initLedger()
           this.initSDK()
           
@@ -272,7 +276,7 @@ export default {
     },
     changeAccount (index,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
-      browser.storage.sync.set({activeAccount: index}).then(() => {
+      browser.storage.local.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
         this.initSDK();
         this.dropdown.account = false;
@@ -323,9 +327,9 @@ export default {
       }); 
     },
     logout () {
-      browser.storage.sync.remove('isLogged').then(() => {
+      browser.storage.local.remove('isLogged').then(() => {
         browser.storage.local.remove('wallet').then(() => {
-          browser.storage.sync.remove('activeAccount').then(() => {
+          browser.storage.local.remove('activeAccount').then(() => {
             this.dropdown.settings = false;
             this.dropdown.languages = false;
             this.dropdown.account = false;
@@ -436,36 +440,33 @@ export default {
     },
     async initSDK() {
       let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
-      
       if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
-        await this.$store.commit('SET_TOKEN_REGISTRY', 
-          await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
-          TOKEN_REGISTRY_CONTRACT_LIMA : 
-          TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) 
-        )
+        try {
+          await this.$store.commit('SET_TOKEN_REGISTRY', 
+            await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
+            TOKEN_REGISTRY_CONTRACT_LIMA : 
+            TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistry }) 
+          )
+        } catch (e) {
 
+        }
         try {
           await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
             await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
           )
-        } catch (e) {
-          console.log(e)
+          await this.$store.commit('SET_TIPPING', 
+            await sdk.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
+          )
+        } catch(e) {
+          
         }
         
-        
-        
-
-
-        
         this.$store.dispatch('getAllUserTokens')
-       
-        
-
       }
       
       if(typeof sdk.error != 'undefined') {
-          await browser.storage.sync.remove('isLogged')
-          await browser.storage.sync.remove('activeAccount')
+          await browser.storage.local.remove('isLogged')
+          await browser.storage.local.remove('activeAccount')
           this.hideLoader()
           this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
           this.$store.commit('UNSET_SUBACCOUNTS');
@@ -485,7 +486,7 @@ export default {
     },
     checkPendingTx() {
       this.checkPendingTxInterval = setInterval(() => {
-        browser.storage.sync.get('pendingTransaction').then((pendingTx) => {
+        browser.storage.local.get('pendingTransaction').then((pendingTx) => {
           if(!pendingTx.hasOwnProperty('pendingTransaction') || ( pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length <= 0 )) {
             clearInterval(this.checkPendingTxInterval)
             if(this.$router.currentRoute.path.includes("/sign-transaction") &&  this.$router.currentRoute.params.data.popup == false) {
@@ -561,7 +562,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account .ae-dropdown-button .dropdown-button-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .subAccountInfo { margin-right:auto; margin-bottom:0 !important; max-width: 155px; }
 #network .subAccountInfo { max-width: 195px; }
-.subAccountIcon { margin-right: 10px; }
+.subAccountIcon, .identicon { margin-right: 10px; }
 .subAccountName { text-align: left; color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
 .subAccountBalance { font-family: monospace; margin-bottom:0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;}
 .name-pending { width:24px !important; height:24px !important; margin-right:5px; font-size:.8rem; }

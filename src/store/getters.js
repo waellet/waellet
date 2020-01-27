@@ -64,7 +64,12 @@ export const getters = {
     ) + 1
   },
   isLedger(state) {
-    return state.subaccounts.find(s => s.publicKey == state.account.publicKey).isLedger
+
+    if(state.subaccounts.length > 0){
+      return state.subaccounts.find(s => s.publicKey == state.account.publicKey).isLedger
+    } else{
+      return state.subaccounts
+    }
   },
   getActiveAccount(state) {
     return state.subaccounts.find(s => s.publicKey == state.account.publicKey)
@@ -80,5 +85,11 @@ export const getters = {
   },
   txAdvancedMode({ txAdvancedMode }) {
     return txAdvancedMode
+  },
+  tipping({ tipping }) {
+    return tipping
+  },
+  tippingReceiver({ tippingReceiver }) {
+    return tippingReceiver
   }
 };

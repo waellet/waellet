@@ -1,15 +1,15 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
-import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser } from './popup/utils/helper';
+import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser, parseFromStorage } from './popup/utils/helper';
 import WalletContorller from './wallet-controller'
 import Notification from './notifications';
-
+import { setController, contractCallStatic } from './popup/utils/aepp-utils'
 
 global.browser = require('webextension-polyfill');
 
 // listen for our browerAction to be clicked
-chrome.browserAction.onClicked.addListener(function (tab) {
+browser.browserAction.onClicked.addListener(function (tab) {
     // for the current tab, inject the "inject.js" file & execute it
-	chrome.tabs.executeScript(tab.id, {
+	browser.tabs.executeScript(tab.id, {
         file: 'inject.js'
 	}); 
 });
@@ -18,18 +18,15 @@ setInterval(() => {
     browser.windows.getAll({}).then((wins) => {
         if(wins.length == 0) {
             sessionStorage.removeItem("phishing_urls");
-            browser.storage.sync.remove('isLogged')
-            browser.storage.sync.remove('activeAccount')
+            browser.storage.local.remove('isLogged')
+            browser.storage.local.remove('activeAccount')
         }
     });
 },5000);
 
-chrome.browserAction.setBadgeText({ 'text': 'beta' });
-chrome.browserAction.setBadgeBackgroundColor({ color: "#FF004D"});
-
 function getAccount() {
     return new Promise(resolve => {
-        chrome.storage.sync.get('userAccount', data => {
+        browser.storage.sync.get('userAccount', data => {
             if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
                 resolve({ keypair: {
                     publicKey: data.userAccount.publicKey,
@@ -52,7 +49,10 @@ const error = {
     "jsonrpc": "2.0"
 }
 
+const controller = new WalletContorller()
+setController(controller)
 browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
+    // setController(controller)
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
@@ -86,12 +86,13 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                                 sendResponse(res)
                             })
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }
                     });
                 break;
+
                 case 'connectConfirm':
                     checkAeppConnected(msg.params.params.hostname).then((check) => {
                         if(!check) {
@@ -106,12 +107,13 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                         }
                     })
                 break;
+
                 case 'getAddress':
-                    browser.storage.sync.get('userAccount').then((user)=> {
-                        browser.storage.sync.get('isLogged').then((data) => {
+                    browser.storage.local.get('userAccount').then((user)=> {
+                        browser.storage.local.get('isLogged').then((data) => {
                             if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                                browser.storage.sync.get('subaccounts').then((subaccounts) => {
-                                    browser.storage.sync.get('activeAccount').then((active) => {
+                                browser.storage.local.get('subaccounts').then((subaccounts) => {
+                                    browser.storage.local.get('activeAccount').then((active) => {
                                         let activeIdx = 0
                                         if(active.hasOwnProperty("activeAccount")) {
                                             activeIdx = active.activeAccount
@@ -126,22 +128,37 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                         })
                     })
                 break;
-                        
+                
                 case 'contractCall':
                     checkAeppConnected(msg.params.hostname).then((check) => {
                         if(check) {
-                            openAeppPopup(msg,'contractCall')
-                            .then(res => {
-                                sendResponse(res)
-                            })
+                            if(typeof msg.params.callType != "undefined" && msg.params.callType == 'static') {
+                                if(msg.params.hasOwnProperty("tx") && msg.params.tx.hasOwnProperty("params")) {
+                                    msg.params.tx.params = parseFromStorage(msg.params.tx.params)
+                                }
+                                contractCallStatic(msg.params).then(res => {
+                                    res.id = msg.id
+                                    sendResponse(res)
+                                }).catch(err => {
+                                    error.error.message = err
+                                    error.id = msg.id
+                                    sendResponse(error)
+                                });
+                            } else {
+                                openAeppPopup(msg,'contractCall')
+                                .then(res => {
+                                    sendResponse(res)
+                                })
+                            }
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }
                     })
+                    
                 break;
-
+                
                 case 'signMessage':
                     checkAeppConnected(msg.params.hostname).then((check) => {
                         if(check) {
@@ -150,7 +167,7 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                                 sendResponse(res)
                             })
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }
@@ -165,7 +182,7 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
                                 sendResponse(res)
                             })
                         }else {
-                            error.error.message = "Aepp not registered. Establish connection first"
+                            error.error.message = "Account not connected. Establish connection first"
                             error.id = msg.id
                             sendResponse(error)
                         }
@@ -187,8 +204,8 @@ const connectToPopup = (cb,type, id) => {
         });
         port.onDisconnect.addListener(async (event) => {
             let list = await removeTxFromStorage(event.name)
-            browser.storage.sync.set({pendingTransaction: { list } }).then(() => {})
-            browser.storage.sync.remove('showAeppPopup').then(() => {}); 
+            browser.storage.local.set({pendingTransaction: { list } }).then(() => {})
+            browser.storage.local.remove('showAeppPopup').then(() => {}); 
             error.id = event.name
             if(event.name == id) {
                 if(type == 'txSign') {
@@ -210,7 +227,7 @@ const connectToPopup = (cb,type, id) => {
 
 const openAeppPopup = (msg,type) => {
     return new Promise((resolve,reject) => {
-        browser.storage.sync.set({showAeppPopup:{ data: msg.params, type } } ).then( () => {
+        browser.storage.local.set({showAeppPopup:{ data: msg.params, type } } ).then( () => {
             browser.windows.create({
                 url: browser.runtime.getURL('./popup/popup.html'),
                 type: "popup",
@@ -227,7 +244,7 @@ const openAeppPopup = (msg,type) => {
 
 const checkPendingTx = () => {
     return new Promise((resolve,reject) => {
-        browser.storage.sync.get('pendingTransaction').then((tx) => {
+        browser.storage.local.get('pendingTransaction').then((tx) => {
             if(tx.hasOwnProperty("pendingTransaction")) {
                 resolve(false)
             }else {
@@ -249,7 +266,7 @@ const postToContent = (data, tabId) => {
     browser.tabs.sendMessage(tabId, message)
 }
 
-const controller = new WalletContorller()
+
 
 browser.runtime.onConnect.addListener( ( port ) => {
     let extensionUrl = 'chrome-extension'

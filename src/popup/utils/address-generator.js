@@ -26,10 +26,10 @@ async function generateKeyPair (passphrase, privateKey, address) {
   const hexStr = await Crypto.hexStringToByte(privateKey.trim())
   const keys = await Crypto.generateKeyPairFromSecret(hexStr)
   // SDK keystore
-  const keystore = await dump('keystore', passphrase, keys.secretKey);
+  // const keystore = await dump('keystore', passphrase, keys.secretKey);
 
   // webCrypto
-  // const keystore = await generateEncryptedWallet('keystore', passphrase, keys.secretKey)
+  const keystore = await generateEncryptedWallet('keystore', passphrase, keys.secretKey)
   keystore.public_key = address;
   return {
     publicKey: keystore.public_key,
@@ -42,10 +42,10 @@ async function importPrivateKey (passphrase, secretKey, address) {
   const keys = await Crypto.generateKeyPairFromSecret(hexStr)
 
   // SDK keystore
-  const keystore = await dump('keystore', passphrase, keys.secretKey);
+  // const keystore = await dump('keystore', passphrase, keys.secretKey);
 
-  // web Crypt
-  // const keystore = await generateEncryptedWallet('keystore', passphrase, keys.secretKey)
+  // web Crypto
+  const keystore = await generateEncryptedWallet('keystore', passphrase, keys.secretKey)
   keystore.public_key = address;
   return {
     publicKey: keystore.public_key,
@@ -74,4 +74,16 @@ async function decryptKeystore(encryptedKeystore, key) {
   } catch(e) {
     return false
   }
+}
+
+export const encryptMnemonic = async (mnemonic, password, nonce = new Uint8Array(12), salt = new Uint8Array(16) ) => {
+  return Buffer.from(await webCrypto.encrypt(mnemonic, password, nonce, salt)).toString('hex');
+}
+
+export const decryptMnemonic = async (mnemonic, password, nonce = new Uint8Array(12), salt = new Uint8Array(16)) => {
+  let dec = await webCrypto.decrypt(mnemonic, password, nonce, salt)
+  if(dec) {
+    return dec
+  }
+  return false
 }

@@ -10,7 +10,7 @@ export default class Notification {
     }
 
     async init() {
-        let { activeNetwork } = await browser.storage.sync.get('activeNetwork')
+        let { activeNetwork } = await browser.storage.local.get('activeNetwork')
         this.network = networks.Testnet
         if(typeof activeNetwork != "undefined") {
             this.network = networks[activeNetwork]
@@ -33,26 +33,26 @@ export default class Notification {
     }
 
     async getAllNotifications() {
-        let { processingTx } = await browser.storage.sync.get('processingTx');
+        let { processingTx } = await browser.storage.local.get('processingTx');
         return processingTx;
     }
 
     async deleteNotification(tx) {
-        let { processingTx } = await browser.storage.sync.get('processingTx');
+        let { processingTx } = await browser.storage.local.get('processingTx');
         let list = [
             ...processingTx
         ];
         list = list.filter(t => t != tx)
-        await browser.storage.sync.set({ processingTx: list })
+        await browser.storage.local.set({ processingTx: list })
     }
     
     async checkTxReady () {
         let noties = await this.getAllNotifications()
         if(noties) {
             noties.forEach(async (tx, index ) => {
-                if (tx != "error") {
+                if (tx != "error" && tx) {
                     let res = await this.client.poll(tx)
-                    let url = this.network.explorerUrl + '/#/tx/' + tx
+                    let url = this.network.explorerUrl + '/transactions/' + tx
                     await this.sendNoti({ title: 'Transaction ready', message: `You can expore your transaction by clicking button below`, contextMessage: url, error:false})
                 } else {
                     await this.sendNoti({ title: 'Transaction error', message: 'Transaction cannot be processed ', error:true })

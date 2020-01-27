@@ -67,7 +67,7 @@ export default {
                     return d.name != networkName
                 });
                 this.$store.dispatch('setUserNetworks', un).then(() => {
-                    browser.storage.sync.set({ userNetworks: un}).then(() => {
+                    browser.storage.local.set({ userNetworks: un}).then(() => {
                     delete this.$store.state.network[networkName];
                     });
                 });
@@ -116,7 +116,7 @@ export default {
             });
             if (networkName != '' && networkURL != '' && !sameNameNetwork) {
                 this.$store.dispatch('setUserNetwork', newNetwork).then(() => {
-                    browser.storage.sync.set({ userNetworks: this.userNetworks}).then(() => {
+                    browser.storage.local.set({ userNetworks: this.userNetworks}).then(() => {
                         this.$store.dispatch('popupAlert', {
                             name: 'account',
                             type: 'added_success'
@@ -124,15 +124,14 @@ export default {
                             this.$store.state.network[networkName] = newNetwork;
                             this.newUserNetwork = "";
                             this.newUserNetworkURL = "";
-                            /* UNCOMMENT IF CURRENT NETWORK MUST CHANGE TO ADDED ONE */
-                            // this.$store.dispatch('switchNetwork', networkName).then(() => {
-                            //     this.$store.state.aeAPI = this.fetchApi();
-                            //     this.$store.dispatch('updateBalance');
-                            //     let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
-                            //     transactions.then(res => {
-                            //         this.$store.dispatch('updateLatestTransactions',res);
-                            //     });
-                            // }); 
+                            this.$store.dispatch('switchNetwork', networkName).then(() => {
+                                this.$store.state.aeAPI = this.fetchApi();
+                                this.$store.dispatch('updateBalance');
+                                let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
+                                transactions.then(res => {
+                                    this.$store.dispatch('updateLatestTransactions',res);
+                                });
+                            }); 
                             this.setNetworks();
                         });
                     });
