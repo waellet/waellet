@@ -235,8 +235,18 @@
             "addNewNetwork": "Hinzufügen neuer Knoten",
             "networkName": "Knotenname",
             "networkURL": "Knoten URL",
+            "internalURL": "Knoten Interne URL",
+            "networkId": "Node Network Id",
+            "middlewareUrl": "Knoten Middleware-URL",
+            "explorerUrl": "NodeExplorer URL",
+            "compilerUrl": "Knoten Compiler URL",
             "addnetworkName": "Knoten hinzufügen Name",
             "addnetworkURL": "Knoten hinzufügen URL",
+            "addinternalURL": "Knoten hinzufügen Interne URL",
+            "addnetworkId": "Knoten hinzufügen Netzwerk-ID",
+            "addmiddlewareUrl": "Knoten hinzufügen Middleware URL",
+            "addexplorerUrl": "In NodeExplorer URL",
+            "addcompilerUrl": "Knoten hinzufügen Compiler URL",
             "add": "Hinzufügen"
         },
         "privacyPolicy": {

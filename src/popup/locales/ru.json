@@ -235,8 +235,18 @@
             "addNewNetwork": "Add new node",
             "networkName": "Node name",
             "networkURL": "Node URL",
+            "internalURL": "Node Internal URL",
+            "networkId": "Node networkId",
+            "middlewareUrl": "Node middlewareUrl",
+            "explorerUrl": "Node explorerUrl",
+            "compilerUrl": "Node compilerUrl",
             "addnetworkName": "Add Node name",
             "addnetworkURL": "Add Node URL",
+            "addinternalURL": "Add Node Internal URL",
+            "addnetworkId": "Add Node networkId",
+            "addmiddlewareUrl": "Add Node middlewareUrl",
+            "addexplorerUrl": "Add Node explorerUrl",
+            "addcompilerUrl": "Add Node compilerUrl",
             "add": "Add"
         },
         "privacyPolicy": {
