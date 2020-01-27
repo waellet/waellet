@@ -21,17 +21,17 @@
             </ae-list-item>
              <ae-list-item fill="neutral" class="flex-justify-between flex-align-start flex-direction-column">
                 <div>
-                    <ae-badge v-if="txType=='contractCallTx'">{{$t('pages.signTransaction.contractCall')}}</ae-badge>
+                    <!-- <ae-badge v-if="txType=='contractCallTx'">{{$t('pages.signTransaction.contractCall')}}</ae-badge> -->
                     <ae-badge>{{ txType }}</ae-badge>
                 </div>
                 <div class="balance balanceSpend no-sign" v-if="!isNameTx">{{ toAe(amount) }} {{ token }}</div>
                 <!-- <div class="fiat-rate" v-if="!txObject.token && !isNameTx">${{convertCurrency(usdRate,amount)}}</div> -->
             </ae-list-item>
-            <ae-list-item v-if="txObject.payload" fill="neutral" class="flex-justify-between whiteBg flex-align-center " >
+            <ae-list-item v-if="txObject.payload" fill="neutral" class="flex-justify-between whiteBg flex-align-center flex-direction-column flex-align-start" >
                 <div class="tx-label ">
                     {{ $t('pages.signTransaction.payload') }}
                 </div>
-                <div>
+                <div class="text-left">
                     <strong>{{ txObject.payload }}</strong>
                 </div>
             </ae-list-item>
@@ -85,11 +85,11 @@
                     <strong>{{ txObject.code }}</strong>
                 </div>
             </ae-list-item>
-            <ae-list-item v-if="txType == 'contractCreateTx'" fill="neutral" class="flex-justify-between whiteBg flex-align-center " >
+            <ae-list-item v-if="txType == 'contractCreateTx'" fill="neutral" class="flex-justify-between whiteBg flex-align-center flex-direction-column flex-align-start" >
                 <div class="tx-label ">
                     {{ $t('pages.signTransaction.callData') }}
                 </div>
-                <div>
+                <div class="text-left">
                     <strong>{{ txObject.callData }}</strong>
                 </div>
             </ae-list-item>
@@ -99,11 +99,11 @@
                 {{alertMsg}}
             </div>
          </Alert>
-     <ae-button-group class="btnFixed">
+        <ae-button-group class="btnFixed">
             <ae-button face="round" fill="primary" @click="cancelTransaction" class="reject">{{ $t('pages.signTransaction.reject') }}</ae-button>
             <ae-button face="round" fill="alternative" @click="signTransaction">{{$t('pages.signTransaction.confirm')}}</ae-button>
         </ae-button-group>
-         <Loader size="big" :loading="loading" :type="loaderType" :content="loaderContent" ></Loader>
+        <Loader size="big" :loading="loading" :type="loaderType" :content="loaderContent" ></Loader>
     </div>
 </template>
 
@@ -136,6 +136,7 @@ export default {
         // console.log(userAccount)
         console.log(this.props)
         this.unpackedTx = TxBuilder.unpackTx(this.props.action.params.tx)
+        console.log(this.unpackedTx)
     },
     computed: {
         ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger','popup', 'tokenRegistry']),
@@ -160,8 +161,8 @@ export default {
         receiver() {
             if(this.txType == 'spendTx') {
                 return  this.txObject.recipientId
-            }else if(this.txType == 'contractCall') {
-                return  this.txObject.address
+            }else if(this.txType == 'contractCallTx') {
+                return  this.txObject.contractId
             }
             return ""
         },
