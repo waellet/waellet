@@ -21,7 +21,7 @@
             </ae-list-item>
              <ae-list-item fill="neutral" class="flex-justify-between flex-align-start flex-direction-column">
                 <div>
-                    <ae-badge v-if="txType=='contractCallTx'">{{$t('pages.signTransaction.contractCall')}}</ae-badge>
+                    <!-- <ae-badge v-if="txType=='contractCallTx'">{{$t('pages.signTransaction.contractCall')}}</ae-badge> -->
                     <ae-badge>{{ txType }}</ae-badge>
                 </div>
                 <div class="balance balanceSpend no-sign" v-if="!isNameTx">{{ toAe(amount) }} {{ token }}</div>
@@ -136,6 +136,7 @@ export default {
         // console.log(userAccount)
         console.log(this.props)
         this.unpackedTx = TxBuilder.unpackTx(this.props.action.params.tx)
+        console.log(this.unpackedTx)
     },
     computed: {
         ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger','popup', 'tokenRegistry']),
@@ -160,8 +161,8 @@ export default {
         receiver() {
             if(this.txType == 'spendTx') {
                 return  this.txObject.recipientId
-            }else if(this.txType == 'contractCall') {
-                return  this.txObject.address
+            }else if(this.txType == 'contractCallTx') {
+                return  this.txObject.contractId
             }
             return ""
         },
