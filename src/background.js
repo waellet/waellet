@@ -29,7 +29,7 @@ setInterval(() => {
 
 function getAccount() {
     return new Promise(resolve => {
-        browser.storage.sync.get('userAccount', data => {
+        browser.storage.local.get('userAccount', data => {
             if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
                 resolve({ keypair: {
                     publicKey: data.userAccount.publicKey,
@@ -289,10 +289,10 @@ browser.runtime.onConnect.addListener( async ( port ) => {
     if(detectBrowser() == 'Firefox') {
         extensionUrl = 'moz-extension'
     }
-
+    const senderUrl = port.sender.url.split("?")
     const popupSender = Boolean((port.name == 'popup' && 
                                 port.sender.id == browser.runtime.id && 
-                                port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && 
+                                senderUrl[0] == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && 
                                 detectBrowser() != 'Firefox') || 
                                 (detectBrowser() == 'Firefox' && 
                                 port.name == 'popup' && 

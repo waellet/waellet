@@ -45,7 +45,13 @@ let router = new VueRouter({
 
 let isFirstTransition = true;
 let lastRouteKey = 'lsroute'
-
+const noRedirectUrls = [
+  '/popup-sign-tx',
+  '/connect',
+  '/connect-confirm',
+  '/sign-transaction/:type?',
+  '/ask-accounts'
+]
 router.beforeEach((to, from, next) => { 
   const lastRouteName = localStorage.getItem(lastRouteKey);
 
@@ -112,7 +118,7 @@ router.beforeEach((to, from, next) => {
             });
             if (data.isLogged && data.hasOwnProperty('isLogged')) {
               router.app.$store.commit('SWITCH_LOGGED_IN', true);
-              if(!process.env.RUNNING_IN_POPUP) {
+              if(!process.env.RUNNING_IN_POPUP && !noRedirectUrls.includes(lastRouteName)) {
                 next(lastRouteName)
               } else {
                 next('/')

@@ -32,7 +32,6 @@
                 <p> {{ $t('pages.connectConfirm.transactionRequest') }} </p>
             </ae-list-item>
         </ul>
-        <!-- <p>{{$t('pages.connectConfirm.websiteRequest') }}</p> -->
         <ae-button-group class="btnFixed">
             <ae-button face="round" fill="primary" @click="cancel">{{$t('pages.connectConfirm.cancelButton') }}</ae-button>
             <ae-button face="round" fill="alternative" @click="connect">{{$t('pages.connectConfirm.confirmButton') }}</ae-button>
@@ -57,14 +56,14 @@ export default {
                 this.data.action.deny()
             }
            
-            this.data.reject()
+            this.data.reject(false)
         },
         async connect() {
             await setPermissionForAccount(this.data.host, this.account.publicKey)
             if(Object.keys( this.data.action).length) {
                 this.data.action.accept()
             }
-            this.data.resolve()
+            this.data.resolve(true)
         }
     },
     computed: {
