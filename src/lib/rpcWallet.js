@@ -157,7 +157,7 @@ const rpcWallet = {
         .filter(condition)
         return clients
     },
-    getAccessForAddres(address) {
+    getAccessForAddress(address) {
         const clients = this.getClientsByCond((client) => client.isConnected())
         const context = this
         clients.forEach(async (client) => {
@@ -176,7 +176,7 @@ const rpcWallet = {
     },
     changeAccount(payload) {
         this.activeAccount = payload
-        this.getAccessForAddres(payload)
+        this.getAccessForAddress(payload)
         // this.sdk.selectAccount(payload)
     },
     async addAccount(payload) {
@@ -188,7 +188,7 @@ const rpcWallet = {
         })
         this.sdk.addAccount(newAccount)
         this.activeAccount = payload.address
-        this.getAccessForAddres(payload.address)
+        this.getAccessForAddress(payload.address)
     },
     async switchNetwork(payload) {
         this.network = payload
