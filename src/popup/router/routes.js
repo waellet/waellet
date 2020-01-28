@@ -9,6 +9,7 @@ import TransactionDetailsComponent from './pages/TransactionDetails';
 import SignTransactionComponent from './pages/SignTransaction';
 import PopupSignTransactionComponent from './pages/Popups/PopupSignTx';
 import PopupConnectComponent from './pages/Popups/PopupConnect';
+import PopupAskAccountsComponent from './pages/Popups/PopupAskAccounts';
 import ManageAccountComponent from './pages/ManageAccounts';
 import SettingsComponent from './pages/Settings';
 import GeneralSettingsComponent from './pages/GeneralSettings';
@@ -92,6 +93,12 @@ export default [
     name:'connect',
     path:'/connect',
     component:PopupConnectComponent,
+    props:true
+  },
+  {
+    name:'ask-accounts',
+    path:'/ask-accounts',
+    component:PopupAskAccountsComponent,
     props:true
   },
   {

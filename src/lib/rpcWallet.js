@@ -42,7 +42,7 @@ const rpcWallet = {
             parseFromStorage(await this.controller.getKeypair({ activeAccount: index, account: a}))
         )))
         
-        let activeIdx = await browser.storage.sync.get('activeAccount') 
+        let activeIdx = await browser.storage.local.get('activeAccount') 
         
         this.accounts = this.accountKeyPairs.map((a) => {
             return MemoryAccount({
@@ -71,17 +71,19 @@ const rpcWallet = {
                 async onSign (aepp, action) {
                     context.checkAeppPermissions(aepp, action, "sign", () => {
                         setTimeout(() => {
-                            context.showConnectionPopup({ aepp, action, type: "sign" })
+                            context.showPopup({ aepp, action, type: "sign" })
                         }, 2000)
                         
                     })
                 },
-                onAskAccounts (aepp, { accept, deny }) {
-                    if (confirm(`Client ${aepp.info.name} with id ${aepp.id} want to get accounts`)) {
-                      accept()
-                    } else {
-                      deny()
-                    }
+                onAskAccounts (aepp, action) {
+                    context.checkAeppPermissions(aepp, action, "accounts", () => {
+                        console.log("ask accounts")
+                        setTimeout(() => {
+                            context.showPopup({ aepp, action, type: "askAccounts" })
+                        }, 2000)
+                        
+                    })
                 }
             })
 
@@ -110,11 +112,10 @@ const rpcWallet = {
     async checkAeppPermissions (aepp, action, caller, cb )  {
         let { connection: { port: {  sender: { url } } } } = aepp
         let isConnected = await getAeppAccountPermission(extractHostName(url), this.activeAccount)
-
         if(!isConnected) {
             try {
                 let a = caller == "connection" ? action : {}
-                let res = await this.showConnectionPopup({ action: a, aepp, type: "connectConfirm" })
+                let res = await this.showPopup({ action: a, aepp, type: "connectConfirm" })
                 if(typeof cb != "undefined") {
                     cb()
                 }
@@ -130,7 +131,7 @@ const rpcWallet = {
         }
     },
 
-    showConnectionPopup ({ action, aepp, type = "connectConfirm" })  {
+    showPopup ({ action, aepp, type = "connectConfirm" })  {
         const popupWindow = window.open(`/popup/popup.html?t=${action.id}`, `popup_id_${action.id}`, 'width=420,height=680', false);
         if (!popupWindow) action.deny()
         let { connection: { port: {  sender: { url } } }, info: { icons, name} } = aepp
