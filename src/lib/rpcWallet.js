@@ -60,12 +60,14 @@ const rpcWallet = {
                 name: 'Waellet',
                 accounts:this.accounts,
                 async onConnection (aepp, action) {
+                    console.log("ask connection")
                     context.checkAeppPermissions(aepp, action, "connection")
                 },
                 onDisconnect (msg, client) {
                     client.disconnect()
                 },
                 async onSubscription (aepp, action) {
+                    console.log("ask subscription")
                     context.checkAeppPermissions(aepp, action, "subscription")
                 },
                 async onSign (aepp, action) {
@@ -130,6 +132,7 @@ const rpcWallet = {
     },
 
     showPopup ({ action, aepp, type = "connectConfirm" })  {
+        console.log(action)
         const uid = getUniqueId()
         const time = `${Math.floor(Date.now() / 1000)}${uid}`
         const popupWindow = window.open(`/popup/popup.html?t=${time}`, `popup_id_${time}`, 'width=420,height=680', false);
@@ -147,10 +150,34 @@ const rpcWallet = {
         this.sdk.shareWalletInfo(port.postMessage.bind(port))
         setTimeout(() => this.sdk.shareWalletInfo(port.postMessage.bind(port)), 3000)
     },
-
+    getClientsByCond(condition) {
+        const clients = Array.from(
+            this.sdk.getClients().clients.values()
+        )
+        .filter(condition)
+        return clients
+    },
+    getAccessForAddres(address) {
+        const clients = this.getClientsByCond((client) => client.isConnected())
+        const context = this
+        clients.forEach(async (client) => {
+            console.log(client)
+            let { connection: { port: {  sender: { url } } } } = client
+            let isConnected = await getAeppAccountPermission(extractHostName(url), address)
+            if (!isConnected) {
+                let accept = await this.showPopup({ action: { }, aepp:client, type: "connectConfirm" })
+                if(accept) {
+                    this.sdk.selectAccount(address)
+                }
+            } else {
+                this.sdk.selectAccount(address)
+            }
+        })
+    },
     changeAccount(payload) {
         this.activeAccount = payload
-        this.sdk.selectAccount(payload)
+        this.getAccessForAddres(payload)
+        // this.sdk.selectAccount(payload)
     },
     async addAccount(payload) {
         let account = {
@@ -159,8 +186,9 @@ const rpcWallet = {
         let newAccount =  MemoryAccount({
             keypair: parseFromStorage(await this.controller.getKeypair({ activeAccount: payload.idx, account }))
         })
-        this.sdk.addAccount(newAccount, { select: true })
+        this.sdk.addAccount(newAccount)
         this.activeAccount = payload.address
+        this.getAccessForAddres(payload.address)
     },
     async switchNetwork(payload) {
         this.network = payload
