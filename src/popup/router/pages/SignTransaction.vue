@@ -764,7 +764,8 @@ export default {
                         this.$router.push('/aens')
                         this.$store.commit('SET_AEPP_POPUP',false)
                 } catch(err) {
-                    console.log('errorbid => ', err)
+                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                    this.redirectInExtensionAfterAction()
                     this.setTxInQueue('error')
                 }
             }
@@ -777,7 +778,8 @@ export default {
                         this.$router.push('/aens')
                     },1000)
                 } catch(err) {
-                    console.log('errorclaim => ', err)
+                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                    this.redirectInExtensionAfterAction()
                     this.setTxInQueue('error')
                 }
             }
