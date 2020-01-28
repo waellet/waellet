@@ -60,14 +60,12 @@ const rpcWallet = {
                 name: 'Waellet',
                 accounts:this.accounts,
                 async onConnection (aepp, action) {
-                    console.log("ask connection")
                     context.checkAeppPermissions(aepp, action, "connection")
                 },
                 onDisconnect (msg, client) {
                     client.disconnect()
                 },
                 async onSubscription (aepp, action) {
-                    console.log("ask subscription")
                     context.checkAeppPermissions(aepp, action, "subscription")
                 },
                 async onSign (aepp, action) {
@@ -132,7 +130,6 @@ const rpcWallet = {
     },
 
     showPopup ({ action, aepp, type = "connectConfirm" })  {
-        console.log(action)
         const uid = getUniqueId()
         const time = `${Math.floor(Date.now() / 1000)}${uid}`
         const popupWindow = window.open(`/popup/popup.html?t=${time}`, `popup_id_${time}`, 'width=420,height=680', false);
@@ -161,7 +158,6 @@ const rpcWallet = {
         const clients = this.getClientsByCond((client) => client.isConnected())
         const context = this
         clients.forEach(async (client) => {
-            console.log(client)
             let { connection: { port: {  sender: { url } } } } = client
             let isConnected = await getAeppAccountPermission(extractHostName(url), address)
             if (!isConnected) {
