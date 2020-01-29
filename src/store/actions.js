@@ -2,7 +2,7 @@ import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
 import { convertToAE, stringifyForStorage, parseFromStorage, contractCall, checkContractAbiVersion } from '../popup/utils/helper';
-import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
+import { FUNGIBLE_TOKEN_CONTRACT, AEX2_METHODS } from '../popup/utils/constants';
 import { uniqBy, head, flatten, merge, uniqWith, isEqual } from 'lodash-es';
 import router from '../popup/router/index'
 import Ledger from '../popup/utils/ledger/ledger';
@@ -21,6 +21,14 @@ export default {
   },
   setSubAccounts({ commit }, payload) {
     commit(types.SET_SUBACCOUNTS, payload);
+  },
+  setAccount({ state: { background }, commit }, { address, idx, type, index }) {
+    commit(types.SET_ACTIVE_ACCOUNT, { publicKey: address, index: type == 'change' ? idx : index })
+    if(type == 'change') {
+      postMesssage(background, { type: AEX2_METHODS.CHANGE_ACCOUNT, payload:address })
+    } else if(type == 'add') {
+      postMesssage(background, { type: AEX2_METHODS.ADD_ACCOUNT, payload: { idx, address } })
+    }
   },
   switchNetwork({ commit }, payload) {
     browser.storage.local.set({ activeNetwork: payload });

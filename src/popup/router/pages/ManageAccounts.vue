@@ -129,9 +129,9 @@ export default {
                         }).then(() => {
                             let index =  this.subaccounts.length - 1;
                             browser.storage.local.set({activeAccount: index }).then(() => {
-                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:address,index:index});
+                                this.$store.dispatch('setAccount', { address, idx, type:'add', index }  )
                             });
-                            postMesssage(this.background, { type: 'addAccount' , payload: { idx, address } } )
+                            // postMesssage(this.background, { type: 'addAccount' , payload: { idx, address } } )
                             this.setAccounts();
                         });
                     });

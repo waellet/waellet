@@ -177,7 +177,7 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import { initializeSDK, contractCall } from './utils/helper';
-import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT } from './utils/constants'
+import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT, AEX2_METHODS } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
 import { start, postMesssage, readWebPageDom } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
@@ -234,16 +234,7 @@ export default {
 
       if(!process.env.RUNNING_IN_POPUP) {
         //init SDK
-        this.checkSDKReady = setInterval(() => {
-          if(this.isLoggedIn && this.sdk == null) {
-            this.initLedger()
-            this.initSDK()
-            
-            this.pollData()
-            clearInterval(this.checkSDKReady)
-          }
-        },500)
-
+        this.checkSdkReady()
         setTimeout(() => {
           if(this.isLoggedIn) {
             this.pollData()
@@ -271,17 +262,28 @@ export default {
     this.dropdown.settings = false;
   },
   methods: {
+    checkSdkReady() {
+      if(!process.env.RUNNING_IN_POPUP) {
+        this.checkSDKReady = setInterval(() => {
+          if(this.isLoggedIn && this.sdk == null) {
+            this.initRpcWallet()
+            this.initSDK()
+            this.pollData()
+            clearInterval(this.checkSDKReady)
+          }
+        },500)
+      }
+    },
     hideLoader() {
       var self = this;
       setTimeout(function() {
         self.mainLoading = false;
       }, 1500);
     },
-    changeAccount (index,subaccount) {
+    changeAccount (idx,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
-      browser.storage.local.set({activeAccount: index}).then(() => {
-        postMesssage(this.background, { type: 'changeAccount' , payload: subaccount.publicKey } )
-        this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
+      browser.storage.local.set({activeAccount: idx}).then(() => {
+        this.$store.dispatch('setAccount', { address:subaccount.publicKey, idx, type:'change' }  )
         this.initSDK();
         this.dropdown.account = false;
         this.$store.commit('RESET_TRANSACTIONS',[]);
@@ -322,7 +324,7 @@ export default {
     switchNetwork (network) {
       this.dropdown.network = false;
       this.$store.dispatch('switchNetwork', network).then(() => {
-        postMesssage(this.background, { type: 'switchNetwork' , payload: network } )
+        postMesssage(this.background, { type: AEX2_METHODS.SWITCH_NETWORK , payload: network } )
         this.initSDK();
         this.$store.dispatch('updateBalance');
         let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
@@ -343,6 +345,9 @@ export default {
             this.$store.commit('UPDATE_ACCOUNT', '');
             this.$store.commit('SWITCH_LOGGED_IN', false);
             this.$store.commit('SET_WALLET', []);
+            this.$store.dispatch('initSdk',null); 
+            postMesssage(this.background, { type: AEX2_METHODS.LOGOUT } )
+            this.checkSdkReady()
             this.$router.push('/');
           });
         });
@@ -485,6 +490,10 @@ export default {
           
           this.$router.push('/')
       }
+    },
+
+    initRpcWallet() {
+      postMesssage(this.background, { type: AEX2_METHODS.INIT_RPC_WALLET, payload: { address: this.account.publicKey } } )
     },
     toTokens() {
       this.dropdown.settings = false
