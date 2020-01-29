@@ -6,7 +6,8 @@ import { setController, contractCallStatic } from './popup/utils/aepp-utils'
 import rpcWallet from './lib/rpcWallet'
 import { 
     HDWALLET_METHODS,
-    AEX2_METHODS
+    AEX2_METHODS,
+    NOTIFICATION_METHODS
 } from './popup/utils/constants'
 
 global.browser = require('webextension-polyfill');
@@ -53,6 +54,7 @@ const error = {
 }
 
 const controller = new WalletContorller()
+const notification = new Notification();
 setController(controller)
 browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
     // setController(controller)
@@ -311,14 +313,20 @@ browser.runtime.onConnect.addListener( async ( port ) => {
                 controller[type](payload).then((res) => {
                     port.postMessage({ uuid, res })
                 })
-            } else if(AEX2_METHODS.hasOwnProperty(type)) {
+            } 
+            
+            if(AEX2_METHODS.hasOwnProperty(type)) {
                 rpcWallet[type](payload)
+            }
+
+            if(NOTIFICATION_METHODS.hasOwnProperty(type)) {
+                notification[type](payload) 
             }
         })  
     }
 }) 
 
 
-const notification = new Notification();
+
 
 
