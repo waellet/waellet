@@ -287,6 +287,7 @@ const postToContent = (data, tabId) => {
 rpcWallet.init(controller)
 
 browser.runtime.onConnect.addListener( async ( port ) => {
+    console.log("port from background", port)
     let extensionUrl = 'chrome-extension'
     if(detectBrowser() == 'Firefox') {
         extensionUrl = 'moz-extension'
@@ -322,11 +323,7 @@ browser.runtime.onConnect.addListener( async ( port ) => {
             if(NOTIFICATION_METHODS.hasOwnProperty(type)) {
                 notification[type](payload) 
             }
+
         })  
     }
 }) 
-
-
-
-
-

@@ -651,7 +651,9 @@ const getUniqueId = (length = 6) => {
 const getUserNetworks = async () => {
     const { userNetworks } = await browser.storage.local.get('userNetworks')
     const networks = {}
-    userNetworks.forEach(net => (networks[net.name] = net ))
+    if(userNetworks) {
+        userNetworks.forEach(net => (networks[net.name] = net ))
+    }
     return new Promise((resolve, reject) => {
         resolve(networks)
     })
