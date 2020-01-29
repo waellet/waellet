@@ -234,17 +234,7 @@ export default {
 
       if(!process.env.RUNNING_IN_POPUP) {
         //init SDK
-        this.checkSDKReady = setInterval(() => {
-          if(this.isLoggedIn && this.sdk == null) {
-            this.initRpcWallet()
-            this.initLedger()
-            this.initSDK()
-            
-            this.pollData()
-            clearInterval(this.checkSDKReady)
-          }
-        },500)
-
+        this.checkSdkReady()
         setTimeout(() => {
           if(this.isLoggedIn) {
             this.pollData()
@@ -272,6 +262,18 @@ export default {
     this.dropdown.settings = false;
   },
   methods: {
+    checkSdkReady() {
+      if(!process.env.RUNNING_IN_POPUP) {
+        this.checkSDKReady = setInterval(() => {
+          if(this.isLoggedIn && this.sdk == null) {
+            this.initRpcWallet()
+            this.initSDK()
+            this.pollData()
+            clearInterval(this.checkSDKReady)
+          }
+        },500)
+      }
+    },
     hideLoader() {
       var self = this;
       setTimeout(function() {
@@ -345,6 +347,7 @@ export default {
             this.$store.commit('SET_WALLET', []);
             this.$store.dispatch('initSdk',null); 
             postMesssage(this.background, { type: AEX2_METHODS.LOGOUT } )
+            this.checkSdkReady()
             this.$router.push('/');
           });
         });

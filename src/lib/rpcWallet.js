@@ -37,7 +37,7 @@ const rpcWallet = {
         this.accountKeyPairs = await Promise.all(this.subaccounts.map(async (a, index) => (
             parseFromStorage(await this.controller.getKeypair({ activeAccount: index, account: a}))
         )))
-        console.log(this.accountKeyPairs)
+        
         // let activeIdx = await browser.storage.local.get('activeAccount') 
         
         this.accounts = this.accountKeyPairs.map((a) => {
@@ -81,12 +81,10 @@ const rpcWallet = {
                 }
             })
 
-            if (this.activeAccount) {
-                this.sdk.selectAccount(this.activeAccount)
-            } else {
+            if (!this.activeAccount) {
                 this.sdk.selectAccount(this.accountKeyPairs[0].publicKey)
                 this.activeAccount = this.accountKeyPairs[0].publicKey
-            }
+            } 
 
         } catch(e) {
             console.error(e)
@@ -198,8 +196,12 @@ const rpcWallet = {
     },
     async [AEX2_METHODS.INIT_RPC_WALLET]({ address }) {
         this.activeAccount = address
-        await this.initSubaccounts()
-        this.initSdk()
+        if(this.sdk) {
+            this.sdk.selectAccount(this.activeAccount)
+        }else {
+            await this.initSubaccounts()
+            this.initSdk()
+        }
     },
     async recreateWallet() {
         await this.createWallet()
