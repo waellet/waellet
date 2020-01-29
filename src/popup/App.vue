@@ -493,7 +493,7 @@ export default {
     },
 
     initRpcWallet() {
-      postMesssage(this.background, { type: AEX2_METHODS.INIT_RPC_WALLET, payload: { address: this.account.publicKey } } )
+      postMesssage(this.background, { type: AEX2_METHODS.INIT_RPC_WALLET, payload: { address: this.account.publicKey, network: this.current.network } } )
     },
     toTokens() {
       this.dropdown.settings = false
