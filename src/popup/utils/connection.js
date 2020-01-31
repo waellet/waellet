@@ -3,7 +3,7 @@ global.browser = require('webextension-polyfill');
 
 export const start = async (browser) =>  {
     
-    return browser.runtime.connect({ name: 'popup' })
+    return browser.runtime.connect({ name: process.env.RUNNING_IN_POPUP ? 'POPUP' : 'EXTENSION' })
 }
 
 export const postMesssage = async (connection, { type, payload }) => {

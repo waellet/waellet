@@ -4,7 +4,7 @@ import { Crypto } from '@aeternity/aepp-sdk/es';
 import { postMesssage } from './connection';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
 import axios from 'axios';
-import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
+import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO, CONNECTION_TYPES } from './constants';
 import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 import Node from '@aeternity/aepp-sdk/es/node'
 
@@ -65,6 +65,28 @@ const detectBrowser = () => {
     }else {
        return 'unknown'
     }
+}
+
+const getExtensionProtocol = () => {
+    let extensionUrl = 'chrome-extension'
+    if(detectBrowser() == 'Firefox') {
+        extensionUrl = 'moz-extension'
+    }
+    return extensionUrl
+}
+
+const detectConnectionType = (port) => {
+    const extensionProtocol = getExtensionProtocol()
+    const senderUrl = port.sender.url.split("?")
+    let type = CONNECTION_TYPES.OTHER
+    if(port.name == CONNECTION_TYPES.EXTENSION && senderUrl[0] == `${extensionProtocol}://${browser.runtime.id}/popup/popup.html`) {
+        type = CONNECTION_TYPES.EXTENSION
+    } else if(port.name == CONNECTION_TYPES.POPUP && senderUrl[0] == `${extensionProtocol}://${browser.runtime.id}/popup/popup.html`){
+        type = CONNECTION_TYPES.POPUP
+    } else {
+        type = CONNECTION_TYPES.OTHER
+    }
+    return type
 }
 
 const fetchData = (url, method, fetchedData) => {
@@ -189,12 +211,14 @@ const redirectAfterLogin = (ctx) => {
             }});
         } else if(process.env.RUNNING_IN_POPUP ) {
             ctx.$store.commit('SET_AEPP_POPUP',true)
-            if(window.hasOwnProperty("name") && window.name.includes("popup")) {
-                if(window.props.type == "connectConfirm") {
+            const url = new URL(window.location.href)
+            const type = url.searchParams.get('type')
+            if(type) {
+                if(type == "connectConfirm") {
                     ctx.$router.push('/connect');
-                } else if(window.props.type == "sign") {
+                } else if(type == "sign") {
                     ctx.$router.push('/popup-sign-tx');
-                } else if(window.props.type == "askAccounts") {
+                } else if(type == "askAccounts") {
                     ctx.$router.push('/ask-accounts');
                 }
             }
@@ -688,7 +712,9 @@ export {
     getAeppAccountPermission,
     setPermissionForAccount,
     getUniqueId,
-    getUserNetworks
+    getUserNetworks,
+    getExtensionProtocol,
+    detectConnectionType
 }
 
 

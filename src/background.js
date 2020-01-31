@@ -1,45 +1,19 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
-import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser, parseFromStorage } from './popup/utils/helper';
+import { checkAeppConnected, removeTxFromStorage, detectBrowser, parseFromStorage, detectConnectionType } from './popup/utils/helper';
 import WalletContorller from './wallet-controller'
 import Notification from './notifications';
-import { setController, contractCallStatic } from './popup/utils/aepp-utils'
 import rpcWallet from './lib/rpcWallet'
 import { 
     HDWALLET_METHODS,
     AEX2_METHODS,
-    NOTIFICATION_METHODS
+    NOTIFICATION_METHODS,
+    CONNECTION_TYPES
 } from './popup/utils/constants'
+
+import { PopupConnections } from './lib/popup-connection'
 
 global.browser = require('webextension-polyfill');
 
-// browser.browserAction.onClicked.addListener(function (tab) {
-// 	browser.tabs.executeScript(tab.id, {
-//         file: 'inject.js'
-// 	}); 
-// });
-
-setInterval(() => {
-    browser.windows.getAll({}).then((wins) => {
-        if(wins.length == 0) {
-            sessionStorage.removeItem("phishing_urls");
-            browser.storage.local.remove('isLogged')
-            browser.storage.local.remove('activeAccount')
-        }
-    });
-},5000);
-
-function getAccount() {
-    return new Promise(resolve => {
-        browser.storage.local.get('userAccount', data => {
-            if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
-                resolve({ keypair: {
-                    publicKey: data.userAccount.publicKey,
-                    secretKey: data.userAccount.secretKey
-                }})
-            }
-        })
-    });
-}
 
 const error = {
     "error": {
@@ -55,9 +29,9 @@ const error = {
 
 const controller = new WalletContorller()
 const notification = new Notification();
-setController(controller)
+
 browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
-    // setController(controller)
+
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
@@ -81,123 +55,6 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
             urls.push(msg.params.hostname);
             setPhishingUrl(urls);
         break;
-        case 'aeppMessage':
-            /**
-             * This should be deprecated
-             */
-            switch(msg.params.type) {
-                case "txSign":
-                    checkAeppConnected(msg.params.hostname).then((check) => {
-                        if(check) {
-                            openAeppPopup(msg,'txSign')
-                            .then(res => {
-                                sendResponse(res)
-                            })
-                        }else {
-                            error.error.message = "Account not connected. Establish connection first"
-                            error.id = msg.id
-                            sendResponse(error)
-                        }
-                    });
-                break;
-
-                case 'connectConfirm':
-                    checkAeppConnected(msg.params.params.hostname).then((check) => {
-                        if(!check) {
-                            openAeppPopup(msg,'connectConfirm')
-                            .then(res => {
-                                sendResponse(res)
-                            })
-                        } else {
-                            error.error.message = "Connection already established"
-                            error.id = msg.id
-                            sendResponse(error)
-                        }
-                    })
-                break;
-
-                case 'getAddress':
-                    browser.storage.local.get('userAccount').then((user)=> {
-                        browser.storage.local.get('isLogged').then((data) => {
-                            if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                                browser.storage.local.get('subaccounts').then((subaccounts) => {
-                                    browser.storage.local.get('activeAccount').then((active) => {
-                                        let activeIdx = 0
-                                        if(active.hasOwnProperty("activeAccount")) {
-                                            activeIdx = active.activeAccount
-                                        }
-                                        let address = subaccounts.subaccounts[activeIdx].publicKey
-                                        sendResponse({id:null, jsonrpc:"2.0",address})
-                                    })
-                                })
-                            }else {
-                                sendResponse({id:null, jsonrpc:"2.0",address:""})
-                            }
-                        })
-                    })
-                break;
-                
-                case 'contractCall':
-                    checkAeppConnected(msg.params.hostname).then((check) => {
-                        if(check) {
-                            if(typeof msg.params.callType != "undefined" && msg.params.callType == 'static') {
-                                if(msg.params.hasOwnProperty("tx") && msg.params.tx.hasOwnProperty("params")) {
-                                    msg.params.tx.params = parseFromStorage(msg.params.tx.params)
-                                }
-                                contractCallStatic(msg.params).then(res => {
-                                    res.id = msg.id
-                                    sendResponse(res)
-                                }).catch(err => {
-                                    error.error.message = err
-                                    error.id = msg.id
-                                    sendResponse(error)
-                                });
-                            } else {
-                                openAeppPopup(msg,'contractCall')
-                                .then(res => {
-                                    sendResponse(res)
-                                })
-                            }
-                        }else {
-                            error.error.message = "Account not connected. Establish connection first"
-                            error.id = msg.id
-                            sendResponse(error)
-                        }
-                    })
-                    
-                break;
-                
-                case 'signMessage':
-                    checkAeppConnected(msg.params.hostname).then((check) => {
-                        if(check) {
-                            openAeppPopup(msg,'signMessage')
-                            .then(res => {
-                                sendResponse(res)
-                            })
-                        }else {
-                            error.error.message = "Account not connected. Establish connection first"
-                            error.id = msg.id
-                            sendResponse(error)
-                        }
-                    })
-                break;
-
-                case 'verifyMessage':
-                    checkAeppConnected(msg.params.hostname).then((check) => {
-                        if(check) {
-                            openAeppPopup(msg,'verifyMessage')
-                            .then(res => {
-                                sendResponse(res)
-                            })
-                        }else {
-                            error.error.message = "Account not connected. Establish connection first"
-                            error.id = msg.id
-                            sendResponse(error)
-                        }
-                    })
-                break;
-            }
-        break
     }
 
     return true
@@ -255,18 +112,6 @@ const openAeppPopup = (msg,type) => {
     })
 }
 
-const checkPendingTx = () => {
-    return new Promise((resolve,reject) => {
-        browser.storage.local.get('pendingTransaction').then((tx) => {
-            if(tx.hasOwnProperty("pendingTransaction")) {
-                resolve(false)
-            }else {
-                resolve(false)
-            }
-        })
-    })
-}
-
 const postPhishingData = (data) => {
     browser.tabs.query({active:true, currentWindow:true}).then((tabs) => { 
         const message = { method: 'phishingCheck', data };
@@ -284,46 +129,44 @@ const postToContent = (data, tabId) => {
 /** 
  * AEX-2 RpcWallet Init
  */
-rpcWallet.init(controller)
+const popupConnections = PopupConnections()
+popupConnections.init()
+rpcWallet.init(controller, popupConnections)
+
+
 
 browser.runtime.onConnect.addListener( async ( port ) => {
-    console.log("port from background", port)
-    let extensionUrl = 'chrome-extension'
-    if(detectBrowser() == 'Firefox') {
-        extensionUrl = 'moz-extension'
-    }
-    const senderUrl = port.sender.url.split("?")
-    const popupSender = Boolean((port.name == 'popup' && 
-                                port.sender.id == browser.runtime.id && 
-                                senderUrl[0] == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && 
-                                detectBrowser() != 'Firefox') || 
-                                (detectBrowser() == 'Firefox' && 
-                                port.name == 'popup' && 
-                                port.sender.id == browser.runtime.id ))
-    
-    if(!popupSender) {
-        let check = rpcWallet.sdkReady(() => {
-            rpcWallet.addConnection(port)
-        })
-        port.onDisconnect.addListener((p) => {
-            clearInterval(check)
-        })
-    } else {
-        port.onMessage.addListener(({ type, payload, uuid }, sender) => {
-            if(HDWALLET_METHODS.includes(type)) {
-                controller[type](payload).then((res) => {
-                    port.postMessage({ uuid, res })
-                })
-            } 
-            
-            if(AEX2_METHODS.hasOwnProperty(type)) {
-                rpcWallet[type](payload)
-            }
-
-            if(NOTIFICATION_METHODS.hasOwnProperty(type)) {
-                notification[type](payload) 
-            }
-
-        })  
+    if(port.sender.id == browser.runtime.id) {
+        
+        
+        
+        const connectionType = detectConnectionType(port)
+        
+        if(connectionType == CONNECTION_TYPES.EXTENSION) {
+            port.onMessage.addListener(({ type, payload, uuid }, sender) => {
+                if(HDWALLET_METHODS.includes(type)) {
+                    controller[type](payload).then((res) => {
+                        port.postMessage({ uuid, res })
+                    })
+                } 
+                if(AEX2_METHODS.hasOwnProperty(type)) {
+                    rpcWallet[type](payload)
+                }
+                if(NOTIFICATION_METHODS.hasOwnProperty(type)) {
+                    notification[type](payload) 
+                }
+            }) 
+        } else if(connectionType == CONNECTION_TYPES.POPUP) {
+            const url = new URL(port.sender.url)
+            const id = url.searchParams.get('id')
+            popupConnections.addPopup(id, port)
+        } else if(connectionType == CONNECTION_TYPES.OTHER) {
+            let check = rpcWallet.sdkReady(() => {
+                rpcWallet.addConnection(port)
+            })
+            port.onDisconnect.addListener((p) => {
+                clearInterval(check)
+            })
+        }
     }
 }) 

@@ -236,7 +236,7 @@ export default {
         //init SDK
         this.checkSdkReady()
         setTimeout(() => {
-          if(this.isLoggedIn) {
+          if(this.isLoggedIn ) {
             this.pollData()
           }else {
             this.hideLoader()
@@ -451,7 +451,7 @@ export default {
     async initSDK() {
       let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
       if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
-       
+        console.log("init")
         try {
           await this.$store.commit('SET_TOKEN_REGISTRY', 
             await this.$helpers.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 

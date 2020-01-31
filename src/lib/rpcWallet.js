@@ -7,15 +7,16 @@ import BrowserRuntimeConnection
   from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/connection/browser-runtime'
 import Node from '@aeternity/aepp-sdk/es/node'
 import { detectBrowser } from '../popup/utils/helper'
-import PopupConnection from '../popup-connection';
+import uuid from 'uuid';
 
 global.browser = require('webextension-polyfill');
 
 const rpcWallet = {
-    async init(walletController) {
+    async init(walletController, popups) {
         await this.initNodes()
         this.initFields()
         this.controller = walletController
+        this.popups = popups
     },
     async initSubaccounts() {
         let { subaccounts } = await getAccounts()
@@ -156,31 +157,22 @@ const rpcWallet = {
     },
 
     async showPopup ({ action, aepp, type = "connectConfirm" })  {
-        const uid = getUniqueId()
-        const time = `${Math.floor(Date.now() / 1000)}${uid}`
-        // const popupWindow = window.open(`/popup/popup.html?t=${time}`, `popup_id_${time}`, 'width=420,height=680', false);
-        PopupConnection.onConnect()
-        const popupUrl =  browser.runtime.getURL('./popup/popup.html') + `?t=${time}`
+        const id = uuid()
+        const popupUrl =  browser.runtime.getURL('./popup/popup.html') + `?id=${id}&type=${type}`
         const popupWindow = await browser.windows.create({
             url: popupUrl,
             type: "popup",
             height: 680,
             width:420
         })
-        popupWindow.test = true
-        try {
-            action.accept()
-        } catch(e) {
-
-        }
         
-        return
+        
         if (!popupWindow) action.deny()
         let { connection: { port: {  sender: { url } } }, info: { icons, name} } = aepp
         let { protocol } = new URL (url)
-        return new Promise((resolve, reject) => {
-            popupWindow.window.props = { type, resolve, reject, action, host: extractHostName(url), icons, name, protocol };
-        });
+        // return new Promise((resolve, reject) => {
+        //     popupWindow.window.props = { type, resolve, reject, action, host: extractHostName(url), icons, name, protocol };
+        // });
     },
 
     async addConnection(port) {
