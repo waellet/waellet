@@ -198,7 +198,7 @@ export default {
         languages: false,
         tokens: false
       },
-      mainLoading: true,
+      mainLoading: false,
       checkPendingTxInterval:null,
       menuSlot:"mobile-left",
       mobileRight: "mobile-right",
@@ -242,13 +242,13 @@ export default {
           this.pollData()
           clearInterval(this.checkSDKReady)
         }
-      },500)
+      },100)
 
       setTimeout(() => {
         if(this.isLoggedIn) {
           this.pollData()
-        }else {
-          this.hideLoader()
+        // }else {
+        //   this.hideLoader()
         }
       },500)
 
