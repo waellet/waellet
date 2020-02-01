@@ -40,12 +40,6 @@
                   </ae-button>
                 </ae-list-item>
               </ae-list>
-                <!-- <li v-for="(value, name) in network" v-bind:key="value.networkId">
-                  <ae-button v-on:click="switchNetwork(name)" class="status triggerhidedd" :class="current.network == name ? 'current' : ''">
-                      {{ name }}
-                  </ae-button>
-                </li>
-              </ul> -->
             </transition>
           </div>
 
@@ -225,7 +219,7 @@ export default {
           this.$store.state.current.network = data.activeNetwork;
         }
       });
-      let background = await start(browser)
+      let background = start(browser)
       this.$store.commit( 'SET_BACKGROUND', background )
       readWebPageDom((receiver,sendResponse ) => {
         this.$store.commit('SET_TIPPING_RECEIVER', receiver)
@@ -247,8 +241,8 @@ export default {
       setTimeout(() => {
         if(this.isLoggedIn) {
           this.pollData()
-        // }else {
-        //   this.hideLoader()
+        }else {
+          this.hideLoader()
         }
       },500)
 
@@ -270,9 +264,9 @@ export default {
   methods: {
     hideLoader() {
       var self = this;
-      setTimeout(function() {
+      // setTimeout(function() {
         self.mainLoading = false;
-      }, 1500);
+      // }, 100);
     },
     changeAccount (index,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
