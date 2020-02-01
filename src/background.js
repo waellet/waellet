@@ -1,5 +1,5 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
-import { checkAeppConnected, initializeSDK, removeTxFromStorage, detectBrowser, parseFromStorage } from './popup/utils/helper';
+import { checkAeppConnected, removeTxFromStorage, detectBrowser, parseFromStorage } from './popup/utils/helper';
 import WalletContorller from './wallet-controller'
 import Notification from './notifications';
 import { setController, contractCallStatic } from './popup/utils/aepp-utils'

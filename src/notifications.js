@@ -1,5 +1,5 @@
 global.browser = require('webextension-polyfill');
-const { Universal: Ae, Crypto } = require('@aeternity/aepp-sdk')
+const { Universal: Ae } = require('@aeternity/aepp-sdk')
 import { networks } from './popup/utils/constants';
 import { detectBrowser } from './popup/utils/helper';
 
