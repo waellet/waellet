@@ -2,14 +2,6 @@
   <div class="popup">
     <h3>{{ $t('pages.account.heading') }}</h3>
     <div class="currenciesgroup">
-      <!-- <div class="inputGroup-currencies">
-        <div class="input-group-icon">$</div>
-        <div class="input-group-area"><input disabled type="text" :value=toUsd></div>
-      </div>
-      <div class="inputGroup-currencies">
-        <div class="input-group-icon">€</div>
-        <div class="input-group-area"><input disabled type="text" :value=toEur></div>
-      </div> -->
       <li id="currencies" class="have-subDropdown" :class="dropdown.currencies ? 'show' : ''">
         <div class="inputGroup-currencies">
           <div class="input-group-icon"><ae-icon name="flip"/></div>
@@ -96,6 +88,7 @@ export default {
       dropdown: {
           currencies: false,
       },
+      cardColor: 'primary'
     }
   },
   computed: {
@@ -109,8 +102,8 @@ export default {
     watchToken() {
       return this.current.token
     },
-    cardColor() {
-      return this.isLedger ? 'neutral' : 'primary'
+    getCardColor() {
+      this.cardColor = this.isLedger ? 'neutral' : 'primary'
     },
     currs(){
       browser.storage.local.get('allCurrencies').then(resall => {
