@@ -124,15 +124,14 @@ export default {
                             this.$store.state.network[networkName] = newNetwork;
                             this.newUserNetwork = "";
                             this.newUserNetworkURL = "";
-                            /* UNCOMMENT IF CURRENT NETWORK MUST CHANGE TO ADDED ONE */
-                            // this.$store.dispatch('switchNetwork', networkName).then(() => {
-                            //     this.$store.state.aeAPI = this.fetchApi();
-                            //     this.$store.dispatch('updateBalance');
-                            //     let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
-                            //     transactions.then(res => {
-                            //         this.$store.dispatch('updateLatestTransactions',res);
-                            //     });
-                            // }); 
+                            this.$store.dispatch('switchNetwork', networkName).then(() => {
+                                this.$store.state.aeAPI = this.fetchApi();
+                                this.$store.dispatch('updateBalance');
+                                let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
+                                transactions.then(res => {
+                                    this.$store.dispatch('updateLatestTransactions',res);
+                                });
+                            }); 
                             this.setNetworks();
                         });
                     });
