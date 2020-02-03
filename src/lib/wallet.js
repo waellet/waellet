@@ -2,7 +2,7 @@ import store from '../store';
 export default {
     store:null,
     initSdk() {
-        // console.log(sdk)
+      // init sdk here
     },
     init(cb) {
         browser.storage.local.get('isLogged').then(data => {
@@ -58,6 +58,7 @@ export default {
                   store.commit('SET_MAIN_LOADING', false);
                 } else {
                   store.commit('SET_MAIN_LOADING', false);
+                  cb()
                 }
               } else {
                 browser.storage.local.get('confirmSeed').then(seed => {

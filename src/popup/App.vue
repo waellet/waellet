@@ -159,7 +159,7 @@
       {{extensionVersion}} </span>
     <Loader size="big" :loading="mainLoading"></Loader>
     <div class="connect-error" v-if="connectError" >Unable to connect to choosen node</div>
-    <div class="connect-node" v-if="nodeConnecting && account.publicKey && isLoggedIn" >Connecting to node</div>
+    <div class="connect-node" v-if="nodeConnecting && account.publicKey && isLoggedIn" >Connecting to node...</div>
   </ae-main>
 </template>
  
@@ -319,7 +319,7 @@ export default {
             this.dropdown.account = false;
             this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
             this.$store.commit('UNSET_SUBACCOUNTS');
-            this.$store.commit('UPDATE_ACCOUNT', '');
+            this.$store.commit('UPDATE_ACCOUNT', {});
             this.$store.commit('SWITCH_LOGGED_IN', false);
             this.$store.commit('SET_WALLET', []);
             this.$router.push('/');

@@ -51,9 +51,11 @@ let lastRouteKey = 'lsroute'
 router.beforeEach((to, from, next) => {
   if(store.getters.account.hasOwnProperty("publicKey")) {
     console.log("imag account")
+    next()
   } else {
     console.log("nqma account")
     wallet.init((route) => {
+      console.log(route)
       if(route) {
         console.log("ima route", route)
         next(route)
