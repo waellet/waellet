@@ -23,7 +23,7 @@
         </ul>
       </li>
     </div>
-    <ae-card :fill="cardColor">
+    <!-- <ae-card :fill="cardColor">
       <template slot="avatar">
         <ae-identicon :address="account.publicKey" />
         <ae-input-plain fill="white" :placeholder="$t('pages.account.accountName')" @keyup.native="setAccountName" :value="activeAccountName"  />
@@ -38,7 +38,7 @@
           {{ $t('pages.account.copy') }}
         </ae-button>
       </ae-toolbar>
-    </ae-card>
+    </ae-card> -->
     <br>
     <div class="actions">
       <ae-button-group>

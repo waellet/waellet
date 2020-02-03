@@ -91,5 +91,11 @@ export const getters = {
   },
   tippingReceiver({ tippingReceiver }) {
     return tippingReceiver
+  },
+  mainLoading({ mainLoading }) {
+    return mainLoading
+  },
+  nodeConnecting({ nodeConnecting }) {
+    return nodeConnecting
   }
 };

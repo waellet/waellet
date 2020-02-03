@@ -159,6 +159,7 @@
       {{extensionVersion}} </span>
     <Loader size="big" :loading="mainLoading"></Loader>
     <div class="connect-error" v-if="connectError" >Unable to connect to choosen node</div>
+    <div class="connect-node" v-if="nodeConnecting && account.publicKey && isLoggedIn" >Connecting to node</div>
   </ae-main>
 </template>
  
@@ -192,7 +193,6 @@ export default {
         languages: false,
         tokens: false
       },
-      mainLoading: false,
       checkPendingTxInterval:null,
       menuSlot:"mobile-left",
       mobileRight: "mobile-right",
@@ -201,7 +201,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'background', 'sdk','tokens','aeppPopup','ledgerNextIdx']),
+    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'background', 'sdk','tokens','aeppPopup','ledgerNextIdx','mainLoading','nodeConnecting']),
     extensionVersion() {
       return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
@@ -219,7 +219,7 @@ export default {
           this.$store.state.current.network = data.activeNetwork;
         }
       });
-      let background = start(browser)
+      let background = await start(browser)
       this.$store.commit( 'SET_BACKGROUND', background )
       readWebPageDom((receiver,sendResponse ) => {
         this.$store.commit('SET_TIPPING_RECEIVER', receiver)
@@ -238,13 +238,6 @@ export default {
         }
       },100)
 
-      setTimeout(() => {
-        if(this.isLoggedIn) {
-          this.pollData()
-        }else {
-          this.hideLoader()
-        }
-      },500)
 
       this.checkPendingTx()
       window.addEventListener('resize', () => {
@@ -263,10 +256,7 @@ export default {
   },
   methods: {
     hideLoader() {
-      var self = this;
-      // setTimeout(function() {
-        self.mainLoading = false;
-      // }, 100);
+      this.$store.commit('SET_MAIN_LOADING', false);
     },
     changeAccount (index,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
@@ -433,42 +423,42 @@ export default {
       return ae;
     },
     async initSDK() {
-      let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
-      if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
-        try {
-          await this.$store.commit('SET_TOKEN_REGISTRY', 
-            await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
-            TOKEN_REGISTRY_CONTRACT_LIMA : 
-            TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistry }) 
-          )
-        } catch (e) {
+      // let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
+      // if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
+      //   try {
+      //     await this.$store.commit('SET_TOKEN_REGISTRY', 
+      //       await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
+      //       TOKEN_REGISTRY_CONTRACT_LIMA : 
+      //       TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistry }) 
+      //     )
+      //   } catch (e) {
 
-        }
-        try {
-          await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
-            await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
-          )
-          await this.$store.commit('SET_TIPPING', 
-            await sdk.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
-          )
-        } catch(e) {
+      //   }
+      //   try {
+      //     await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
+      //       await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
+      //     )
+      //     await this.$store.commit('SET_TIPPING', 
+      //       await sdk.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
+      //     )
+      //   } catch(e) {
           
-        }
+      //   }
         
-        this.$store.dispatch('getAllUserTokens')
-      }
+      //   this.$store.dispatch('getAllUserTokens')
+      // }
       
-      if(typeof sdk.error != 'undefined') {
-          await browser.storage.local.remove('isLogged')
-          await browser.storage.local.remove('activeAccount')
-          this.hideLoader()
-          this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
-          this.$store.commit('UNSET_SUBACCOUNTS');
-          this.$store.commit('UPDATE_ACCOUNT', '');
-          this.$store.commit('SWITCH_LOGGED_IN', false);
+      // if(typeof sdk.error != 'undefined') {
+      //     await browser.storage.local.remove('isLogged')
+      //     await browser.storage.local.remove('activeAccount')
+      //     this.hideLoader()
+      //     this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
+      //     this.$store.commit('UNSET_SUBACCOUNTS');
+      //     this.$store.commit('UPDATE_ACCOUNT', '');
+      //     this.$store.commit('SWITCH_LOGGED_IN', false);
           
-          this.$router.push('/')
-      }
+      //     this.$router.push('/')
+      // }
     },
     toTokens() {
       this.dropdown.settings = false
@@ -618,5 +608,6 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .tokenBalance { margin-right: auto; }
 #tokens .ae-check-button:before { width: 20px !important; height: 20px !important; }
 #tokens .ae-check-button:after { width: 26px !important; height: 25px !important; }
-.connect-error { position:fixed; bottom: 0; left:0; right:0; background:$primary-color; color:#fff; padding: .3rem; text-align:center; font-weight:bold; }
+.connect-error, .connect-node { position:fixed; bottom: 0; left:0; right:0; background:$primary-color; color:#fff; padding: .3rem; text-align:center; font-weight:bold; }
+.connect-node { background: $color-secondary; }
 </style>
