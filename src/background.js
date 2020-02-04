@@ -24,18 +24,6 @@ setInterval(() => {
     });
 },5000);
 
-function getAccount() {
-    return new Promise(resolve => {
-        browser.storage.sync.get('userAccount', data => {
-            if (data.userAccount && data.userAccount.hasOwnProperty('publicKey')) {
-                resolve({ keypair: {
-                    publicKey: data.userAccount.publicKey,
-                    secretKey: data.userAccount.secretKey
-                }})
-            }
-        })
-    });
-}
 
 const error = {
     "error": {
@@ -242,31 +230,12 @@ const openAeppPopup = (msg,type) => {
     })
 }
 
-const checkPendingTx = () => {
-    return new Promise((resolve,reject) => {
-        browser.storage.local.get('pendingTransaction').then((tx) => {
-            if(tx.hasOwnProperty("pendingTransaction")) {
-                resolve(false)
-            }else {
-                resolve(false)
-            }
-        })
-    })
-}
-
 const postPhishingData = (data) => {
     browser.tabs.query({active:true, currentWindow:true}).then((tabs) => { 
         const message = { method: 'phishingCheck', data };
         tabs.forEach(({ id }) => browser.tabs.sendMessage(id, message)) 
     });
 }
-
-const postToContent = (data, tabId) => {
-    const message = { method: 'aeppMessage', data };
-    browser.tabs.sendMessage(tabId, message)
-}
-
-
 
 browser.runtime.onConnect.addListener( ( port ) => {
     let extensionUrl = 'chrome-extension'

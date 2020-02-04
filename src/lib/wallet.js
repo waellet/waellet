@@ -1,9 +1,8 @@
 import store from '../store';
 import { postMesssage } from '../popup/utils/connection';
 import { parseFromStorage, swag } from '../popup/utils/helper';
-import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
-import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT } from '../popup/utils/constants'
+import {  TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT } from '../popup/utils/constants'
 
 export default {
     store:null,
