@@ -216,8 +216,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-@import '../../../common/base';
 .regbtn{
     background: #FF0D6A;
     color: #ffffff;

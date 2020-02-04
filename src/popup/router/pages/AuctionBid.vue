@@ -136,8 +136,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
-
 .lefttext {
     float: left;
     text-align: left;

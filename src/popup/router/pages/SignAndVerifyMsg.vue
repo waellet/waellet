@@ -185,7 +185,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .ae-modal-light main + .buttons {
     display: none !important;
 }

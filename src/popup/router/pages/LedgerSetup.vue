@@ -55,7 +55,6 @@ export default {
 </script>
 
 <style lang="scss" scoped >
-@import '../../../common/base';
 .iconBtn {
     padding: 0 !important;
     height: 30px !important;
