@@ -127,7 +127,7 @@ export default {
   [types.SET_MAIN_LOADING] (state, payload) {
     state.mainLoading = payload
   },
-  [types.SET_NODE_CONNECTING] (state, payload) {
-    state.nodeConnecting = payload
+  [types.SET_NODE_STATUS] (state, payload) {
+    state.nodeStatus = payload
   }
 }; 

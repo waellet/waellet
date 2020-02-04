@@ -570,6 +570,7 @@ export {
     checkAeppConnected, 
     redirectAfterLogin, 
     initializeSDK, 
+    swag,
     currencyConv, 
     convertAmountToCurrency, 
     contractEncodeCall, 

@@ -158,8 +158,7 @@
       {{ $t('pages.appVUE.systemName') }} 
       {{extensionVersion}} </span>
     <Loader size="big" :loading="mainLoading"></Loader>
-    <div class="connect-error" v-if="connectError" >Unable to connect to choosen node</div>
-    <div class="connect-node" v-if="nodeConnecting && account.publicKey && isLoggedIn" >Connecting to node...</div>
+    <NodeConnectionStatus />
   </ae-main>
 </template>
  
@@ -608,6 +607,5 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .tokenBalance { margin-right: auto; }
 #tokens .ae-check-button:before { width: 20px !important; height: 20px !important; }
 #tokens .ae-check-button:after { width: 26px !important; height: 25px !important; }
-.connect-error, .connect-node { position:fixed; bottom: 0; left:0; right:0; background:$primary-color; color:#fff; padding: .3rem; text-align:center; font-weight:bold; }
-.connect-node { background: $color-secondary; }
+
 </style>

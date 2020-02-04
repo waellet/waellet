@@ -95,7 +95,7 @@ export const getters = {
   mainLoading({ mainLoading }) {
     return mainLoading
   },
-  nodeConnecting({ nodeConnecting }) {
-    return nodeConnecting
+  nodeStatus({ nodeStatus }) {
+    return nodeStatus
   }
 };

@@ -53,7 +53,7 @@ export default new Vuex.Store({
     tipping:null,
     tippingReceiver: {},
     mainLoading: true,
-    nodeConnecting:true
+    nodeStatus:'connecting'
   },
   getters,
   mutations,

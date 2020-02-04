@@ -13,6 +13,7 @@ import AmountInput from './components/AmountInput';
 import AddressInput from './components/AddressInput';
 import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader'
 import ModalComponent from './components/Modal';
+import NodeConnectionStatus from './components/NodeConnectionStatus'
 import * as helper from '../utils/helper';
 import store from '../../store';
 import wallet from '../../lib/wallet'
@@ -40,6 +41,7 @@ Vue.component('QrcodeCapture',QrcodeCapture);
 Vue.component('Modal', ModalComponent);
 Vue.component('AmountInput', AmountInput);
 Vue.component("AddressInput", AddressInput);
+Vue.component("NodeConnectionStatus", NodeConnectionStatus);
 
 let router = new VueRouter({
   routes,
@@ -50,17 +52,17 @@ let lastRouteKey = 'lsroute'
 
 router.beforeEach((to, from, next) => {
   if(store.getters.account.hasOwnProperty("publicKey")) {
-    console.log("imag account")
+    console.log("ima account")
+    if(!store.getters.sdk) {
+      wallet.initSdk(() => next('/'))
+    }
     next()
   } else {
-    console.log("nqma account")
     wallet.init((route) => {
-      console.log(route)
+      console.log("otivam na", route)
       if(route) {
-        console.log("ima route", route)
         next(route)
       } else {
-        console.log("nqma route")
         next()
       }
     })
