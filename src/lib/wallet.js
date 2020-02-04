@@ -56,8 +56,8 @@ export default {
                     }
                   });
                   store.commit('SWITCH_LOGGED_IN', true);
-                  // redirectAfterLogin(this);
-                  cb('/account')
+                  this.redirectAfterLogin(cb) //ger rid of this when update to sdk7
+
                   store.commit('SET_MAIN_LOADING', false);
                 } else {
                   store.commit('SET_MAIN_LOADING', false);
@@ -156,6 +156,52 @@ export default {
       } catch(e) { console.log(e) }
 
       setTimeout(() => store.commit('SET_NODE_STATUS', ''), 2000 )
-      store.dispatch('getAllUserTokens')
+      // store.dispatch('getAllUserTokens')
+    },
+    redirectAfterLogin(cb){
+      browser.storage.local.get('showAeppPopup').then((aepp) => {
+        browser.storage.local.get('pendingTransaction').then((pendingTx) => {
+            if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
+                browser.storage.local.remove('showAeppPopup').then(() => {
+                    store.commit('SET_AEPP_POPUP',true)
+                    if(aepp.showAeppPopup.data.hasOwnProperty("tx") && aepp.showAeppPopup.data.tx.hasOwnProperty("params")) {
+                        aepp.showAeppPopup.data.tx.params = parseFromStorage(aepp.showAeppPopup.data.tx.params)
+                    }
+                    if(aepp.showAeppPopup.type == 'connectConfirm') {
+                        aepp.showAeppPopup.data.popup = true
+                        cb({'name':'connect-confirm', params: {
+                        data:aepp.showAeppPopup.data
+                        }});
+                    }else if(aepp.showAeppPopup.type == 'txSign') {
+                        aepp.showAeppPopup.data.popup = true
+                        cb({'name':'sign', params: {
+                        data:aepp.showAeppPopup.data
+                        }});
+                    }else if(aepp.showAeppPopup.type == 'contractCall') {
+                        aepp.showAeppPopup.data.popup = true
+                        cb({'name':'sign', params: {
+                          data:aepp.showAeppPopup.data
+                        }})
+                    }else if(aepp.showAeppPopup.type == 'signMessage') {
+                        aepp.showAeppPopup.data.popup = true
+                        cb({'name':'sign-verify-message', params: {
+                          data:aepp.showAeppPopup.data
+                        }})
+                    }
+                    return;
+                });
+            }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length > 0) {
+                store.commit('SET_AEPP_POPUP',true)
+                let tx = pendingTx.pendingTransaction.list[Object.keys(pendingTx.pendingTransaction.list)[0]];
+                tx.popup = false
+                tx.countTx =  Object.keys(pendingTx.pendingTransaction.list).length
+                cb({'name':'sign', params: {
+                  data:tx
+                }})
+            }else {
+                cb('/account')
+            }
+        })
+      })
     }
 }

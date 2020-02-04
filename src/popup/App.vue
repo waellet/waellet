@@ -163,19 +163,15 @@
 </template>
  
 <script>
-import Ae from '@aeternity/aepp-sdk/es/ae/universal';
-import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import store from '../store';
 import locales from './locales/en.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
-import { initializeSDK, contractCall } from './utils/helper';
-import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
 import { start, postMesssage, readWebPageDom } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
-import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
+import wallet from '../lib/wallet'
 
 export default {
   
@@ -219,7 +215,7 @@ export default {
         }
       });
       let background = await start(browser)
-      this.$store.commit( 'SET_BACKGROUND', background )
+      this.$store.commit('SET_BACKGROUND', background )
       readWebPageDom((receiver,sendResponse ) => {
         this.$store.commit('SET_TIPPING_RECEIVER', receiver)
         sendResponse({ host:receiver.host, received: true })
@@ -227,11 +223,8 @@ export default {
 
       //init SDK
       this.checkSDKReady = setInterval(() => {
-        if(this.isLoggedIn && this.sdk == null) {
-
+        if(this.sdk != null) {
           this.initLedger()
-          this.initSDK()
-          
           this.pollData()
           clearInterval(this.checkSDKReady)
         }
@@ -254,14 +247,12 @@ export default {
     this.dropdown.settings = false;
   },
   methods: {
-    hideLoader() {
-      this.$store.commit('SET_MAIN_LOADING', false);
-    },
     changeAccount (index,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
       browser.storage.local.set({activeAccount: index}).then(() => {
         this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
-        this.initSDK();
+        //when update to sdk we need to use selectAccount insted reinit sdk
+        wallet.initSdk()
         this.dropdown.account = false;
         this.$store.commit('RESET_TRANSACTIONS',[]);
       });
@@ -301,30 +292,12 @@ export default {
     switchNetwork (network) {
       this.dropdown.network = false;
       this.$store.dispatch('switchNetwork', network).then(() => {
-        this.initSDK();
-        this.$store.dispatch('updateBalance');
-        let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
-        transactions.then(res => {
-          this.$store.dispatch('updateLatestTransactions',res);
-        });
+        this.$store.commit('SET_NODE_STATUS', 'connecting')
+        wallet.initSdk()
       }); 
     },
     logout () {
-      browser.storage.local.remove('isLogged').then(() => {
-        browser.storage.local.remove('wallet').then(() => {
-          browser.storage.local.remove('activeAccount').then(() => {
-            this.dropdown.settings = false;
-            this.dropdown.languages = false;
-            this.dropdown.account = false;
-            this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
-            this.$store.commit('UNSET_SUBACCOUNTS');
-            this.$store.commit('UPDATE_ACCOUNT', {});
-            this.$store.commit('SWITCH_LOGGED_IN', false);
-            this.$store.commit('SET_WALLET', []);
-            this.$router.push('/');
-          });
-        });
-      });
+      wallet.logout(() => this.$router.push('/') )
     }, 
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -403,61 +376,7 @@ export default {
               triggerOnce = true
             }
         }
-      }, 2500);
-    },
-    fetchApi() {
-      let states = this.$store.state;
-      let ae = Ae({
-          url: states.network[states.current.network].url,
-          internalUrl: states.network[states.current.network].internalUrl,
-          keypair: {
-            secretKey: states.account.secretKey,
-            publicKey: states.account.publicKey,
-          },
-          networkId: states.network[states.current.network].networkId,
-      });
-      ae.then(a => {
-        console.log(a);
-      })
-      return ae;
-    },
-    async initSDK() {
-      // let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
-      // if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
-      //   try {
-      //     await this.$store.commit('SET_TOKEN_REGISTRY', 
-      //       await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
-      //       TOKEN_REGISTRY_CONTRACT_LIMA : 
-      //       TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistry }) 
-      //     )
-      //   } catch (e) {
-
-      //   }
-      //   try {
-      //     await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
-      //       await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
-      //     )
-      //     await this.$store.commit('SET_TIPPING', 
-      //       await sdk.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
-      //     )
-      //   } catch(e) {
-          
-      //   }
-        
-      //   this.$store.dispatch('getAllUserTokens')
-      // }
-      
-      // if(typeof sdk.error != 'undefined') {
-      //     await browser.storage.local.remove('isLogged')
-      //     await browser.storage.local.remove('activeAccount')
-      //     this.hideLoader()
-      //     this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
-      //     this.$store.commit('UNSET_SUBACCOUNTS');
-      //     this.$store.commit('UPDATE_ACCOUNT', '');
-      //     this.$store.commit('SWITCH_LOGGED_IN', false);
-          
-      //     this.$router.push('/')
-      // }
+      }, 3500);
     },
     toTokens() {
       this.dropdown.settings = false
