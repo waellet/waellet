@@ -68,7 +68,7 @@ router.beforeEach((to, from, next) => {
     next()
   } else {
     wallet.init((route) => {
-      if(shouldRedirect && route === ('/' || '/account') && !noRedirectUrls.includes(lastRouteName)) {
+      if(shouldRedirect && (route == '/' || route == '/account') && !noRedirectUrls.includes(lastRouteName)) {
         next(lastRouteName)
       } else {
         if(route) {
