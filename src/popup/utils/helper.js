@@ -5,6 +5,7 @@ import { postMesssage } from './connection';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
 import axios from 'axios';
 
+
 import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
 
 const shuffleArray = (array) => {
@@ -252,15 +253,15 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
             compilerUrl: (typeof network != 'undefined' ? network[current.network].compilerUrl : "https://compiler.aepps.com" )
         }).then((sdk) => {
             if(!backgr) {
-                ctx.$store.dispatch('initSdk',sdk).then(() => {
-                    ctx.hideLoader()
-                })
+                // store.dispatch('initSdk',sdk).then(() => {
+                //     ctx.$store.commit('SET_NODE_CONNECTING', false)
+                // })
             }
             resolve(sdk)
         })
         .catch(err => {
             if(!backgr) {
-                ctx.hideLoader()
+                // store.commit('SET_NODE_CONNECTING', false)
                 ctx.showConnectError()
             }
             if(countErr < 3) {
@@ -569,6 +570,7 @@ export {
     checkAeppConnected, 
     redirectAfterLogin, 
     initializeSDK, 
+    swag,
     currencyConv, 
     convertAmountToCurrency, 
     contractEncodeCall, 

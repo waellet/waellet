@@ -51,7 +51,9 @@ export default new Vuex.Store({
     tokenRegistryLima:null,
     txAdvancedMode:false,
     tipping:null,
-    tippingReceiver: {}
+    tippingReceiver: {},
+    mainLoading: true,
+    nodeStatus:'connecting'
   },
   getters,
   mutations,
