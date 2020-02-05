@@ -418,6 +418,9 @@ export default {
                         let fee = calculateFee(TX_TYPES[this.data.type],this.txParams)
                         this.txFee = fee
                         this.selectedFee = this.fee.toFixed(7)
+                        if(this.alertMsg == '') {
+                            this.signDisabled = false
+                        }
                     }
                 }, 500)
             }
@@ -445,7 +448,9 @@ export default {
             }
 
             if(this.alertMsg == '') {
-                this.signDisabled = false
+                if(this.selectedFee) {
+                    this.signDisabled = false
+                }
             }else {
                 this.signDisabled = true
                 if(balance) {
@@ -619,7 +624,9 @@ export default {
                 console.log(...this.data.tx.params)
             
                 options = { ...options, fee:this.convertSelectedFee }
-
+                if (!this.contractInstance) {
+                    await this.setContractInstance(this.data.tx.source, this.data.tx.address, this.data.tx.options);
+                }
                 call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, options] })
                 
                 this.setTxInQueue(call.hash)
@@ -753,6 +760,8 @@ export default {
                 this.redirectToTxConfirm(tx)
             } catch(err) {
                 this.setTxInQueue('error')
+                this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                this.redirectInExtensionAfterAction()
             }
             
         },  
@@ -764,8 +773,9 @@ export default {
                         this.$router.push('/aens')
                         this.$store.commit('SET_AEPP_POPUP',false)
                 } catch(err) {
-                    console.log('errorbid => ', err)
                     this.setTxInQueue('error')
+                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                    this.redirectInExtensionAfterAction()
                 }
             }
             else {
@@ -777,8 +787,9 @@ export default {
                         this.$router.push('/aens')
                     },1000)
                 } catch(err) {
-                    console.log('errorclaim => ', err)
                     this.setTxInQueue('error')
+                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                    this.redirectInExtensionAfterAction()
                 }
             }
         },
@@ -907,7 +918,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
+@import '../../../common/variables';
 .balanceSpend {
     font-size:2rem;
     color:#001833;

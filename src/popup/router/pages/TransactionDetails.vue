@@ -234,7 +234,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
+@import '../../../common/variables';
 .transactionDetailsInputs {
     width: 100%;
     background: #EDF3F7;

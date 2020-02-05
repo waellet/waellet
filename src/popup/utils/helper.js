@@ -1,5 +1,4 @@
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
-import { getHdWalletAccount } from './hdWallet';
 import { Crypto } from '@aeternity/aepp-sdk/es';
 import { postMesssage } from './connection';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'

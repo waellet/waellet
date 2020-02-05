@@ -371,7 +371,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
+@import '../../../common/variables';
 
 .logo-center {
   display: flex;

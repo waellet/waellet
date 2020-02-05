@@ -1,6 +1,5 @@
 /* eslint-disable */
 const nacl = require('tweetnacl')
-const argon = require('./argon2.js');
 import uuid from 'uuid';
 import { encodeBase58Check } from '@aeternity/aepp-sdk/es/utils/crypto';
 import WebCrypto from './webCrypto';
