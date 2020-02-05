@@ -760,6 +760,8 @@ export default {
                 this.redirectToTxConfirm(tx)
             } catch(err) {
                 this.setTxInQueue('error')
+                this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                this.redirectInExtensionAfterAction()
             }
             
         },  
@@ -771,8 +773,9 @@ export default {
                         this.$router.push('/aens')
                         this.$store.commit('SET_AEPP_POPUP',false)
                 } catch(err) {
-                    console.log('errorbid => ', err)
                     this.setTxInQueue('error')
+                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                    this.redirectInExtensionAfterAction()
                 }
             }
             else {
@@ -784,8 +787,9 @@ export default {
                         this.$router.push('/aens')
                     },1000)
                 } catch(err) {
-                    console.log('errorclaim => ', err)
                     this.setTxInQueue('error')
+                    this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+                    this.redirectInExtensionAfterAction()
                 }
             }
         },
