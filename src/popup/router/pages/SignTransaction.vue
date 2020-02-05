@@ -418,6 +418,9 @@ export default {
                         let fee = calculateFee(TX_TYPES[this.data.type],this.txParams)
                         this.txFee = fee
                         this.selectedFee = this.fee.toFixed(7)
+                        if(this.alertMsg == '') {
+                            this.signDisabled = false
+                        }
                     }
                 }, 500)
             }
@@ -445,7 +448,9 @@ export default {
             }
 
             if(this.alertMsg == '') {
-                this.signDisabled = false
+                if(this.selectedFee) {
+                    this.signDisabled = false
+                }
             }else {
                 this.signDisabled = true
                 if(balance) {
@@ -619,7 +624,9 @@ export default {
                 console.log(...this.data.tx.params)
             
                 options = { ...options, fee:this.convertSelectedFee }
-
+                if (!this.contractInstance) {
+                    await this.setContractInstance(this.data.tx.source, this.data.tx.address, this.data.tx.options);
+                }
                 call = await this.$helpers.contractCall({ instance:this.contractInstance, method:this.data.tx.method, params:[...this.data.tx.params, options] })
                 
                 this.setTxInQueue(call.hash)
