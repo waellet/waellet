@@ -219,8 +219,8 @@ const openAeppPopup = (msg,type) => {
             browser.windows.create({
                 url: browser.runtime.getURL('./popup/popup.html'),
                 type: "popup",
-                height: 640,
-                width:380
+                height: 680,
+                width:420
             }).then((window) => {
                 connectToPopup((res) => {
                     resolve(res)

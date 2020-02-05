@@ -439,7 +439,7 @@ export default {
 .desktop-right { width: 100%; display: flex; justify-content: space-evenly; }
 .desktop-right #account { position: relative; left: 0; top: 0; margin-left: 0; margin-top: 0; }
 .ae-header header .title { display: none; }
-html { min-width: 380px; min-height: 600px; background-color: #f5f5f5; }
+html { min-width: 357px; min-height: 600px; background-color: #f5f5f5; }
 p { font-weight: bolder; margin-left: 3px; }
 input { background: transparent; border: none; border-bottom: 1px; height: 25px; line-height: 25px; }
 input:focus { border-bottom: 1px solid #DDD; }
