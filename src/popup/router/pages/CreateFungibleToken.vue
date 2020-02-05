@@ -165,7 +165,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .advancedbtn-precision {
     padding: 0.5rem;
     margin-bottom: 1rem;

@@ -61,7 +61,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .balance{
     font-size: 3rem;
     color: #000;

@@ -1,7 +1,5 @@
-import { decrypt } from './popup/utils/keystore';
 import { generateHdWallet, getHdWalletAccount } from './popup/utils/hdWallet';
 import { stringifyForStorage, parseFromStorage } from './popup/utils/helper';
-import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import { addressGenerator } from './popup/utils/address-generator';
 
 
@@ -19,6 +17,9 @@ export default class WalletController {
                         browser.storage.local.remove('isLogged')
                     }
                 });
+                if(!this.wallet) {
+                    browser.storage.local.remove('isLogged')
+                }
             },5000);
         }
     }

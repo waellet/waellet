@@ -34,7 +34,7 @@ export const getters = {
     return state.activeAccount;
   },
   activeAccountName(state) {
-    return state.subaccounts.find(s => s.publicKey == state.account.publicKey) ? state.subaccounts.find(s => s.publicKey == state.account.publicKey).name : 'Account';
+    return state.subaccounts.find(s => s.publicKey == state.account.publicKey) ? state.subaccounts.find(s => s.publicKey == state.account.publicKey).name : 'Main account';
   },
   sdk(state) {
     return state.sdk
@@ -91,5 +91,11 @@ export const getters = {
   },
   tippingReceiver({ tippingReceiver }) {
     return tippingReceiver
+  },
+  mainLoading({ mainLoading }) {
+    return mainLoading
+  },
+  nodeStatus({ nodeStatus }) {
+    return nodeStatus
   }
 };
