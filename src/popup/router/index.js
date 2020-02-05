@@ -55,12 +55,16 @@ const noRedirectUrls = [
   '/connect-confirm',
   '/sign-transaction/:type?',
   '/sign-transaction',
-  '/ask-accounts'
+  '/ask-accounts',
+  '/seed'
 ]
 
 router.beforeEach((to, from, next) => {
   const lastRouteName = localStorage.getItem(lastRouteKey);
   const shouldRedirect = to.path === ("/" || "/account") && lastRouteName && isFirstTransition;
+  if(to.path == '/seed') {
+    return next()
+  }
   if(store.getters.account.hasOwnProperty("publicKey") && store.getters.isLoggedIn) {
     if(!store.getters.sdk) {
       wallet.initSdk(() => next('/'))
