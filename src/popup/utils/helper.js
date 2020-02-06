@@ -118,6 +118,9 @@ const checkAeppConnected = (host) => {
     return new Promise((resolve, reject) => {
         browser.storage.local.get('connectedAepps').then((aepps) => {
             browser.storage.local.get('subaccounts').then((subaccounts) => {
+                if(!subaccounts.hasOwnProperty('subaccounts')) {
+                    return resolve(false)
+                }
                 browser.storage.local.get('activeAccount').then((active) => {
                     let activeIdx = 0
                     if(active.hasOwnProperty("activeAccount")) {

@@ -108,6 +108,3 @@ window.addEventListener("load", () => {
     }
 
 });
-
-
-
