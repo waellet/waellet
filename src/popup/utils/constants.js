@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import BigNumber from 'bignumber.js';
 import { TxBuilder } from '@aeternity/aepp-sdk/es';
-import { OBJECT_ID_TX_TYPE, TX_TYPE, VM_VERSIONS, ABI_VERSIONS } from '@aeternity/aepp-sdk/es/tx/builder/schema';
+import { TX_TYPE, VM_VERSIONS, ABI_VERSIONS } from '@aeternity/aepp-sdk/es/tx/builder/schema';
 
 export const MAGNITUDE = 18;
 export const MAGNITUDE_EXA = 18;

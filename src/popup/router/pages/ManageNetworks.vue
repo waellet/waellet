@@ -29,6 +29,11 @@
                     <div class="add-form">
                         <ae-input class="node-name" :label="$t('pages.manageNetworks.networkName')" v-model="newUserNetwork" :placeholder="$t('pages.manageNetworks.addnetworkName')"></ae-input>
                         <ae-input class="node-url" :label="$t('pages.manageNetworks.networkURL')" v-model="newUserNetworkURL" :placeholder="$t('pages.manageNetworks.addnetworkURL')"></ae-input>
+                        <ae-input class="node-internalURL" :label="$t('pages.manageNetworks.internalURL')" v-model="newUserNetworkInternalURL" :placeholder="$t('pages.manageNetworks.addinternalURL')"></ae-input>
+                        <ae-input class="node-networkId" :label="$t('pages.manageNetworks.networkId')" v-model="newNetworkId" :placeholder="$t('pages.manageNetworks.networkId')"></ae-input>
+                        <ae-input class="node-middlewareUrl" :label="$t('pages.manageNetworks.middlewareUrl')" v-model="newUserNetworkMiddlewareURL" :placeholder="$t('pages.manageNetworks.addmiddlewareUrl')"></ae-input>
+                        <ae-input class="node-explorerUrl" :label="$t('pages.manageNetworks.explorerUrl')" v-model="newUserNetworkExplorerURL" :placeholder="$t('pages.manageNetworks.addexplorerUrl')"></ae-input>
+                        <ae-input class="node-compilerUrl" :label="$t('pages.manageNetworks.compilerUrl')" v-model="networkCompilerURL" :placeholder="$t('pages.manageNetworks.addcompilerUrl')"></ae-input>
                         <ae-button @click="addbtn" face="round" fill="primary" extend>{{ $t('pages.manageNetworks.add') }}</ae-button>
                     </div>
                 </ul>
@@ -50,7 +55,12 @@ export default {
             аddNewUserNetwork: false,
             dropdown: false,
             newUserNetwork: '',
-            newUserNetworkURL: ''
+            newUserNetworkURL: '',
+            newUserNetworkInternalURL: '',
+            newNetworkId: '',
+            newUserNetworkMiddlewareURL: '',
+            newUserNetworkExplorerURL: '',
+            networkCompilerURL: ''
         }
     },
     computed: {
@@ -99,14 +109,20 @@ export default {
             let sameNameNetwork = false,
                 networkName = this.newUserNetwork,
                 networkURL = this.newUserNetworkURL,
+                networkInternalURL = this.newUserNetworkInternalURL,
+                networkId = this.newNetworkId,
+                networkMiddlewareURL = this.newUserNetworkMiddlewareURL,
+                networkExplorerURL = this.newUserNetworkExplorerURL,
+                networkCompilerURL = this.networkCompilerURL,
                 index =  this.userNetworks.length - 1,
                 newNetwork = {
                     name: networkName,
                     url: networkURL,
-                    internalUrl: this.$store.state.network.Testnet.internalUrl,
-                    networkId: this.$store.state.network.Testnet.networkId+'_user'+index,
-                    middlewareUrl: this.$store.state.network.Testnet.middlewareUrl,
-                    explorerUrl: this.$store.state.network.Testnet.explorerUrl
+                    internalUrl: networkInternalURL,
+                    networkId: networkId,
+                    middlewareUrl: networkMiddlewareURL,
+                    explorerUrl: networkExplorerURL,
+                    compilerUrl: networkCompilerURL,
                 };
             Object.keys(this.$store.state.network).forEach((name) => {
                 if (name == networkName) {
@@ -114,7 +130,10 @@ export default {
                     return;
                 }
             });
-            if (networkName != '' && networkURL != '' && !sameNameNetwork) {
+            if (networkName != '' && networkURL != '' 
+                && networkInternalURL != '' && networkId != '' 
+                    && networkMiddlewareURL != '' && networkExplorerURL != '' 
+                        && networkCompilerURL != '' && !sameNameNetwork) {
                 this.$store.dispatch('setUserNetwork', newNetwork).then(() => {
                     browser.storage.local.set({ userNetworks: this.userNetworks}).then(() => {
                         this.$store.dispatch('popupAlert', {
@@ -122,8 +141,7 @@ export default {
                             type: 'added_success'
                         }).then(() => {
                             this.$store.state.network[networkName] = newNetwork;
-                            this.newUserNetwork = "";
-                            this.newUserNetworkURL = "";
+                            this.resetInputValues();
                             this.$store.dispatch('switchNetwork', networkName).then(() => {
                                 this.$store.state.aeAPI = this.fetchApi();
                                 this.$store.dispatch('updateBalance');
@@ -152,13 +170,23 @@ export default {
         },
         navigateAccount() {
             this.$router.push('/account')
+        },
+        resetInputValues(){
+            this.newUserNetwork = "";
+            this.newUserNetworkURL = "";
+            this.newUserNetworkInternalURL = "";
+            this.newNetworkId = "";
+            this.newUserNetworkMiddlewareURL = "";
+            this.newUserNetworkExplorerURL = "";
+            this.networkCompilerURL = "";
         }
     }
 }
+
+
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .ae-list-item { cursor: default !important; }
 .ae-list-item .ae-icon, h4 .ae-icon , h4 .icon-btn{ float: right; font-size: 1.2rem; }
 
@@ -170,8 +198,8 @@ export default {
 .editaccount div button, .addaccount div button { float: right; }
 .editaccount div input { width: 60% !important; }
 
-.slideform { position: relative; width: 100%; overflow: hidden; padding: 0; top: 10px; list-style-type: none; height: 0; margin:0;
-    transform-origin: top; transition: all .4s ease-in-out; }
+.slideform { position: relative; width: 100%; overflow: hidden; overflow-y: auto; padding: 0; top: 10px; list-style-type: none; height: 0; margin:0;
+    transform-origin: top; transition: all .4s ease-in-out; padding: 0 3px;}
 .slide-enter, .slide-leave-to{ transform: scaleY(0); }
 .add-form { text-align: center; }
 .required_fields { color: red; margin: 5px; }

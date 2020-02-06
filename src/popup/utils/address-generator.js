@@ -1,14 +1,10 @@
 /* eslint-disable */
 
 import { generateEncryptedWallet } from './keystore'
-import { dump, recover } from '@aeternity/aepp-sdk/es/utils/keystore';
+import { recover } from '@aeternity/aepp-sdk/es/utils/keystore';
 import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto'
-import { getHdWalletAccount } from './hdWallet';
 import WebCrypto from './webCrypto';
         
-
-const nacl = require('tweetnacl')
-
 export const addressGenerator = {
   generateKeyPair,
   importPrivateKey,

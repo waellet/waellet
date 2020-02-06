@@ -1,4 +1,4 @@
-import { extractHostName, detectBrowser, checkAddress } from './popup/utils/helper';
+import { extractHostName, detectBrowser } from './popup/utils/helper';
 global.browser = require('webextension-polyfill');
 
 const redirectToWarning = (hostname,href,extUrl = '') => {

@@ -1,15 +1,13 @@
-import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
 import { convertToAE, stringifyForStorage, parseFromStorage, contractCall, checkContractAbiVersion } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
-import { uniqBy, head, flatten, merge, uniqWith, isEqual } from 'lodash-es';
+import { uniqBy, head, flatten,  uniqWith, isEqual } from 'lodash-es';
 import router from '../popup/router/index'
 import Ledger from '../popup/utils/ledger/ledger';
 import { derivePasswordKey, genRandomBuffer } from '../popup/utils/hdWallet'
 import AES from '../popup/utils/aes';
 import { postMesssage } from '../popup/utils/connection';
-import { getKeyPair } from '@aeternity/hd-wallet/src/hd-key';
 
 export default {
   setAccount({ commit }, payload) {

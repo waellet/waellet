@@ -1,12 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="min-width: 357px;">
 <head>
   <meta charset="UTF-8">
   <title>Waellet</title>
   <link rel="stylesheet" href="popup.css">
-  
+  <style>
+      @-moz-document url-prefix() {
+        body,html { min-width: 380px !important; margin:0 auto; }
+      }
+      @supports (-moz-appearance:none) {
+        body,html { min-width: 380px !important; margin:0 auto; }
+      }
+  </style>
 </head>
-<body>
+<body style="min-width: 357px;">
   <div id="app"></div>
   <script src="popup.js"></script>
 </body>

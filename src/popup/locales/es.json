@@ -235,8 +235,18 @@
             "addNewNetwork": "Añadir nuevo nodo",
             "networkName": "Nombre del nodo",
             "networkURL": "Node URL",
+            "internalURL": "Nodo URL interna",
+            "networkId": "ID del nudo de la red",
+            "middlewareUrl": "Nodo middleware URL",
+            "explorerUrl": "URL del explorador nodo",
+            "compilerUrl": "URL compilador nodo",
             "addnetworkName": "Añadir el nombre de nodo",
             "addnetworkURL": "Añadir Nodo URL",
+            "addinternalURL": "Añadir Nodo URL interna",
+            "addnetworkId": "Añadir Id de nodo de red",
+            "addmiddlewareUrl": "Añadir Nodo Middleware URL",
+            "addexplorerUrl": "Agregar nodo Explorador de URL",
+            "addcompilerUrl": "Añadir Nodo Compilador URL",
             "add": "Añadir"
         },
         "privacyPolicy": {

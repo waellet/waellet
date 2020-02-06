@@ -235,8 +235,18 @@
             "addNewNetwork": "添加新节点",
             "networkName": "节点名",
             "networkURL": "节点网址",
+            "internalURL": "节点内部URL",
+            "networkId": "节点网络标识",
+            "middlewareUrl": "节点中间件网址",
+            "explorerUrl": "节点管理器URL",
+            "compilerUrl": "节点的编译器网址",
             "addnetworkName": "添加节点名称",
             "addnetworkURL": "添加节点网址",
+            "addinternalURL": "添加节点内部URL",
+            "addnetworkId": "添加节点网络标识",
+            "addmiddlewareUrl": "添加节点中间件网址",
+            "addexplorerUrl": "添加节点管理器URL",
+            "addcompilerUrl": "添加节点编译器网址",
             "add": "加"
         },
         "privacyPolicy": {
