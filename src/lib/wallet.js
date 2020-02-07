@@ -155,7 +155,7 @@ export default {
       } catch(e) { console.log(e) }
 
       setTimeout(() => store.commit('SET_NODE_STATUS', ''), 2000 )
-      // store.dispatch('getAllUserTokens')
+      store.dispatch('getAllUserTokens')
     },
     redirectAfterLogin(cb){
       browser.storage.local.get('showAeppPopup').then((aepp) => {
