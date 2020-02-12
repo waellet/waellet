@@ -439,7 +439,7 @@ export default {
             }
         },
         showAlert(balance = false) {
-            if(this.insufficientBalance) {
+            if(this.insufficientBalance && this.sdk !== null && !this.loading) {
                 this.alertMsg = this.$t('pages.signTransaction.insufficientBalance')
             }else if(this.inccorectAddress && this.isAddressShow) {
                 this.alertMsg = this.$t('pages.signTransaction.inccorectAddress')
