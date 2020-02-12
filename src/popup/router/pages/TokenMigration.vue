@@ -105,7 +105,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .ae-button {
     margin-top:1rem;
 }

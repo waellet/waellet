@@ -235,8 +235,18 @@
             "addNewNetwork": "Ajouter un nouveau noeud",
             "networkName": "Nom du noeud",
             "networkURL": "URL Node",
+            "internalURL": "Noeud URL interne",
+            "networkId": "Network Node Id",
+            "middlewareUrl": "Noeud URL middleware",
+            "explorerUrl": "URL de l'explorateur noeud",
+            "compilerUrl": "URL du compilateur noeud",
             "addnetworkName": "Ajouter un nouveau noeud",
             "addnetworkURL": "Add URL Node",
+            "addinternalURL": "Ajouter un noeud URL interne",
+            "addnetworkId": "Ajouter un noeud réseau Id",
+            "addmiddlewareUrl": "Ajouter un noeud URL Middleware",
+            "addexplorerUrl": "Ajouter un noeud Explorateur URL",
+            "addcompilerUrl": "Ajouter un noeud URL compilateur",
             "add": "Ajouter"
         },
         "privacyPolicy": {

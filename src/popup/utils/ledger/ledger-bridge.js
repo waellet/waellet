@@ -1,5 +1,3 @@
-import { Crypto } from '@aeternity/aepp-sdk/es';
-
 export default class LedgerBridge  {
 
     constructor(url) {

@@ -588,7 +588,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .allowanceExistError {
   color: #9d3fc0;
   margin-bottom: 20px;

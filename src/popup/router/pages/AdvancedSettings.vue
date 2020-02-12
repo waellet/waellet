@@ -106,8 +106,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-@import '../../../common/base';
 .notround { border-radius: 0 !important; }
 
 </style>

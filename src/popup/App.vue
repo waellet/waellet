@@ -40,12 +40,6 @@
                   </ae-button>
                 </ae-list-item>
               </ae-list>
-                <!-- <li v-for="(value, name) in network" v-bind:key="value.networkId">
-                  <ae-button v-on:click="switchNetwork(name)" class="status triggerhidedd" :class="current.network == name ? 'current' : ''">
-                      {{ name }}
-                  </ae-button>
-                </li>
-              </ul> -->
             </transition>
           </div>
 
@@ -164,24 +158,20 @@
       {{ $t('pages.appVUE.systemName') }} 
       {{extensionVersion}} </span>
     <Loader size="big" :loading="mainLoading"></Loader>
-    <div class="connect-error" v-if="connectError" >Unable to connect to choosen node</div>
+    <NodeConnectionStatus />
   </ae-main>
 </template>
  
 <script>
-import Ae from '@aeternity/aepp-sdk/es/ae/universal';
-import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import store from '../store';
 import locales from './locales/en.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
-import { initializeSDK, contractCall } from './utils/helper';
-import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT, AEX2_METHODS } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
 import { start, postMesssage, readWebPageDom } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
-import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
+import wallet from '../lib/wallet'
 
 export default {
   
@@ -198,7 +188,6 @@ export default {
         languages: false,
         tokens: false
       },
-      mainLoading: true,
       checkPendingTxInterval:null,
       menuSlot:"mobile-left",
       mobileRight: "mobile-right",
@@ -207,7 +196,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'background', 'sdk','tokens','aeppPopup','ledgerNextIdx']),
+    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'background', 'sdk','tokens','aeppPopup','ledgerNextIdx','mainLoading','nodeConnecting']),
     extensionVersion() {
       return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
@@ -226,25 +215,23 @@ export default {
         }
       });
       let background = await start(browser)
-      this.$store.commit( 'SET_BACKGROUND', background )
+      this.$store.commit('SET_BACKGROUND', background )
       readWebPageDom((receiver,sendResponse ) => {
         this.$store.commit('SET_TIPPING_RECEIVER', receiver)
         sendResponse({ host:receiver.host, received: true })
       })
 
+      //init SDK
       if(!process.env.RUNNING_IN_POPUP) {
-        //init SDK
-        this.checkSdkReady()
-        setTimeout(() => {
-          if(this.isLoggedIn ) {
+        this.checkSDKReady = setInterval(() => {
+            if(this.sdk != null) {
+            this.initLedger()
             this.pollData()
-          }else {
-            this.hideLoader()
-          }
-        },500)
-      } else {
-        this.hideLoader()
+            clearInterval(this.checkSDKReady)
+            }
+        },100)
       }
+
 
       // this.checkPendingTx()
       window.addEventListener('resize', () => {
@@ -262,29 +249,12 @@ export default {
     this.dropdown.settings = false;
   },
   methods: {
-    checkSdkReady() {
-      if(!process.env.RUNNING_IN_POPUP) {
-        this.checkSDKReady = setInterval(() => {
-          if(this.isLoggedIn && this.sdk == null) {
-            this.initRpcWallet()
-            this.initSDK()
-            this.pollData()
-            clearInterval(this.checkSDKReady)
-          }
-        },500)
-      }
-    },
-    hideLoader() {
-      var self = this;
-      setTimeout(function() {
-        self.mainLoading = false;
-      }, 1500);
-    },
-    changeAccount (idx,subaccount) {
+    changeAccount (index,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
-      browser.storage.local.set({activeAccount: idx}).then(() => {
+      browser.storage.local.set({activeAccount: index}).then(() => {
         this.$store.dispatch('setAccount', { address:subaccount.publicKey, idx, type:'change' }  )
-        this.initSDK();
+        //when update to sdk we need to use selectAccount insted reinit sdk
+        wallet.initSdk()
         this.dropdown.account = false;
         this.$store.commit('RESET_TRANSACTIONS',[]);
       });
@@ -324,34 +294,16 @@ export default {
     switchNetwork (network) {
       this.dropdown.network = false;
       this.$store.dispatch('switchNetwork', network).then(() => {
+        this.$store.commit('SET_NODE_STATUS', 'connecting')
         postMesssage(this.background, { type: AEX2_METHODS.SWITCH_NETWORK , payload: network } )
-        this.initSDK();
-        this.$store.dispatch('updateBalance');
-        let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
-        transactions.then(res => {
-          this.$store.dispatch('updateLatestTransactions',res);
-        });
+        wallet.initSdk()
       }); 
     },
     logout () {
-      browser.storage.local.remove('isLogged').then(() => {
-        browser.storage.local.remove('wallet').then(() => {
-          browser.storage.local.remove('activeAccount').then(() => {
-            this.dropdown.settings = false;
-            this.dropdown.languages = false;
-            this.dropdown.account = false;
-            this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
-            this.$store.commit('UNSET_SUBACCOUNTS');
-            this.$store.commit('UPDATE_ACCOUNT', '');
-            this.$store.commit('SWITCH_LOGGED_IN', false);
-            this.$store.commit('SET_WALLET', []);
-            this.$store.dispatch('initSdk',null); 
-            postMesssage(this.background, { type: AEX2_METHODS.LOGOUT } )
-            this.checkSdkReady()
-            this.$router.push('/');
-          });
-        });
-      });
+      wallet.logout(() => {
+          postMesssage(this.background, { type: AEX2_METHODS.LOGOUT } )
+          this.$router.push('/')
+       } )
     }, 
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -430,66 +382,7 @@ export default {
               triggerOnce = true
             }
         }
-      }, 2500);
-    },
-    fetchApi() {
-      let states = this.$store.state;
-      let ae = Ae({
-          url: states.network[states.current.network].url,
-          internalUrl: states.network[states.current.network].internalUrl,
-          keypair: {
-            secretKey: states.account.secretKey,
-            publicKey: states.account.publicKey,
-          },
-          networkId: states.network[states.current.network].networkId,
-      });
-      ae.then(a => {
-        console.log(a);
-      })
-      return ae;
-    },
-    async initSDK() {
-      let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
-      if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
-        console.log("init")
-        try {
-          await this.$store.commit('SET_TOKEN_REGISTRY', 
-            await this.$helpers.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
-            TOKEN_REGISTRY_CONTRACT_LIMA : 
-            TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistry }) 
-          )
-        } catch (e) {
-
-        }
-        try {
-          await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
-            await this.$helpers.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
-          )
-        } catch(e) {
-
-        }
-        try {
-          await this.$store.commit('SET_TIPPING', 
-            await this.$helpers.getContractInstance(TIPPING_CONTRACT, { contractAddress: this.network[this.current.network].tipContract }) 
-          )
-        } catch(e) {
-          
-        }
-        
-        this.$store.dispatch('getAllUserTokens')
-      }
-      
-      if(typeof sdk.error != 'undefined') {
-          await browser.storage.local.remove('isLogged')
-          await browser.storage.local.remove('activeAccount')
-          this.hideLoader()
-          this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
-          this.$store.commit('UNSET_SUBACCOUNTS');
-          this.$store.commit('UPDATE_ACCOUNT', '');
-          this.$store.commit('SWITCH_LOGGED_IN', false);
-          
-          this.$router.push('/')
-      }
+      }, 3500);
     },
 
     initRpcWallet() {
@@ -644,5 +537,5 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .tokenBalance { margin-right: auto; }
 #tokens .ae-check-button:before { width: 20px !important; height: 20px !important; }
 #tokens .ae-check-button:after { width: 26px !important; height: 25px !important; }
-.connect-error { position:fixed; bottom: 0; left:0; right:0; background:$primary-color; color:#fff; padding: .3rem; text-align:center; font-weight:bold; }
+
 </style>

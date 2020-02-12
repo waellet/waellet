@@ -1,5 +1,4 @@
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
-import { getHdWalletAccount } from './hdWallet';
 import { Crypto } from '@aeternity/aepp-sdk/es';
 import { postMesssage } from './connection';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
@@ -8,6 +7,8 @@ import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO, CONNECTION_TYPES } from 
 import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 import Node from '@aeternity/aepp-sdk/es/node'
 
+
+import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
 
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -142,6 +143,9 @@ const checkAeppConnected = (host) => {
     return new Promise((resolve, reject) => {
         browser.storage.local.get('connectedAepps').then((aepps) => {
             browser.storage.local.get('subaccounts').then((subaccounts) => {
+                if(!subaccounts.hasOwnProperty('subaccounts')) {
+                    return resolve(false)
+                }
                 browser.storage.local.get('activeAccount').then((active) => {
                     let activeIdx = 0
                     if(active.hasOwnProperty("activeAccount")) {
@@ -345,15 +349,15 @@ const createSDKObject = (ctx, { network, current, account, wallet, activeAccount
             compilerUrl: (typeof network != 'undefined' ? network[current.network].compilerUrl : "https://compiler.aepps.com" )
         }).then((sdk) => {
             if(!backgr) {
-                ctx.$store.dispatch('initSdk',sdk).then(() => {
-                    ctx.hideLoader()
-                })
+                // store.dispatch('initSdk',sdk).then(() => {
+                //     ctx.$store.commit('SET_NODE_CONNECTING', false)
+                // })
             }
             resolve(sdk)
         })
         .catch(err => {
             if(!backgr) {
-                ctx.hideLoader()
+                // store.commit('SET_NODE_CONNECTING', false)
                 ctx.showConnectError()
             }
             if(countErr < 3) {
@@ -430,7 +434,7 @@ const isInt = (n) => {
 }
 
 const chekAensName = (value) => {
-    return value.endsWith('.test');
+    return value.endsWith('.chain');
 }
 
 const stringifyForStorage = state =>  {
@@ -693,6 +697,7 @@ export {
     checkAeppConnected, 
     redirectAfterLogin, 
     initializeSDK, 
+    swag,
     currencyConv, 
     convertAmountToCurrency, 
     contractEncodeCall, 

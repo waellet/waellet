@@ -44,7 +44,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .sendAmount {
   margin:15px 0;
 }

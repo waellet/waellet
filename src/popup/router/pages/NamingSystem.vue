@@ -320,9 +320,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-@import '../../../common/base';
-
 .singleAuction:hover {
     margin: 5px;
     transition: all-ease;

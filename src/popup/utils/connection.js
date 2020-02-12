@@ -1,5 +1,5 @@
 import uuid from 'uuid';
-global.browser = require('webextension-polyfill');
+// global.browser = require('webextension-polyfill');
 
 export const start = async (browser) =>  {
     
