@@ -13,12 +13,13 @@ export default class WalletController {
             setInterval(() => {
                 browser.windows.getAll({}).then((wins) => {
                     if(wins.length == 0) {
-                        this.wallet = null
-                        browser.storage.local.remove('isLogged')
+                        this.lockWallet()
+                        sessionStorage.removeItem("phishing_urls")
+                        browser.storage.local.remove('activeAccount')
                     }
                 });
                 if(!this.wallet) {
-                    browser.storage.local.remove('isLogged')
+                    this.lockWallet()
                 }
             },5000);
         }
@@ -38,6 +39,11 @@ export default class WalletController {
                 resolve({ decrypt: false })
             }
         })
+    }
+
+    lockWallet() {
+        this.wallet = null
+        browser.storage.local.remove('isLogged')
     }
 
     generateWallet({ seed }) {

@@ -222,16 +222,18 @@ export default {
       })
 
       //init SDK
-      this.checkSDKReady = setInterval(() => {
-        if(this.sdk != null) {
-          this.initLedger()
-          this.pollData()
-          clearInterval(this.checkSDKReady)
-        }
-      },100)
+      if(!process.env.RUNNING_IN_POPUP) {
+        this.checkSDKReady = setInterval(() => {
+            if(this.sdk != null) {
+            this.initLedger()
+            this.pollData()
+            clearInterval(this.checkSDKReady)
+            }
+        },100)
+      }
 
 
-      this.checkPendingTx()
+      // this.checkPendingTx()
       window.addEventListener('resize', () => {
         
         if(window.innerWidth <= 480) {
@@ -250,7 +252,7 @@ export default {
     changeAccount (index,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
       browser.storage.local.set({activeAccount: index}).then(() => {
-        this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
+        this.$store.dispatch('setAccount', { address:subaccount.publicKey, idx, type:'change' }  )
         //when update to sdk we need to use selectAccount insted reinit sdk
         wallet.initSdk()
         this.dropdown.account = false;
@@ -293,11 +295,15 @@ export default {
       this.dropdown.network = false;
       this.$store.dispatch('switchNetwork', network).then(() => {
         this.$store.commit('SET_NODE_STATUS', 'connecting')
+        postMesssage(this.background, { type: AEX2_METHODS.SWITCH_NETWORK , payload: network } )
         wallet.initSdk()
       }); 
     },
     logout () {
-      wallet.logout(() => this.$router.push('/') )
+      wallet.logout(() => {
+          postMesssage(this.background, { type: AEX2_METHODS.LOGOUT } )
+          this.$router.push('/')
+       } )
     }, 
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -378,6 +384,10 @@ export default {
         }
       }, 3500);
     },
+
+    initRpcWallet() {
+      postMesssage(this.background, { type: AEX2_METHODS.INIT_RPC_WALLET, payload: { address: this.account.publicKey, network: this.current.network } } )
+    },
     toTokens() {
       this.dropdown.settings = false
       this.$router.push('/tokens')
@@ -393,6 +403,7 @@ export default {
             clearInterval(this.checkPendingTxInterval)
             if(this.$router.currentRoute.path.includes("/sign-transaction") &&  this.$router.currentRoute.params.data.popup == false) {
               this.$store.commit('SET_AEPP_POPUP',false)
+              console.log("tukk 1111")
               this.$router.push('/account')
             }
           }
