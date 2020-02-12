@@ -12,7 +12,7 @@ export default class WalletController {
         if(!tests) {
             setInterval(() => {
                 browser.windows.getAll({}).then((wins) => {
-                    if(wins.length == 0) {
+                    if(wins.length === 0) {
                         this.lockWallet()
                         sessionStorage.removeItem("phishing_urls")
                         browser.storage.local.remove('activeAccount')
@@ -25,57 +25,50 @@ export default class WalletController {
         }
     }
 
-    unlockWallet({ accountPassword, encryptedPrivateKey }) {
-        return new Promise(async (resolve, reject) => {
-            let match = await addressGenerator.decryptKeystore(encryptedPrivateKey, accountPassword)
-            if(match != false) {
-                this.wallet = generateHdWallet(match)
-                if(this.tests) {
-                    localStorage.setItem("wallet", stringifyForStorage(this.wallet))
-                }
-                let { address } = getHdWalletAccount(this.wallet)
-                resolve({ decrypt: true, address })
-            }else {
-                resolve({ decrypt: false })
+    async unlockWallet({ accountPassword, encryptedPrivateKey }) {
+        const match = await addressGenerator.decryptKeystore(encryptedPrivateKey, accountPassword)
+        if(match !== false) {
+            this.wallet = generateHdWallet(match)
+            if(this.tests) {
+                localStorage.setItem("wallet", stringifyForStorage(this.wallet))
             }
-        })
+            let { address } = getHdWalletAccount(this.wallet)
+            return { decrypt: true, address };
+        }
+        return { decrypt: false };
     }
 
     lockWallet() {
         this.wallet = null
         browser.storage.local.remove('isLogged')
+        sessionStorage.removeItem("phishing_urls")
+        browser.storage.local.remove('activeAccount')
     }
 
     generateWallet({ seed }) {
-        return new Promise((resolve, reject) => {
-            this.wallet = generateHdWallet(parseFromStorage(seed))
-            if(this.tests) {
-                localStorage.setItem("wallet", stringifyForStorage(this.wallet))
-            }
-            let { address } = getHdWalletAccount(this.wallet)
-            resolve({ generate:true, address })
-        })
+        this.wallet = generateHdWallet(parseFromStorage(seed))
+        if(this.tests) {
+            localStorage.setItem("wallet", stringifyForStorage(this.wallet))
+        }
+        const { address } = getHdWalletAccount(this.wallet)
+        return { generate: true, address };
     } 
 
     getKeypair({ activeAccount, account }) {
-        return new Promise((resolve, reject) => {
-            try {
-                resolve(stringifyForStorage({
-                    publicKey: account.publicKey,
-                    secretKey: getHdWalletAccount(this.wallet,activeAccount).secretKey
-                }))
-            }catch(e) {
-                resolve({ error: true })
-            }
-        })
+        try {
+            return stringifyForStorage({
+                publicKey: account.publicKey,
+                secretKey: getHdWalletAccount(this.wallet,activeAccount).secretKey
+            })
+        }catch(e) {
+            return { error: true }
+        }
     }
 
     getAccount({ idx }) {
-        return new Promise((resolve, reject) => {
-            resolve({
-                address: getHdWalletAccount(this.wallet, idx).address
-            })
-        })
+        return {
+            address: getHdWalletAccount(this.wallet, idx).address
+        }
     }
 
     isLoggedIn() {

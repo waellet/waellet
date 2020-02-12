@@ -1,14 +1,7 @@
-import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import { Crypto } from '@aeternity/aepp-sdk/es';
-import { postMesssage } from './connection';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
 import axios from 'axios';
 import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO, CONNECTION_TYPES } from './constants';
-import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
-import Node from '@aeternity/aepp-sdk/es/node'
-
-
-import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
 
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -80,9 +73,9 @@ const detectConnectionType = (port) => {
     const extensionProtocol = getExtensionProtocol()
     const senderUrl = port.sender.url.split("?")
     let type = CONNECTION_TYPES.OTHER
-    if(port.name == CONNECTION_TYPES.EXTENSION && senderUrl[0] == `${extensionProtocol}://${browser.runtime.id}/popup/popup.html`) {
+    if(port.name == CONNECTION_TYPES.EXTENSION && (senderUrl[0] == `${extensionProtocol}://${browser.runtime.id}/popup/popup.html` || detectBrowser() == 'Firefox')) {
         type = CONNECTION_TYPES.EXTENSION
-    } else if(port.name == CONNECTION_TYPES.POPUP && senderUrl[0] == `${extensionProtocol}://${browser.runtime.id}/popup/popup.html`){
+    } else if(port.name == CONNECTION_TYPES.POPUP && (senderUrl[0] == `${extensionProtocol}://${browser.runtime.id}/popup/popup.html` || detectBrowser() == 'Firefox')){
         type = CONNECTION_TYPES.POPUP
     } else {
         type = CONNECTION_TYPES.OTHER
@@ -311,65 +304,6 @@ const swag = async (network, current) => {
         },
     })({ swag });
 }
-
-const initializeSDK = (ctx, { network, current, account, wallet, activeAccount = 0, background },backgr = false) => {
-    if(!backgr) {
-        ctx.hideConnectError()
-    }
-    return new Promise (async (resolve,reject) => {
-        if(!backgr) {
-            postMesssage(background, { type: 'getKeypair' , payload: {  activeAccount, account } } ).then(async ({ res }) => {
-                if(typeof res.error != 'undefined') {
-                    resolve({error:true})
-                } else {
-                    res = parseFromStorage(res)
-                    let sdk = await createSDKObject(ctx, { network, current, account, wallet, activeAccount, background, res },backgr)
-                    sdk.middleware = (await swag(network,current)).api;
-                    resolve(sdk)
-                }
-            })
-        }else {
-            let sdk = await createSDKObject(ctx, { network, current, account, activeAccount, background, res: account },backgr)
-            resolve(sdk)
-        }       
-    })
-}
-let countErr = 0;
-const createSDKObject = (ctx, { network, current, account, wallet, activeAccount = 0, background, res }, backgr ) => {
-    return new Promise(async (resolve, reject) => {
-        const account = MemoryAccount({ keypair: { ...res} })
-        const node = await Node({ url: network[current.network].internalUrl, internalUrl:  network[current.network].internalUrl })
-        Universal({
-            nodes: [
-                { name: current.network, instance: node },
-            ],
-            accounts:[account],
-            networkId: (typeof network != 'undefined' ? network[current.network].networkId : "ae_uat" ), 
-            nativeMode: true,
-            compilerUrl: (typeof network != 'undefined' ? network[current.network].compilerUrl : "https://compiler.aepps.com" )
-        }).then((sdk) => {
-            if(!backgr) {
-                // store.dispatch('initSdk',sdk).then(() => {
-                //     ctx.$store.commit('SET_NODE_CONNECTING', false)
-                // })
-            }
-            resolve(sdk)
-        })
-        .catch(err => {
-            if(!backgr) {
-                // store.commit('SET_NODE_CONNECTING', false)
-                ctx.showConnectError()
-            }
-            if(countErr < 3) {
-                createSDKObject(ctx, { network, current, account, activeAccount, background, res },backgr)
-            }else {
-                reject({error:true})
-            }
-            countErr++
-        })
-    })
-}
-
 
 const  currencyConv = async (ctx) => {
     browser.storage.local.get('convertTimer').then(async result => {
@@ -696,7 +630,6 @@ export {
     setConnectedAepp, 
     checkAeppConnected, 
     redirectAfterLogin, 
-    initializeSDK, 
     swag,
     currencyConv, 
     convertAmountToCurrency, 

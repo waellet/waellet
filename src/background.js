@@ -1,6 +1,6 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
 import { checkAeppConnected, removeTxFromStorage, detectBrowser, parseFromStorage, detectConnectionType } from './popup/utils/helper';
-import WalletContorller from './wallet-controller'
+import WalletController from './wallet-controller'
 import Notification from './notifications';
 import rpcWallet from './lib/rpcWallet'
 import { 
@@ -27,7 +27,7 @@ const error = {
     "jsonrpc": "2.0"
 }
 
-const controller = new WalletContorller()
+const controller = new WalletController()
 const notification = new Notification();
 
 browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
@@ -132,36 +132,24 @@ const postToContent = (data, tabId) => {
 const popupConnections = PopupConnections()
 popupConnections.init()
 rpcWallet.init(controller, popupConnections)
-
-
-
 browser.runtime.onConnect.addListener( async ( port ) => {
     if(port.sender.id == browser.runtime.id) {
-        
-        
-        
         const connectionType = detectConnectionType(port)
-        
         if(connectionType == CONNECTION_TYPES.EXTENSION) {
-            port.onMessage.addListener(({ type, payload, uuid }, sender) => {
+            port.onMessage.addListener(async ({ type, payload, uuid }, sender) => {
                 if(HDWALLET_METHODS.includes(type)) {
-                    controller[type](payload).then((res) => {
-                        port.postMessage({ uuid, res })
-                    })
+                    port.postMessage({ uuid, res: await controller[type](payload) });
                 } 
-                if(AEX2_METHODS.hasOwnProperty(type)) {
-                    rpcWallet[type](payload)
-                }
-                if(NOTIFICATION_METHODS.hasOwnProperty(type)) {
-                    notification[type](payload) 
-                }
+                if(AEX2_METHODS[type]) rpcWallet[type](payload)
+
+                if(NOTIFICATION_METHODS[type]) notification[type](payload) 
             }) 
         } else if(connectionType == CONNECTION_TYPES.POPUP) {
             const url = new URL(port.sender.url)
             const id = url.searchParams.get('id')
-            popupConnections.addPopup(id, port)
+            popupConnections.addConnection(id, port);
         } else if(connectionType == CONNECTION_TYPES.OTHER) {
-            let check = rpcWallet.sdkReady(() => {
+            const check = rpcWallet.sdkReady(() => {
                 rpcWallet.addConnection(port)
             })
             port.onDisconnect.addListener((p) => {

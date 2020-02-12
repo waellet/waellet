@@ -1,8 +1,10 @@
 import store from '../store';
-import { postMesssage } from '../popup/utils/connection';
+import { postMessage } from '../popup/utils/connection';
 import { parseFromStorage, swag } from '../popup/utils/helper';
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
-import {  TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT } from '../popup/utils/constants'
+import { TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT, DEFAULT_NETWORK } from '../popup/utils/constants'
+import Node from '@aeternity/aepp-sdk/es/node';
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory';
 
 export default {
     store:null,
@@ -55,8 +57,7 @@ export default {
                     }
                   });
                   store.commit('SWITCH_LOGGED_IN', true);
-                  this.redirectAfterLogin(cb) //ger rid of this when update to sdk7
-
+                  this.redirectAfterLogin(cb)
                   store.commit('SET_MAIN_LOADING', false);
                 } else {
                   store.commit('SET_MAIN_LOADING', false);
@@ -78,12 +79,13 @@ export default {
     async initSdk(cb) {
       const keypair = await this.getKeyPair()
       if(typeof keypair.error === 'undefined') {
-          const network = store.getters.network
-          const current = store.getters.current
+          const { network } = store.getters;
+          const { current } = store.getters;
+          const node = await Node({ url: network[current.network].internalUrl, internalUrl: network[current.network].internalUrl });
+          const account = MemoryAccount({ keypair });
           Universal({
-              url: network[current.network].url , 
-              internalUrl: network[current.network].internalUrl,
-              keypair,
+              nodes: [{ name: DEFAULT_NETWORK, instance: node }],
+              accounts: [account],
               networkId: network[current.network].networkId, 
               nativeMode: true,
               compilerUrl: network[current.network].compilerUrl
@@ -114,19 +116,11 @@ export default {
       store.commit('SWITCH_LOGGED_IN', false);
       cb()
     },
-    getKeyPair() {
+    async getKeyPair() {
       const activeAccount = store.getters.activeAccount
       const account = store.getters.account
-      return new Promise((resolve, reject) => {
-        postMesssage(store.getters.background, { type: 'getKeypair' , payload: {  activeAccount, account } } ).then(async ({ res }) => {
-          if(typeof res.error != 'undefined') {
-              resolve({ error:true })
-          } else {
-              res = parseFromStorage(res)
-              resolve(res)
-          }
-        })
-      })
+      const { res } = await postMessage({ type: 'getKeypair', payload: { activeAccount, account } });
+      return res.error ? { error: true } : parseFromStorage(res);
     },
     async initContractInstances() {
       store.commit('SET_NODE_STATUS', 'initServices')
@@ -158,49 +152,65 @@ export default {
       store.dispatch('getAllUserTokens')
     },
     redirectAfterLogin(cb){
-      browser.storage.local.get('showAeppPopup').then((aepp) => {
-        browser.storage.local.get('pendingTransaction').then((pendingTx) => {
-            if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
-                browser.storage.local.remove('showAeppPopup').then(() => {
-                    store.commit('SET_AEPP_POPUP',true)
-                    if(aepp.showAeppPopup.data.hasOwnProperty("tx") && aepp.showAeppPopup.data.tx.hasOwnProperty("params")) {
-                        aepp.showAeppPopup.data.tx.params = parseFromStorage(aepp.showAeppPopup.data.tx.params)
-                    }
-                    if(aepp.showAeppPopup.type == 'connectConfirm') {
-                        aepp.showAeppPopup.data.popup = true
-                        cb({'name':'connect-confirm', params: {
-                        data:aepp.showAeppPopup.data
-                        }});
-                    }else if(aepp.showAeppPopup.type == 'txSign') {
-                        aepp.showAeppPopup.data.popup = true
-                        cb({'name':'sign', params: {
-                        data:aepp.showAeppPopup.data
-                        }});
-                    }else if(aepp.showAeppPopup.type == 'contractCall') {
-                        aepp.showAeppPopup.data.popup = true
-                        cb({'name':'sign', params: {
+      if(process.env.RUNNING_IN_POPUP) {
+        store.commit('SET_AEPP_POPUP', true);
+        const url = new URL(window.location.href);
+        const type = url.searchParams.get('type');
+        if (type) {
+          if (type == 'connectConfirm') {
+            cb('/connect');
+          } else if (type == 'sign') {
+            cb('/popup-sign-tx');
+          } else if (type == 'askAccounts') {
+            cb('/ask-accounts');
+          }
+        }
+      } else {
+        browser.storage.local.get('showAeppPopup').then((aepp) => {
+          browser.storage.local.get('pendingTransaction').then((pendingTx) => {
+              if(aepp.hasOwnProperty('showAeppPopup') && aepp.showAeppPopup.hasOwnProperty('type') && aepp.showAeppPopup.hasOwnProperty('data') && aepp.showAeppPopup.type != "" ) {
+                  browser.storage.local.remove('showAeppPopup').then(() => {
+                      store.commit('SET_AEPP_POPUP',true)
+                      if(aepp.showAeppPopup.data.hasOwnProperty("tx") && aepp.showAeppPopup.data.tx.hasOwnProperty("params")) {
+                          aepp.showAeppPopup.data.tx.params = parseFromStorage(aepp.showAeppPopup.data.tx.params)
+                      }
+                      if(aepp.showAeppPopup.type == 'connectConfirm') {
+                          aepp.showAeppPopup.data.popup = true
+                          cb({'name':'connect-confirm', params: {
                           data:aepp.showAeppPopup.data
-                        }})
-                    }else if(aepp.showAeppPopup.type == 'signMessage') {
-                        aepp.showAeppPopup.data.popup = true
-                        cb({'name':'sign-verify-message', params: {
+                          }});
+                      }else if(aepp.showAeppPopup.type == 'txSign') {
+                          aepp.showAeppPopup.data.popup = true
+                          cb({'name':'sign', params: {
                           data:aepp.showAeppPopup.data
-                        }})
-                    }
-                    return;
-                });
-            }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length > 0) {
-                store.commit('SET_AEPP_POPUP',true)
-                let tx = pendingTx.pendingTransaction.list[Object.keys(pendingTx.pendingTransaction.list)[0]];
-                tx.popup = false
-                tx.countTx =  Object.keys(pendingTx.pendingTransaction.list).length
-                cb({'name':'sign', params: {
-                  data:tx
-                }})
-            }else {
-                cb('/account')
-            }
+                          }});
+                      }else if(aepp.showAeppPopup.type == 'contractCall') {
+                          aepp.showAeppPopup.data.popup = true
+                          cb({'name':'sign', params: {
+                            data:aepp.showAeppPopup.data
+                          }})
+                      }else if(aepp.showAeppPopup.type == 'signMessage') {
+                          aepp.showAeppPopup.data.popup = true
+                          cb({'name':'sign-verify-message', params: {
+                            data:aepp.showAeppPopup.data
+                          }})
+                      }
+                      return;
+                  });
+              }else if(pendingTx.hasOwnProperty('pendingTransaction') && pendingTx.pendingTransaction.hasOwnProperty('list') && Object.keys(pendingTx.pendingTransaction.list).length > 0) {
+                  store.commit('SET_AEPP_POPUP',true)
+                  let tx = pendingTx.pendingTransaction.list[Object.keys(pendingTx.pendingTransaction.list)[0]];
+                  tx.popup = false
+                  tx.countTx =  Object.keys(pendingTx.pendingTransaction.list).length
+                  cb({'name':'sign', params: {
+                    data:tx
+                  }})
+              }else {
+                  cb('/account')
+              }
+          })
         })
-      })
+      }
+      
     }
 }

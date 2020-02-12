@@ -114,12 +114,12 @@ import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
 import BigNumber from 'bignumber.js';
-import { clearInterval, clearTimeout  } from 'timers';
+import { clearInterval, setInterval  } from 'timers';
 import { TxBuilder } from '@aeternity/aepp-sdk/es';
 export default {
     data() {
         return {
-            props: window.props,
+            props: {},
             token: "AE",
             usdRate: 0,
             alertMsg:"",
@@ -135,7 +135,7 @@ export default {
     computed: {
         ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger','popup', 'tokenRegistry']),
         txType() {  
-            return this.unpackedTx.txType
+            return this.unpackedTx ? this.unpackedTx.txType : null;
         },
         isAddressShow() {
             if(this.txType == 'contractCreateTx' || this.txType == 'namePreClaimTx' || this.txType == 'nameClaimTx' || this.txType == 'nameUpdateTx') {
@@ -170,6 +170,15 @@ export default {
             return (parseFloat(this.toAe(this.amount)) + parseFloat(this.toAe(this.txObject.fee))).toFixed(7)
         }   
     },
+    created() {
+        const waitProps = setInterval(() => {
+            if (window.props) {
+                this.props = window.props;
+                this.unpackedTx = TxBuilder.unpackTx(this.props.action.params.tx);
+                clearInterval(waitProps);
+            }
+        },500);
+    },
     methods: {
         convertCurrency(currency, amount) {
             return parseFloat(convertAmountToCurrency(currency,amount))
@@ -178,19 +187,10 @@ export default {
             return convertToAE(balance)
         },
         cancelTransaction() {
-            if(Object.keys( this.props.action).length) {
-                this.props.action.deny()
-            }
-           
-            this.props.reject()
+            this.props.reject(false)
         },
         signTransaction() {
-            this.loading = true
-            if(Object.keys( this.props.action).length) {
-                this.props.action.accept()
-            }
-           
-            this.props.resolve()
+            this.props.resolve(true)
         }
     }
 }

@@ -169,8 +169,9 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import LedgerBridge from './utils/ledger/ledger-bridge'
-import { start, postMesssage, readWebPageDom } from './utils/connection'
+import { postMessage, readWebPageDom } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
+import { AEX2_METHODS } from './utils/constants';
 import wallet from '../lib/wallet'
 
 export default {
@@ -214,8 +215,6 @@ export default {
           this.$store.state.current.network = data.activeNetwork;
         }
       });
-      let background = await start(browser)
-      this.$store.commit('SET_BACKGROUND', background )
       readWebPageDom((receiver,sendResponse ) => {
         this.$store.commit('SET_TIPPING_RECEIVER', receiver)
         sendResponse({ host:receiver.host, received: true })
@@ -224,11 +223,12 @@ export default {
       //init SDK
       if(!process.env.RUNNING_IN_POPUP) {
         this.checkSDKReady = setInterval(() => {
-            if(this.sdk != null) {
+          if(this.sdk != null) {
+            this.initRpcWallet();
             this.initLedger()
             this.pollData()
             clearInterval(this.checkSDKReady)
-            }
+          }
         },100)
       }
 
@@ -249,9 +249,9 @@ export default {
     this.dropdown.settings = false;
   },
   methods: {
-    changeAccount (index,subaccount) {
+    changeAccount (idx,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
-      browser.storage.local.set({activeAccount: index}).then(() => {
+      browser.storage.local.set({activeAccount: idx}).then(() => {
         this.$store.dispatch('setAccount', { address:subaccount.publicKey, idx, type:'change' }  )
         //when update to sdk we need to use selectAccount insted reinit sdk
         wallet.initSdk()
@@ -295,13 +295,13 @@ export default {
       this.dropdown.network = false;
       this.$store.dispatch('switchNetwork', network).then(() => {
         this.$store.commit('SET_NODE_STATUS', 'connecting')
-        postMesssage(this.background, { type: AEX2_METHODS.SWITCH_NETWORK , payload: network } )
+        postMessage({ type: AEX2_METHODS.SWITCH_NETWORK , payload: network } )
         wallet.initSdk()
       }); 
     },
     logout () {
       wallet.logout(() => {
-          postMesssage(this.background, { type: AEX2_METHODS.LOGOUT } )
+          postMessage({ type: AEX2_METHODS.LOGOUT } )
           this.$router.push('/')
        } )
     }, 
@@ -386,7 +386,7 @@ export default {
     },
 
     initRpcWallet() {
-      postMesssage(this.background, { type: AEX2_METHODS.INIT_RPC_WALLET, payload: { address: this.account.publicKey, network: this.current.network } } )
+      postMessage({ type: AEX2_METHODS.INIT_RPC_WALLET, payload: { address: this.account.publicKey, network: this.current.network } } )
     },
     toTokens() {
       this.dropdown.settings = false

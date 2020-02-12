@@ -50,7 +50,7 @@
 import store from '../../../store';
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
-import { postMesssage } from '../../utils/connection';
+import { postMessage } from '../../utils/connection';
 export default {
     data () {
         return {
@@ -131,7 +131,6 @@ export default {
                             browser.storage.local.set({activeAccount: index }).then(() => {
                                 this.$store.dispatch('setAccount', { address, idx, type:'add', index }  )
                             });
-                            // postMesssage(this.background, { type: 'addAccount' , payload: { idx, address } } )
                             this.setAccounts();
                         });
                     });

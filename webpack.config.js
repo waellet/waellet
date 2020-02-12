@@ -84,7 +84,7 @@ const config = [
     plugins: [
       ...getPlugins('firefox'),
       new HtmlWebpackPlugin({
-        template: path.join(__dirname, "src", "popup", "popup.html"),
+        template: path.join(__dirname, "src", "popup", "popup-firefox.html"),
         filename: "popup/popup.html",
         excludeChunks: ["background", "inject", "options/options","phishing/phishing","aepp","popup/cameraPermission"]
 

@@ -1,12 +1,11 @@
 import { DEFAULT_NETWORK, networks, AEX2_METHODS } from '../popup/utils/constants'
-import { stringifyForStorage, parseFromStorage, extractHostName, getAeppAccountPermission, getUniqueId, getUserNetworks } from '../popup/utils/helper'
+import { parseFromStorage, extractHostName, getAeppAccountPermission, getUserNetworks } from '../popup/utils/helper'
 import { getAccounts } from '../popup/utils/storage'
 import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 import { RpcWallet } from '@aeternity/aepp-sdk/es/ae/wallet'
 import BrowserRuntimeConnection
   from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/connection/browser-runtime'
 import Node from '@aeternity/aepp-sdk/es/node'
-import { detectBrowser } from '../popup/utils/helper'
 import uuid from 'uuid';
 
 global.browser = require('webextension-polyfill');
@@ -50,8 +49,6 @@ const rpcWallet = {
             parseFromStorage(await this.controller.getKeypair({ activeAccount: index, account: a}))
         )))
         
-        // let activeIdx = await browser.storage.local.get('activeAccount') 
-        
         this.accounts = this.accountKeyPairs.map((a) => {
             return MemoryAccount({
                 keypair: a
@@ -68,50 +65,27 @@ const rpcWallet = {
                 name: 'Waellet',
                 accounts:this.accounts,
                 async onConnection (aepp, action) {
-                    // console.log("connect")
-                    // console.log(aepp)
-                    // console.log(action)
-                    // action.accept()
                     context.checkAeppPermissions(aepp, action, "connection")
                 },
                 onDisconnect (msg, client) {
-                    // console.log("dicconnect")
-                    // console.log(msg)
-                    // console.log(client)
-                    // client.disconnect()
+                    client.disconnect()
                 },
                 async onSubscription (aepp, action) {
-                     // context.checkAeppPermissions(aepp, action, "subscription")
-                    // console.log("subscribe")
-                   
-                    // console.log(aepp)
-                    // console.log(action)
-                    action.accept()
+                    context.checkAeppPermissions(aepp, action, "subscription")
                 },
                 async onSign (aepp, action) {
-                    // console.log("sign")
-                    // console.log(aepp)
-                    // console.log(action)
-                    // action.accept()
-
-                    // context.checkAeppPermissions(aepp, action, "sign", () => {
-                    //     setTimeout(() => {
-                    //         context.showPopup({ aepp, action, type: "sign" })
-                    //     }, 2000)
-                        
-                    // })
+                    context.checkAeppPermissions(aepp, action, "sign", () => {
+                        setTimeout(() => {
+                            context.showPopup({ aepp, action, type: "sign" })
+                        }, 2000)
+                    })
                 },
                 onAskAccounts (aepp, action) {
-                    // console.log("ask accounts")
-                    // console.log(aepp)
-                    // console.log(action)
-                    // action.accept()
-
-                    // context.checkAeppPermissions(aepp, action, "accounts", () => {
-                    //     setTimeout(() => {
-                    //         context.showPopup({ aepp, action, type: "askAccounts" })
-                    //     }, 2000)
-                    // })
+                    context.checkAeppPermissions(aepp, action, "accounts", () => {
+                        setTimeout(() => {
+                            context.showPopup({ aepp, action, type: "askAccounts" })
+                        }, 2000)
+                    })
                 }
             })
 
@@ -139,7 +113,9 @@ const rpcWallet = {
         let isConnected = await getAeppAccountPermission(extractHostName(url), this.activeAccount)
         if(!isConnected) {
             try {
-                let a = caller == "connection" ? action : {}
+                let a = caller === "connection" ? action : {}
+                console.log(caller)
+                console.log(a)
                 let res = await this.showPopup({ action: a, aepp, type: "connectConfirm" })
                 if(typeof cb != "undefined") {
                     cb()
@@ -156,23 +132,36 @@ const rpcWallet = {
         }
     },
 
-    async showPopup ({ action, aepp, type = "connectConfirm" })  {
-        const id = uuid()
-        const popupUrl =  browser.runtime.getURL('./popup/popup.html') + `?id=${id}&type=${type}`
+    async showPopup({ action, aepp, type = 'connectConfirm' }) {
+        const id = uuid();
+        const popupUrl = `${browser.runtime.getURL('./popup/popup.html')}?id=${id}&type=${type}`;
         const popupWindow = await browser.windows.create({
-            url: popupUrl,
-            type: "popup",
-            height: 680,
-            width:420
-        })
-        
-        
-        if (!popupWindow) action.deny()
-        let { connection: { port: {  sender: { url } } }, info: { icons, name} } = aepp
-        let { protocol } = new URL (url)
-        // return new Promise((resolve, reject) => {
-        //     popupWindow.window.props = { type, resolve, reject, action, host: extractHostName(url), icons, name, protocol };
-        // });
+          url: popupUrl,
+          type: 'popup',
+          height: 680,
+          width: 420,
+        });
+        if (!popupWindow) return action.deny();
+        this.popups.addPopup(id, this.controller);
+        console.log(action)
+        this.popups.addActions(id, action);
+        const {
+          connection: {
+            port: {
+              sender: { url },
+            },
+          },
+          info: { icons, name },
+        } = aepp;
+        const { protocol } = new URL(url);
+    
+        return new Promise((resolve, reject) => {
+          try {
+            this.popups.setAeppInfo(id, { type, action: { params: action.params, method: action.method }, url, icons, name, protocol, host: extractHostName(url) });
+          } catch (e) {
+            console.log(e);
+          }
+        });
     },
 
     async addConnection(port) {
@@ -196,6 +185,7 @@ const rpcWallet = {
             let isConnected = await getAeppAccountPermission(extractHostName(url), address)
             if (!isConnected) {
                 let accept = await this.showPopup({ action: { }, aepp:client, type: "connectConfirm" })
+                console.log(accept)
                 if(accept) {
                     this.sdk.selectAccount(address)
                 }

@@ -2,12 +2,12 @@ import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
 import { convertToAE, stringifyForStorage, parseFromStorage, contractCall, checkContractAbiVersion } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT, AEX2_METHODS } from '../popup/utils/constants';
-import { uniqBy, head, flatten, merge, uniqWith, isEqual } from 'lodash-es';
+import { uniqBy, head, flatten, uniqWith, isEqual } from 'lodash-es';
 import router from '../popup/router/index'
 import Ledger from '../popup/utils/ledger/ledger';
 import { derivePasswordKey, genRandomBuffer } from '../popup/utils/hdWallet'
 import AES from '../popup/utils/aes';
-import { postMesssage } from '../popup/utils/connection';
+import { postMessage } from '../popup/utils/connection';
 
 export default {
   setAccount({ commit }, payload) {
@@ -20,12 +20,12 @@ export default {
   setSubAccounts({ commit }, payload) {
     commit(types.SET_SUBACCOUNTS, payload);
   },
-  setAccount({ state: { background }, commit }, { address, idx, type, index }) {
+  setAccount({commit }, { address, idx, type, index }) {
     commit(types.SET_ACTIVE_ACCOUNT, { publicKey: address, index: type == 'change' ? idx : index })
     if(type == 'change') {
-      postMesssage(background, { type: AEX2_METHODS.CHANGE_ACCOUNT, payload:address })
+      postMessage({ type: AEX2_METHODS.CHANGE_ACCOUNT, payload:address })
     } else if(type == 'add') {
-      postMesssage(background, { type: AEX2_METHODS.ADD_ACCOUNT, payload: { idx, address } })
+      postMessage({ type: AEX2_METHODS.ADD_ACCOUNT, payload: { idx, address } })
     }
   },
   switchNetwork({ commit }, payload) {
@@ -35,15 +35,9 @@ export default {
       resolve();
     });
   },
-  updateBalance({ commit, state }) {
-    // get balance based on new or already fetched api
-    state.sdk.balance(state.account.publicKey)
-      .then(balance => {
-        commit(types.UPDATE_BALANCE, convertToAE(balance));
-      })
-      .catch(e => {
-        commit(types.UPDATE_BALANCE, convertToAE(0));
-      });
+  async updateBalance({ commit, state }) {
+    const balance = await state.sdk.balance(state.account.publicKey).catch(() => 0);
+    commit(types.UPDATE_BALANCE, convertToAE(balance));
   },
   updateBalanceSubaccounts({ commit, state }) {
     state.subaccounts.forEach((sub, index) => {
@@ -220,7 +214,7 @@ export default {
         break;
     }
   },
-  getTransactionsByPublicKey({ commit, state }, payload) {
+  getTransactionsByPublicKey({ state }, payload) {
     const middlewareUrl = state.network[state.current.network].middlewareUrl;
     let limit = "", page = "", param = "";
     let account = payload.publicKey;
@@ -236,17 +230,15 @@ export default {
     return fetch(middlewareUrl + "/middleware/transactions/account/" + account + limit + page + param, {
       method: 'GET',
       mode: 'cors'
-    })
-      .then(res => res.json())
-      .catch(err => err);
+    }).then(res => res.json())
   },
   updateLatestTransactions({ commit }, payload) {
     commit(types.UPDATE_LATEST_TRANSACTIONS, payload);
   },
-  updateAllTransactions({ commit, state }, payload) {
+  updateAllTransactions({ commit }, payload) {
     commit(types.UPDATE_ALL_TRANSACTIONS, payload);
   },
-  setAccountName({ commit, state }, payload) {
+  setAccountName({ commit }, payload) {
     commit(types.SET_ACCOUNT_NAME, payload);
   },
   setUserNetwork({ commit }, payload) {
@@ -350,17 +342,12 @@ export default {
       }
     })
   },
-  removePendingName({ commit, state }, { hash }) {
-    return new Promise((resolve, reject) => {
-      let pending = state.pendingNames
-      pending = pending.filter(p => p.hash != hash)
-      browser.storage.local.set({ pendingNames: { list: pending } }).then(() => {
-        commit(types.SET_PENDING_NAMES, { names: pending })
-        setTimeout(() => {
-          resolve()
-        }, 1500)
-      })
-    })
+  async removePendingName({ commit, state }, { hash }) {
+    let pending = state.pendingNames;
+    pending = pending.filter(p => p.hash !== hash);
+    await browser.storage.local.set({ pendingNames: { list: pending } });
+    commit(types.SET_PENDING_NAMES, { names: pending });
+    await new Promise(resolve => setTimeout(resolve, 1500));
   },
 
   async unlockHdWallet({ state, dispatch, commit }, { accountPassword, wallet }) {
@@ -397,33 +384,24 @@ export default {
   },
 
   async unlockWallet({ state: { background }, dispatch, commit }, payload) {
-    return new Promise(async (resolve, reject) => {
-      let msg = await postMesssage(background, { type: 'unlockWallet', payload })
-      resolve(msg.res)
-    })
+    return (await postMessage({ type: 'unlockWallet', payload })).res;
   },
 
   async getAccount({ state: { background } }, { idx }) {
-    return new Promise(async (resolve, reject) => {
-      let { res: { address } } = await postMesssage(background, { type: 'getAccount', payload: { idx } })
-      resolve(address)
-    })
+    return (await postMessage({ type: 'getAccount', payload: { idx } })).res.address;
   },
 
-  async getKeyPair({ state: { background, account } }, { idx }) {
-    return new Promise(async (resolve, reject) => {
-
-      let { res } = await postMesssage(background, { type: 'getKeypair', payload: { activeAccount: idx, account: { publicKey: account.publicKey } } })
-      res = parseFromStorage(res)
-      resolve({ publicKey: res.publicKey, secretKey: res.secretKey })
-    })
+  async getKeyPair({ state: { account } }, { idx }) {
+    let { res } = await postMessage({
+      type: 'getKeypair',
+      payload: { activeAccount: idx, account: { publicKey: account.publicKey } },
+    });
+    res = parseFromStorage(res);
+    return { publicKey: res.publicKey, secretKey: res.secretKey };
   },
 
-  async generateWallet({ state: { background } }, { seed }) {
-    return new Promise(async (resolve, reject) => {
-      let { res: { address } } = await postMesssage(background, { type: 'generateWallet', payload: { seed: stringifyForStorage(seed) } })
-      resolve(address)
-    })
+  async generateWallet(context, { seed }) {
+    return (await postMessage({ type: 'generateWallet', payload: { seed: stringifyForStorage(seed) } })).res.address;
   },
 
   async getEncryptedWallet() {
