@@ -10,7 +10,7 @@
     </h3>
     <div class="sendContent">
       <ae-input :label="$t('pages.send.recipient')" class="address">
-          <textarea class="ae-input textarea" v-model="form.address" placeholder="ak.. / name.test"  slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+          <textarea class="ae-input textarea" v-model="form.address" placeholder="ak.. / name.chain"  slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
           <ae-toolbar slot="footer" align="right">
             <div class="paste" @click="scan"><ae-icon name="camera" /> {{ $t('pages.send.scan') }}</div>
           </ae-toolbar>

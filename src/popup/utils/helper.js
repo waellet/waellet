@@ -340,7 +340,7 @@ const isInt = (n) => {
 }
 
 const chekAensName = (value) => {
-    return value.endsWith('.test');
+    return value.endsWith('.chain');
 }
 
 const stringifyForStorage = state =>  {
