@@ -32,7 +32,7 @@ if(typeof navigator.clipboard == 'undefined') {
 }
 
 /**
- * This should be depricated
+ *  for Aepp object should be deprecated
  */
 let aepp = browser.runtime.getURL("aepp.js")
 fetch(aepp) 
@@ -50,7 +50,7 @@ window.addEventListener("message", ({data}) => {
     // Handle message from page and redirect to background script
     if(!data.hasOwnProperty("resolve")) {
         sendToBackground(method,data).then(res => {
-            if (method == 'aeppMessage') {
+            if (method == 'aeppMessage') { // for Aepp object should be deprecated
                 res.resolve = true
                 res.method = method
                 window.postMessage(res, "*")
@@ -70,7 +70,7 @@ browser.runtime.onMessage.addListener(({ data, method }, sender, sendResponse) =
 
 
 
-const injectScript = (content) => {
+const injectScript = (content) => { // for Aepp object should be deprecated
     try {
       const container = document.head || document.documentElement
       const scriptTag = document.createElement('script')

@@ -9,12 +9,12 @@ import {
     NOTIFICATION_METHODS,
     CONNECTION_TYPES
 } from './popup/utils/constants'
-
+import { setController, contractCallStatic } from './popup/utils/aepp-utils' // for Aepp object should be deprecated
 import { PopupConnections } from './lib/popup-connection'
 
 global.browser = require('webextension-polyfill');
 
-
+// for Aepp object should be deprecated
 const error = {
     "error": {
         "code": 1,
@@ -29,7 +29,7 @@ const error = {
 
 const controller = new WalletController()
 const notification = new Notification();
-
+setController(controller) // for Aepp object should be deprecated
 browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
 
     switch(msg.method) {
@@ -55,13 +55,127 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
             urls.push(msg.params.hostname);
             setPhishingUrl(urls);
         break;
+        case 'aeppMessage': // for Aepp object should be deprecated
+            switch(msg.params.type) {
+                case "txSign":
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            openAeppPopup(msg,'txSign')
+                            .then(res => {
+                                sendResponse(res)
+                            })
+                        }else {
+                            error.error.message = "Account not connected. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    });
+                break;
+
+                case 'connectConfirm':
+                    checkAeppConnected(msg.params.params.hostname).then((check) => {
+                        if(!check) {
+                            openAeppPopup(msg,'connectConfirm')
+                            .then(res => {
+                                sendResponse(res)
+                            })
+                        } else {
+                            error.error.message = "Connection already established"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    })
+                break;
+
+                case 'getAddress':
+                    browser.storage.local.get('userAccount').then((user)=> {
+                        browser.storage.local.get('isLogged').then((data) => {
+                            if (data.isLogged && data.hasOwnProperty('isLogged')) {
+                                browser.storage.local.get('subaccounts').then((subaccounts) => {
+                                    browser.storage.local.get('activeAccount').then((active) => {
+                                        let activeIdx = 0
+                                        if(active.hasOwnProperty("activeAccount")) {
+                                            activeIdx = active.activeAccount
+                                        }
+                                        let address = subaccounts.subaccounts[activeIdx].publicKey
+                                        sendResponse({id:null, jsonrpc:"2.0",address})
+                                    })
+                                })
+                            }else {
+                                sendResponse({id:null, jsonrpc:"2.0",address:""})
+                            }
+                        })
+                    })
+                break;
+                
+                case 'contractCall':
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            if(typeof msg.params.callType != "undefined" && msg.params.callType == 'static') {
+                                if(msg.params.hasOwnProperty("tx") && msg.params.tx.hasOwnProperty("params")) {
+                                    msg.params.tx.params = parseFromStorage(msg.params.tx.params)
+                                }
+                                contractCallStatic(msg.params).then(res => {
+                                    res.id = msg.id
+                                    sendResponse(res)
+                                }).catch(err => {
+                                    error.error.message = err
+                                    error.id = msg.id
+                                    sendResponse(error)
+                                });
+                            } else {
+                                openAeppPopup(msg,'contractCall')
+                                .then(res => {
+                                    sendResponse(res)
+                                })
+                            }
+                        }else {
+                            error.error.message = "Account not connected. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    })
+                    
+                break;
+                
+                case 'signMessage':
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            openAeppPopup(msg,'signMessage')
+                            .then(res => {
+                                sendResponse(res)
+                            })
+                        }else {
+                            error.error.message = "Account not connected. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    })
+                break;
+
+                case 'verifyMessage':
+                    checkAeppConnected(msg.params.hostname).then((check) => {
+                        if(check) {
+                            openAeppPopup(msg,'verifyMessage')
+                            .then(res => {
+                                sendResponse(res)
+                            })
+                        }else {
+                            error.error.message = "Account not connected. Establish connection first"
+                            error.id = msg.id
+                            sendResponse(error)
+                        }
+                    })
+                break;
+            }
+        break
     }
 
     return true
 })
 
 /**
- * This should be deprecated
+ * for Aepp object should be deprecated
  */
 const connectToPopup = (cb,type, id) => {
     browser.runtime.onConnect.addListener((port) => {
@@ -93,7 +207,7 @@ const connectToPopup = (cb,type, id) => {
 }
 
 /**
- * This should be deprecated
+ * for Aepp object should be deprecated
  */
 const openAeppPopup = (msg,type) => {
     return new Promise((resolve,reject) => {
@@ -118,12 +232,6 @@ const postPhishingData = (data) => {
         tabs.forEach(({ id }) => browser.tabs.sendMessage(id, message)) 
     });
 }
-
-const postToContent = (data, tabId) => {
-    const message = { method: 'aeppMessage', data };
-    browser.tabs.sendMessage(tabId, message)
-}
-
 
 
 /** 
