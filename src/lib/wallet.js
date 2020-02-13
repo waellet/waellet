@@ -9,72 +9,57 @@ import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory';
 export default {
     store:null,
     countError:0,
-    init(cb) {
-        browser.storage.local.get('isLogged').then(data => {
-            browser.storage.local.get('userAccount').then(async user => {
-              if (user.userAccount && user.hasOwnProperty('userAccount')) {
-                try {
-                  user.userAccount.encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-                } catch (e) {
-                  user.userAccount.encryptedPrivateKey = JSON.stringify(user.userAccount.encryptedPrivateKey);
-                }
-                store.commit('UPDATE_ACCOUNT', user.userAccount);
-                if (data.isLogged && data.hasOwnProperty('isLogged')) {
-                  browser.storage.local.get('subaccounts').then(subaccounts => {
-                    let sub = [];
-                    if (
-                      !subaccounts.hasOwnProperty('subaccounts') ||
-                      subaccounts.subaccounts == '' ||
-                      (typeof subaccounts.subaccounts == 'object' && !subaccounts.subaccounts.find(f => f.publicKey == user.userAccount.publicKey))
-                    ) {
-                      sub.push({
-                        name: typeof subaccounts.subaccounts != 'undefined' ? subaccounts.subaccounts.name : 'Main account',
-                        publicKey: user.userAccount.publicKey,
-                        root: true,
-                        balance: 0,
-                      });
-                    }
-                    if (subaccounts.hasOwnProperty('subaccounts') && subaccounts.subaccounts.length > 0 && subaccounts.subaccounts != '') {
-                      subaccounts.subaccounts.forEach(su => {
-                        sub.push({ ...su });
-                      });
-                    }
-                    store.dispatch('setSubAccounts', sub);
-                    browser.storage.local.get('activeAccount').then(active => {
-                      if (active.hasOwnProperty('activeAccount')) {
-                        store.commit('SET_ACTIVE_ACCOUNT', { publicKey: sub[active.activeAccount].publicKey, index: active.activeAccount });
-                      }
-                    });
-                  });
-    
-                  // Get user networks
-                  browser.storage.local.get('userNetworks').then(usernetworks => {
-                    if (usernetworks.hasOwnProperty('userNetworks')) {
-                      usernetworks.userNetworks.forEach(data => {
-                        store.state.network[data.name] = data;
-                      });
-                      store.dispatch('setUserNetworks', usernetworks.userNetworks);
-                    }
-                  });
-                  store.commit('SWITCH_LOGGED_IN', true);
-                  this.redirectAfterLogin(cb)
-                  store.commit('SET_MAIN_LOADING', false);
-                } else {
-                  store.commit('SET_MAIN_LOADING', false);
-                  cb()
-                }
-              } else {
-                browser.storage.local.get('confirmSeed').then(seed => {
-                  store.commit('SET_MAIN_LOADING', false);
-                  if (seed.hasOwnProperty('confirmSeed') && seed.confirmSeed == false) {
-                    cb('/seed')
-                  } else {
-                    cb()
-                  }
-                });
-              }
-            });
-        });
+    async init(cb) {
+      
+      let { userAccount } = await browser.storage.local.get('userAccount')
+      if(userAccount) {
+        const { isLogged } = await browser.storage.local.get('isLogged')
+        try {
+          userAccount.encryptedPrivateKey = JSON.parse(userAccount.encryptedPrivateKey);
+        } catch (e) {
+          userAccount.encryptedPrivateKey = JSON.stringify(userAccount.encryptedPrivateKey);
+        }
+        store.commit('UPDATE_ACCOUNT', userAccount);
+        if(isLogged) {
+            let sub = [];
+            const { subaccounts } = await browser.storage.local.get('subaccounts');
+            if (!subaccounts || (subaccounts && !subaccounts.find(f => f.publicKey == userAccount.publicKey))) {
+              sub.push({
+                name: 'Main Account',
+                publicKey: userAccount.publicKey,
+                root: true,
+                balance: 0,
+                aename: null
+              });
+            }
+            if (subaccounts) sub = [...sub, ...subaccounts.filter(s => s.publicKey)];
+            store.dispatch('setSubAccounts', sub);
+            const { activeAccount } = await browser.storage.local.get('activeAccount')
+            if(activeAccount) {
+              store.commit('SET_ACTIVE_ACCOUNT', { publicKey: sub[activeAccount].publicKey, index: activeAccount });
+            }
+            
+            // Get usernetworks
+            const { userNetworks } = await browser.storage.local.get('userNetworks')
+            if(userNetworks) {
+              userNetworks.forEach(data => {
+                store.state.network[data.name] = data;
+              });
+              store.dispatch('setUserNetworks', userNetworks);
+            }
+            store.commit('SWITCH_LOGGED_IN', true);
+            this.redirectAfterLogin(cb)
+            store.commit('SET_MAIN_LOADING', false);
+        } else {
+          store.commit('SET_MAIN_LOADING', false);
+          cb()
+        }
+      } else {
+        const { confirmSeed } = await browser.storage.local.get('confirmSeed');
+        store.commit('SET_MAIN_LOADING', false);
+        if (confirmSeed) cb('/seed');
+        else cb();
+      }
     },
     async initSdk(cb) {
       const keypair = await this.getKeyPair()
@@ -119,7 +104,7 @@ export default {
     async getKeyPair() {
       const activeAccount = store.getters.activeAccount
       const account = store.getters.account
-      const { res } = await postMessage({ type: 'getKeypair', payload: { activeAccount, account } });
+      const res = await postMessage({ type: 'getKeypair', payload: { activeAccount, account } });
       return res.error ? { error: true } : parseFromStorage(res);
     },
     async initContractInstances() {

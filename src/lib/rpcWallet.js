@@ -88,10 +88,11 @@ const rpcWallet = {
                     })
                 }
             })
-
+            
+            const { activeAccount } = await browser.storage.local.get('activeAccount')
             if (!this.activeAccount) {
-                this.sdk.selectAccount(this.accountKeyPairs[0].publicKey)
-                this.activeAccount = this.accountKeyPairs[0].publicKey
+                this.sdk.selectAccount(this.accountKeyPairs[activeAccount ? activeAccount : 0].publicKey)
+                this.activeAccount = this.accountKeyPairs[activeAccount ? activeAccount : 0].publicKey
             } 
 
         } catch(e) {
@@ -114,8 +115,6 @@ const rpcWallet = {
         if(!isConnected) {
             try {
                 let a = caller === "connection" ? action : {}
-                console.log(caller)
-                console.log(a)
                 let res = await this.showPopup({ action: a, aepp, type: "connectConfirm" })
                 if(typeof cb != "undefined") {
                     cb()
@@ -142,25 +141,22 @@ const rpcWallet = {
           width: 420,
         });
         if (!popupWindow) return action.deny();
-        this.popups.addPopup(id, this.controller);
-        console.log(action)
-        this.popups.addActions(id, action);
-        const {
-          connection: {
-            port: {
-              sender: { url },
-            },
-          },
-          info: { icons, name },
-        } = aepp;
-        const { protocol } = new URL(url);
-    
         return new Promise((resolve, reject) => {
           try {
+            this.popups.addPopup(id, this.controller);
+            console.log(action)
+            this.popups.addActions(id, { ...action, resolve, reject });
+            const {
+              connection: {
+                port: {
+                  sender: { url },
+                },
+              },
+              info: { icons, name },
+            } = aepp;
+            const { protocol } = new URL(url);
             this.popups.setAeppInfo(id, { type, action: { params: action.params, method: action.method }, url, icons, name, protocol, host: extractHostName(url) });
-          } catch (e) {
-            console.log(e);
-          }
+          } catch (e) {}
         });
     },
 
@@ -184,17 +180,15 @@ const rpcWallet = {
             let { connection: { port: {  sender: { url } } } } = client
             let isConnected = await getAeppAccountPermission(extractHostName(url), address)
             if (!isConnected) {
-                let accept = await this.showPopup({ action: { }, aepp:client, type: "connectConfirm" })
-                console.log(accept)
-                if(accept) {
-                    this.sdk.selectAccount(address)
-                }
+                if(await this.showPopup({ action: { }, aepp:client, type: "connectConfirm" })) this.sdk.selectAccount(address)
             } else {
                 this.sdk.selectAccount(address)
             }
         })
     },
     [AEX2_METHODS.CHANGE_ACCOUNT](payload) {
+        console.log("change accpimt")
+        console.log(payload)
         this.activeAccount = payload
         this.getAccessForAddress(payload)
     },

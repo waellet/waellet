@@ -49,10 +49,17 @@ export const PopupConnection = stampit({
   },
   methods: {
     async messageHandler(msg) {
+      const typeToAction = {
+        ACTION_DENY: 'deny',
+        ACTION_ACCEPT: 'accept',
+      };
       if (HDWALLET_METHODS.includes(msg.type)) {
         this.postMessage({ uuid: msg.uuid, res: await this.controller[msg.type](msg.payload) });
-      } else if (msg.action && (msg.action == 'deny' || msg.action == 'accept')) {
-        if(Object.keys(this.actions).length !== 0) this.actions[msg.action]();
+      } else if (msg.type === 'POPUP_INFO') {
+        this.postMessage({ uuid: msg.uuid, res: this.aeppInfo });
+      } else if (typeToAction[msg.type]) {
+        if(this.actions[msg.action]) this.actions[typeToAction[msg.type]]();
+        this.actions.resolve(typeToAction[msg.type] === "deny" ? false : true)
       }
     },
     setMessageListener() {
