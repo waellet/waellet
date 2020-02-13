@@ -22,7 +22,6 @@ export const PopupConnections = stampit({
       const popup = this.getPopup(id);
       popup.connection = port;
       popup.setMessageListener();
-      popup.shareAeppInfo();
       this.popups.set(id, popup);
       popup.connection.onDisconnect.addListener(() => {
         this.removePopup(id);
@@ -58,16 +57,12 @@ export const PopupConnection = stampit({
       } else if (msg.type === 'POPUP_INFO') {
         this.postMessage({ uuid: msg.uuid, res: this.aeppInfo });
       } else if (typeToAction[msg.type]) {
-        if(this.actions[msg.action]) this.actions[typeToAction[msg.type]]();
+        if(this.actions[typeToAction[msg.type]]) this.actions[typeToAction[msg.type]]();
         this.actions.resolve(typeToAction[msg.type] === "deny" ? false : true)
       }
     },
     setMessageListener() {
       this.connection.onMessage.addListener(this.messageHandler.bind(this));
-    },
-    shareAeppInfo() {
-      console.log("share info", this.aeppInfo)
-      this.postMessage({ ...this.aeppInfo, type: 'POPUP_INFO' });
     },
     postMessage(msg) {
       this.connection.postMessage(msg);
