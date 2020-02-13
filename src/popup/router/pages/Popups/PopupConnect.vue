@@ -51,7 +51,7 @@ export default {
             imageError: false
         }
     },
-    created() {
+    async created() {
         this.data = await getPopupProps();
     },
     methods: {
