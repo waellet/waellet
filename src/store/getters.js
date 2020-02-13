@@ -74,9 +74,6 @@ export const getters = {
   getActiveAccount(state) {
     return state.subaccounts.find(s => s.publicKey == state.account.publicKey)
   },
-  background({ background }) {
-    return background
-  },
   tokenRegistry({ tokenRegistry }) {
     return tokenRegistry
   },

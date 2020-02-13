@@ -1,30 +1,20 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
-import { checkAeppConnected, removeTxFromStorage, detectBrowser, parseFromStorage } from './popup/utils/helper';
-import WalletContorller from './wallet-controller'
+import { checkAeppConnected, removeTxFromStorage, detectBrowser, parseFromStorage, detectConnectionType } from './popup/utils/helper';
+import WalletController from './wallet-controller'
 import Notification from './notifications';
-import { setController, contractCallStatic } from './popup/utils/aepp-utils'
+import rpcWallet from './lib/rpcWallet'
+import { 
+    HDWALLET_METHODS,
+    AEX2_METHODS,
+    NOTIFICATION_METHODS,
+    CONNECTION_TYPES
+} from './popup/utils/constants'
+import { setController, contractCallStatic } from './popup/utils/aepp-utils' // for Aepp object should be deprecated
+import { PopupConnections } from './lib/popup-connection'
 
 global.browser = require('webextension-polyfill');
 
-// listen for our browerAction to be clicked
-browser.browserAction.onClicked.addListener(function (tab) {
-    // for the current tab, inject the "inject.js" file & execute it
-	browser.tabs.executeScript(tab.id, {
-        file: 'inject.js'
-	}); 
-});
-
-setInterval(() => {
-    browser.windows.getAll({}).then((wins) => {
-        if(wins.length == 0) {
-            sessionStorage.removeItem("phishing_urls");
-            browser.storage.local.remove('isLogged')
-            browser.storage.local.remove('activeAccount')
-        }
-    });
-},5000);
-
-
+// for Aepp object should be deprecated
 const error = {
     "error": {
         "code": 1,
@@ -37,10 +27,11 @@ const error = {
     "jsonrpc": "2.0"
 }
 
-const controller = new WalletContorller()
-setController(controller)
+const controller = new WalletController()
+const notification = new Notification();
+setController(controller) // for Aepp object should be deprecated
 browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
-    // setController(controller)
+
     switch(msg.method) {
         case 'phishingCheck':
             let data = {...msg, extUrl: browser.extension.getURL ('./') };
@@ -64,7 +55,7 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
             urls.push(msg.params.hostname);
             setPhishingUrl(urls);
         break;
-        case 'aeppMessage':
+        case 'aeppMessage': // for Aepp object should be deprecated
             switch(msg.params.type) {
                 case "txSign":
                     checkAeppConnected(msg.params.hostname).then((check) => {
@@ -183,7 +174,9 @@ browser.runtime.onMessage.addListener( (msg, sender,sendResponse) => {
     return true
 })
 
-
+/**
+ * for Aepp object should be deprecated
+ */
 const connectToPopup = (cb,type, id) => {
     browser.runtime.onConnect.addListener((port) => {
         port.onMessage.addListener((msg,sender) => {
@@ -213,6 +206,9 @@ const connectToPopup = (cb,type, id) => {
    })
 }
 
+/**
+ * for Aepp object should be deprecated
+ */
 const openAeppPopup = (msg,type) => {
     return new Promise((resolve,reject) => {
         browser.storage.local.set({showAeppPopup:{ data: msg.params, type } } ).then( () => {
@@ -237,18 +233,36 @@ const postPhishingData = (data) => {
     });
 }
 
-browser.runtime.onConnect.addListener( ( port ) => {
-    let extensionUrl = 'chrome-extension'
-    if(detectBrowser() == 'Firefox') {
-        extensionUrl = 'moz-extension'
-    }
-    if((port.name == 'popup' && port.sender.id == browser.runtime.id && port.sender.url == `${extensionUrl}://${browser.runtime.id}/popup/popup.html` && detectBrowser() != 'Firefox') || ( detectBrowser() == 'Firefox' && port.name == 'popup' && port.sender.id == browser.runtime.id ) ) {
-        port.onMessage.addListener(({ type, payload, uuid}) => {
-            controller[type](payload).then((res) => {
-                port.postMessage({ uuid, res })
-            })
-        })  
-    }
-})  
 
-const notification = new Notification();
+/** 
+ * AEX-2 RpcWallet Init
+ */
+const popupConnections = PopupConnections()
+popupConnections.init()
+rpcWallet.init(controller, popupConnections)
+browser.runtime.onConnect.addListener( async ( port ) => {
+    if(port.sender.id == browser.runtime.id) {
+        const connectionType = detectConnectionType(port)
+        if(connectionType == CONNECTION_TYPES.EXTENSION) {
+            port.onMessage.addListener(async ({ type, payload, uuid }, sender) => {
+                if(HDWALLET_METHODS.includes(type)) {
+                    port.postMessage({ uuid, res: await controller[type](payload) });
+                } 
+                if(AEX2_METHODS[type]) rpcWallet[type](payload)
+
+                if(NOTIFICATION_METHODS[type]) notification[type](payload) 
+            }) 
+        } else if(connectionType == CONNECTION_TYPES.POPUP) {
+            const url = new URL(port.sender.url)
+            const id = url.searchParams.get('id')
+            popupConnections.addConnection(id, port);
+        } else if(connectionType == CONNECTION_TYPES.OTHER) {
+            const check = rpcWallet.sdkReady(() => {
+                rpcWallet.addConnection(port)
+            })
+            port.onDisconnect.addListener((p) => {
+                clearInterval(check)
+            })
+        }
+    }
+}) 
