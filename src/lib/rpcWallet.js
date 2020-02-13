@@ -187,8 +187,6 @@ const rpcWallet = {
         })
     },
     [AEX2_METHODS.CHANGE_ACCOUNT](payload) {
-        console.log("change accpimt")
-        console.log(payload)
         this.activeAccount = payload
         this.getAccessForAddress(payload)
     },

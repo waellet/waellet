@@ -251,10 +251,9 @@ export default {
   methods: {
     changeAccount (idx,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
-      browser.storage.local.set({activeAccount: idx}).then(() => {
-        this.$store.dispatch('setAccount', { address:subaccount.publicKey, idx, type:'change' }  )
-        //when update to sdk we need to use selectAccount insted reinit sdk
-        wallet.initSdk()
+      browser.storage.local.set({activeAccount: idx}).then( async () => {
+        await this.$store.dispatch('setAccount', { address:subaccount.publicKey, idx, type:'change' }  )
+        wallet.changeAccount(subaccount.publicKey)
         this.dropdown.account = false;
         this.$store.commit('RESET_TRANSACTIONS',[]);
       });

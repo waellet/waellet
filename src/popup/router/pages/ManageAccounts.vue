@@ -51,6 +51,8 @@ import store from '../../../store';
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { postMessage } from '../../utils/connection';
+import wallet from '../../../lib/wallet'
+
 export default {
     data () {
         return {
@@ -130,6 +132,7 @@ export default {
                             let index =  this.subaccounts.length - 1;
                             browser.storage.local.set({activeAccount: index }).then(() => {
                                 this.$store.dispatch('setAccount', { address, idx, type:'add', index }  )
+                                wallet.initSdk()
                             });
                             this.setAccounts();
                         });

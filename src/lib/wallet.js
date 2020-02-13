@@ -64,19 +64,22 @@ export default {
     async initSdk(cb) {
       const keypair = await this.getKeyPair()
       if(typeof keypair.error === 'undefined') {
-          const { network } = store.getters;
-          const { current } = store.getters;
+          const { network, current, subaccounts, getActiveAccount: { publicKey } } = store.getters;
           const node = await Node({ url: network[current.network].internalUrl, internalUrl: network[current.network].internalUrl });
-          const account = MemoryAccount({ keypair });
+          const keypairs = await Promise.all(subaccounts.map(async (account, activeAccount) => (
+              parseFromStorage(await postMessage({ type: 'getKeypair', payload: { activeAccount, account } }))
+          )))
+          const accounts = keypairs.map((keypair) => (MemoryAccount({ keypair })))
           Universal({
               nodes: [{ name: DEFAULT_NETWORK, instance: node }],
-              accounts: [account],
+              accounts,
               networkId: network[current.network].networkId, 
               nativeMode: true,
               compilerUrl: network[current.network].compilerUrl
           }).then(async (sdk) => {
             sdk.middleware = (await swag(network,current)).api
             await store.dispatch('initSdk',sdk)
+            this.changeAccount(publicKey)
             store.commit('SET_NODE_STATUS', 'connected')
             this.initContractInstances()
           })
@@ -91,6 +94,9 @@ export default {
       } else {
         this.logout(() => cb())
       }
+    },
+    changeAccount(address) { 
+      store.getters.sdk.selectAccount(address)
     },
     async logout(cb) {
       await browser.storage.local.remove('isLogged')
