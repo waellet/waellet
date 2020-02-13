@@ -110,12 +110,11 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken  } from '../../../utils/helper';
-import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../../utils/constants';
-import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
-import BigNumber from 'bignumber.js';
+import { convertToAE, convertAmountToCurrency } from '../../../utils/helper';
 import { clearInterval, setInterval  } from 'timers';
 import { TxBuilder } from '@aeternity/aepp-sdk/es';
+import getPopupProps from '../../../utils/getPopupProps';
+
 export default {
     data() {
         return {
@@ -130,10 +129,11 @@ export default {
         }
     },
     async created() {
-        this.unpackedTx = TxBuilder.unpackTx(this.props.action.params.tx)
+        this.props = await getPopupProps();
+        this.unpackedTx = TxBuilder.unpackTx(this.props.action.params.tx);
     },
     computed: {
-        ...mapGetters(['account','activeAccountName','balance','network','current','wallet','activeAccount', 'sdk', 'tokens', 'tokenBalance','isLedger','popup', 'tokenRegistry']),
+        ...mapGetters(['account','activeAccountName','balance','network','current','activeAccount']),
         txType() {  
             return this.unpackedTx ? this.unpackedTx.txType : null;
         },
@@ -169,15 +169,6 @@ export default {
             }
             return (parseFloat(this.toAe(this.amount)) + parseFloat(this.toAe(this.txObject.fee))).toFixed(7)
         }   
-    },
-    created() {
-        const waitProps = setInterval(() => {
-            if (window.props) {
-                this.props = window.props;
-                this.unpackedTx = TxBuilder.unpackTx(this.props.action.params.tx);
-                clearInterval(waitProps);
-            }
-        },500);
     },
     methods: {
         convertCurrency(currency, amount) {
