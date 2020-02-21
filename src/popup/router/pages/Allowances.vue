@@ -279,7 +279,7 @@ export default {
       Object.entries(this.tokens).forEach(async ([key, val]) => {
         if (val.name != 'AE' && val.contract != '') {
           try {
-            const contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
+            const contract = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
             let aex9_extensions = await contract.methods.aex9_extensions();
             const extensions = aex9_extensions.decodedResult;
             if (extensions.includes('allowances')) {
@@ -304,7 +304,7 @@ export default {
       Object.entries(this.tokens).forEach(async ([key, val]) => {
         if (val.name != 'AE' && val.contract != '') {
           try {
-            const contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
+            const contract = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
             let aex9_extensions = await contract.methods.aex9_extensions();
             const extensions = aex9_extensions.decodedResult;
             if (extensions.includes('allowances')) {
@@ -328,7 +328,7 @@ export default {
       Object.entries(this.tokens).forEach(async ([key, val]) => {
         if (val.name != 'AE' && val.contract != '') {
           try {
-            const contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
+            const contract = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: val.contract });
             let aex9_extensions = await contract.methods.aex9_extensions();
             const extensions = aex9_extensions.decodedResult;
             if (extensions.includes('allowances')) {
@@ -355,7 +355,7 @@ export default {
           if (element.key == this.selected) {
             try {
               this.loading = true;
-              let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract });
+              let contract = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract });
               let checkAmountLeft = await contract.call('allowance', [{ from_account: this.account.publicKey, for_account: this.createform.to_account }], { callStatic: true });
               let amountLeft = await checkAmountLeft.decode().then(async amount => {
                 if (amount != 'None') {
@@ -444,7 +444,7 @@ export default {
             try {
               if (element.key == this.selected) {
                 this.loading = true;
-                let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true });
+                let contract = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true });
                 let checkAmountLeft = await contract.call('allowance', [{ from_account: this.transferform.to_account, for_account: this.account.publicKey }], { callStatic: true });
                 let amountLeft = await checkAmountLeft.decode();
                 try {
@@ -493,13 +493,13 @@ export default {
       this.selected = event.target.value;
       this.tokens.forEach(async element => {
         if (element.key == this.selected) {
-          let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true });
+          let contract = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true });
           let checkAllAllowances = await this.$helpers.contractCall({ instance: contract, method: 'allowances' });
           let all = await checkAllAllowances.decode();
           if (all.length != 0) {
             all.forEach(async singleAllowance => {
               if (singleAllowance[0].for_account == this.account.publicKey) {
-                let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true });
+                let contract = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: element.contract, callStatic: true });
                 let checkAmountLeft = await contract
                   .call('allowance', [{ from_account: singleAllowance[0].from_account, for_account: this.account.publicKey }], { callStatic: true })
                   .then(async amount => {
@@ -541,7 +541,7 @@ export default {
         try {
           let contractId = this.allowances[0].allowance;
           let value = this.changeform.value.toString();
-          let contract = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: contractId, callStatic: true });
+          let contract = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: contractId, callStatic: true });
           let checkAmountLeft = await contract.call('allowance', [{ from_account: this.account.publicKey, for_account: this.changeform.to_account }], { callStatic: true });
           let amountLeft = await checkAmountLeft.decode();
           let tokensLefttoTransfer = amountLeft.Some[0];

@@ -74,7 +74,7 @@ export default {
     methods: {
         async exportKeypair (type) {
             if(type == 'keypair') {
-                browser.storage.sync.get('userAccount').then(async (user) => {
+                browser.storage.local.get('userAccount').then(async (user) => {
                     if(user.userAccount && user.hasOwnProperty('userAccount')) {
                         let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
                         let match = await decrypt(encryptedPrivateKey.crypto.ciphertext,this.password,encryptedPrivateKey.crypto.cipher_params.nonce,encryptedPrivateKey.crypto.kdf_params.salt);

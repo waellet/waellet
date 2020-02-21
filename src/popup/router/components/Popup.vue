@@ -49,6 +49,7 @@ export default {
             if(this.redirect && !noRedirect) {
                 this.$store.commit('SET_AEPP_POPUP',false)
                 this.$router.push('/account')
+
             }
         },
         clickSecondBtn() {
