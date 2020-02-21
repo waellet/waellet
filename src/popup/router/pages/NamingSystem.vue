@@ -300,7 +300,8 @@ export default {
                             pointers
                         }
                     },
-                    type:'nameUpdate'
+                    type:'nameUpdate',
+                    nameUpdateType:'extend'
                 }
                 this.$store.commit('SET_AEPP_POPUP',true)
                 this.$router.push({'name':'sign', params: {
