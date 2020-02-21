@@ -799,7 +799,11 @@ export default {
                     options = { ...this.data.tx.options }
                 }
                 options = { ...options, fee:this.convertSelectedFee }
-                const update = await this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey, options )
+                const nameObject = await this.sdk.aensQuery(this.data.tx.name)
+                let update ;
+                if(this.data.nameUpdateType === 'extend') {
+                    update = await nameObject.extendTtl()
+                }
                 this.setTxInQueue(update.hash)
                 this.$store.dispatch('popupAlert', {
                     name: 'account',
