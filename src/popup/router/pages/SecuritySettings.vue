@@ -25,6 +25,12 @@
                 <ae-button face="round" fill="primary" class="notround settingBtn" extend @click="seedPhraseRecovery">{{$t('pages.securitySettings.seedRecoveryBtn')}}</ae-button>
             </div>
         </ae-panel>
+        <ae-panel>
+            <div class="maindiv_input-group-addon">
+                <h4>{{ $t('pages.advancedSettings.exportKeystore') }}</h4><hr>
+                <ae-button class="notround" face="round" fill="primary" extend @click="exportKeystoreOrKeypair">{{ $t('pages.advancedSettings.exportKeystore') }}</ae-button>
+            </div>
+        </ae-panel>
         <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
         <div v-if="loading" class="loading">
             <ae-loader />
@@ -79,6 +85,23 @@
                 <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
             </div>
         </Modal>
+        <Modal v-if="type == 4" :modal="modal">
+            <div slot="content">
+                <Alert :fill="alert.fill" :show="alert.show && !loading">
+                    <div slot="content">
+                        {{alert.content}}
+                    </div>
+                </Alert>
+                <div v-if="seedPhrase == '' && !loading">
+                    <ae-input class="my-2" label="Password">
+                        <input type="password" class="ae-input"  placeholder="Enter password" v-model="password" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+                    </ae-input>
+                    <ae-button class="notround decrypt-btn" extend face="round" fill="primary" @click="decryptKeystore">{{$t('pages.advancedSettings.exportKeystore')}}</ae-button>
+                </div>
+                <Loader :loading="loading" size="small" :content="$t('pages.securitySettings.decryptingPrivateKey')"></Loader>
+                <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
+            </div>
+        </Modal>
     </div>
 </template>
 
@@ -87,6 +110,7 @@ import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
 import { decrypt } from '../../utils/keystore';
 import { addressGenerator, decryptMnemonic } from '../../utils/address-generator';
+import { saveAs } from 'file-saver';
 
 export default {
     data () {
@@ -140,6 +164,12 @@ export default {
             this.modal.title = this.$t('pages.securitySettings.showSeedPhrase')
             this.reset()
         },
+        exportKeystoreOrKeypair() {
+            this.type = '4';
+            this.modal.visible = true
+            this.modal.title = this.$t('pages.advancedSettings.exportKeystore')
+            this.reset()
+        },
         decryptKeystore() {
             if (this.type == '3') {
                 this.loading = true
@@ -179,6 +209,28 @@ export default {
                         }
                     }
                 })
+            } else if (this.type == '4') {
+                this.loading = true
+                browser.storage.local.get('userAccount').then(async (user) => {
+                    if(user.userAccount && user.hasOwnProperty('userAccount')) {
+                        let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+                        let match = await addressGenerator.decryptKeystore(encryptedPrivateKey, this.password)
+                        this.loading = false
+                        if(match) {
+                            let blobData = "";
+                            try {
+                                blobData = JSON.parse(this.account.encryptedPrivateKey);
+                            }catch(err) {
+                                blobData = JSON.stringify(this.account.encryptedPrivateKey);
+                            }
+                            let blob = new Blob([blobData], {type: "application/json;charset=utf-8"});
+                            saveAs(blob, "keystore.json");
+                        }else {
+                            this.setAlertData("primary",true,this.$t('pages.securitySettings.incorrectPassword'))
+                        }
+                    }
+                })
+               
             }
         },
         reset(privateKey = '') {
