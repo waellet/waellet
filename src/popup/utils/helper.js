@@ -1,11 +1,7 @@
-import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import { Crypto } from '@aeternity/aepp-sdk/es';
-import { postMesssage } from './connection';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger'
 import axios from 'axios';
-
-
-import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
+import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO, CONNECTION_TYPES } from './constants';
 
 const shuffleArray = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -63,6 +59,28 @@ const detectBrowser = () => {
     }else {
        return 'unknown'
     }
+}
+
+const getExtensionProtocol = () => {
+    let extensionUrl = 'chrome-extension'
+    if(detectBrowser() == 'Firefox') {
+        extensionUrl = 'moz-extension'
+    }
+    return extensionUrl
+}
+
+const detectConnectionType = (port) => {
+    const extensionProtocol = getExtensionProtocol()
+    const senderUrl = port.sender.url.split("?")
+    let type = CONNECTION_TYPES.OTHER
+    if(port.name == CONNECTION_TYPES.EXTENSION && (senderUrl[0] == `${extensionProtocol}://${browser.runtime.id}/popup/popup.html` || detectBrowser() == 'Firefox')) {
+        type = CONNECTION_TYPES.EXTENSION
+    } else if(port.name == CONNECTION_TYPES.POPUP && (senderUrl[0] == `${extensionProtocol}://${browser.runtime.id}/popup/popup.html` || detectBrowser() == 'Firefox')){
+        type = CONNECTION_TYPES.POPUP
+    } else {
+        type = CONNECTION_TYPES.OTHER
+    }
+    return type
 }
 
 const fetchData = (url, method, fetchedData) => {
@@ -188,11 +206,77 @@ const redirectAfterLogin = (ctx) => {
             ctx.$router.push({'name':'sign', params: {
                 data:tx
             }});
-        }else {
+        } else if(process.env.RUNNING_IN_POPUP ) {
+            ctx.$store.commit('SET_AEPP_POPUP',true)
+            const url = new URL(window.location.href)
+            const type = url.searchParams.get('type')
+            if(type) {
+                if(type == "connectConfirm") {
+                    ctx.$router.push('/connect');
+                } else if(type == "sign") {
+                    ctx.$router.push('/popup-sign-tx');
+                } else if(type == "askAccounts") {
+                    ctx.$router.push('/ask-accounts');
+                }
+            }
+        } else {
             ctx.$router.push('/account');
         }
     })
   })
+}
+
+const getAeppAccountPermission = (host, account) => {
+    return new Promise((resolve, reject) => {
+        browser.storage.local.get('connectedAepps').then((aepps) => {
+            if(!aepps.hasOwnProperty('connectedAepps')) {
+                return resolve(false)
+            }
+            if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
+                let list = aepps.connectedAepps.list
+                if(list.find(ae => ae.host == host && ae.accounts.includes(account))) {
+                    return resolve(true)
+                }
+                return resolve(false)
+            }
+
+            return resolve(false)
+        })
+    })
+}
+
+const setPermissionForAccount = (host, account) => {
+    return new Promise((resolve, reject) => {
+        browser.storage.local.get('connectedAepps').then((aepps) => {
+
+            let list = []
+            if(aepps.hasOwnProperty('connectedAepps') && aepps.connectedAepps.hasOwnProperty('list')) {
+                list = aepps.connectedAepps.list
+            }
+
+            if (list.length && typeof list.find(l => l.host == host) != "undefined") {
+                let hst = list.find(h => h.host == host)
+                let index = list.findIndex(h => h.host == host)
+                if(typeof hst == "undefined") {
+                    resolve()
+                    return 
+                }
+                if(hst.accounts.includes(account)) {
+                    resolve()
+                    return
+                }
+
+                list[index].accounts = [...hst.accounts, account]
+
+            } else {
+                list.push({ host, accounts: [account] })
+            }   
+            // return;
+            browser.storage.local.set({connectedAepps: { list }}).then(() => {
+                resolve()
+            })
+        })
+    })
 }
 
 export const fetchJson = async (...args) => {
@@ -220,62 +304,6 @@ const swag = async (network, current) => {
         },
     })({ swag });
 }
-
-const initializeSDK = (ctx, { network, current, account, wallet, activeAccount = 0, background },backgr = false) => {
-    if(!backgr) {
-        ctx.hideConnectError()
-    }
-    return new Promise (async (resolve,reject) => {
-        if(!backgr) {
-            postMesssage(background, { type: 'getKeypair' , payload: {  activeAccount, account } } ).then(async ({ res }) => {
-                if(typeof res.error != 'undefined') {
-                    resolve({error:true})
-                } else {
-                    res = parseFromStorage(res)
-                    let sdk = await createSDKObject(ctx, { network, current, account, wallet, activeAccount, background, res },backgr)
-                    sdk.middleware = (await swag(network,current)).api;
-                    resolve(sdk)
-                }
-            })
-        }else {
-            let sdk = await createSDKObject(ctx, { network, current, account, activeAccount, background, res: account },backgr)
-            resolve(sdk)
-        }       
-    })
-}
-let countErr = 0;
-const createSDKObject = (ctx, { network, current, account, wallet, activeAccount = 0, background, res }, backgr ) => {
-    return new Promise((resolve, reject) => {
-        Universal({
-            url: (typeof network != 'undefined' ? network[current.network].url : "https://sdk-testnet.aepps.com" ) , 
-            internalUrl:(typeof network != 'undefined' ? network[current.network].internalUrl : "https://sdk-testnet.aepps.com" ),
-            keypair:{ ...res },
-            networkId: (typeof network != 'undefined' ? network[current.network].networkId : "ae_uat" ), 
-            nativeMode: true,
-            compilerUrl: (typeof network != 'undefined' ? network[current.network].compilerUrl : "https://compiler.aepps.com" )
-        }).then((sdk) => {
-            if(!backgr) {
-                // store.dispatch('initSdk',sdk).then(() => {
-                //     ctx.$store.commit('SET_NODE_CONNECTING', false)
-                // })
-            }
-            resolve(sdk)
-        })
-        .catch(err => {
-            if(!backgr) {
-                // store.commit('SET_NODE_CONNECTING', false)
-                ctx.showConnectError()
-            }
-            if(countErr < 3) {
-                createSDKObject(ctx, { network, current, account, activeAccount, background, res },backgr)
-            }else {
-                reject({error:true})
-            }
-            countErr++
-        })
-    })
-}
-
 
 const  currencyConv = async (ctx) => {
     browser.storage.local.get('convertTimer').then(async result => {
@@ -550,7 +578,7 @@ const setContractInstance = async (tx, sdk, contractAddress = null) => {
             backend = "aevm";
         }
         try {
-            contractInstance = await sdk.getContractInstance(tx.source, { contractAddress });
+            contractInstance = await sdk.getContractInstance(tx.source, { contractAddress, forceCodeCheck: true });
             contractInstance.setOptions({ backend })
         }catch(e) {
             console.log(e)
@@ -562,6 +590,37 @@ const setContractInstance = async (tx, sdk, contractAddress = null) => {
     return Promise.resolve(contractInstance)
 }
 
+const getContractInstance = async (source, options = {}) => {
+    try {
+        let store = await import('../../store');
+        store = store.default
+        return await store.state.sdk.getContractInstance(source, { ...options, forceCodeCheck: true });
+    } catch(e) {
+        return { }
+    }
+}
+
+const getUniqueId = (length = 6) => {
+    const ID_LENGTH = length
+    const START_LETTERS_ASCII = 97
+    const ALPHABET_LENGTH = 26
+
+    return  [...new Array(ID_LENGTH)]
+                .map(() => String.fromCharCode(START_LETTERS_ASCII + Math.random() * ALPHABET_LENGTH))
+                .join('')
+}
+
+const getUserNetworks = async () => {
+    const { userNetworks } = await browser.storage.local.get('userNetworks')
+    const networks = {}
+    if(userNetworks) {
+        userNetworks.forEach(net => (networks[net.name] = net ))
+    }
+    return new Promise((resolve, reject) => {
+        resolve(networks)
+    })
+}
+
 export { 
     shuffleArray, 
     convertToAE, 
@@ -571,7 +630,6 @@ export {
     setConnectedAepp, 
     checkAeppConnected, 
     redirectAfterLogin, 
-    initializeSDK, 
     swag,
     currencyConv, 
     convertAmountToCurrency, 
@@ -587,7 +645,14 @@ export {
     addRejectedToken,
     contractCall,
     checkContractAbiVersion,
-    setContractInstance
+    setContractInstance,
+    getContractInstance,
+    getAeppAccountPermission,
+    setPermissionForAccount,
+    getUniqueId,
+    getUserNetworks,
+    getExtensionProtocol,
+    detectConnectionType
 }
 
 

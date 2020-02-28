@@ -15,8 +15,7 @@ export default {
     Object.assign(state.popup, payload);
   },
   [types.DEF_POPUP](state) {
-    let def_popup_props = Object.assign({}, POPUP_PROPS);
-    state.popup = def_popup_props;
+    state.popup = Object.assign({}, POPUP_PROPS);
   },
   [types.HIDE_POPUP](state) {
     state.popup.show = false;
@@ -105,9 +104,6 @@ export default {
   },
   [types.SET_ENCRYPTED_WALLET] (state, payload) {
     state.encryptedWallet = payload
-  },
-  [types.SET_BACKGROUND] (state, payload) {
-    state.background = payload
   },
   [types.SET_TOKEN_REGISTRY] (state, payload) {
     state.tokenRegistry = payload

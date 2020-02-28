@@ -169,8 +169,9 @@ import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
 import LedgerBridge from './utils/ledger/ledger-bridge'
-import { start, postMesssage, readWebPageDom } from './utils/connection'
+import { postMessage, readWebPageDom } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
+import { AEX2_METHODS } from './utils/constants';
 import wallet from '../lib/wallet'
 
 export default {
@@ -214,24 +215,25 @@ export default {
           this.$store.state.current.network = data.activeNetwork;
         }
       });
-      let background = await start(browser)
-      this.$store.commit('SET_BACKGROUND', background )
       readWebPageDom((receiver,sendResponse ) => {
         this.$store.commit('SET_TIPPING_RECEIVER', receiver)
         sendResponse({ host:receiver.host, received: true })
       })
 
       //init SDK
-      this.checkSDKReady = setInterval(() => {
-        if(this.sdk != null) {
-          this.initLedger()
-          this.pollData()
-          clearInterval(this.checkSDKReady)
-        }
-      },100)
+      if(!process.env.RUNNING_IN_POPUP) {
+        this.checkSDKReady = setInterval(() => {
+          if(this.sdk != null) {
+            this.initRpcWallet();
+            this.initLedger()
+            this.pollData()
+            clearInterval(this.checkSDKReady)
+          }
+        },100)
+      }
 
 
-      this.checkPendingTx()
+      // this.checkPendingTx()
       window.addEventListener('resize', () => {
         
         if(window.innerWidth <= 480) {
@@ -247,12 +249,11 @@ export default {
     this.dropdown.settings = false;
   },
   methods: {
-    changeAccount (index,subaccount) {
+    changeAccount (idx,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
-      browser.storage.local.set({activeAccount: index}).then(() => {
-        this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
-        //when update to sdk we need to use selectAccount insted reinit sdk
-        wallet.initSdk()
+      browser.storage.local.set({activeAccount: idx}).then( async () => {
+        await this.$store.dispatch('setAccount', { address:subaccount.publicKey, idx, type:'change' }  )
+        wallet.changeAccount(subaccount.publicKey)
         this.dropdown.account = false;
         this.$store.commit('RESET_TRANSACTIONS',[]);
       });
@@ -293,11 +294,15 @@ export default {
       this.dropdown.network = false;
       this.$store.dispatch('switchNetwork', network).then(() => {
         this.$store.commit('SET_NODE_STATUS', 'connecting')
+        postMessage({ type: AEX2_METHODS.SWITCH_NETWORK , payload: network } )
         wallet.initSdk()
       }); 
     },
     logout () {
-      wallet.logout(() => this.$router.push('/') )
+      wallet.logout(() => {
+          postMessage({ type: AEX2_METHODS.LOGOUT } )
+          this.$router.push('/')
+       } )
     }, 
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -378,6 +383,10 @@ export default {
         }
       }, 3500);
     },
+
+    initRpcWallet() {
+      postMessage({ type: AEX2_METHODS.INIT_RPC_WALLET, payload: { address: this.account.publicKey, network: this.current.network } } )
+    },
     toTokens() {
       this.dropdown.settings = false
       this.$router.push('/tokens')
@@ -393,6 +402,7 @@ export default {
             clearInterval(this.checkPendingTxInterval)
             if(this.$router.currentRoute.path.includes("/sign-transaction") &&  this.$router.currentRoute.params.data.popup == false) {
               this.$store.commit('SET_AEPP_POPUP',false)
+              console.log("tukk 1111")
               this.$router.push('/account')
             }
           }

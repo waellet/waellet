@@ -1,33 +1,42 @@
-import uuid from 'uuid';
-// global.browser = require('webextension-polyfill');
+import genUuid from 'uuid';
 
-export const start = async (browser) =>  {
-    
-    return browser.runtime.connect({ name: 'popup' })
-}
+let internalPostMessage;
 
-export const postMesssage = async (connection, { type, payload }) => {
-    let id = uuid()
-    connection.postMessage({ type, payload, uuid:id  })
-    return new Promise((resolve, reject) => {
-        connection.onMessage.addListener((msg) => {
-            if(msg.uuid == id) {
-                resolve(msg)
-            }
-        })
-    })
-}
+const ensureBackgroundInitialised = async () => {
+    if (internalPostMessage) return;
 
-export const setMessageListener = async (cb) => {
-    browser.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-        cb(message, sender, sendResponse)
-    });
-}
-
-export const readWebPageDom = (cb) => {
-    setMessageListener((message, sender, sendResponse) => {
-        if(typeof message.from != "undefined" && message.from == "content" && typeof message.type != "undefined" && message.type == "readDom" && sender.id == browser.runtime.id) {
-            cb({ address: message.data, host:sender.url }, sendResponse)
+    const background = await browser.runtime.connect({ name: process.env.RUNNING_IN_POPUP ? 'POPUP' : 'EXTENSION' });
+    const pendingRequests = {};
+    background.onMessage.addListener(({ uuid, res }) => {
+        if (!pendingRequests[uuid]) {
+        throw new Error(`Can't find request with id: ${uuid}`);
         }
-    })
-}
+        pendingRequests[uuid].resolve(res);
+    });
+    internalPostMessage = message => {
+        const id = genUuid();
+        background.postMessage({ ...message, uuid: id });
+        return new Promise((resolve, reject) => {
+        pendingRequests[id] = { resolve, reject };
+        });
+    };
+};
+
+export const postMessage = async ({ type, payload }) => {
+  await ensureBackgroundInitialised();
+  return internalPostMessage({ type, payload });
+};
+
+export const setMessageListener = async cb => {
+  browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    cb(message, sender, sendResponse);
+  });
+};
+
+export const readWebPageDom = cb => {
+  setMessageListener((message, sender, sendResponse) => {
+    if (message.from === 'content' && message.type === 'readDom' && sender.id === browser.runtime.id) {
+      cb({ address: message.data, host: sender.url }, sendResponse);
+    }
+  });
+};

@@ -230,7 +230,7 @@ export default {
                     backend = "aevm";
                 }
                 try {
-                    this.contractInstance = await this.sdk.getContractInstance(source, { contractAddress });
+                    this.contractInstance = await this.$helpers.getContractInstance(source, { contractAddress });
                     this.contractInstance.setOptions({ backend })
                     if(typeof options.waitMined != "undefined") {
                         this.contractInstance.setOptions({ waitMined: options.waitMined })
@@ -439,7 +439,7 @@ export default {
             }
         },
         showAlert(balance = false) {
-            if(this.insufficientBalance) {
+            if(this.insufficientBalance && this.sdk !== null && !this.loading && balance) {
                 this.alertMsg = this.$t('pages.signTransaction.insufficientBalance')
             }else if(this.inccorectAddress && this.isAddressShow) {
                 this.alertMsg = this.$t('pages.signTransaction.inccorectAddress')
@@ -723,7 +723,6 @@ export default {
                     let msg = `Contract deployed at address <br> ${deployed.address}`
                     let noRedirect = this.data.tx.contractType == 'fungibleToken' && this.data.tx.tokenRegistry
                     this.$store.dispatch('popupAlert', { name: 'spend', type: 'success_deploy',msg, noRedirect, data:deployed.address })    
-                    
                 }
                 if(this.data.tx.contractType != 'fungibleToken') {
                     this.redirectInExtensionAfterAction()
@@ -800,7 +799,11 @@ export default {
                     options = { ...this.data.tx.options }
                 }
                 options = { ...options, fee:this.convertSelectedFee }
-                const update = await this.sdk.aensUpdate(this.data.tx.claim.id, this.account.publicKey, options )
+                const nameObject = await this.sdk.aensQuery(this.data.tx.name)
+                let update ;
+                if(this.data.nameUpdateType === 'extend') {
+                    update = await nameObject.extendTtl()
+                }
                 this.setTxInQueue(update.hash)
                 this.$store.dispatch('popupAlert', {
                     name: 'account',

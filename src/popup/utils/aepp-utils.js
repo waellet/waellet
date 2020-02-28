@@ -1,7 +1,7 @@
-import { networks } from './constants'
+import { networks, DEFAULT_NETWORK } from './constants'
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import { setContractInstance, contractCall, parseFromStorage } from './helper'
-
+import Node from '@aeternity/aepp-sdk/es/node'
 let sdk;
 let controller;
 
@@ -31,28 +31,26 @@ export const getActiveAccount  = () => {
 }
 
 export const getActiveNetwork = async () => {
-    const { activeNetwork } = await browser.storage.local.get('activeNetwork')
-    return networks[activeNetwork ? activeNetwork : 'Testnet']
-}
-
-export const getSDK = async (keypair) => {
-    if(!sdk) {
+    const { activeNetwork } = await browser.storage.local.get('activeNetwork');
+    return networks[activeNetwork || DEFAULT_NETWORK];
+};
+  
+export const getSDK = async (keypair = {}) => {
+    if (!sdk) {
         try {
-            let network = await getActiveNetwork();
-            sdk = await Universal({
-                url: network.url , 
-                internalUrl: network.internalUrl,
-                keypair,
-                networkId: network.networkId, 
-                nativeMode: true,
-                compilerUrl: network.compilerUrl
-            })
-        } catch(e) { } 
-    } 
+        const network = await getActiveNetwork();
+        const node = await Node({ url: network.internalUrl, internalUrl: network.internalUrl });
+        sdk = await Universal({
+            nodes: [{ name: DEFAULT_NETWORK, instance: node }],
+            networkId: network.networkId,
+            nativeMode: true,
+            compilerUrl: network.compilerUrl,
+        });
+        } catch (e) {}
+    }
 
-    return sdk
-    
-}
+    return sdk;
+};
 
 export const contractCallStatic = async ({ tx, callType }) => {
     
