@@ -154,6 +154,8 @@ export default {
             cb('/popup-sign-tx');
           } else if (type == 'askAccounts') {
             cb('/ask-accounts');
+          } else if (type == 'messageSign') {
+            cb('/message-sign');
           }
         }
       } else {

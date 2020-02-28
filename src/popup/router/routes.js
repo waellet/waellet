@@ -10,11 +10,11 @@ import SignTransactionComponent from './pages/SignTransaction';
 import PopupSignTransactionComponent from './pages/Popups/PopupSignTx';
 import PopupConnectComponent from './pages/Popups/PopupConnect';
 import PopupAskAccountsComponent from './pages/Popups/PopupAskAccounts';
+import PopupMessageSignComponent from './pages/Popups/PopupMessageSign';
 import ManageAccountComponent from './pages/ManageAccounts';
 import SettingsComponent from './pages/Settings';
 import GeneralSettingsComponent from './pages/GeneralSettings';
 import SecuritySettingsComponent from './pages/SecuritySettings';
-import AdvancedSettingsComponent from './pages/AdvancedSettings';
 import AboutSettingsComponent from './pages/AboutSettings';
 import UtilitiesComponent from './pages/Utilities';
 import TipComponent from './pages/TipPage';
@@ -102,6 +102,12 @@ export default [
     props:true
   },
   {
+    name: 'message-sign',
+    path: '/message-sign',
+    component: PopupMessageSignComponent,
+    props: true,
+  },
+  {
     name:'connect-confirm',
     path:'/connect-confirm',
     component:ConnectConfirmComponent,
@@ -122,10 +128,6 @@ export default [
   {
     path:'/securitySettings',
     component:SecuritySettingsComponent,
-  },
-  {
-    path:'/advancedSettings',
-    component:AdvancedSettingsComponent,
   },
   {
     path:'/aboutSettings',
