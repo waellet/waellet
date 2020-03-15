@@ -80,6 +80,13 @@ const rpcWallet = {
                         }, 2000)
                     })
                 },
+                async onMessageSign(aepp, action) {
+                    context.checkAeppPermissions(aepp, action, 'messageSign', () => {
+                        setTimeout(() => {
+                            context.showPopup({ aepp, action, type: "messageSign" })
+                        }, 2000)
+                    });
+                },
                 onAskAccounts (aepp, action) {
                     context.checkAeppPermissions(aepp, action, "accounts", () => {
                         setTimeout(() => {

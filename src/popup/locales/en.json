@@ -491,6 +491,10 @@
             "label": "Aeternity Address",
             "identicon": "Your identicon",
             "error": "Invalid AE Address"
+        },
+        "popupMessageSign": {
+            "heading": "would like to sign message ",
+            "message": "Message"
         }
     }
 }

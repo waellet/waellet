@@ -22,7 +22,7 @@
   "dependencies": {
     "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",
     "@aeternity/aepp-components-3": "3.0.0-alpha.9",
-    "@aeternity/aepp-sdk": "7.0.0",
+    "@aeternity/aepp-sdk": "7.1.1",
     "@aeternity/bip39": "^0.1.0",
     "@aeternity/hd-wallet": "^0.2.0",
     "@aeternity/ledger-app-api": "^0.1.0",
@@ -103,7 +103,7 @@
     "file-loader": "^1.1.11",
     "mini-css-extract-plugin": "^0.4.4",
     "mocha": "^6.2.1",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.13.1",
     "precise-commits": "^1.0.2",
     "prettier": "^1.18.2",
     "sass-loader": "^7.3.1",
