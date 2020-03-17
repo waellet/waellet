@@ -626,6 +626,15 @@ const getUserNetworks = async () => {
     })
 }
 
+export const pollGetter = getter =>
+  new Promise(resolve => {
+    const id = setInterval(() => {
+      if (!getter()) return;
+      clearInterval(id);
+      resolve();
+    }, 300);
+  });
+
 export { 
     shuffleArray, 
     convertToAE, 
