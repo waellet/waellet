@@ -78,6 +78,9 @@ export default {
   [types.INIT_SDK] (state, payload) {
     state.sdk = payload
   },
+  [types.SET_MIDDLEWARE](state, payload) {
+    state.sdk.middleware = payload;
+  },
   [types.SET_TOKENS] (state, payload) {
     state.tokens = payload
   },
