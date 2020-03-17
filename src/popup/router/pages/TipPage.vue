@@ -131,7 +131,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { extractHostName, convertToAE } from '../../utils/helper';
+import { extractHostName, aeToAettos, aettosToAe } from '../../utils/helper';
 import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, TIPPING_CONTRACT, toMicro } from '../../utils/constants';
 import BigNumber from 'bignumber.js';
@@ -196,7 +196,7 @@ export default {
                 
                 await this.tipWebsiteType();
 
-                this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
+                this.unpaid = aettosToAe((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
                 if(this.activeTab == 'tips') {
                     this.fetchTips()
                 }
@@ -240,7 +240,7 @@ export default {
                 this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance'});
                 return;
             } 
-            amount = BigNumber(amount).shiftedBy(MAGNITUDE)
+            amount = aeToAettos(amount)
             this.confirmTip(this.domain,amount, this.note)
         },
         confirmTip(domain, amount, note) {
@@ -274,10 +274,10 @@ export default {
         async tipWebsiteType() {
             if(this.tipDomain) {
                 this.domain = extractHostName(this.url);
-                this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
+                this.unpaid = aettosToAe((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
             } else {
                 this.domain = this.url
-                this.unpaid = convertToAE((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
+                this.unpaid = aettosToAe((await this.tipping.methods['unpaid'](this.domain)).decodedResult)
             }
         },
         claimTips() {
@@ -303,7 +303,7 @@ export default {
         async fetchTips() {
             if(this.tipping) {
                 this.websiteTips = (await this.tipping.methods['tips_for_url'](this.domain)).decodedResult
-                this.websiteTips = this.websiteTips.map(i => ({ ...i, amount:convertToAE(i.amount)}))
+                this.websiteTips = this.websiteTips.map(i => ({ ...i, amount:aettosToAe(i.amount)}))
                                                     .sort((a,b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime())
                 this.loadingTips = false
             }
