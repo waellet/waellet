@@ -2,76 +2,75 @@ import { generateHdWallet, getHdWalletAccount } from './popup/utils/hdWallet';
 import { stringifyForStorage, parseFromStorage } from './popup/utils/helper';
 import { addressGenerator } from './popup/utils/address-generator';
 
-
 export default class WalletController {
-    constructor(tests = false) {
-        this.tests = tests
-        if(tests && localStorage.getItem('wallet')) {
-            this.wallet = parseFromStorage(localStorage.getItem('wallet'))
-        }
-        if(!tests) {
-            setInterval(() => {
-                browser.windows.getAll({}).then((wins) => {
-                    if(wins.length === 0) {
-                        this.lockWallet()
-                        sessionStorage.removeItem("phishing_urls")
-                        browser.storage.local.remove('activeAccount')
-                    }
-                });
-                if(!this.wallet) {
-                    this.lockWallet()
-                }
-            },5000);
-        }
+  constructor(tests = false) {
+    this.tests = tests;
+    if (tests && localStorage.getItem('wallet')) {
+      this.wallet = parseFromStorage(localStorage.getItem('wallet'));
     }
-
-    async unlockWallet({ accountPassword, encryptedPrivateKey }) {
-        const match = await addressGenerator.decryptKeystore(encryptedPrivateKey, accountPassword)
-        if(match !== false) {
-            this.wallet = generateHdWallet(match)
-            if(this.tests) {
-                localStorage.setItem("wallet", stringifyForStorage(this.wallet))
-            }
-            let { address } = getHdWalletAccount(this.wallet)
-            return { decrypt: true, address };
+    if (!tests) {
+      setInterval(() => {
+        browser.windows.getAll({}).then(wins => {
+          if (wins.length === 0) {
+            this.lockWallet();
+            sessionStorage.removeItem('phishing_urls');
+            browser.storage.local.remove('activeAccount');
+          }
+        });
+        if (!this.wallet) {
+          this.lockWallet();
         }
-        return { decrypt: false };
+      }, 5000);
     }
+  }
 
-    lockWallet() {
-        this.wallet = null
-        browser.storage.local.remove('isLogged')
-        sessionStorage.removeItem("phishing_urls")
-        browser.storage.local.remove('activeAccount')
+  async unlockWallet({ accountPassword, encryptedPrivateKey }) {
+    const match = await addressGenerator.decryptKeystore(encryptedPrivateKey, accountPassword);
+    if (match !== false) {
+      this.wallet = generateHdWallet(match);
+      if (this.tests) {
+        localStorage.setItem('wallet', stringifyForStorage(this.wallet));
+      }
+      const { address } = getHdWalletAccount(this.wallet);
+      return { decrypt: true, address };
     }
+    return { decrypt: false };
+  }
 
-    generateWallet({ seed }) {
-        this.wallet = generateHdWallet(parseFromStorage(seed))
-        if(this.tests) {
-            localStorage.setItem("wallet", stringifyForStorage(this.wallet))
-        }
-        const { address } = getHdWalletAccount(this.wallet)
-        return { generate: true, address };
-    } 
+  lockWallet() {
+    this.wallet = null;
+    browser.storage.local.remove('isLogged');
+    sessionStorage.removeItem('phishing_urls');
+    browser.storage.local.remove('activeAccount');
+  }
 
-    getKeypair({ activeAccount, account }) {
-        try {
-            return stringifyForStorage({
-                publicKey: account.publicKey,
-                secretKey: getHdWalletAccount(this.wallet,activeAccount).secretKey
-            })
-        }catch(e) {
-            return { error: true }
-        }
+  generateWallet({ seed }) {
+    this.wallet = generateHdWallet(parseFromStorage(seed));
+    if (this.tests) {
+      localStorage.setItem('wallet', stringifyForStorage(this.wallet));
     }
+    const { address } = getHdWalletAccount(this.wallet);
+    return { generate: true, address };
+  }
 
-    getAccount({ idx }) {
-        return {
-            address: getHdWalletAccount(this.wallet, idx).address
-        }
+  getKeypair({ activeAccount, account }) {
+    try {
+      return stringifyForStorage({
+        publicKey: account.publicKey,
+        secretKey: getHdWalletAccount(this.wallet, activeAccount).secretKey,
+      });
+    } catch (e) {
+      return { error: true };
     }
+  }
 
-    isLoggedIn() {
-        return typeof this.wallet != "undefined" && this.wallet != null
-    }
+  getAccount({ idx }) {
+    return {
+      address: getHdWalletAccount(this.wallet, idx).address,
+    };
+  }
+
+  isLoggedIn() {
+    return typeof this.wallet !== 'undefined' && this.wallet != null;
+  }
 }
