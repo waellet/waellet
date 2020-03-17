@@ -54,7 +54,7 @@
             {{$t('pages.send.maxSpendableValue')}}
           </div>
           <div class="balance no-sign">
-            {{tokenBalance}} {{tokenSymbol}}
+            {{ maxSpendableValue }} {{tokenSymbol}}
           </div>
       </div>
       
@@ -138,6 +138,9 @@ export default {
         }
         
       })
+    },
+    maxSpendableValue () {
+      return this.balance - this.maxFee;
     }
   },
   created() {
