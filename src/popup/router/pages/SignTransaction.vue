@@ -89,10 +89,10 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken, checkContractAbiVersion, parseFromStorage  } from '../../utils/helper';
+import { convertToAE, currencyConv, convertAmountToCurrency, removeTxFromStorage, contractEncodeCall, initializeSDK, checkAddress, chekAensName, escapeCallParam, addRejectedToken, checkContractAbiVersion, parseFromStorage, aeToAettos, aettosToAe  } from '../../utils/helper';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_REASONABLE_FEE, FUNGIBLE_TOKEN_CONTRACT, TX_TYPES, calculateFee, TX_LIMIT_PER_DAY, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
 import { Wallet, MemoryAccount } from '@aeternity/aepp-sdk/es'
-import { computeAuctionEndBlock, computeBidFee  } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
+import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 import BigNumber from 'bignumber.js';
 import { clearInterval, clearTimeout  } from 'timers';
 
@@ -211,7 +211,7 @@ export default {
             return this.data.type == 'namePreClaim' || this.data.type == 'nameBid' || this.data.type == 'nameClaim' || this.data.type == 'nameUpdate'
         },
         convertSelectedFee() {
-            return BigNumber(this.selectedFee).shiftedBy(MAGNITUDE)
+            return aeToAettos(this.selectedFee)
         },
         token () {
             return typeof this.data.tx.token != 'undefined' ? this.data.tx.token : 'AE' 
@@ -240,7 +240,6 @@ export default {
                 }
                 return Promise.resolve(true)
             } catch(err) {
-                    console.log(err)
                 if(this.data.popup) {
                     this.errorTx.error.message = err
                     this.sending = true
@@ -282,12 +281,12 @@ export default {
             if(this.data.tx.hasOwnProperty("options") && this.data.tx.options.hasOwnProperty("amount")) {
                 this.data.tx.amount = this.data.tx.options.amount
                 if(this.data.type == 'contractCall' ) {
-                    this.data.tx.amount = BigNumber(this.data.tx.options.amount).shiftedBy(-MAGNITUDE)
-                    this.data.tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(-MAGNITUDE)
+                    this.data.tx.amount = aettosToAe(this.data.tx.options.amount) 
+                    this.data.tx.options.amount =  aettosToAe(this.data.tx.options.amount) 
                 }  
             }
             if(this.data.type == 'txSign' && this.data.popup) {
-                this.data.tx.amount = BigNumber(this.data.tx.amount).shiftedBy(-MAGNITUDE)
+                this.data.tx.amount = aettosToAe(this.data.tx.amount) 
             }
             if(this.data.popup) {
                 this.port = browser.runtime.connect({ name: this.data.id })
@@ -385,7 +384,8 @@ export default {
                             this.txParams = {
                                 ...this.txParams,
                                 senderId:this.account.publicKey,
-                                recipientId:recipientId
+                                recipientId:recipientId,
+                                amount: aeToAettos(this.amount)
                             }
                         }else if(this.data.type == 'namePreClaim') {
                             this.txParams = { 
@@ -510,7 +510,7 @@ export default {
             });
         },
         signSpendTx(amount) {
-                this.sdk.spend(parseInt(amount), this.receiver, { fee: this.convertSelectedFee}).then(async result => {
+                this.sdk.spend(amount, this.receiver, { fee: this.convertSelectedFee}).then(async result => {
                     if(typeof result == "object") {
                         this.loading = false
                         this.hash = result.hash
@@ -589,7 +589,7 @@ export default {
                     options = { ...tx.options }
                 }
                 if(tx.hasOwntProperty("options") && tx.options.hasOwnProperty("amount")) {
-                    tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(MAGNITUDE)
+                    tx.options.amount = aeToAettos(this.data.tx.options.amount)
                     options = { ...options, ...tx.options }
                 }
                 let call = await this.$helpers.contractCall({ instance:this.contractInstance, method:tx.method, params:[...tx.params, options] })
@@ -616,7 +616,7 @@ export default {
                     options = { ...this.data.tx.options }
                 }
                 if(this.data.tx.hasOwnProperty("options") && this.data.tx.options.hasOwnProperty("amount")) {
-                    this.data.tx.options.amount = BigNumber(this.data.tx.options.amount).shiftedBy(MAGNITUDE)
+                    this.data.tx.options.amount = aeToAettos(this.data.tx.options.amount)
                     options = { ...options, ...this.data.tx.options }
                 }
                 
@@ -706,7 +706,6 @@ export default {
                         
                     }
                 } catch(err) {
-                    console.log(err)
                     this.setTxInQueue('error')
                     this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
                 }
@@ -824,7 +823,7 @@ export default {
         async signTransaction() {
             if(!this.signDisabled) {
                 this.loading = true
-                let amount = BigNumber(this.amount).shiftedBy(MAGNITUDE);
+                const amount = aeToAettos(this.amount)
                 try {
                     let { tx_count } = await browser.storage.local.get('tx_count')
                     if(typeof tx_count == 'undefined') {

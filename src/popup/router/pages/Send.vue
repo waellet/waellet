@@ -81,7 +81,7 @@ import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_UINT256, calcu
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl } from '../../utils/airGap';
-import { contractEncodeCall, checkAddress, chekAensName } from '../../utils/helper';
+import { contractEncodeCall, checkAddress, chekAensName, aeToAettos } from '../../utils/helper';
 
 export default {
   name: 'Send',
@@ -180,7 +180,7 @@ export default {
     send(){
       let sender = this.subaccounts.filter(sender => sender.publicKey == this.account.publicKey);
       let isAirGapAcc = sender[0].isAirGapAcc == true && sender[0].isAirGapAcc != undefined;
-      let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
+      let amount = aeToAettos(this.form.amount);
       let receiver = this.form.address;
       if(receiver == '' || (!checkAddress(receiver) && !chekAensName(receiver) ) )  {
         this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address'});
