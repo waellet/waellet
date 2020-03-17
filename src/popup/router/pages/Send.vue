@@ -59,7 +59,7 @@
       </div>
       
       <div>
-        <ae-button face="round" fill="primary" class="sendBtn extend" @click="send">{{$t('pages.send.send')}}</ae-button>
+        <ae-button face="round" fill="primary" class="sendBtn extend" :class="!sdk ? 'disabled' : ''" @click="send">{{$t('pages.send.send')}}</ae-button>
       </div>
     </div>
     <input type="hidden" class="txHash" :value="tx.hash" />
@@ -81,7 +81,7 @@ import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_UINT256, calcu
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl } from '../../utils/airGap';
-import { contractEncodeCall, checkAddress, chekAensName, aeToAettos } from '../../utils/helper';
+import { contractEncodeCall, checkAddress, chekAensName, aeToAettos, pollGetter } from '../../utils/helper';
 
 export default {
   name: 'Send',
@@ -160,6 +160,7 @@ export default {
       this.$store.commit('RESET_TRANSACTIONS',[]);
     },
     async fetchFee() {
+      await pollGetter(() => this.sdk);
       let fee = await calculateFee(this.current.token == 0 ? TX_TYPES['txSign'] : TX_TYPES['contractCall'],{...await this.feeParams()})
       this.fee = fee
     },
