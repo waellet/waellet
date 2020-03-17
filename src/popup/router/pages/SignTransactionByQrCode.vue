@@ -92,7 +92,6 @@ export default {
 
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .breakword {
     word-break: break-word;
 }

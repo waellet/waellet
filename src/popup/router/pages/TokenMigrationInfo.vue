@@ -55,14 +55,12 @@ export default {
         },
         seeMigrations() {
             browser.tabs.create({url: `https://token-migration.aepps.com/#/status/result/${this.account.publicKey}`, active: true});
-        },
-        
+        }
     }
 }
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .balance{
     font-size: 3rem;
     color: #000;

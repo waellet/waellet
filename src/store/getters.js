@@ -34,7 +34,7 @@ export const getters = {
     return state.activeAccount;
   },
   activeAccountName(state) {
-    return state.subaccounts.find(s => s.publicKey == state.account.publicKey) ? state.subaccounts.find(s => s.publicKey == state.account.publicKey).name : 'Account';
+    return state.subaccounts.find(s => s.publicKey == state.account.publicKey) ? state.subaccounts.find(s => s.publicKey == state.account.publicKey).name : 'Main account';
   },
   sdk(state) {
     return state.sdk
@@ -64,13 +64,15 @@ export const getters = {
     ) + 1
   },
   isLedger(state) {
-    return state.subaccounts.find(s => s.publicKey == state.account.publicKey).isLedger
+
+    if(state.subaccounts.length > 0){
+      return state.subaccounts.find(s => s.publicKey == state.account.publicKey).isLedger
+    } else{
+      return state.subaccounts
+    }
   },
   getActiveAccount(state) {
     return state.subaccounts.find(s => s.publicKey == state.account.publicKey)
-  },
-  background({ background }) {
-    return background
   },
   tokenRegistry({ tokenRegistry }) {
     return tokenRegistry
@@ -80,5 +82,17 @@ export const getters = {
   },
   txAdvancedMode({ txAdvancedMode }) {
     return txAdvancedMode
+  },
+  tipping({ tipping }) {
+    return tipping
+  },
+  tippingReceiver({ tippingReceiver }) {
+    return tippingReceiver
+  },
+  mainLoading({ mainLoading }) {
+    return mainLoading
+  },
+  nodeStatus({ nodeStatus }) {
+    return nodeStatus
   }
 };

@@ -40,12 +40,6 @@
                   </ae-button>
                 </ae-list-item>
               </ae-list>
-                <!-- <li v-for="(value, name) in network" v-bind:key="value.networkId">
-                  <ae-button v-on:click="switchNetwork(name)" class="status triggerhidedd" :class="current.network == name ? 'current' : ''">
-                      {{ name }}
-                  </ae-button>
-                </li>
-              </ul> -->
             </transition>
           </div>
 
@@ -164,24 +158,21 @@
       {{ $t('pages.appVUE.systemName') }} 
       {{extensionVersion}} </span>
     <Loader size="big" :loading="mainLoading"></Loader>
-    <div class="connect-error" v-if="connectError" >Unable to connect to choosen node</div>
+    <NodeConnectionStatus />
   </ae-main>
 </template>
  
 <script>
-import Ae from '@aeternity/aepp-sdk/es/ae/universal';
-import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import store from '../store';
 import locales from './locales/en.json'
 import { mapGetters } from 'vuex';
 import { saveAs } from 'file-saver';
 import { setTimeout, clearInterval, clearTimeout, setInterval  } from 'timers';
-import { initializeSDK, contractCall } from './utils/helper';
-import { TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from './utils/constants'
 import LedgerBridge from './utils/ledger/ledger-bridge'
-import { start, postMesssage } from './utils/connection'
+import { postMessage, readWebPageDom } from './utils/connection'
 import { langs,fetchAndSetLocale } from './utils/i18nHelper'
-import { computeAuctionEndBlock, computeBidFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
+import { AEX2_METHODS } from './utils/constants';
+import wallet from '../lib/wallet'
 
 export default {
   
@@ -198,7 +189,6 @@ export default {
         languages: false,
         tokens: false
       },
-      mainLoading: true,
       checkPendingTxInterval:null,
       menuSlot:"mobile-left",
       mobileRight: "mobile-right",
@@ -207,7 +197,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'background', 'sdk','tokens','aeppPopup','ledgerNextIdx']),
+    ...mapGetters (['account', 'current', 'network', 'userNetworks', 'popup', 'isLoggedIn', 'AeAPI', 'subaccounts', 'activeAccount', 'activeNetwork', 'balance', 'activeAccountName', 'background', 'sdk','tokens','aeppPopup','ledgerNextIdx','mainLoading','nodeConnecting']),
     extensionVersion() {
       return 'v.' + browser.runtime.getManifest().version + 'beta'
     }
@@ -225,30 +215,25 @@ export default {
           this.$store.state.current.network = data.activeNetwork;
         }
       });
-      let background = await start(browser)
-      this.$store.commit( 'SET_BACKGROUND', background )
-      
+      readWebPageDom((receiver,sendResponse ) => {
+        this.$store.commit('SET_TIPPING_RECEIVER', receiver)
+        sendResponse({ host:receiver.host, received: true })
+      })
+
       //init SDK
-      this.checkSDKReady = setInterval(() => {
-        if(this.isLoggedIn && this.sdk == null) {
-          
-          this.initLedger()
-          this.initSDK()
-          
-          this.pollData()
-          clearInterval(this.checkSDKReady)
-        }
-      },500)
+      if(!process.env.RUNNING_IN_POPUP) {
+        this.checkSDKReady = setInterval(() => {
+          if(this.sdk != null) {
+            this.initRpcWallet();
+            this.initLedger()
+            this.pollData()
+            clearInterval(this.checkSDKReady)
+          }
+        },100)
+      }
 
-      setTimeout(() => {
-        if(this.isLoggedIn) {
-          this.pollData()
-        }else {
-          this.hideLoader()
-        }
-      },500)
 
-      this.checkPendingTx()
+      // this.checkPendingTx()
       window.addEventListener('resize', () => {
         
         if(window.innerWidth <= 480) {
@@ -264,17 +249,11 @@ export default {
     this.dropdown.settings = false;
   },
   methods: {
-    hideLoader() {
-      var self = this;
-      setTimeout(function() {
-        self.mainLoading = false;
-      }, 1500);
-    },
-    changeAccount (index,subaccount) {
+    changeAccount (idx,subaccount) {
       this.$store.commit('SET_ACTIVE_TOKEN',0)
-      browser.storage.local.set({activeAccount: index}).then(() => {
-        this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:subaccount.publicKey,index:index});
-        this.initSDK();
+      browser.storage.local.set({activeAccount: idx}).then( async () => {
+        await this.$store.dispatch('setAccount', { address:subaccount.publicKey, idx, type:'change' }  )
+        wallet.changeAccount(subaccount.publicKey)
         this.dropdown.account = false;
         this.$store.commit('RESET_TRANSACTIONS',[]);
       });
@@ -314,30 +293,16 @@ export default {
     switchNetwork (network) {
       this.dropdown.network = false;
       this.$store.dispatch('switchNetwork', network).then(() => {
-        this.initSDK();
-        this.$store.dispatch('updateBalance');
-        let transactions = this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3});
-        transactions.then(res => {
-          this.$store.dispatch('updateLatestTransactions',res);
-        });
+        this.$store.commit('SET_NODE_STATUS', 'connecting')
+        postMessage({ type: AEX2_METHODS.SWITCH_NETWORK , payload: network } )
+        wallet.initSdk()
       }); 
     },
     logout () {
-      browser.storage.local.remove('isLogged').then(() => {
-        browser.storage.local.remove('wallet').then(() => {
-          browser.storage.local.remove('activeAccount').then(() => {
-            this.dropdown.settings = false;
-            this.dropdown.languages = false;
-            this.dropdown.account = false;
-            this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
-            this.$store.commit('UNSET_SUBACCOUNTS');
-            this.$store.commit('UPDATE_ACCOUNT', '');
-            this.$store.commit('SWITCH_LOGGED_IN', false);
-            this.$store.commit('SET_WALLET', []);
-            this.$router.push('/');
-          });
-        });
-      });
+      wallet.logout(() => {
+          postMessage({ type: AEX2_METHODS.LOGOUT } )
+          this.$router.push('/')
+       } )
     }, 
     popupAlert(payload) {
       this.$store.dispatch('popupAlert', payload)
@@ -416,64 +381,11 @@ export default {
               triggerOnce = true
             }
         }
-      }, 2500);
+      }, 3500);
     },
-    fetchApi() {
-      let states = this.$store.state;
-      let ae = Ae({
-          url: states.network[states.current.network].url,
-          internalUrl: states.network[states.current.network].internalUrl,
-          keypair: {
-            secretKey: states.account.secretKey,
-            publicKey: states.account.publicKey,
-          },
-          networkId: states.network[states.current.network].networkId,
-      });
-      ae.then(a => {
-        console.log(a);
-      })
-      return ae;
-    },
-    async initSDK() {
-      let sdk = await initializeSDK(this, { network:this.network, current:this.current, account:this.account, wallet:this.wallet, activeAccount:this.activeAccount, background:this.background })
-      
-      if( typeof sdk != null && !sdk.hasOwnProperty("error")) {
-        await this.$store.commit('SET_TOKEN_REGISTRY', 
-          await sdk.getContractInstance(this.network[this.current.network].networkId == "ae_uat" ? 
-          TOKEN_REGISTRY_CONTRACT_LIMA : 
-          TOKEN_REGISTRY_CONTRACT, { contractAddress: this.network[this.current.network].tokenRegistry }) 
-        )
 
-        try {
-          await this.$store.commit('SET_TOKEN_REGISTRY_LIMA', 
-            await sdk.getContractInstance(TOKEN_REGISTRY_CONTRACT_LIMA, { contractAddress: this.network[this.current.network].tokenRegistryLima }) 
-          )
-        } catch (e) {
-          console.log(e)
-        }
-        
-        
-        
-
-
-        
-        this.$store.dispatch('getAllUserTokens')
-       
-        
-
-      }
-      
-      if(typeof sdk.error != 'undefined') {
-          await browser.storage.local.remove('isLogged')
-          await browser.storage.local.remove('activeAccount')
-          this.hideLoader()
-          this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:'',index:0});
-          this.$store.commit('UNSET_SUBACCOUNTS');
-          this.$store.commit('UPDATE_ACCOUNT', '');
-          this.$store.commit('SWITCH_LOGGED_IN', false);
-          
-          this.$router.push('/')
-      }
+    initRpcWallet() {
+      postMessage({ type: AEX2_METHODS.INIT_RPC_WALLET, payload: { address: this.account.publicKey, network: this.current.network } } )
     },
     toTokens() {
       this.dropdown.settings = false
@@ -490,6 +402,7 @@ export default {
             clearInterval(this.checkPendingTxInterval)
             if(this.$router.currentRoute.path.includes("/sign-transaction") &&  this.$router.currentRoute.params.data.popup == false) {
               this.$store.commit('SET_AEPP_POPUP',false)
+              console.log("tukk 1111")
               this.$router.push('/account')
             }
           }
@@ -561,7 +474,7 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 #account .ae-dropdown-button .dropdown-button-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .subAccountInfo { margin-right:auto; margin-bottom:0 !important; max-width: 155px; }
 #network .subAccountInfo { max-width: 195px; }
-.subAccountIcon { margin-right: 10px; }
+.subAccountIcon, .identicon { margin-right: 10px; }
 .subAccountName { text-align: left; color: #000; text-overflow: ellipsis; overflow: hidden; font-weight:bold; margin-bottom:0 !important; white-space: nowrap; }
 .subAccountBalance { font-family: monospace; margin-bottom:0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;}
 .name-pending { width:24px !important; height:24px !important; margin-right:5px; font-size:.8rem; }
@@ -623,5 +536,5 @@ button { background: none; border: none; color: #717C87; cursor: pointer; transi
 .tokenBalance { margin-right: auto; }
 #tokens .ae-check-button:before { width: 20px !important; height: 20px !important; }
 #tokens .ae-check-button:after { width: 26px !important; height: 25px !important; }
-.connect-error { position:fixed; bottom: 0; left:0; right:0; background:$primary-color; color:#fff; padding: .3rem; text-align:center; font-weight:bold; }
+
 </style>

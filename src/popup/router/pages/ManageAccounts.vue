@@ -50,7 +50,9 @@
 import store from '../../../store';
 import { mapGetters } from 'vuex';
 import { getHdWalletAccount } from '../../utils/hdWallet';
-import { postMesssage } from '../../utils/connection';
+import { postMessage } from '../../utils/connection';
+import wallet from '../../../lib/wallet'
+
 export default {
     data () {
         return {
@@ -121,14 +123,16 @@ export default {
                     root:false,
                     balance:0
                 }).then(() => {
-                    browser.storage.local.set({ subaccounts: this.subaccounts}).then(() => {
+                    
+                    browser.storage.local.set({ subaccounts: JSON.parse(JSON.stringify(this.subaccounts)) }).then(() => {
                         this.$store.dispatch('popupAlert', {
                             name: 'account',
                             type: 'added_success'
                         }).then(() => {
                             let index =  this.subaccounts.length - 1;
                             browser.storage.local.set({activeAccount: index }).then(() => {
-                                this.$store.commit('SET_ACTIVE_ACCOUNT', {publicKey:address,index:index});
+                                this.$store.dispatch('setAccount', { address, idx, type:'add', index }  )
+                                wallet.initSdk()
                             });
                             this.setAccounts();
                         });
@@ -151,7 +155,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .ae-list-item { cursor: default !important; }
 .ae-list-item .ae-icon, h4 .ae-icon , h4 .icon-btn{ float: right; font-size: 1.2rem; }
 #manageAccounts .ae-icon-check { color: #13b100 !important; }

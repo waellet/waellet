@@ -115,8 +115,15 @@
         "connectConfirm": {
             "websiteRequestconnect": "would like to connect to your account",
             "websiteRequest": "This website is requesting access to view your current account address. Always make sure you trust the website you interact with. ",
-            "cancelButton": "Cancel",
-            "confirmButton": "Confirm"
+            "cancelButton": "Deny",
+            "confirmButton": "Accept",
+            "addressLabel": "Address",
+            "transactionLabel": "Transaction",
+            "addressRequest": "This aepp is requesting access to view your current account address",
+            "transactionRequest": "This aepp will prepare a transaction, you are in charge of confirming it.",
+            "websiteRequestAccounts": "would like to get account addresses",
+            "addressesLabel": "Addresses",
+            "addressesRequest": "This aepp is requesting access to view your account addresses"
         },
         "createFungibleToken": {
             "backToFungibleTokens":"Back to Fungible Tokens",
@@ -184,7 +191,8 @@
             "previousBids": "Previous bids: ",
             "noPreviousBids": "No previous bids",
             "goBiddingBtn": "Go for bidding",
-            "backButton": "Back"
+            "backButton": "Back",
+            "extend": "Extend"
         },
         "generalSettings": {
             "backToSettings": "Back to settings",
@@ -235,8 +243,18 @@
             "addNewNetwork": "Add new node",
             "networkName": "Node name",
             "networkURL": "Node URL",
-            "addnetworkName": "Add Node name",
+            "internalURL": "Node Internal URL",
+            "networkId": "Node Network Id",
+            "middlewareUrl": "Node Middleware URL",
+            "explorerUrl": "Node Explorer URL",
+            "compilerUrl": "Node Compiler URL",
+            "addnetworkName": "Add Node Name",
             "addnetworkURL": "Add Node URL",
+            "addinternalURL": "Add Node Internal URL",
+            "addnetworkId": "Add Node Network Id",
+            "addmiddlewareUrl": "Add Node Middleware URL",
+            "addexplorerUrl": "Add Node Explorer URL",
+            "addcompilerUrl": "Add Node Compiler URL",
             "add": "Add"
         },
         "privacyPolicy": {
@@ -343,7 +361,10 @@
             "contractCall": "Contract call",
             "contractCalling": "Calling contract method. Please do not close the window",
             "insufficientBalance": "Insufficient Balance",
-            "inccorectAddress": "Incorrect address"
+            "inccorectAddress": "Incorrect address",
+            "compiledCode": "Compiled Code",
+            "callData": "Call Data",
+            "payload": "Payload"
         },
         "signTransactionByQrCode": {
             "backToAccount": "Back to account",
@@ -359,14 +380,24 @@
             "backToUtilities": "Back to utilities",
             "noImage": "No Image",
             "domainVerified":"Verified",
-            "domainNotVerified":"Not yet verified",
+            "domainNotVerified":"Not verified",
             "sendHeading":"Send a tip",
             "check":"Check",
             "selectAmount": "Select amount",
             "amountToTip": "Amount to tip",
             "transactionFee": "Transaction fee",
             "balance": "Balance",
-            "sendTipBtn": "Send tip"
+            "sendTipBtn": "Send tip",
+            "tipDetails": "Details",
+            "tipWebsite":"Website",
+            "heading": "Tip website",
+            "selectTip": "Select amount to tip",
+            "tipDomain": "Tip domain",
+            "claim": "Claim Tips",
+            "tipsForDomain": "Tips",
+            "tips": "Tips",
+            "noTips": "No tips for this url",
+            "claimInfo": "If you are verified you can claim the amount of tokens by click the button below"
         },
         "transactionDetails": {
             "heading": "Transactions Details",
@@ -425,7 +456,6 @@
             "createTx": "create tx",
             "clear": "Clear filter",
             "apply": "Apply filter"
-            
         },
         "utilities": {
             "heading": "Utilities",
@@ -461,6 +491,10 @@
             "label": "Aeternity Address",
             "identicon": "Your identicon",
             "error": "Invalid AE Address"
+        },
+        "popupMessageSign": {
+            "heading": "would like to sign message ",
+            "message": "Message"
         }
     }
 }

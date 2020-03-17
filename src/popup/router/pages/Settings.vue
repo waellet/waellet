@@ -11,11 +11,6 @@
                 <i class="arrowright"></i>
                 <p class="tabinfo">{{ $t('pages.settings.tabGeneralsmall') }}</p>
             </button>
-            <button class="advancedsett" @click="AdvancedSettings">
-                <span class="settings-li">{{ $t('pages.settings.tabAdvanced') }}</span>
-                <i class="arrowright"></i>
-                <p class="tabinfo">{{ $t('pages.settings.tabAdvancedsmall') }}</p>
-            </button>
             <button class="securitysett" @click="SecuritySettings">
                 <span class="settings-li">{{ $t('pages.settings.tabSecurity') }}</span>
                 <i class="arrowright"></i>
@@ -50,9 +45,6 @@ export default {
         GeneralSettings() {
             this.$router.push('/generalSettings')
         },
-        AdvancedSettings() {
-            this.$router.push('/advancedSettings')
-        },
         SecuritySettings() {
             this.$router.push('/securitySettings')
         },
@@ -67,8 +59,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-@import '../../../common/base';
 .settingslist  {
     padding:0 !important;
 }

@@ -75,7 +75,7 @@ export default  {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
+@import '../../../common/variables';
 .list-item-transaction {
     justify-content: start;
     

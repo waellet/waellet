@@ -10,7 +10,7 @@
     </h3>
     <div class="sendContent">
       <ae-input :label="$t('pages.send.recipient')" class="address">
-          <textarea class="ae-input textarea" v-model="form.address" placeholder="ak.. / name.test"  slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+          <textarea class="ae-input textarea" v-model="form.address" placeholder="ak.. / name.chain"  slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
           <ae-toolbar slot="footer" align="right">
             <div class="paste" @click="scan"><ae-icon name="camera" /> {{ $t('pages.send.scan') }}</div>
           </ae-toolbar>
@@ -54,12 +54,12 @@
             {{$t('pages.send.maxSpendableValue')}}
           </div>
           <div class="balance no-sign">
-            {{tokenBalance}} {{tokenSymbol}}
+            {{ maxSpendableValue }} {{tokenSymbol}}
           </div>
       </div>
       
       <div>
-        <ae-button face="round" fill="primary" class="sendBtn extend" @click="send">{{$t('pages.send.send')}}</ae-button>
+        <ae-button face="round" fill="primary" class="sendBtn extend" :class="!sdk ? 'disabled' : ''" @click="send">{{$t('pages.send.send')}}</ae-button>
       </div>
     </div>
     <input type="hidden" class="txHash" :value="tx.hash" />
@@ -81,7 +81,7 @@ import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_UINT256, calcu
 import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl } from '../../utils/airGap';
-import { contractEncodeCall, checkAddress, chekAensName } from '../../utils/helper';
+import { contractEncodeCall, checkAddress, chekAensName, aeToAettos, pollGetter } from '../../utils/helper';
 
 export default {
   name: 'Send',
@@ -138,6 +138,9 @@ export default {
         }
         
       })
+    },
+    maxSpendableValue () {
+      return this.balance - this.maxFee;
     }
   },
   created() {
@@ -160,6 +163,7 @@ export default {
       this.$store.commit('RESET_TRANSACTIONS',[]);
     },
     async fetchFee() {
+      await pollGetter(() => this.sdk);
       let fee = await calculateFee(this.current.token == 0 ? TX_TYPES['txSign'] : TX_TYPES['contractCall'],{...await this.feeParams()})
       this.fee = fee
     },
@@ -180,7 +184,7 @@ export default {
     send(){
       let sender = this.subaccounts.filter(sender => sender.publicKey == this.account.publicKey);
       let isAirGapAcc = sender[0].isAirGapAcc == true && sender[0].isAirGapAcc != undefined;
-      let amount = BigNumber(this.form.amount).shiftedBy(MAGNITUDE);
+      let amount = aeToAettos(this.form.amount);
       let receiver = this.form.address;
       if(receiver == '' || (!checkAddress(receiver) && !chekAensName(receiver) ) )  {
         this.$store.dispatch('popupAlert', { name: 'spend', type: 'incorrect_address'});
@@ -252,7 +256,8 @@ export default {
             data:tx
           }});
         }
-     } 
+     }
+     
     },
     init() {
       let calculatedMaxValue = this.balance - this.maxFee
@@ -282,7 +287,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .sendContent > div:not(.sendAmount):not(.address) { 
   margin-bottom: 10px;
 }

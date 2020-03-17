@@ -15,8 +15,7 @@ export default {
     Object.assign(state.popup, payload);
   },
   [types.DEF_POPUP](state) {
-    let def_popup_props = Object.assign({}, POPUP_PROPS);
-    state.popup = def_popup_props;
+    state.popup = Object.assign({}, POPUP_PROPS);
   },
   [types.HIDE_POPUP](state) {
     state.popup.show = false;
@@ -79,6 +78,9 @@ export default {
   [types.INIT_SDK] (state, payload) {
     state.sdk = payload
   },
+  [types.SET_MIDDLEWARE](state, payload) {
+    state.sdk.middleware = payload;
+  },
   [types.SET_TOKENS] (state, payload) {
     state.tokens = payload
   },
@@ -106,9 +108,6 @@ export default {
   [types.SET_ENCRYPTED_WALLET] (state, payload) {
     state.encryptedWallet = payload
   },
-  [types.SET_BACKGROUND] (state, payload) {
-    state.background = payload
-  },
   [types.SET_TOKEN_REGISTRY] (state, payload) {
     state.tokenRegistry = payload
   },
@@ -117,5 +116,17 @@ export default {
   },
   [types.SET_TX_ADVANCED_MODE] (state, payload) {
     state.txAdvancedMode = payload
+  },
+  [types.SET_TIPPING] (state, payload) {
+    state.tipping = payload
+  },
+  [types.SET_TIPPING_RECEIVER] (state, payload) {
+    state.tippingReceiver = payload
+  },
+  [types.SET_MAIN_LOADING] (state, payload) {
+    state.mainLoading = payload
+  },
+  [types.SET_NODE_STATUS] (state, payload) {
+    state.nodeStatus = payload
   }
 }; 

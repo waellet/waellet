@@ -172,7 +172,7 @@ export default {
                 this.$store.dispatch('popupAlert', { name: 'account', type: 'token_exists'})
             }else {
                 this.loading = true
-                let contractInstance = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: this.token.contract })
+                let contractInstance = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: this.token.contract })
                 let call = await this.$helpers.contractCall({ instance:contractInstance, method:'balance', params:[this.account.publicKey] })
                 
                 let balance = await call.decode()
@@ -255,7 +255,7 @@ export default {
             
             return new Promise(async (resolve, reject) => {
                 try {
-                    let contractInstance = await this.sdk.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: address })
+                    let contractInstance = await this.$helpers.getContractInstance(FUNGIBLE_TOKEN_CONTRACT, { contractAddress: address })
                     this.$helpers.contractCall({ instance: contractInstance, method: 'meta_info', async: false })
                     .then((res) => {
                         res.decode()
@@ -328,7 +328,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
+@import '../../../common/variables';
 
 .tabs {
     margin-top:1rem;

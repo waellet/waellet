@@ -79,7 +79,6 @@ export default {
 
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .airgap-setup-definitions {
     font-weight: normal;
     word-break: break-word;

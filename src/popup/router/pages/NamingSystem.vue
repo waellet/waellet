@@ -21,6 +21,7 @@
                             <div class="subAccountName">{{name.name}}</div>
                             <ae-address :value="name.owner" length="short" />
                         </div>
+                        <ae-button face="flat" fill="primary" @click="extend(name)">{{$t('pages.namingSystemPage.extend') }}</ae-button>
                         <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="name.pending"/>
                     </ae-list-item>
                 </ae-list>
@@ -181,12 +182,16 @@ export default {
     created() {
         this.loading = true;
         this.polling = setInterval(async () => {
+            if (!this.sdk.middleware) {
+                this.loading = false;
+                return;
+            }
             if (this.moreAuInfo.info != null) {
                 this.updateAuctionEntry();
             }
-        // let middleWareBaseUrl = this.network[this.current.network].middlewareUrl; // later will be replaced with the temp one
-            let tempMiddleWareBaseUrl = 'https://testnet.aeternal.io/middleware';
-            const fetched = await fetchData(tempMiddleWareBaseUrl + '/names/auctions/active','get','')
+            let middleWareBaseUrl = this.network[this.current.network].middlewareUrl; // later will be replaced with the temp one
+            // let tempMiddleWareBaseUrl = 'https://testnet.aeternal.io/middleware';
+            const fetched = await fetchData(middleWareBaseUrl + '/middleware/names/auctions/active','get','')
             this.activeAuctions = fetched;
             this.$store.dispatch('getRegisteredNames')
             this.loading = false;
@@ -286,6 +291,32 @@ export default {
         navigateUtilities(){
             this.$router.push('/utilities')
         },
+        async extend({ name }) {
+            try {
+                let { id, pointers, ttl } = await this.sdk.getName(name)
+                let tx = {
+                    popup:false,
+                    tx: {
+                        name,
+                        claim:{
+                            id,
+                            name,
+                            pointers
+                        }
+                    },
+                    type:'nameUpdate',
+                    nameUpdateType:'extend'
+                }
+                this.$store.commit('SET_AEPP_POPUP',true)
+                this.$router.push({'name':'sign', params: {
+                    data:tx,
+                    type:tx.type
+                }}).catch(err => {});
+            } catch(e) {
+                this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed'})
+            }
+            
+        }
     },
     beforeDestroy() {
         window.clearTimeout(this.polling)
@@ -294,9 +325,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-@import '../../../common/base';
-
 .singleAuction:hover {
     margin: 5px;
     transition: all-ease;
