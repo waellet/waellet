@@ -1,5 +1,5 @@
 /* eslint-disable */
-const nacl = require('tweetnacl')
+const nacl = require('tweetnacl');
 import uuid from 'uuid';
 import { encodeBase58Check } from '@aeternity/aepp-sdk/es/utils/crypto';
 import WebCrypto from './webCrypto';
@@ -32,7 +32,7 @@ function encrypt(plaintext, key, nonce, algo = DEFAULTS.crypto.symmetric_alg) {
   return CRYPTO_FUNCTIONS[algo].encrypt({ plaintext, nonce, key });
 }
 
-export async function decrypt(ciphertext,password,nonce, salt , options = {}) {
+export async function decrypt(ciphertext, password, nonce, salt, options = {}) {
   let webCrypto = new WebCrypto();
   return await webCrypto.decrypt(ciphertext, password, nonce, salt);
   // const opt = Object.assign({}, DEFAULTS.crypto, options);
@@ -43,7 +43,7 @@ export async function decrypt(ciphertext,password,nonce, salt , options = {}) {
   // key = key.hash;
   // try {
   //   let res = CRYPTO_FUNCTIONS[DEFAULTS.crypto.symmetric_alg].decrypt({ ciphertext, nonce, key });
-    
+
   //   return Buffer.from(res).toString('hex');
   // }catch {
   //   return false;
@@ -103,8 +103,6 @@ export async function dump(name, password, privateKey, nonce = nacl.randomBytes(
   return marshal(name, await deriveKey(password, salt, opt), privateKey, nonce, salt, opt);
 }
 
-
-
 async function deriveKey(
   password,
   nonce,
@@ -114,7 +112,7 @@ async function deriveKey(
   }
 ) {
   if (typeof password === 'undefined' || password === null || !nonce) {
-          throw new Error('Must provide password and nonce to derive a key');
+    throw new Error('Must provide password and nonce to derive a key');
   }
 
   if (!DERIVED_KEY_FUNCTIONS.hasOwnProperty(options.kdf)) throw new Error('Unsupported kdf type');
@@ -137,16 +135,22 @@ function decryptXsalsa20Poly1305({ ciphertext, key, nonce }) {
   return res;
 }
 
-
 /**
  * WebCrypto Support
  */
 
-export async function generateEncryptedWallet(name, password, privateKey, nonce = window.crypto.getRandomValues(new Uint8Array(12)), salt = window.crypto.getRandomValues(new Uint8Array(16)), options = {}) {
+export async function generateEncryptedWallet(
+  name,
+  password,
+  privateKey,
+  nonce = window.crypto.getRandomValues(new Uint8Array(12)),
+  salt = window.crypto.getRandomValues(new Uint8Array(16)),
+  options = {}
+) {
   const opt = Object.assign({}, DEFAULTS.crypto, options);
-  opt.kdf = "webCrypto";
+  opt.kdf = 'webCrypto';
   let webCrypto = new WebCrypto();
-  let ciphertext =  Buffer.from(await webCrypto.encrypt(Buffer.from(privateKey).toString('hex'), password, nonce, salt)).toString('hex');
+  let ciphertext = Buffer.from(await webCrypto.encrypt(Buffer.from(privateKey).toString('hex'), password, nonce, salt)).toString('hex');
   const encrypted = Object.assign(
     { name, version: 1, public_key: getAddressFromPriv(privateKey), id: uuid.v4() },
     {

@@ -3,23 +3,23 @@ import genUuid from 'uuid';
 let internalPostMessage;
 
 const ensureBackgroundInitialised = async () => {
-    if (internalPostMessage) return;
+  if (internalPostMessage) return;
 
-    const background = await browser.runtime.connect({ name: process.env.RUNNING_IN_POPUP ? 'POPUP' : 'EXTENSION' });
-    const pendingRequests = {};
-    background.onMessage.addListener(({ uuid, res }) => {
-        if (!pendingRequests[uuid]) {
-        throw new Error(`Can't find request with id: ${uuid}`);
-        }
-        pendingRequests[uuid].resolve(res);
+  const background = await browser.runtime.connect({ name: process.env.RUNNING_IN_POPUP ? 'POPUP' : 'EXTENSION' });
+  const pendingRequests = {};
+  background.onMessage.addListener(({ uuid, res }) => {
+    if (!pendingRequests[uuid]) {
+      throw new Error(`Can't find request with id: ${uuid}`);
+    }
+    pendingRequests[uuid].resolve(res);
+  });
+  internalPostMessage = message => {
+    const id = genUuid();
+    background.postMessage({ ...message, uuid: id });
+    return new Promise((resolve, reject) => {
+      pendingRequests[id] = { resolve, reject };
     });
-    internalPostMessage = message => {
-        const id = genUuid();
-        background.postMessage({ ...message, uuid: id });
-        return new Promise((resolve, reject) => {
-        pendingRequests[id] = { resolve, reject };
-        });
-    };
+  };
 };
 
 export const postMessage = async ({ type, payload }) => {

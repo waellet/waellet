@@ -1,32 +1,18 @@
 <template>
   <div class="popup">
     <div class="actions">
-      <button class="backbutton toAccount" @click="navigateUtilities">
-        <ae-icon name="back" />
-        {{ $t('pages.signAndVerifyMsg.backToUtilities') }}
-      </button>
+      <button class="backbutton toAccount" @click="navigateUtilities"><ae-icon name="back" />{{ $t('pages.signAndVerifyMsg.backToUtilities') }}</button>
     </div>
-    <h3 style="text-align:center;">{{$t('pages.namingSystemPage.heading') }}</h3>
+    <h3 style="text-align:center;">{{ $t('pages.namingSystemPage.heading') }}</h3>
 
     <div class="tab-holder">
-      <ae-button
-        :class="seeAllRegisteredNames ? 'activeTab': ''"
-        face="flat"
-        fill="primary"
-        @click="seeAllRegisteredNamesHandler"
-      >{{$t('pages.namingSystemPage.yourNamesBtn') }}</ae-button>
-      <ae-button
-        :class="seeAllActiveAuctions ? 'activeTab': ''"
-        face="flat"
-        fill="primary"
-        @click="seeAllActiveAuctionsHandler"
-      >{{$t('pages.namingSystemPage.allActiveAuctionsBtn') }}</ae-button>
-      <ae-button
-        :class="addNewName ? 'activeTab': ''"
-        face="flat"
-        fill="primary"
-        @click="addNewNameHandler"
-      >{{$t('pages.namingSystemPage.AddNewBtn') }}</ae-button>
+      <ae-button :class="seeAllRegisteredNames ? 'activeTab' : ''" face="flat" fill="primary" @click="seeAllRegisteredNamesHandler">{{
+        $t('pages.namingSystemPage.yourNamesBtn')
+      }}</ae-button>
+      <ae-button :class="seeAllActiveAuctions ? 'activeTab' : ''" face="flat" fill="primary" @click="seeAllActiveAuctionsHandler">{{
+        $t('pages.namingSystemPage.allActiveAuctionsBtn')
+      }}</ae-button>
+      <ae-button :class="addNewName ? 'activeTab' : ''" face="flat" fill="primary" @click="addNewNameHandler">{{ $t('pages.namingSystemPage.AddNewBtn') }}</ae-button>
     </div>
     <!-- if is clicked Your Names  -->
     <div class="seeAllRegisteredNames" v-if="seeAllRegisteredNames">
@@ -40,33 +26,15 @@
               <div class>{{ name.name }}</div>
               <ae-address />
               <div v-if="name.addPointer" class="pointer-holder mt-10">
-                <ae-input
-                  v-model="name.pointerAddress"
-                  class="pointer-input"
-                  :placeholder="$t('pages.namingSystemPage.pointerPlaceholder')"
-                  error
-                >
+                <ae-input v-model="name.pointerAddress" class="pointer-input" :placeholder="$t('pages.namingSystemPage.pointerPlaceholder')" error >
                   <ae-toolbar v-if="name.pointerError" slot="footer">Error</ae-toolbar>
                 </ae-input>
                 <ae-icon name="close" @click.native="name.addPointer = false" />
               </div>
-              <button
-                v-if="!name.addPointer"
-                class="small-primary"
-                @click="extend(name)"
-              >{{ $t('pages.namingSystemPage.extend') }}</button>
-              <button
-                class="small-primary"
-                @click="setPointer(name)"
-              >{{ $t('pages.namingSystemPage.pointer') }}</button>
+              <button v-if="!name.addPointer" class="small-primary" @click="extend(name)" >{{ $t('pages.namingSystemPage.extend') }}</button>
+              <button class="small-primary" @click="setPointer(name)" >{{ $t('pages.namingSystemPage.pointer') }}</button>
             </div>
-            <ae-icon
-              fill="primary"
-              face="round"
-              name="reload"
-              class="name-pending"
-              v-if="name.pending"
-            />
+            <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="name.pending" />
           </ae-list-item>
         </ae-list>
         <p v-if="!haveRegisteredNames">{{ $t('pages.namingSystemPage.noNames') }}</p>
@@ -76,41 +44,33 @@
     <!-- if is clicked All Active  -->
     <div class="seeAllActiveAuctions" v-if="seeAllActiveAuctions">
       <div class="maindiv_input-group-addon">
-        <h4 v-if="!moreAuInfo.visible">{{$t('pages.namingSystemPage.activeAuctions') }}</h4>
-        <h4 v-if="moreAuInfo.visible">{{$t('pages.namingSystemPage.auctionInfo') }}</h4>
+        <h4 v-if="!moreAuInfo.visible">{{ $t('pages.namingSystemPage.activeAuctions') }}</h4>
+        <h4 v-if="moreAuInfo.visible">{{ $t('pages.namingSystemPage.auctionInfo') }}</h4>
         <hr />
 
         <ae-filter-list v-if="!moreAuInfo.visible">
-          <p style="margin:0">{{$t('pages.namingSystemPage.filtersBy') }}</p>
-          <ae-filter-item
-            class="au-filter notround"
-            @click.native="filterBySoonest"
-            :active="bySoonest ? true : false"
-          >{{$t('pages.namingSystemPage.filterBySoonest') }}</ae-filter-item>
-          <ae-filter-item
-            class="au-filter notround"
-            @click.native="filterByCharLength"
-            :active="byCharLength ? true : false"
-          >{{$t('pages.namingSystemPage.filterByCharLength') }}</ae-filter-item>
-          <ae-filter-item
-            class="au-filter notround"
-            @click.native="filterByBid"
-            :active="byBid ? true : false"
-          >{{$t('pages.namingSystemPage.filterByBid') }}</ae-filter-item>
+          <p style="margin:0">{{ $t('pages.namingSystemPage.filtersBy') }}</p>
+          <ae-filter-item class="au-filter notround" @click.native="filterBySoonest" :active="bySoonest ? true : false">{{
+            $t('pages.namingSystemPage.filterBySoonest')
+          }}</ae-filter-item>
+          <ae-filter-item class="au-filter notround" @click.native="filterByCharLength" :active="byCharLength ? true : false">{{
+            $t('pages.namingSystemPage.filterByCharLength')
+          }}</ae-filter-item>
+          <ae-filter-item class="au-filter notround" @click.native="filterByBid" :active="byBid ? true : false">{{ $t('pages.namingSystemPage.filterByBid') }}</ae-filter-item>
         </ae-filter-list>
 
         <ae-list v-if="!moreAuInfo.visible && activeAuctions != null">
           <ae-list-item
             class="singleAuction"
             fill="neutral"
-            v-for="(info, key) in (bySoonest ? filteredBySoonest : (byCharLength ? filteredByCharLen : (byBid ? filteredByBid : '')))"
+            v-for="(info, key) in bySoonest ? filteredBySoonest : byCharLength ? filteredByCharLen : byBid ? filteredByBid : ''"
             :key="key"
-            @click="moreAuctionInfo(key,info)"
+            @click="moreAuctionInfo(key, info)"
           >
             <ae-identicon class="subAccountIcon" v-bind:address="info.winning_bidder" size="base" />
             <div class="auctionInfo">
-              <div class="name">{{info.name}}</div>
-              <div class="expiration">Expires in {{info.expiration}} blocks</div>
+              <div class="name">{{ info.name }}</div>
+              <div class="expiration">Expires in {{ info.expiration }} blocks</div>
             </div>
           </ae-list-item>
         </ae-list>
@@ -119,42 +79,28 @@
 
         <div v-if="moreAuInfo.visible">
           <div class="actions">
-            <button class="backbutton toAccount" @click="moreAuInfo.visible = false">
-              <ae-icon name="back" />
-              {{ $t('pages.namingSystemPage.backButton') }}
-            </button>
+            <button class="backbutton toAccount" @click="moreAuInfo.visible = false"><ae-icon name="back" />{{ $t('pages.namingSystemPage.backButton') }}</button>
           </div>
           <ae-panel>
-            <span>Expires in:</span>
-            <b>{{ moreAuInfo.info.expiration }}</b>blocks
-            <br />
+            <span>Expires in: </span><b>{{ moreAuInfo.info.expiration }} </b>blocks<br />
             <hr />
             <span>{{ $t('pages.namingSystemPage.currentBid') }}</span>
             <ae-list-item style="border:none" fill="neutral">
-              <ae-identicon
-                class="subAccountIcon"
-                v-bind:address="moreAuInfo.info.winning_bidder"
-                size="base"
-              />
+              <ae-identicon class="subAccountIcon" v-bind:address="moreAuInfo.info.winning_bidder" size="base" />
               <div class="auctionInfo">
-                <div class="name">{{(moreAuInfo.info.winning_bid).toFixed(3)}} AE</div>
+                <div class="name">{{ moreAuInfo.info.winning_bid.toFixed(3) }} AE</div>
                 <div style="color:#aba9a9" class="expiration">
-                  <small>{{moreAuInfo.info.winning_bidder}}</small>
+                  <small>{{ moreAuInfo.info.winning_bidder }}</small>
                 </div>
               </div>
             </ae-list-item>
             <hr />
             <span>{{ $t('pages.namingSystemPage.previousBids') }}</span>
             <div v-if="previousBids">
-              <ae-list-item
-                v-for="(bid, idx) in previousBids"
-                v-bind:key="idx"
-                style="border:none"
-                fill="neutral"
-              >
+              <ae-list-item v-for="(bid, idx) in previousBids" v-bind:key="idx" style="border:none" fill="neutral">
                 <ae-identicon class="subAccountIcon" v-bind:address="bid.accountId" size="base" />
                 <div class="auctionInfo">
-                  <div class="name">{{ (bid.nameFee).toFixed(3) }} AE</div>
+                  <div class="name">{{ bid.nameFee.toFixed(3) }} AE</div>
                   <div style="color:#aba9a9" class="expiration">
                     <small>{{ bid.accountId }}</small>
                   </div>
@@ -165,12 +111,9 @@
               <p>{{ $t('pages.namingSystemPage.noPreviousBids') }}</p>
             </div>
             <hr />
-            <ae-button
-              style="width:100% !important"
-              face="flat"
-              fill="primary"
-              @click="bidOnThisHandler(moreAuInfo)"
-            >{{ $t('pages.namingSystemPage.goBiddingBtn') }}</ae-button>
+            <ae-button style="width:100% !important" face="flat" fill="primary" @click="bidOnThisHandler(moreAuInfo)">
+              {{ $t('pages.namingSystemPage.goBiddingBtn') }}
+            </ae-button>
           </ae-panel>
         </div>
       </div>
@@ -179,7 +122,7 @@
     <!-- if is clicked Add New Name  -->
     <div class="addNewName" v-if="addNewName">
       <div class="maindiv_input-group-addon">
-        <h4>{{$t('pages.namingSystemPage.registerName') }}</h4>
+        <h4>{{ $t('pages.namingSystemPage.registerName') }}</h4>
         <hr />
         <div class="checkName namingsystem-input-group-addon">
           <input v-model="name" class="namingsystem-addon-input" />
@@ -188,14 +131,11 @@
         <ae-button class="regbtn notround" face="icon" fill="primary" @click="registerName">
           <ae-icon name="plus" />
         </ae-button>
-        <small style="font-size:12px; display: inline-block;">
-          <ae-icon style="font-size: 15px;" name="github" />
-          {{$t('pages.namingSystemPage.registerNameRequirement') }}
-        </small>
+        <small style="font-size:12px; display: inline-block;"><ae-icon style="font-size: 15px;" name="github" />{{ $t('pages.namingSystemPage.registerNameRequirement') }}</small>
       </div>
     </div>
 
-    <Loader size="big" :loading="loading" type="transparent" content></Loader>
+    <Loader size="big" :loading="loading" type="transparent" content=""></Loader>
     <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
   </div>
 </template>
@@ -333,7 +273,7 @@ export default {
     moreAuctionInfo(key, info) {
       this.moreAuInfo.visible = true;
       this.moreAuInfo.key = key;
-      var exists = Object.keys(info).some(function(k) {
+      const exists = Object.keys(info).some(k => {
         if (k == 'winning_bid') {
           info[k] = convertToAE(info[k]);
         }
@@ -355,7 +295,7 @@ export default {
         });
       } else {
         this.loading = true;
-        let name = `${this.name}.chain`;
+        const name = `${this.name}.chain`;
         const query = this.sdk
           .aensQuery(name)
           .then(async () => {
@@ -366,7 +306,7 @@ export default {
             });
           })
           .catch(async err => {
-            let tx = {
+            const tx = {
               popup: false,
               tx: {
                 name,
@@ -593,4 +533,3 @@ input:focus {
   }
 }
 </style>
-
