@@ -9,9 +9,7 @@
       <div class="text-right balance-change">
         <ae-badge class="badgeTransactionType" :class="transactionType.fill">{{ transactionType.type }}</ae-badge>
         <div class="balance" :class="balanceSign">{{ amount }}</div>
-        <small
-          ><span class="balance">{{ fee }}</span></small
-        >
+        <small><span class="balance">{{ fee }}</span></small>
       </div>
     </ae-list-item>
     <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
