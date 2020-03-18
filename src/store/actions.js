@@ -270,12 +270,12 @@ export default {
               owner: tx.accountId,
             }));
         })(),
-        (async () => uniqBy(
-          await (await fetch(
-            `${middlewareUrl}/middleware/names/reverse/${publicKey}`,
-          )).json(),
-          'name',
-        ))(),
+        // (async () => uniqBy(
+        //   await (await fetch(
+        //     `${middlewareUrl}/middleware/names/reverse/${publicKey}`,
+        //   )).json(),
+        //   'name',
+        // ))(),
         (
           async () => {
             try {

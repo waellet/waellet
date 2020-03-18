@@ -359,17 +359,13 @@ const removeTxFromStorage = (id) => {
     }) 
 }
 
-const checkAddress = (value) => {
-    return Crypto.isAddressValid(value, "ak") || Crypto.isAddressValid(value, "ct");
-}
+const checkAddress = value => Crypto.isAddressValid(value, 'ak') || Crypto.isAddressValid(value, 'ct') || Crypto.isAddressValid(value, 'ok');
 
 const isInt = (n) => {
     return n % 1 === 0;
 }
 
-const chekAensName = (value) => {
-    return value.endsWith('.chain');
-}
+const chekAensName = value => value.endsWith('.chain');
 
 const stringifyForStorage = state =>  {
     return JSON.stringify(state, (key, value) => {

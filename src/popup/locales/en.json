@@ -192,7 +192,9 @@
             "noPreviousBids": "No previous bids",
             "goBiddingBtn": "Go for bidding",
             "backButton": "Back",
-            "extend": "Extend"
+            "extend": "Extend",
+            "pointer": "Set Name Pointer",
+            "pointerPlaceholder": "Enter ak_, ct_, ok_ or .chain name"
         },
         "generalSettings": {
             "backToSettings": "Back to settings",
