@@ -186,6 +186,7 @@
             "filterBySoonest": "Soonest",
             "filterByCharLength": "Name length",
             "filterByBid": "Bid",
+            "filterByMine": "My bids",
             "filtersBy": "Filters by",
             "currentBid": "Current bid: ",
             "previousBids": "Previous bids: ",

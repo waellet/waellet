@@ -24,7 +24,7 @@
             <ae-identicon class="subAccountIcon" v-bind:address="name.owner" size="base" />
             <div style="width:100%;" class="text-left ml-10">
               <div class>{{ name.name }}</div>
-              <ae-address />
+              <ae-address :value="name.owner" length="short"/>
               <div v-if="name.addPointer" class="pointer-holder mt-10">
                 <ae-input v-model="name.pointerAddress" class="pointer-input" :placeholder="$t('pages.namingSystemPage.pointerPlaceholder')" error >
                   <ae-toolbar v-if="name.pointerError" slot="footer">Error</ae-toolbar>
@@ -50,23 +50,24 @@
 
         <ae-filter-list v-if="!moreAuInfo.visible">
           <p style="margin:0">{{ $t('pages.namingSystemPage.filtersBy') }}</p>
-          <ae-filter-item class="au-filter notround" @click.native="filterBySoonest" :active="bySoonest ? true : false">{{
-            $t('pages.namingSystemPage.filterBySoonest')
-          }}</ae-filter-item>
-          <ae-filter-item class="au-filter notround" @click.native="filterByCharLength" :active="byCharLength ? true : false">{{
-            $t('pages.namingSystemPage.filterByCharLength')
-          }}</ae-filter-item>
-          <ae-filter-item class="au-filter notround" @click.native="filterByBid" :active="byBid ? true : false">{{ $t('pages.namingSystemPage.filterByBid') }}</ae-filter-item>
+          <div class="filters">
+            <ae-filter-item class="au-filter notround" @click.native="filterByMine" :active="byMine ? true : false">
+              {{ $t('pages.namingSystemPage.filterByMine') }}
+            </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterBySoonest" :active="bySoonest ? true : false">
+              {{ $t('pages.namingSystemPage.filterBySoonest') }}
+            </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterByCharLength" :active="byCharLength ? true : false">
+              {{ $t('pages.namingSystemPage.filterByCharLength') }}
+            </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterByBid" :active="byBid ? true : false">
+              {{ $t('pages.namingSystemPage.filterByBid') }}
+            </ae-filter-item>
+          </div>
         </ae-filter-list>
 
         <ae-list v-if="!moreAuInfo.visible && activeAuctions != null">
-          <ae-list-item
-            class="singleAuction"
-            fill="neutral"
-            v-for="(info, key) in bySoonest ? filteredBySoonest : byCharLength ? filteredByCharLen : byBid ? filteredByBid : ''"
-            :key="key"
-            @click="moreAuctionInfo(key, info)"
-          >
+          <ae-list-item class="singleAuction" fill="neutral" v-for="(info, key) in bySoonest ? filteredBySoonest : byCharLength ? filteredByCharLen : byBid ? filteredByBid : byMine ? filteredByMine : ''" :key="key" @click="moreAuctionInfo(key, info)" >
             <ae-identicon class="subAccountIcon" v-bind:address="info.winning_bidder" size="base" />
             <div class="auctionInfo">
               <div class="name">{{ info.name }}</div>
@@ -163,6 +164,7 @@ export default {
       bySoonest: true,
       byCharLength: false,
       byBid: false,
+      byMine:false,
       bids: null,
       namesofaddresses: null,
       registeredNames: [],
@@ -184,6 +186,11 @@ export default {
     filteredByBid() {
       return this.activeAuctions.sort((a, b) => {
         return a.winning_bid - b.winning_bid;
+      });
+    },
+    filteredByMine() {
+      return this.activeAuctions.filter((auction, index) => {
+        return this.account.publicKey == auction.winning_bidder;
       });
     },
     currentBid() {
@@ -228,6 +235,8 @@ export default {
       const fetched = await fetchData(middleWareBaseUrl + '/middleware/names/auctions/active', 'get', '');
       this.activeAuctions = fetched;
       this.$store.dispatch('getRegisteredNames');
+      
+    console.log('filteredByMine => ', this.filteredByMine)
       this.loading = false;
     }, 3000);
   },
@@ -241,16 +250,25 @@ export default {
       this.bySoonest = true;
       this.byCharLength = false;
       this.byBid = false;
+      this.byMine = false;
+    },
+    filterByMine() {
+      this.bySoonest = false;
+      this.byCharLength = false;
+      this.byBid = false;
+      this.byMine = true;
     },
     filterByCharLength() {
       this.byCharLength = true;
       this.byBid = false;
       this.bySoonest = false;
+      this.byMine = false;
     },
     filterByBid() {
       this.byBid = true;
       this.byCharLength = false;
       this.bySoonest = false;
+      this.byMine = false;
     },
     seeAllRegisteredNamesHandler() {
       this.seeAllRegisteredNames = true;
@@ -516,8 +534,14 @@ input:focus {
 .tab-holder {
   margin: 2rem auto;
 }
+.filters {
+  display: flex;
+  justify-content: space-between;
+}
 .au-filter {
   cursor: pointer;
+  margin: 0 !important;
+  padding: 0 10px !important;
 }
 .ae-list .ae-list-item:first-child {
   border-top: none !important;
