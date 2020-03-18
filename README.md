@@ -66,6 +66,12 @@ $ npm install
 $ npm run test
 ```
 
+### Run linter
+
+```
+$ npm run linter -- --fix
+```
+
 ### Adding to browser via local build or release zip
 
 - Chromium based (Chrome, Brave, Opera)
