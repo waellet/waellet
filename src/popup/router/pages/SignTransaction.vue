@@ -724,7 +724,7 @@ export default {
               name: this.data.tx.init[0].split('"').join(''),
               symbol: this.data.tx.init[2].split('"').join(''),
               precision: this.data.tx.init[1],
-              balance: 0,
+              balance: this.data.tx.init[3],
               parent: this.account.publicKey,
             });
             this.$store.dispatch('setTokens', tokens);
