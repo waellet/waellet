@@ -10,77 +10,72 @@ export const MAGNITUDE_MICRO = -6;
 export const MAGNITUDE_PICO = -12;
 export const MINPASSWORDLENGTH = 8;
 export const TX_TYPES = {
-  'txSign':TX_TYPE.spend,
-  'contractCall':TX_TYPE.contractCall,
-  'contractCreate':TX_TYPE.contractCreate,
-  'namePreClaim': TX_TYPE.namePreClaim,
-  'nameClaim': TX_TYPE.nameClaim,
-  'nameBid': TX_TYPE.nameClaim,
-  'nameUpdate': TX_TYPE.nameUpdate
-}
+  txSign: TX_TYPE.spend,
+  contractCall: TX_TYPE.contractCall,
+  contractCreate: TX_TYPE.contractCreate,
+  namePreClaim: TX_TYPE.namePreClaim,
+  nameClaim: TX_TYPE.nameClaim,
+  nameBid: TX_TYPE.nameClaim,
+  nameUpdate: TX_TYPE.nameUpdate,
+};
 
-export const HDWALLET_METHODS = [
-  'unlockWallet',
-  'generateWallet',
-  'getKeypair',
-  'getAccount',
-  'isLoggedIn'
-]
+export const HDWALLET_METHODS = ['unlockWallet', 'generateWallet', 'getKeypair', 'getAccount', 'isLoggedIn'];
 
 export const AEX2_METHODS = {
-  CHANGE_ACCOUNT:'CHANGE_ACCOUNT',
+  CHANGE_ACCOUNT: 'CHANGE_ACCOUNT',
   ADD_ACCOUNT: 'ADD_ACCOUNT',
   SWITCH_NETWORK: 'SWITCH_NETWORK',
   LOGOUT: 'LOGOUT',
-  INIT_RPC_WALLET: 'INIT_RPC_WALLET'
-}
+  INIT_RPC_WALLET: 'INIT_RPC_WALLET',
+};
 
 export const NOTIFICATION_METHODS = {
-  SWITCH_NETWORK: 'SWITCH_NETWORK'
-}
+  SWITCH_NETWORK: 'SWITCH_NETWORK',
+};
 
 export const CONNECTION_TYPES = {
-  EXTENSION: "EXTENSION",
-  POPUP: "POPUP",
-  OTHER: "OTHER"
-}
+  EXTENSION: 'EXTENSION',
+  POPUP: 'POPUP',
+  OTHER: 'OTHER',
+};
 
 const STUB_ADDRESS = 'ak_enAPooFqpTQKkhJmU47J16QZu9HbPQQPwWBVeGnzDbDnv9dxp';
-const STUB_CALLDATA = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACDJfUrsdAtW6IZtMvhp0+eVDUiQivrquyBwXrl/ujPLcgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJQQwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACUEMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJvjRF'
-export const MAX_UINT256 = BigNumber(2).exponentiatedBy(256).minus(1);
-const MIN_SPEND_TX_FEE_STRING = TxBuilder.calculateMinFee(
-    'spendTx', {
-    params: {
-      senderId: STUB_ADDRESS,
-      recipientId: STUB_ADDRESS,
-      amount: MAX_UINT256,
-      ttl: MAX_UINT256,
-      nonce: MAX_UINT256,
-    },
-  }
-);
+const STUB_CALLDATA =
+  'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACDJfUrsdAtW6IZtMvhp0+eVDUiQivrquyBwXrl/ujPLcgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJQQwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACUEMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJvjRF';
+export const MAX_UINT256 = BigNumber(2)
+  .exponentiatedBy(256)
+  .minus(1);
+const MIN_SPEND_TX_FEE_STRING = TxBuilder.calculateMinFee('spendTx', {
+  params: {
+    senderId: STUB_ADDRESS,
+    recipientId: STUB_ADDRESS,
+    amount: MAX_UINT256,
+    ttl: MAX_UINT256,
+    nonce: MAX_UINT256,
+  },
+});
 
-export const calculateFee = (type,params) => {
-  let MIN_FEE = TxBuilder.calculateMinFee(type, {
+export const calculateFee = (type, params) => {
+  const MIN_FEE = TxBuilder.calculateMinFee(type, {
     params: {
       senderId: STUB_ADDRESS,
       recipientId: STUB_ADDRESS,
       amount: MAX_UINT256,
       ttl: MAX_UINT256,
       nonce: MAX_UINT256,
-      ctVersion:{abiVersion:ABI_VERSIONS.SOPHIA,vmVersion:VM_VERSIONS.SOPHIA},
-      abiVersion:ABI_VERSIONS.SOPHIA,
+      ctVersion: { abiVersion: ABI_VERSIONS.SOPHIA, vmVersion: VM_VERSIONS.SOPHIA },
+      abiVersion: ABI_VERSIONS.SOPHIA,
       callData: STUB_CALLDATA,
-      ...params
-    }
-  })
-  let min = BigNumber(MIN_FEE).shiftedBy(-MAGNITUDE)
-  let max = min.multipliedBy(10);
+      ...params,
+    },
+  });
+  const min = BigNumber(MIN_FEE).shiftedBy(-MAGNITUDE);
+  const max = min.multipliedBy(10);
   return {
     min,
-    max
-  }
-}
+    max,
+  };
+};
 
 export const MIN_SPEND_TX_FEE = BigNumber(MIN_SPEND_TX_FEE_STRING).shiftedBy(-MAGNITUDE);
 export const MAX_REASONABLE_FEE = MIN_SPEND_TX_FEE.multipliedBy(10);
@@ -90,7 +85,7 @@ export const toMicro = value => value.shiftedBy(-MAGNITUDE_MICRO).toFixed();
 export const MIN_SPEND_TX_FEE_MICRO = toMicro(MIN_SPEND_TX_FEE);
 export const MAX_REASONABLE_FEE_MICRO = toMicro(MAX_REASONABLE_FEE);
 
-export const DEFAULT_NETWORK = 'Testnet'
+export const DEFAULT_NETWORK = 'Testnet';
 export const networks = {
   Testnet: {
     url: 'https://sdk-testnet.aepps.com',
@@ -101,7 +96,7 @@ export const networks = {
     compilerUrl: 'https://latest.compiler.aepps.com',
     tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
     tokenRegistryLima: 'ct_Dnwribmd21YrxSQnqXCB5vTFPrgYJx2eg2TrbLvbdyEbTMejw',
-    tipContract: "ct_23RBxJBhNwixiiaKFJNKSig3yYKUDwC5iouaEGjQsogNvkGS3M"
+    tipContract: 'ct_23RBxJBhNwixiiaKFJNKSig3yYKUDwC5iouaEGjQsogNvkGS3M',
   },
   Mainnet: {
     url: 'https://sdk-mainnet.aepps.com',
@@ -112,17 +107,16 @@ export const networks = {
     compilerUrl: 'https://compiler.aepps.com',
     tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
     tokenRegistryLima: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
-    tipContract: 'ct_cT9mSpx9989Js39ag45fih2daephb7YsicsvNdUdEB156gT5C'
-  }
-}
+    tipContract: 'ct_cT9mSpx9989Js39ag45fih2daephb7YsicsvNdUdEB156gT5C',
+  },
+};
 
-export const TX_LIMIT_PER_DAY = 2000
-export const MIGRATION_STATUS_URL = `https://api.backendless.com/CBD0589C-4114-2D15-FF41-6FC7F3EE8800/39EBBD6D-5A94-0739-FF27-B17F3957B700/data/migrations?pageSize=100&where=pubKey%20%3D%20%27ADDRESS%27`
-export const MIGRATION_PHASE = 0
-export const MIGRATION_SERVICE_URL = 'https://token-migration.appspot.com/'
+export const TX_LIMIT_PER_DAY = 2000;
+export const MIGRATION_STATUS_URL = `https://api.backendless.com/CBD0589C-4114-2D15-FF41-6FC7F3EE8800/39EBBD6D-5A94-0739-FF27-B17F3957B700/data/migrations?pageSize=100&where=pubKey%20%3D%20%27ADDRESS%27`;
+export const MIGRATION_PHASE = 0;
+export const MIGRATION_SERVICE_URL = 'https://token-migration.appspot.com/';
 
-export const TOKEN_REGISTRY_CONTRACT = 
-`contract Token =
+export const TOKEN_REGISTRY_CONTRACT = `contract Token =
   record meta_info =
     { name : string
     , symbol : string
@@ -149,11 +143,9 @@ contract TokenRegistry =
   entrypoint get_token_balances(token : Token) : map(address, int) = token.balances()
   entrypoint get_token_balance(token : Token, account: address) : option(int) = token.balance(account)
   entrypoint get_token_owner(token : Token) : address = token.owner()
-  entrypoint get_token_total_supply(token : Token) : int = token.total_supply()`
+  entrypoint get_token_total_supply(token : Token) : int = token.total_supply()`;
 
-
-export const TOKEN_REGISTRY_CONTRACT_LIMA = 
-`contract Token =
+export const TOKEN_REGISTRY_CONTRACT_LIMA = `contract Token =
   record meta_info =
     { name : string
     , symbol : string
@@ -180,10 +172,9 @@ contract TokenRegistry =
   entrypoint get_token_balances(token : Token) : map(address, int) = token.balances()
   entrypoint get_token_balance(token : Token, account: address) : option(int) = token.balance(account)
   entrypoint get_token_owner(token : Token) : address = token.owner()
-  entrypoint get_token_total_supply(token : Token) : int = token.total_supply()`
+  entrypoint get_token_total_supply(token : Token) : int = token.total_supply()`;
 
-  export const FUNGIBLE_TOKEN_CONTRACT =
-  `@compiler >= 4
+export const FUNGIBLE_TOKEN_CONTRACT = `@compiler >= 4
 include "Option.aes"
 contract FungibleTokenFull =
   record state =
@@ -335,10 +326,9 @@ contract FungibleTokenFull =
     let new_allowance = allowance + value_change
     require_non_negative_value(new_allowance)
     put(state{ allowances[allowance_accounts] = new_allowance })
-    Chain.event(Allowance(allowance_accounts.from_account, allowance_accounts.for_account, new_allowance))`
+    Chain.event(Allowance(allowance_accounts.from_account, allowance_accounts.for_account, new_allowance))`;
 
-export const TIPPING_CONTRACT = 
-`@compiler >= 4
+export const TIPPING_CONTRACT = `@compiler >= 4
 
 include "List.aes"
 include "Func.aes"
@@ -400,4 +390,4 @@ contract WaelletTipAnyBasic =
       received_at   = Chain.timestamp,
       repaid        = false,
       amount        = Call.value,
-      note          = note }`
+      note          = note }`;
