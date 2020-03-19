@@ -149,7 +149,6 @@ const rpcWallet = {
     return new Promise((resolve, reject) => {
       try {
         this.popups.addPopup(id, this.controller);
-        console.log(action);
         this.popups.addActions(id, { ...action, resolve, reject });
         const {
           connection: {
