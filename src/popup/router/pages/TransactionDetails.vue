@@ -21,7 +21,7 @@
         <ae-badge :class="transactionType.fill" class="transactionType">{{ transactionType.type }}</ae-badge>
       </ae-list-item>
       <ae-list-item fill="neutral" class="flex-direction-column">
-        <div class="flex-col flex-justify-between flex mb-1" v-if="isSpendTx">
+        <div class="flex-col flex-justify-between flex mb-1">
           <div class="detailTitle">{{ $t('pages.transactionDetails.amount') }}</div>
           <div class="balance transactionAmount">{{ txAmount }}</div>
         </div>
@@ -174,19 +174,23 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import { aettosToAe } from '../../utils/helper';
 
 export default {
   data() {
     return {};
   },
   props: ['transaction'],
+  created() {
+    console.log(this.transaction)
+  },
   computed: {
     ...mapGetters(['account', 'current', 'network', 'popup', 'txAdvancedMode']),
     txAmount() {
-      return this.isSpendTx ? this.transaction.tx.amount / 10 ** 18 : 0;
+      return this.transaction.tx.amount ? Number(aettosToAe(this.transaction.tx.amount)) : 0;
     },
     txFee() {
-      return this.transaction.tx.fee / 10 ** 18;
+      return Number(aettosToAe(this.transaction.tx.fee));
     },
     txTypeBadge() {
       return `badge${this.transaction.tx.type}`;

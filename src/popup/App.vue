@@ -277,6 +277,7 @@ export default {
         wallet.changeAccount(subaccount.publicKey);
         this.dropdown.account = false;
         this.$store.commit('RESET_TRANSACTIONS', []);
+        this.$store.dispatch('getAllUserTokens');
       });
     },
     hideMenu(event) {
