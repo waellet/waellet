@@ -293,7 +293,6 @@ export default {
                 pending: true,
                 owner: tx.accountId,
               })))(),
-          (async () => uniqBy(await (await fetch(`${middlewareUrl}/middleware/names/reverse/${publicKey}`)).json(), 'name'))(),
           (async () => {
             try {
               return await state.sdk.middleware.getActiveNames({ owner: publicKey });

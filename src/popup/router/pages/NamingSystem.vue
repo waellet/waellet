@@ -5,37 +5,41 @@
     </div>
     <h3 style="text-align:center;">{{ $t('pages.namingSystemPage.heading') }}</h3>
 
-    <div class="tab-holder">
-      <ae-button :class="seeAllRegisteredNames ? 'activeTab' : ''" face="flat" fill="primary" @click="seeAllRegisteredNamesHandler">{{
-        $t('pages.namingSystemPage.yourNamesBtn')
-      }}</ae-button>
-      <ae-button :class="seeAllActiveAuctions ? 'activeTab' : ''" face="flat" fill="primary" @click="seeAllActiveAuctionsHandler">{{
-        $t('pages.namingSystemPage.allActiveAuctionsBtn')
-      }}</ae-button>
-      <ae-button :class="addNewName ? 'activeTab' : ''" face="flat" fill="primary" @click="addNewNameHandler">{{ $t('pages.namingSystemPage.AddNewBtn') }}</ae-button>
+    <div class="tab-holder flex flex-justify-between">
+      <ae-button :class="tab == 'registered' ? 'activeTab' : ''" @click="tab = 'registered'" face="flat" fill="primary">{{ $t('pages.namingSystemPage.yourNamesBtn') }}</ae-button>
+      <ae-button :class="tab == 'auctions' ? 'activeTab' : ''" @click="tab = 'auctions'" face="flat" fill="primary">{{ $t('pages.namingSystemPage.allActiveAuctionsBtn') }}</ae-button>
+      <ae-button :class="tab == 'claim' ? 'activeTab' : ''" @click="tab = 'claim'" face="flat" fill="primary">{{ $t('pages.namingSystemPage.AddNewBtn') }}</ae-button>
     </div>
+
     <!-- if is clicked Your Names  -->
-    <div class="seeAllRegisteredNames" v-if="seeAllRegisteredNames">
+    <div class="seeAllRegisteredNames" v-if="tab == 'registered'">
       <div class="maindiv_input-group-addon">
-        <h4>{{ $t('pages.namingSystemPage.registeredNames') }}</h4>
+        <h4>{{$t('pages.namingSystemPage.registeredNames') }}</h4>
         <hr />
-        <ae-list v-if="haveRegisteredNames">
-          <ae-list-item fill="neutral" v-for="(name, key) in names" :key="key">
+        <ae-list v-if="registeredNames.length">
+          <ae-list-item fill="neutral" v-for="(name, key) in registeredNames" :key="key">
             <ae-identicon class="subAccountIcon" v-bind:address="name.owner" size="base" />
-            <div class="subAccountInfo">
-              <div class="subAccountName">{{ name.name }}</div>
-              <ae-address :value="name.owner" length="short" />
+            <div style="width:100%;" class="text-left ml-10">
+              <div class>{{ name.name }}</div>
+              <ae-address :value="name.owner" length="short"/>
+              <div v-if="name.addPointer" class="pointer-holder mt-10">
+                <ae-input v-model="name.pointerAddress" class="pointer-input" :placeholder="$t('pages.namingSystemPage.pointerPlaceholder')" error >
+                  <ae-toolbar v-if="name.pointerError" slot="footer">Error</ae-toolbar>
+                </ae-input>
+                <ae-icon name="close" @click.native="name.addPointer = false" />
+              </div>
+              <button v-if="!name.addPointer" class="small-primary" @click="extend(name)" >{{ $t('pages.namingSystemPage.extend') }}</button>
+              <button class="small-primary" @click="setPointer(name)" >{{ $t('pages.namingSystemPage.pointer') }}</button>
             </div>
-            <ae-button face="flat" fill="primary" @click="extend(name)">{{ $t('pages.namingSystemPage.extend') }}</ae-button>
             <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="name.pending" />
           </ae-list-item>
         </ae-list>
-        <p v-if="!haveRegisteredNames">{{ $t('pages.namingSystemPage.noNames') }}</p>
+        <p v-if="!names.length">{{ $t('pages.namingSystemPage.noNames') }}</p>
       </div>
     </div>
 
     <!-- if is clicked All Active  -->
-    <div class="seeAllActiveAuctions" v-if="seeAllActiveAuctions">
+    <div class="seeAllActiveAuctions" v-if="tab == 'auctions'">
       <div class="maindiv_input-group-addon">
         <h4 v-if="!moreAuInfo.visible">{{ $t('pages.namingSystemPage.activeAuctions') }}</h4>
         <h4 v-if="moreAuInfo.visible">{{ $t('pages.namingSystemPage.auctionInfo') }}</h4>
@@ -43,23 +47,16 @@
 
         <ae-filter-list v-if="!moreAuInfo.visible">
           <p style="margin:0">{{ $t('pages.namingSystemPage.filtersBy') }}</p>
-          <ae-filter-item class="au-filter notround" @click.native="filterBySoonest" :active="bySoonest ? true : false">{{
-            $t('pages.namingSystemPage.filterBySoonest')
-          }}</ae-filter-item>
-          <ae-filter-item class="au-filter notround" @click.native="filterByCharLength" :active="byCharLength ? true : false">{{
-            $t('pages.namingSystemPage.filterByCharLength')
-          }}</ae-filter-item>
-          <ae-filter-item class="au-filter notround" @click.native="filterByBid" :active="byBid ? true : false">{{ $t('pages.namingSystemPage.filterByBid') }}</ae-filter-item>
+          <div class="filters">
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'mine'" :active="filterType == 'mine'"> {{ $t('pages.namingSystemPage.filterByMine') }} </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'soonest'" :active="filterType == 'soonest'"> {{ $t('pages.namingSystemPage.filterBySoonest') }} </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'length'" :active="filterType == 'length'"> {{ $t('pages.namingSystemPage.filterByCharLength') }} </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'bid'" :active="filterType == 'bid'"> {{ $t('pages.namingSystemPage.filterByBid') }} </ae-filter-item>
+          </div>
         </ae-filter-list>
 
         <ae-list v-if="!moreAuInfo.visible && activeAuctions != null">
-          <ae-list-item
-            class="singleAuction"
-            fill="neutral"
-            v-for="(info, key) in bySoonest ? filteredBySoonest : byCharLength ? filteredByCharLen : byBid ? filteredByBid : ''"
-            :key="key"
-            @click="moreAuctionInfo(key, info)"
-          >
+          <ae-list-item class="singleAuction" fill="neutral" v-for="(info, key) in auctions" :key="key" @click="moreAuctionInfo(key, info)">
             <ae-identicon class="subAccountIcon" v-bind:address="info.winning_bidder" size="base" />
             <div class="auctionInfo">
               <div class="name">{{ info.name }}</div>
@@ -113,7 +110,7 @@
     </div>
 
     <!-- if is clicked Add New Name  -->
-    <div class="addNewName" v-if="addNewName">
+    <div class="addNewName" v-if="tab == 'claim'">
       <div class="maindiv_input-group-addon">
         <h4>{{ $t('pages.namingSystemPage.registerName') }}</h4>
         <hr />
@@ -135,50 +132,42 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { fetchData, convertToAE, addressToName } from '../../utils/helper';
+import { fetchData, convertToAE, addressToName, getAddressByNameEntry, checkAddress, chekAensName } from '../../utils/helper';
 
 export default {
   data() {
     return {
+      tab: 'claim',
       loading: false,
       name: '',
       ak_address: '',
       polling: null,
-      seeAllRegisteredNames: false,
-      seeAllActiveAuctions: false,
-      addNewName: true,
       activeAuctions: null,
       moreAuInfo: {
         visible: false,
         key: null,
         info: null,
       },
-      bySoonest: true,
-      byCharLength: false,
-      byBid: false,
+      filterType: 'soonest',
       bids: null,
       namesofaddresses: null,
+      registeredNames: [],
     };
   },
   computed: {
-    ...mapGetters(['current', 'popup', 'names', 'sdk', 'network']),
-    haveRegisteredNames() {
-      return this.names.length > 0;
-    },
-    filteredBySoonest() {
-      return this.activeAuctions;
-    },
-    filteredByCharLen() {
-      return this.activeAuctions.sort((a, b) => a.name.length - b.name.length);
-    },
-    filteredByBid() {
-      return this.activeAuctions.sort((a, b) => a.winning_bid - b.winning_bid);
+    ...mapGetters(['current', 'popup', 'names', 'sdk', 'network', 'account']),
+    auctions() {
+      if (this.filterType == 'soonest') return this.activeAuctions;
+      if (this.filterType == 'mine') return this.activeAuctions.filter((auction, index) => { return this.account.publicKey == auction.winning_bidder; });
+      if (this.filterType == 'length') return this.activeAuctions.sort((a, b) => a.name.length - b.name.length);
+      if (this.filterType == 'bid') return this.activeAuctions.sort((a, b) => a.winning_bid - b.winning_bid);
     },
     currentBid() {
       if (!this.bids) {
         this.loading = true;
         return null;
       }
+
       this.loading = false;
       return this.bids.reduce((a, b) => (a.nameFee.isGreaterThan(b.nameFee) ? a : b));
     },
@@ -187,23 +176,32 @@ export default {
         this.loading = true;
         return null;
       }
+
       this.loading = false;
       return this.bids.filter(bid => bid !== this.currentBid);
+    },
+  },
+  watch: {
+    names(names) {
+      this.registeredNames = names
+        ? names.map((n, i) => ({
+            ...n,
+            addPointer: this.registeredNames[i] ? this.registeredNames[i].addPointer : false,
+            pointerAddress: this.registeredNames[i] ? this.registeredNames[i].pointerAddress : null,
+            pointerError: this.registeredNames[i] ? this.registeredNames[i].pointerError : null,
+          }))
+        : [];
     },
   },
   created() {
     this.loading = true;
     this.polling = setInterval(async () => {
-      if (!this.sdk.middleware) {
-        this.loading = false;
-        return;
-      }
       if (this.moreAuInfo.info != null) {
         this.updateAuctionEntry();
       }
-      const middleWareBaseUrl = this.network[this.current.network].middlewareUrl; // later will be replaced with the temp one
+      let middleWareBaseUrl = this.network[this.current.network].middlewareUrl; // later will be replaced with the temp one
       // let tempMiddleWareBaseUrl = 'https://testnet.aeternal.io/middleware';
-      const fetched = await fetchData(`${middleWareBaseUrl}/middleware/names/auctions/active`, 'get', '');
+      const fetched = await fetchData(middleWareBaseUrl + '/middleware/names/auctions/active', 'get', '');
       this.activeAuctions = fetched;
       this.$store.dispatch('getRegisteredNames');
       this.loading = false;
@@ -214,36 +212,6 @@ export default {
       const res = await this.$store.dispatch('names/fetchAuctionEntry', this.moreAuInfo.info.name);
       this.expiration = res.expiration;
       this.bids = res.bids;
-    },
-    filterBySoonest() {
-      this.bySoonest = true;
-      this.byCharLength = false;
-      this.byBid = false;
-    },
-    filterByCharLength() {
-      this.byCharLength = true;
-      this.byBid = false;
-      this.bySoonest = false;
-    },
-    filterByBid() {
-      this.byBid = true;
-      this.byCharLength = false;
-      this.bySoonest = false;
-    },
-    seeAllRegisteredNamesHandler() {
-      this.seeAllRegisteredNames = true;
-      this.seeAllActiveAuctions = false;
-      this.addNewName = false;
-    },
-    seeAllActiveAuctionsHandler() {
-      this.seeAllRegisteredNames = false;
-      this.seeAllActiveAuctions = true;
-      this.addNewName = false;
-    },
-    addNewNameHandler() {
-      this.seeAllRegisteredNames = false;
-      this.seeAllActiveAuctions = false;
-      this.addNewName = true;
     },
     bidOnThisHandler(info) {
       this.$router.push({ name: 'auction-bid', params: { auctionInfo: info } });
@@ -259,7 +227,8 @@ export default {
       this.moreAuInfo.info = info;
     },
     async registerName() {
-      const onlyLettersAndNums = /^[A-Za-z0-9]+$/;
+      this.name = this.name.trim();
+      var onlyLettersAndNums = /^[A-Za-z0-9]+$/;
       if (this.name == '') {
         this.$store.dispatch('popupAlert', {
           name: 'account',
@@ -305,21 +274,18 @@ export default {
     navigateUtilities() {
       this.$router.push('/utilities');
     },
-    async extend({ name }) {
+    async redirectToConfirm(name, type = 'extend', options = {}) {
       try {
         const { id, pointers, ttl } = await this.sdk.getName(name);
         const tx = {
           popup: false,
           tx: {
             name,
-            claim: {
-              id,
-              name,
-              pointers,
-            },
+            claim: { id, name, pointers },
+            ...options,
           },
           type: 'nameUpdate',
-          nameUpdateType: 'extend',
+          nameUpdateType: type,
         };
         this.$store.commit('SET_AEPP_POPUP', true);
         this.$router
@@ -335,6 +301,36 @@ export default {
         this.$store.dispatch('popupAlert', { name: 'spend', type: 'transaction_failed' });
       }
     },
+    async extend({ name }) {
+      await this.redirectToConfirm(name);
+    },
+    async setPointer(name) {
+      if (!name.addPointer) {
+        name.addPointer = !name.addPointer;
+      } else {
+        name.pointerError = false;
+        if (!chekAensName(name.pointerAddress) && !checkAddress(name.pointerAddress)) {
+          name.pointerError = true;
+          return;
+        }
+        let pointer = name.pointerAddress;
+        if (chekAensName(name.pointerAddress)) {
+          try {
+            const nameObject = await this.sdk.aensQuery(name.pointerAddress);
+            const address = getAddressByNameEntry(nameObject);
+            if (!address) {
+              name.pointerError = true;
+              return;
+            }
+            pointer = address;
+          } catch (e) {
+            name.pointerError = true;
+            return;
+          }
+        }
+        await this.redirectToConfirm(name.name, 'updatePointer', { pointers: [pointer] });
+      }
+    },
   },
   beforeDestroy() {
     window.clearTimeout(this.polling);
@@ -342,7 +338,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .singleAuction:hover {
   margin: 5px;
   transition: all-ease;
@@ -375,6 +371,13 @@ export default {
   padding: 5px;
   display: inline !important;
 }
+.small-primary {
+  height: auto;
+  word-break: normal;
+  border: 1px solid #e72b6e;
+  color: #e72b6e;
+}
+.small-primary:hover,
 .ae-button.flat.primary:hover,
 .ae-button.flat.primary:active,
 .activeTab {
@@ -441,5 +444,44 @@ input:focus {
 }
 .ae-list .ae-list-item:first-child {
   border-top: none !important;
+}
+
+.ae-identicon.base {
+  width: 2rem;
+}
+.seeAllActiveAuctions li {
+  margin-bottom: 5px;
+  .auctionInfo {
+    width: 100%;
+    text-align: left;
+    .name {
+      font-weight: bold;
+    }
+  }
+}
+.tab-holder {
+  margin: 2rem auto;
+}
+.filters {
+  display: flex;
+  justify-content: space-between;
+}
+.au-filter {
+  cursor: pointer;
+  margin: 0 !important;
+  padding: 0 10px !important;
+}
+.ae-list .ae-list-item:first-child {
+  border-top: none !important;
+}
+.ae-address.flat {
+  font-size: 12px;
+}
+.pointer-holder {
+  display: flex;
+  justify-content: space-between;
+  .pointer-input {
+    width: 90%;
+  }
 }
 </style>
