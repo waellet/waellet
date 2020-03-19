@@ -48,10 +48,10 @@
         <ae-filter-list v-if="!moreAuInfo.visible">
           <p style="margin:0">{{ $t('pages.namingSystemPage.filtersBy') }}</p>
           <div class="filters">
-            <ae-filter-item class="au-filter notround" @click.native="filterType = 'mine'" :active="filterType == 'mine' ? true : false"> {{ $t('pages.namingSystemPage.filterByMine') }} </ae-filter-item>
-            <ae-filter-item class="au-filter notround" @click.native="filterType = 'soonest'" :active="filterType == 'soonest' ? true : false"> {{ $t('pages.namingSystemPage.filterBySoonest') }} </ae-filter-item>
-            <ae-filter-item class="au-filter notround" @click.native="filterType = 'length'" :active="filterType == 'length' ? true : false"> {{ $t('pages.namingSystemPage.filterByCharLength') }} </ae-filter-item>
-            <ae-filter-item class="au-filter notround" @click.native="filterType = 'bid'" :active="filterType == 'bid' ? true : false"> {{ $t('pages.namingSystemPage.filterByBid') }} </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'mine'" :active="filterType == 'mine'"> {{ $t('pages.namingSystemPage.filterByMine') }} </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'soonest'" :active="filterType == 'soonest'"> {{ $t('pages.namingSystemPage.filterBySoonest') }} </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'length'" :active="filterType == 'length'"> {{ $t('pages.namingSystemPage.filterByCharLength') }} </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'bid'" :active="filterType == 'bid'"> {{ $t('pages.namingSystemPage.filterByBid') }} </ae-filter-item>
           </div>
         </ae-filter-list>
 
