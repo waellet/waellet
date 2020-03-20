@@ -181,9 +181,6 @@ export default {
     return {};
   },
   props: ['transaction'],
-  created() {
-    console.log(this.transaction)
-  },
   computed: {
     ...mapGetters(['account', 'current', 'network', 'popup', 'txAdvancedMode']),
     txAmount() {

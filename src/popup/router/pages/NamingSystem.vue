@@ -7,29 +7,31 @@
 
     <div class="tab-holder flex flex-justify-between">
       <ae-button :class="tab == 'registered' ? 'activeTab' : ''" @click="tab = 'registered'" face="flat" fill="primary">{{ $t('pages.namingSystemPage.yourNamesBtn') }}</ae-button>
-      <ae-button :class="tab == 'auctions' ? 'activeTab' : ''" @click="tab = 'auctions'" face="flat" fill="primary">{{ $t('pages.namingSystemPage.allActiveAuctionsBtn') }}</ae-button>
+      <ae-button :class="tab == 'auctions' ? 'activeTab' : ''" @click="tab = 'auctions'" face="flat" fill="primary">{{
+        $t('pages.namingSystemPage.allActiveAuctionsBtn')
+      }}</ae-button>
       <ae-button :class="tab == 'claim' ? 'activeTab' : ''" @click="tab = 'claim'" face="flat" fill="primary">{{ $t('pages.namingSystemPage.AddNewBtn') }}</ae-button>
     </div>
 
     <!-- if is clicked Your Names  -->
     <div class="seeAllRegisteredNames" v-if="tab == 'registered'">
       <div class="maindiv_input-group-addon">
-        <h4>{{$t('pages.namingSystemPage.registeredNames') }}</h4>
+        <h4>{{ $t('pages.namingSystemPage.registeredNames') }}</h4>
         <hr />
         <ae-list v-if="registeredNames.length">
           <ae-list-item fill="neutral" v-for="(name, key) in registeredNames" :key="key">
             <ae-identicon class="subAccountIcon" v-bind:address="name.owner" size="base" />
             <div style="width:100%;" class="text-left ml-10">
               <div class>{{ name.name }}</div>
-              <ae-address :value="name.owner" length="short"/>
+              <ae-address :value="name.owner" length="short" />
               <div v-if="name.addPointer" class="pointer-holder mt-10">
-                <ae-input v-model="name.pointerAddress" class="pointer-input" :placeholder="$t('pages.namingSystemPage.pointerPlaceholder')" error >
+                <ae-input v-model="name.pointerAddress" class="pointer-input" :placeholder="$t('pages.namingSystemPage.pointerPlaceholder')" error>
                   <ae-toolbar v-if="name.pointerError" slot="footer">Error</ae-toolbar>
                 </ae-input>
                 <ae-icon name="close" @click.native="name.addPointer = false" />
               </div>
-              <button v-if="!name.addPointer" class="small-primary" @click="extend(name)" >{{ $t('pages.namingSystemPage.extend') }}</button>
-              <button class="small-primary" @click="setPointer(name)" >{{ $t('pages.namingSystemPage.pointer') }}</button>
+              <button v-if="!name.addPointer" class="small-primary" @click="extend(name)">{{ $t('pages.namingSystemPage.extend') }}</button>
+              <button class="small-primary" @click="setPointer(name)">{{ $t('pages.namingSystemPage.pointer') }}</button>
             </div>
             <ae-icon fill="primary" face="round" name="reload" class="name-pending" v-if="name.pending" />
           </ae-list-item>
@@ -48,10 +50,18 @@
         <ae-filter-list v-if="!moreAuInfo.visible">
           <p style="margin:0">{{ $t('pages.namingSystemPage.filtersBy') }}</p>
           <div class="filters">
-            <ae-filter-item class="au-filter notround" @click.native="filterType = 'mine'" :active="filterType == 'mine'"> {{ $t('pages.namingSystemPage.filterByMine') }} </ae-filter-item>
-            <ae-filter-item class="au-filter notround" @click.native="filterType = 'soonest'" :active="filterType == 'soonest'"> {{ $t('pages.namingSystemPage.filterBySoonest') }} </ae-filter-item>
-            <ae-filter-item class="au-filter notround" @click.native="filterType = 'length'" :active="filterType == 'length'"> {{ $t('pages.namingSystemPage.filterByCharLength') }} </ae-filter-item>
-            <ae-filter-item class="au-filter notround" @click.native="filterType = 'bid'" :active="filterType == 'bid'"> {{ $t('pages.namingSystemPage.filterByBid') }} </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'mine'" :active="filterType == 'mine'">
+              {{ $t('pages.namingSystemPage.filterByMine') }}
+            </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'soonest'" :active="filterType == 'soonest'">
+              {{ $t('pages.namingSystemPage.filterBySoonest') }}
+            </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'length'" :active="filterType == 'length'">
+              {{ $t('pages.namingSystemPage.filterByCharLength') }}
+            </ae-filter-item>
+            <ae-filter-item class="au-filter notround" @click.native="filterType = 'bid'" :active="filterType == 'bid'">
+              {{ $t('pages.namingSystemPage.filterByBid') }}
+            </ae-filter-item>
           </div>
         </ae-filter-list>
 
@@ -158,7 +168,7 @@ export default {
     ...mapGetters(['current', 'popup', 'names', 'sdk', 'network', 'account']),
     auctions() {
       if (this.filterType == 'soonest') return this.activeAuctions;
-      if (this.filterType == 'mine') return this.activeAuctions.filter((auction, index) => { return this.account.publicKey == auction.winning_bidder; });
+      if (this.filterType == 'mine') return this.activeAuctions.filter((auction, index) => this.account.publicKey == auction.winning_bidder);
       if (this.filterType == 'length') return this.activeAuctions.sort((a, b) => a.name.length - b.name.length);
       if (this.filterType == 'bid') return this.activeAuctions.sort((a, b) => a.winning_bid - b.winning_bid);
     },
@@ -199,9 +209,9 @@ export default {
       if (this.moreAuInfo.info != null) {
         this.updateAuctionEntry();
       }
-      let middleWareBaseUrl = this.network[this.current.network].middlewareUrl; // later will be replaced with the temp one
+      const middleWareBaseUrl = this.network[this.current.network].middlewareUrl; // later will be replaced with the temp one
       // let tempMiddleWareBaseUrl = 'https://testnet.aeternal.io/middleware';
-      const fetched = await fetchData(middleWareBaseUrl + '/middleware/names/auctions/active', 'get', '');
+      const fetched = await fetchData(`${middleWareBaseUrl}/middleware/names/auctions/active`, 'get', '');
       this.activeAuctions = fetched;
       this.$store.dispatch('getRegisteredNames');
       this.loading = false;
@@ -228,7 +238,7 @@ export default {
     },
     async registerName() {
       this.name = this.name.trim();
-      var onlyLettersAndNums = /^[A-Za-z0-9]+$/;
+      const onlyLettersAndNums = /^[A-Za-z0-9]+$/;
       if (this.name == '') {
         this.$store.dispatch('popupAlert', {
           name: 'account',

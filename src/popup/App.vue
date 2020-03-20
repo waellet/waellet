@@ -244,7 +244,7 @@ export default {
     });
 
     // init SDK
-    if (!process.env.RUNNING_IN_POPUP) {
+    if (!window.RUNNING_IN_POPUP) {
       this.checkSDKReady = setInterval(() => {
         if (this.sdk != null) {
           this.initRpcWallet();

@@ -5,7 +5,7 @@ let internalPostMessage;
 const ensureBackgroundInitialised = async () => {
   if (internalPostMessage) return;
 
-  const background = await browser.runtime.connect({ name: process.env.RUNNING_IN_POPUP ? 'POPUP' : 'EXTENSION' });
+  const background = await browser.runtime.connect({ name: window.RUNNING_IN_POPUP ? 'POPUP' : 'EXTENSION' });
   const pendingRequests = {};
   background.onMessage.addListener(({ uuid, res }) => {
     if (!pendingRequests[uuid]) {

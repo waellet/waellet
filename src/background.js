@@ -1,5 +1,5 @@
 import { phishingCheckUrl, getPhishingUrls, setPhishingUrl } from './popup/utils/phishing-detect';
-import { checkAeppConnected, removeTxFromStorage, detectBrowser, parseFromStorage, detectConnectionType } from './popup/utils/helper';
+import { checkAeppConnected, removeTxFromStorage, parseFromStorage, detectConnectionType } from './popup/utils/helper';
 import WalletController from './wallet-controller';
 import Notification from './notifications';
 import rpcWallet from './lib/rpcWallet';
@@ -25,7 +25,7 @@ const error = {
 const controller = new WalletController();
 const notification = new Notification();
 setController(controller); // for Aepp object should be deprecated
-browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((msg, sendResponse) => {
   switch (msg.method) {
     case 'phishingCheck':
       const data = { ...msg, extUrl: browser.extension.getURL('./') };
@@ -157,7 +157,11 @@ browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             }
           });
           break;
+        default:
+          break;
       }
+      break;
+    default:
       break;
   }
 
@@ -171,21 +175,21 @@ const connectToPopup = (cb, type, id) => {
   browser.runtime.onConnect.addListener(port => {
     port.onMessage.addListener((msg, sender) => {
       msg.id = sender.name;
-      if (id == sender.name) cb(msg);
+      if (id === sender.name) cb(msg);
     });
     port.onDisconnect.addListener(async event => {
       const list = await removeTxFromStorage(event.name);
       browser.storage.local.set({ pendingTransaction: { list } }).then(() => {});
       browser.storage.local.remove('showAeppPopup').then(() => {});
       error.id = event.name;
-      if (event.name == id) {
-        if (type == 'txSign') {
+      if (event.name === id) {
+        if (type === 'txSign') {
           error.error.message = 'Transaction rejected by user';
           cb(error);
-        } else if (type == 'connectConfirm') {
+        } else if (type === 'connectConfirm') {
           error.error.message = 'Connection canceled';
           cb(error);
-        } else if (type == 'contractCall') {
+        } else if (type === 'contractCall') {
           error.error.message = 'Transaction rejected by user';
           cb(error);
         } else {
@@ -200,7 +204,7 @@ const connectToPopup = (cb, type, id) => {
  * for Aepp object should be deprecated
  */
 const openAeppPopup = (msg, type) =>
-  new Promise((resolve, reject) => {
+  new Promise(resolve => {
     browser.storage.local.set({ showAeppPopup: { data: msg.params, type } }).then(() => {
       browser.windows
         .create({
@@ -209,7 +213,7 @@ const openAeppPopup = (msg, type) =>
           height: 680,
           width: 420,
         })
-        .then(window => {
+        .then(() => {
           connectToPopup(
             res => {
               resolve(res);
@@ -235,10 +239,10 @@ const popupConnections = PopupConnections();
 popupConnections.init();
 rpcWallet.init(controller, popupConnections);
 browser.runtime.onConnect.addListener(async port => {
-  if (port.sender.id == browser.runtime.id) {
+  if (port.sender.id === browser.runtime.id) {
     const connectionType = detectConnectionType(port);
-    if (connectionType == CONNECTION_TYPES.EXTENSION) {
-      port.onMessage.addListener(async ({ type, payload, uuid }, sender) => {
+    if (connectionType === CONNECTION_TYPES.EXTENSION) {
+      port.onMessage.addListener(async ({ type, payload, uuid }) => {
         if (HDWALLET_METHODS.includes(type)) {
           port.postMessage({ uuid, res: await controller[type](payload) });
         }
@@ -246,15 +250,15 @@ browser.runtime.onConnect.addListener(async port => {
 
         if (NOTIFICATION_METHODS[type]) notification[type](payload);
       });
-    } else if (connectionType == CONNECTION_TYPES.POPUP) {
+    } else if (connectionType === CONNECTION_TYPES.POPUP) {
       const url = new URL(port.sender.url);
       const id = url.searchParams.get('id');
       popupConnections.addConnection(id, port);
-    } else if (connectionType == CONNECTION_TYPES.OTHER) {
+    } else if (connectionType === CONNECTION_TYPES.OTHER) {
       const check = rpcWallet.sdkReady(() => {
         rpcWallet.addConnection(port);
       });
-      port.onDisconnect.addListener(p => {
+      port.onDisconnect.addListener(() => {
         clearInterval(check);
       });
     }
