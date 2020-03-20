@@ -55,7 +55,7 @@ const rpcWallet = {
     try {
       const node = await Node({ url: this.internalUrl, internalUrl: this.internalUrl });
       this.sdk = await RpcWallet({
-        nodes: [{ name: DEFAULT_NETWORK, instance: node }],
+        nodes: [{ name: this.network, instance: node }],
         compilerUrl: this.compiler,
         name: 'Waellet',
         accounts: this.accounts,
@@ -122,13 +122,11 @@ const rpcWallet = {
     if (!isConnected) {
       try {
         const a = caller === 'connection' ? action : {};
-        const res = await this.showPopup({ action: a, aepp, type: 'connectConfirm' });
+        await this.showPopup({ action: a, aepp, type: 'connectConfirm' });
         if (typeof cb !== 'undefined') {
           cb();
         }
-      } catch (e) {
-        console.log('error', e);
-      }
+      } catch (e) {}
     } else if (typeof cb === 'undefined') {
       action.accept();
     } else {
@@ -176,7 +174,6 @@ const rpcWallet = {
   },
   getAccessForAddress(address) {
     const clients = this.getClientsByCond(client => client.isConnected());
-    const context = this;
     clients.forEach(async client => {
       const {
         connection: {
@@ -229,7 +226,7 @@ const rpcWallet = {
   },
   async [AEX2_METHODS.INIT_RPC_WALLET]({ address, network }) {
     this.activeAccount = address;
-    if (!this.nodes.hasOwnProperty(network)) {
+    if (!this.nodes[network]) {
       await this.initNodes();
     }
     if (this.sdk) {

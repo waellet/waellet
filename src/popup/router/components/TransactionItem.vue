@@ -9,7 +9,9 @@
       <div class="text-right balance-change">
         <ae-badge class="badgeTransactionType" :class="transactionType.fill">{{ transactionType.type }}</ae-badge>
         <div class="balance" :class="balanceSign">{{ amount }}</div>
-        <small><span class="balance">{{ fee }}</span></small>
+        <small
+          ><span class="balance">{{ fee }}</span></small
+        >
       </div>
     </ae-list-item>
     <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
@@ -29,15 +31,17 @@ export default {
   computed: {
     ...mapGetters(['account', 'popup']),
     balanceSign() {
-      return this.transactionData.tx.type === 'SpendTx' 
-        ? this.transactionData.tx.sender_id === this.account.publicKey || this.transactionData.tx.account_id === this.account.publicKey ? 'minus' : 'plus'
+      return this.transactionData.tx.type === 'SpendTx'
+        ? this.transactionData.tx.sender_id === this.account.publicKey || this.transactionData.tx.account_id === this.account.publicKey
+          ? 'minus'
+          : 'plus'
         : '';
     },
     fee() {
-      return Number(aettosToAe(this.transactionData.tx.fee))
+      return Number(aettosToAe(this.transactionData.tx.fee));
     },
     amount() {
-      return this.transactionData.tx.amount ? Number(aettosToAe(this.transactionData.tx.amount)) : 0
+      return this.transactionData.tx.amount ? Number(aettosToAe(this.transactionData.tx.amount)) : 0;
     },
     transactionTypeClass() {
       return `transaction${
