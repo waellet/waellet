@@ -172,18 +172,16 @@ export default {
     store.dispatch('getAllUserTokens');
   },
   redirectAfterLogin(cb) {
-    if (process.env.RUNNING_IN_POPUP) {
+    if (window.RUNNING_IN_POPUP) {
       store.commit('SET_AEPP_POPUP', true);
-      const url = new URL(window.location.href);
-      const type = url.searchParams.get('type');
-      if (type) {
-        if (type == 'connectConfirm') {
+      if (window.POPUP_TYPE) {
+        if (window.POPUP_TYPE === 'connectConfirm') {
           cb('/connect');
-        } else if (type == 'sign') {
+        } else if (window.POPUP_TYPE === 'sign') {
           cb('/popup-sign-tx');
-        } else if (type == 'askAccounts') {
+        } else if (window.POPUP_TYPE === 'askAccounts') {
           cb('/ask-accounts');
-        } else if (type == 'messageSign') {
+        } else if (window.POPUP_TYPE === 'messageSign') {
           cb('/message-sign');
         }
       }
