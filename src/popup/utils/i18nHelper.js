@@ -10,17 +10,20 @@ const fallbackLocale = 'en';
 
 export const i18n = new VueI18n({
   locale: fallbackLocale,
-  fallbackLocale: fallbackLocale,
+  fallbackLocale,
   formatFallbackMessages: true,
-  messages: { en }
-})
+  messages: { en },
+});
 
 export const langs = {
   en: {
     getMessages: () => require('../locales/en.json'),
   },
-  ru: {
-    getMessages: () => require(/* webpackChunkName: "locale-en" */ '../locales/ru.json'),
+  de: {
+    getMessages: () => require(/* webpackChunkName: "locale-en" */ '../locales/de.json'),
+  },
+  it: {
+    getMessages: () => require(/* webpackChunkName: "locale-en" */ '../locales/it.json'),
   },
   es: {
     getMessages: () => require(/* webpackChunkName: "locale-en" */ '../locales/es.json'),
@@ -30,13 +33,12 @@ export const langs = {
   },
   cn: {
     getMessages: () => require(/* webpackChunkName: "locale-en" */ '../locales/cn.json'),
-  }
+  },
 };
 
-
-export const fetchAndSetLocale = async (languageCode) => {
+export const fetchAndSetLocale = async languageCode => {
   if (!i18n.availableLocales.includes(languageCode)) {
-    const messages = (await langs[languageCode].getMessages());
+    const messages = await langs[languageCode].getMessages();
     i18n.setLocaleMessage(languageCode, messages);
   }
   i18n.locale = languageCode;

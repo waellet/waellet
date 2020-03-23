@@ -1,4 +1,3 @@
-
 export const getters = {
   account(state) {
     return state.account;
@@ -34,51 +33,60 @@ export const getters = {
     return state.activeAccount;
   },
   activeAccountName(state) {
-    return state.subaccounts.find(s => s.publicKey == state.account.publicKey) ? state.subaccounts.find(s => s.publicKey == state.account.publicKey).name : 'Account';
+    return state.subaccounts.find(s => s.publicKey == state.account.publicKey) ? state.subaccounts.find(s => s.publicKey == state.account.publicKey).name : 'Main account';
   },
   sdk(state) {
-    return state.sdk
+    return state.sdk;
   },
   tokens(state) {
-    return state.tokens
+    return state.tokens;
   },
   tokenSymbol(state) {
-    return state.tokens[state.current.token].symbol
+    return state.tokens[state.current.token].symbol;
   },
   tokenBalance(state) {
-    return state.current.token != 0 ? state.tokens[state.current.token].balance : state.balance
+    return state.current.token != 0 ? state.tokens[state.current.token].balance : state.balance;
   },
   aeppPopup(state) {
-    return state.aeppPopup
+    return state.aeppPopup;
   },
   names(state) {
-    return state.names
+    return state.names;
   },
   ledgerApi(state) {
-    return state.ledgerApi
+    return state.ledgerApi;
   },
   ledgerNextIdx(state) {
-    return Math.max(
-      ...state.subaccounts.filter(a => a.isLedger).map(({ idx }) => idx),
-      -1,
-    ) + 1
+    return Math.max(...state.subaccounts.filter(a => a.isLedger).map(({ idx }) => idx), -1) + 1;
   },
   isLedger(state) {
-    return state.subaccounts.find(s => s.publicKey == state.account.publicKey).isLedger
+    if (state.subaccounts.length > 0) {
+      return state.subaccounts.find(s => s.publicKey == state.account.publicKey).isLedger;
+    }
+    return state.subaccounts;
   },
   getActiveAccount(state) {
-    return state.subaccounts.find(s => s.publicKey == state.account.publicKey)
-  },
-  background({ background }) {
-    return background
+    return state.subaccounts.find(s => s.publicKey == state.account.publicKey);
   },
   tokenRegistry({ tokenRegistry }) {
-    return tokenRegistry
+    return tokenRegistry;
   },
   tokenRegistryLima({ tokenRegistryLima }) {
-    return tokenRegistryLima
+    return tokenRegistryLima;
   },
   txAdvancedMode({ txAdvancedMode }) {
-    return txAdvancedMode
-  }
+    return txAdvancedMode;
+  },
+  tipping({ tipping }) {
+    return tipping;
+  },
+  tippingReceiver({ tippingReceiver }) {
+    return tippingReceiver;
+  },
+  mainLoading({ mainLoading }) {
+    return mainLoading;
+  },
+  nodeStatus({ nodeStatus }) {
+    return nodeStatus;
+  },
 };

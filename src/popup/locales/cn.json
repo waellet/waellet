@@ -50,7 +50,10 @@
             "symbolBetween1and12": "1个12个字符符号之间",
             "numberBetween0and36": "0和36之间数",
             "token": "代币",
-            "balance": "平衡"
+            "balance": "平衡",
+            "search": "搜索",
+            "customToken": "自定义令牌",
+            "tokenSearchLabel": "搜索令牌"
         },
         "advancedSettings": {
             "heading": "高级",
@@ -100,6 +103,15 @@
             "allowedAllowanceAmount": "当前允许的补贴金额",
             "changeButton": "更改"
         },
+        "auctionBid": {
+            "backToAuctions": "返回拍卖",
+            "bidding": "投标",
+            "bidOn": "竞标",
+            "requiredField": "这是必填栏",
+            "next": "下一个",
+            "current-highest-bid": "目前最高出价",
+            "remaining-time": "剩余时间"
+        },
         "connectConfirm": {
             "websiteRequestconnect": "想连接到您的帐户",
             "websiteRequest": "本网站请求访问查看当前帐户地址。务必让你相信你与之交互的网站。",
@@ -111,8 +123,10 @@
             "heading": "创建可互换令牌",
             "tokenName":"令牌名称",
             "tokenSymbolLabel":"令牌符号",
+            "initialSupply":"初始供应",
             "tokenPrecision":"精密的小数",
-            "deployTokenContract": "令牌部署合同"
+            "deployTokenContract": "令牌部署合同",
+            "registryFee": "在全球TokenRegistry中包含令牌（需要支付TX费用）"
         },
         "fungibleTokens": {
             "backToAccount": "返回账户",
@@ -120,6 +134,7 @@
             "addToken":"添加令牌",
             "tokenContractLabel":"令牌合同地址",
             "tokenSymbolLabel":"令牌符号",
+            "initialSupply":"初始供应",
             "tokenPrecision":"精密的小数",
             "next":"下一个",
             "validContractAddressError": "有效的标记合约地址",
@@ -135,20 +150,47 @@
             "tokenInfo": "这使您可以从给定的部署互换合同令牌添加令牌",
             "addTokenButton": "添加令牌",
             "deployInfo": "这可以让你自己可替代的令牌部署合同",
-            "deployButton": "令牌部署合同"
+            "deployButton": "令牌部署合同",
+            "deployFungToken": "部署令牌"
+        },
+        "mintTokenPage": {
+            "mint": "造币厂/烧伤令牌",
+            "mintInfo": "这可以让您铸造或燃烧令牌数量",
+            "mintBtn": "薄荷/烧伤",
+            "amount": "量",
+            "address": "地址",
+            "enterAmount": "无效金额",
+            "enterAddress": "输入地址"
+        },
+        "namingSystemPage": {
+            "heading": "命名系统",
+            "registerNameRequirement": "只允许字母和数字",
+            "registerName": "注册新名字",
+            "registeredNames": "您的注册名称",
+            "seeAllRegisteredNames": "查看所有注册名称",
+            "OkButton": "好",
+            "noNames": "找不到名字",
+            "activeAuctions": "所有活跃的拍卖",
+            "auctionInfo": "拍卖信息",
+            "noAuctions": "找不到拍卖",
+            "yourNamesBtn": "你的名字",
+            "allActiveAuctionsBtn": "所有活跃的拍卖",
+            "AddNewBtn": "添新",
+            "filterBySoonest": "最快的",
+            "filterByCharLength": "名称长度",
+            "filterByBid": "出价",
+            "filtersBy": "筛选依据",
+            "currentBid": "当前出价: ",
+            "previousBids": "先前的出价: ",
+            "noPreviousBids": "没有以前的出价",
+            "goBiddingBtn": "竞标",
+            "backButton": "背部"
         },
         "generalSettings": {
-            "backToSettings": "返回设置",
+            "backToSettings": "返回设定",
             "heading": "一般",
-            "registerName": "注册名称",
-            "registerNameInfo": "已注册的名称可以代替地址",
-            "registerNameRequirement": "只允许字母和数字",
-            "registeredNames": "已注册的名称",
             "switchLanguage" : "语言",
-            "currentLanguage": "当前语言",
-            "seeAllRegisteredNames": "查看所有注册的名称",
-            "OkButton": "好",
-            "noNames": "未发现名称"
+            "currentLanguage": "当前语言"
         },
         "index": {
             "term1": "我同意Waellet ",
@@ -193,8 +235,18 @@
             "addNewNetwork": "添加新节点",
             "networkName": "节点名",
             "networkURL": "节点网址",
+            "internalURL": "节点内部URL",
+            "networkId": "节点网络标识",
+            "middlewareUrl": "节点中间件网址",
+            "explorerUrl": "节点管理器URL",
+            "compilerUrl": "节点的编译器网址",
             "addnetworkName": "添加节点名称",
             "addnetworkURL": "添加节点网址",
+            "addinternalURL": "添加节点内部URL",
+            "addnetworkId": "添加节点网络标识",
+            "addmiddlewareUrl": "添加节点中间件网址",
+            "addexplorerUrl": "添加节点管理器URL",
+            "addcompilerUrl": "添加节点编译器网址",
             "add": "加"
         },
         "privacyPolicy": {
@@ -223,7 +275,14 @@
             "privateKey": "你的私钥",
             "showPrivateKey": "显示私钥",
             "incorrectPassword": "密码错误",
-            "decryptingPrivateKey": "解密私钥"
+            "decryptingPrivateKey": "解密私钥",
+            "showSeedPhrase": "显示种子词组",
+            "seedRecoveryHeading": "显示种子词组",
+            "seedRecoverySmall": "显示用于生成私钥的12个单词",
+            "seedRecoveryBtn": "显示种子词组",
+            "seedPhraseWarning": "不要与任何人分享您的种子，它可以用来窃取您的所有帐户",
+            "seedPhrase": "你的种子语",
+            "copy": "复制到剪贴板"
         },
         "seedPhrase": {
             "securingAccount": "保护您的帐户",
@@ -338,7 +397,24 @@
             "nameSalt": "名称盐",
             "nameId": "名称ID",
             "copy": "复制",
-            "contractId": "合同编号"
+            "contractId": "合同编号",
+            "advancedMode": "高级模式",
+            "blockHeight" : "块高",
+            "signatures": "签名",
+            "nonce" : "随机数",
+            "callData": "通话数据",
+            "gas": "加油站",
+            "gasPrice": "汽油价格",
+            "code" : "码",
+            "abiV": "Abi 版",
+            "vmV": "Vm 版",
+            "payload": "有效载荷",
+            "commitment": "承诺编号",
+            "clientTtl": "客户端TTL",
+            "nameTtl": "名称TTL",
+            "pointerId": "指针编号",
+            "pointerKey": "指针键",
+            "moreInfo": "更多信息"
         },
         "transactions": {
             "backToAccount": "返回账户",
@@ -364,13 +440,36 @@
             "heading": "公用事业",
             "backToAccount": "返回账户",
             "tipWebsite": "提示网站",
+            "namingSystem": "命名系统",
+            "namingSystemInfo": "注册名称，它可以代替您的公共地址使用",
             "allowances": "津贴",
             "fungibleTokens": "可互换令牌",
             "signAndVerifyMsg": "注册/验证消息",
             "tipWebsiteInfo": "做一个捐赠任何你想要的网站",
             "allowancesInfo": "给予或采取津贴",
             "fungibleTokensInfo": "添加新的令牌，或令牌部署合同",
-            "signAndVerifyMsgInfo": "注册一个消息，你的私钥或验证签名信息"
+            "signAndVerifyMsgInfo": "注册一个消息，你的私钥或验证签名信息",
+            "tokenMigration": "代币迁移",
+            "prepareTokenMigration": "准备令牌迁移"
+        },
+        "tokenMigration": {
+            "heading": "代币迁移",
+            "addressLabel": "您的亲属地址",
+            "continue": "继续",
+            "checkContinue": "我确定我的地址和身份证是正确的",
+            "ethPrivateKey": "以太坊私钥",
+            "migrateToken": "迁移令牌",
+            "migrations": "移居",
+            "seeMigrations": "请参阅迁移",
+            "migrationsInfo": "现在正在迁移。他们将在下一次硬叉之后上市. ",
+            "migrateTokenInfo": "您选择迁移的令牌数量将在下一个计划的硬叉版本中的此地址上提供.",
+            "backToTokenMigration": "返回令牌迁移信息",
+            "backendServiceUrl": "后端服务网址"
+        },
+        "aeAddressInput": {
+            "label": "Aeternity 地址",
+            "identicon": "您的身份",
+            "error": "无效的AE地址"
         }
     }
 }

@@ -1,15 +1,15 @@
-  <template>
+<template>
   <div class="popup">
     <h3>{{ $t('pages.account.heading') }}</h3>
     <ae-card :fill="cardColor">
       <template slot="avatar">
         <ae-identicon :address="account.publicKey" />
-        <ae-input-plain fill="white" :placeholder="$t('pages.account.accountName')" @keyup.native="setAccountName" :value="activeAccountName"  />
+        <ae-input-plain fill="white" :placeholder="$t('pages.account.accountName')" @keyup.native="setAccountName" :value="activeAccountName" />
       </template>
       <template slot="header">
-        <ae-text fill="white" face="mono-base">{{tokenBalance}} {{tokenSymbol}}</ae-text>
+        <ae-text fill="white" face="mono-base">{{ tokenBalance }} {{ tokenSymbol }}</ae-text>
       </template>
-      <ae-address class="accountAddress" :value="account.publicKey" copyOnClick enableCopyToClipboard length="medium" gap=0 />
+      <ae-address class="accountAddress" :value="account.publicKey" copyOnClick enableCopyToClipboard length="medium" gap="0" />
       <ae-toolbar :fill="cardColor" align="right" slot="footer">
         <ae-button face="toolbar" v-clipboard:copy="account.publicKey" @click="copy">
           <ae-icon name="copy" />
@@ -17,30 +17,29 @@
         </ae-button>
       </ae-toolbar>
     </ae-card>
-    <br>
+    <br />
     <div class="actions">
       <ae-button-group>
-        <ae-button face="round" fill="primary" extend class="sendBtn" @click="navigateSend">{{$t('pages.account.send') }}</ae-button>
-        <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{$t('pages.account.receive') }}</ae-button>
+        <ae-button face="round" fill="primary" extend class="sendBtn" @click="navigateSend">{{ $t('pages.account.send') }}</ae-button>
+        <ae-button face="round" fill="secondary" extend class="receiveBtn" @click="navigateReceive">{{ $t('pages.account.receive') }}</ae-button>
       </ae-button-group>
     </div>
-    <h3>{{$t('pages.account.latestTransactions') }}</h3>
+    <h3>{{ $t('pages.account.latestTransactions') }}</h3>
     <div v-if="transactions.latest.length && !loading">
       <ae-list class="transactionList">
         <TransactionItem v-for="transaction in transactions.latest" v-bind:key="transaction.id" :transactionData="transaction"></TransactionItem>
       </ae-list>
-      <ae-button face="round" fill="primary" class="transactionHistory" @click="showAllTranactions">{{$t('pages.account.wholeTransaction') }}</ae-button>
+      <ae-button face="round" fill="primary" class="transactionHistory" @click="showAllTranactions">{{ $t('pages.account.wholeTransaction') }}</ae-button>
     </div>
     <div v-if="transactions.latest.length == 0 && !loading">
-        <p class="paragraph noTransactions">{{$t('pages.account.noTransactionsFound') }}</p> 
+      <p class="paragraph noTransactions">{{ $t('pages.account.noTransactionsFound') }}</p>
     </div>
     <popup :popupSecondBtnClick="popup.secondBtnClick"></popup>
-    <Loader size="small" :loading="loading" ></Loader>
-  </div> 
+    <Loader size="small" :loading="loading"></Loader>
+  </div>
 </template>
 
 <script>
-
 import { mapGetters } from 'vuex';
 import { setInterval, setTimeout, setImmediate, clearInterval } from 'timers';
 import { request } from 'http';
@@ -49,12 +48,12 @@ import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_ADDRESS, TOKEN_REGISTRY_CONTRAC
 
 export default {
   name: 'Account',
-  data () {
+  data() {
     return {
       polling: null,
-      loading:true,
-      accountName:'',
-      pollingTransaction:null,
+      loading: true,
+      accountName: '',
+      pollingTransaction: null,
       toUsd: null,
       toEur: null,
       timer: '',
@@ -64,109 +63,121 @@ export default {
       currencySign: '',
       currencyFullName: '',
       dropdown: {
-          currencies: false,
+        currencies: false,
       },
-    }
+      cardColor: 'primary',
+    };
   },
   computed: {
-    ...mapGetters(['account', 'balance', 'network', 'current','transactions','subaccounts','wallet','activeAccountName','activeAccount','sdk','tokens','tokenSymbol','tokenBalance', 'popup','isLedger', 'tokenRegistry']),
-    publicKey() { 
-      return this.account.publicKey; 
+    ...mapGetters([
+      'account',
+      'balance',
+      'network',
+      'current',
+      'transactions',
+      'subaccounts',
+      'wallet',
+      'activeAccountName',
+      'activeAccount',
+      'sdk',
+      'tokens',
+      'tokenSymbol',
+      'tokenBalance',
+      'popup',
+      'isLedger',
+      'tokenRegistry',
+    ]),
+    publicKey() {
+      return this.account.publicKey;
     },
     watchBalance() {
       return this.balance;
     },
     watchToken() {
-      return this.current.token
+      return this.current.token;
     },
-    cardColor() {
-      return this.isLedger ? 'neutral' : 'primary'
+    getCardColor() {
+      this.cardColor = this.isLedger ? 'neutral' : 'primary';
     },
-    currs(){
-      browser.storage.sync.get('allCurrencies').then(resall => {
-        let allCurrencies = JSON.parse(resall.allCurrencies)
+    currs() {
+      browser.storage.local.get('allCurrencies').then(resall => {
+        const allCurrencies = JSON.parse(resall.allCurrencies);
         this.allCurrencies = allCurrencies;
         return allCurrencies;
       });
-    }
+    },
   },
-  watch:{
-      publicKey() {
-        this.loading = true;
-        this.updateTransactions();
-      },
-      watchToken() {
-        this.updateTransactions();
-      }
+  watch: {
+    publicKey() {
+      this.loading = true;
+      this.updateTransactions();
+    },
+    watchToken() {
+      this.updateTransactions();
+    },
   },
-  created () {
+  created() {
     this.pollData();
     currencyConv(this);
-    
   },
-  mounted(){
+  mounted() {
     this.updateTransactions();
-  }, 
+  },
   methods: {
-    copy(){
-      this.$store.dispatch('popupAlert', { name: 'account', type: 'publicKeyCopied'});
+    copy() {
+      this.$store.dispatch('popupAlert', { name: 'account', type: 'publicKeyCopied' });
     },
     showAllTranactions() {
-        this.$router.push('/transactions');
+      this.$router.push('/transactions');
     },
     pollData() {
-        this.polling = setInterval(async () => {
-          if(this.sdk != null) {
-            
-              this.updateTransactions();
-              if (this.tokenSymbol == 'AE') {
-                this.toUsd = (this.balance * this.usdRate).toFixed(3);
-                this.toEur = (this.balance * this.eurRate).toFixed(3);
-              }
-              else {
-                this.toUsd = this.toEur = '---'
-              }
+      this.polling = setInterval(async () => {
+        if (this.sdk != null) {
+          this.updateTransactions();
+          if (this.tokenSymbol == 'AE') {
+            this.toUsd = (this.balance * this.usdRate).toFixed(3);
+            this.toEur = (this.balance * this.eurRate).toFixed(3);
+          } else {
+            this.toUsd = this.toEur = '---';
           }
-        }, 2500);
+        }
+      }, 2500);
     },
-    navigateSend () {
+    navigateSend() {
       this.$router.push('/send');
     },
-    navigateReceive () {
+    navigateReceive() {
       this.$router.push('/receive');
     },
     updateTransactions() {
-      if(this.current.token == 0) {
-        this.$store.dispatch('getTransactionsByPublicKey',{publicKey:this.account.publicKey,limit:3})
-        .then(res => {
+      if (this.current.token == 0) {
+        this.$store.dispatch('getTransactionsByPublicKey', { publicKey: this.account.publicKey, limit: 3 }).then(res => {
           this.loading = false;
-          this.$store.dispatch('updateLatestTransactions',res);
+          this.$store.dispatch('updateLatestTransactions', res);
         });
-      }else {
+      } else {
         this.loading = false;
-        this.$store.dispatch('updateLatestTransactions',[]);
+        this.$store.dispatch('updateLatestTransactions', []);
       }
     },
     setAccountName(e) {
-      this.$store.dispatch('setAccountName', e.target.value)
-      .then(() => {
-         browser.storage.sync.set({ subaccounts: this.subaccounts}).then(() => {});
+      this.$store.dispatch('setAccountName', e.target.value).then(() => {
+        browser.storage.local.set({ subaccounts: this.subaccounts }).then(() => {});
       });
     },
     showTransaction() {
-      browser.tabs.create({url:this.popup.data,active:false});
+      browser.tabs.create({ url: this.popup.data, active: false });
     },
     async toggleDropdown(event, parentClass) {
-        if (typeof parentClass == 'undefined') {
-            parentClass = '.currenciesgroup';
-        }
-        let dropdownParent = event.target.closest(parentClass);
-        this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id]
-
+      if (typeof parentClass === 'undefined') {
+        parentClass = '.currenciesgroup';
+      }
+      const dropdownParent = event.target.closest(parentClass);
+      this.dropdown[dropdownParent.id] = !this.dropdown[dropdownParent.id];
     },
     async switchCurrency(index, item) {
-      browser.storage.sync.set({currency: item}).then(() => {
-        browser.storage.sync.set({currencyRate: index}).then(() => {
+      browser.storage.local.set({ currency: item }).then(() => {
+        browser.storage.local.set({ currencyRate: index }).then(() => {
           switch (item) {
             case 'aud':
               this.currencySign = '$';
@@ -306,15 +317,14 @@ export default {
       });
     },
   },
-  beforeDestroy () {
-    clearInterval(this.polling)
-    clearInterval(this.pollingTransaction)
+  beforeDestroy() {
+    clearInterval(this.polling);
+    clearInterval(this.pollingTransaction);
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
-@import '../../../common/base';
 .accountAddress {
   color: #fff;
 }
@@ -322,16 +332,16 @@ export default {
   font-weight: normal;
 }
 .transactionHistory {
-  margin-top:1rem;
+  margin-top: 1rem;
   width: 100%;
 }
-.inputGroup-currencies{
+.inputGroup-currencies {
   display: flex;
   border-collapse: collapse;
   width: 100%;
   margin: 10px 0;
 }
-.inputGroup-currencies > div{
+.inputGroup-currencies > div {
   font-weight: bold;
   border-bottom: 2px solid #ff0d6a;
   vertical-align: middle;
@@ -340,15 +350,15 @@ export default {
   border-bottom-right-radius: 0;
   text-align: center;
 }
-.input-group-icon{
+.input-group-icon {
   background: #ff0d6a;
   color: #fff;
   padding: 0 12px;
 }
-.input-group-area{
-  width:100%;
+.input-group-area {
+  width: 100%;
 }
-.inputGroup-currencies input{
+.inputGroup-currencies input {
   border: 0;
   display: block;
   font-weight: bold;
@@ -358,7 +368,7 @@ export default {
 
 .currenciesgroup li {
   list-style-type: none;
-  color: #717C87;
+  color: #717c87;
   margin: 0;
 }
 .currenciesgroup li .ae-icon {
@@ -395,14 +405,14 @@ export default {
   transform: rotate(90deg);
 }
 .ae-list .ae-list-item:first-child {
-  border-top:none !important
+  border-top: none !important;
 }
 .sub-dropdown .single-currency:hover {
-    border-left: 2px solid #ff0d6a;
-    background: rgba(226, 226, 226, 0.5);
-    .arrowrightCurrency {
-        right: 20px;
-    }
+  border-left: 2px solid #ff0d6a;
+  background: rgba(226, 226, 226, 0.5);
+  .arrowrightCurrency {
+    right: 20px;
+  }
 }
 .arrowrightCurrency {
   transition: 0.4s;

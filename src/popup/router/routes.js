@@ -7,11 +7,14 @@ import SeedPhraseComponent from './pages/SeedPhrase';
 import TransactionsComponent from './pages/Transactions';
 import TransactionDetailsComponent from './pages/TransactionDetails';
 import SignTransactionComponent from './pages/SignTransaction';
+import PopupSignTransactionComponent from './pages/Popups/PopupSignTx';
+import PopupConnectComponent from './pages/Popups/PopupConnect';
+import PopupAskAccountsComponent from './pages/Popups/PopupAskAccounts';
+import PopupMessageSignComponent from './pages/Popups/PopupMessageSign';
 import ManageAccountComponent from './pages/ManageAccounts';
 import SettingsComponent from './pages/Settings';
 import GeneralSettingsComponent from './pages/GeneralSettings';
 import SecuritySettingsComponent from './pages/SecuritySettings';
-import AdvancedSettingsComponent from './pages/AdvancedSettings';
 import AboutSettingsComponent from './pages/AboutSettings';
 import UtilitiesComponent from './pages/Utilities';
 import TipComponent from './pages/TipPage';
@@ -46,7 +49,7 @@ export default [
   {
     path: '/send',
     name: 'send',
-    props:true,
+    props: true,
     component: SendComponent,
   },
   {
@@ -57,148 +60,166 @@ export default [
     name: 'password',
     path: '/password',
     component: AccountPasswordComponent,
-    props:true
+    props: true,
   },
   {
-    name:'seed',
-    path:'/seed',
-    component:SeedPhraseComponent,
-    props:true
+    name: 'seed',
+    path: '/seed',
+    component: SeedPhraseComponent,
+    props: true,
   },
   {
-    path:'/transactions',
-    component:TransactionsComponent
+    path: '/transactions',
+    component: TransactionsComponent,
   },
   {
-    name:'transaction-details',
-    path:'/transaction-details',
-    component:TransactionDetailsComponent,
-    props:true
+    name: 'transaction-details',
+    path: '/transaction-details',
+    component: TransactionDetailsComponent,
+    props: true,
   },
   {
-    name:'sign',
-    path:'/sign-transaction/:type?',
-    component:SignTransactionComponent,
-    props:true
-
+    name: 'sign',
+    path: '/sign-transaction/:type?',
+    component: SignTransactionComponent,
+    props: true,
   },
   {
-    name:'connect-confirm',
-    path:'/connect-confirm',
-    component:ConnectConfirmComponent,
-    props:true
+    name: 'popup-sign-tx',
+    path: '/popup-sign-tx',
+    component: PopupSignTransactionComponent,
+    props: true,
   },
   {
-    path:'/manageAccounts',
-    component:ManageAccountComponent,
+    name: 'connect',
+    path: '/connect',
+    component: PopupConnectComponent,
+    props: true,
   },
   {
-    path:'/settings',
-    component:SettingsComponent,
+    name: 'ask-accounts',
+    path: '/ask-accounts',
+    component: PopupAskAccountsComponent,
+    props: true,
   },
   {
-    path:'/generalSettings',
-    component:GeneralSettingsComponent,
+    name: 'message-sign',
+    path: '/message-sign',
+    component: PopupMessageSignComponent,
+    props: true,
   },
   {
-    path:'/securitySettings',
-    component:SecuritySettingsComponent,
+    name: 'connect-confirm',
+    path: '/connect-confirm',
+    component: ConnectConfirmComponent,
+    props: true,
   },
   {
-    path:'/advancedSettings',
-    component:AdvancedSettingsComponent,
+    path: '/manageAccounts',
+    component: ManageAccountComponent,
   },
   {
-    path:'/aboutSettings',
-    component:AboutSettingsComponent,
+    path: '/settings',
+    component: SettingsComponent,
   },
   {
-    path:'/utilities',
-    component:UtilitiesComponent,
+    path: '/generalSettings',
+    component: GeneralSettingsComponent,
   },
   {
-    path:'/tip',
-    component:TipComponent
+    path: '/securitySettings',
+    component: SecuritySettingsComponent,
   },
   {
-    path:'/allowances',
-    component:AllowancesComponent
+    path: '/aboutSettings',
+    component: AboutSettingsComponent,
   },
   {
-    path:'/manageNetworks',
-    component:ManageNetworksComponent
+    path: '/utilities',
+    component: UtilitiesComponent,
   },
   {
-    path:'/tokens',
-    component:FungibleTokensComponent
+    path: '/tip',
+    component: TipComponent,
   },
   {
-    path:'/fungible-tokens',
-    component:FungibleTokensPageComponent
+    path: '/allowances',
+    component: AllowancesComponent,
   },
   {
-    path:'/aens',
-    component:AensComponent
+    path: '/manageNetworks',
+    component: ManageNetworksComponent,
   },
   {
-    name:'auction-bid',
+    path: '/tokens',
+    component: FungibleTokensComponent,
+  },
+  {
+    path: '/fungible-tokens',
+    component: FungibleTokensPageComponent,
+  },
+  {
+    path: '/aens',
+    component: AensComponent,
+  },
+  {
+    name: 'auction-bid',
     path: '/auction-bid',
     component: AuctionBid,
-    props:true
+    props: true,
   },
   {
-    path:'/mint-token',
-    component: MintFungibleTokenComponent
+    path: '/mint-token',
+    component: MintFungibleTokenComponent,
   },
   {
-    name:'sign-verify-message',
-    path:'/signAndVerifyMsg',
-    component:SignAndVerifyMsg,
-    props: true
+    name: 'sign-verify-message',
+    path: '/signAndVerifyMsg',
+    component: SignAndVerifyMsg,
+    props: true,
   },
   {
-    path:'/airGapSetup',
-    component:AirGapSetup
+    path: '/airGapSetup',
+    component: AirGapSetup,
   },
   {
-    path:'/qrCodeReader',
-    name:'qrCodeReader',
-    props:true,
-    component: QrCodeReader
+    path: '/qrCodeReader',
+    name: 'qrCodeReader',
+    props: true,
+    component: QrCodeReader,
   },
   {
-    path:'/signTransactionByQrCode',
+    path: '/signTransactionByQrCode',
     component: SignTransactionByQrCode,
     props: true,
-    name: 'signTransactionByQrCode'
+    name: 'signTransactionByQrCode',
   },
   {
-    path:'/create-token',
-    component:CreateFungibleTokenComponent
+    path: '/create-token',
+    component: CreateFungibleTokenComponent,
   },
   {
-    path:'/ledger-setup',
-    component:LedgerSetupComponent
+    path: '/ledger-setup',
+    component: LedgerSetupComponent,
   },
   {
-    path:'/termsOfService',
-    component:TermsOfService
+    path: '/termsOfService',
+    component: TermsOfService,
   },
   {
-    path:'/privacyPolicy',
-    component:PrivacyPolicy
+    path: '/privacyPolicy',
+    component: PrivacyPolicy,
   },
   {
     path: '/token-migration',
-    component: TokenMigration
+    component: TokenMigration,
   },
   {
     path: '/token-migration-info',
-    component: TokenMigrationInfo
+    component: TokenMigrationInfo,
   },
   {
     path: '/state-channels',
     component: StateChannels
   }
-  
 ];

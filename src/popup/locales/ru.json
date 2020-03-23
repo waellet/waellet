@@ -11,18 +11,20 @@
             "switchToken": "Tokens",
             "utilities": "Utilities",
             "settings": "Settings",
-            "logout": "rusia"
+            "logout": "Logout"
         },
         "aboutSettings": {
             "heading": "About",
             "backToSettings": "Settings",
-            "systemName": "Waellet"
+            "systemName": "Waellet",
+            "terms": "Terms of Service",
+            "privacyPolicy": "Privacy Policy"
         },
         "account": {
             "heading": "Account",
             "accountName": "Account name",
             "copy": "Copy",
-            "send": "russian",
+            "send": "Send",
             "receive": "Receive",
             "wholeTransaction": "Whole transaction history",
             "latestTransactions": "Latest transactions",
@@ -48,7 +50,10 @@
             "symbolBetween1and12": "Symbol between 1 and 12 characters",
             "numberBetween0and36": "Number between 0 and 36",
             "token": "Token",
-            "balance": "Balance"
+            "balance": "Balance",
+            "search": "Search",
+            "customToken": "Custom Token",
+            "tokenSearchLabel": "Search Token"
         },
         "advancedSettings": {
             "heading": "Advanced",
@@ -98,6 +103,15 @@
             "allowedAllowanceAmount": "Current allowed allowance amount is",
             "changeButton": "Change"
         },
+        "auctionBid": {
+            "backToAuctions": "Back to auctions",
+            "bidding": "Bidding",
+            "bidOn": "Bid on",
+            "requiredField": "This field is required",
+            "next": "Next",
+            "current-highest-bid": "Current highest bid",
+            "remaining-time": "Remaining Time"
+        },
         "connectConfirm": {
             "websiteRequestconnect": "would like to connect to your account",
             "websiteRequest": "This website is requesting access to view your current account address. Always make sure you trust the website you interact with. ",
@@ -109,8 +123,10 @@
             "heading": "Create Fungible Token",
             "tokenName":"Token Name",
             "tokenSymbolLabel":"Token Symbol",
+            "initialSupply":"Initial Supply",
             "tokenPrecision":"Decimals of Precision",
-            "deployTokenContract": "Deploy Token Contract"
+            "deployTokenContract": "Deploy Token Contract",
+            "registryFee": "Include token in global TokenRegistry (tx fees apply)"
         },
         "fungibleTokens": {
             "backToAccount": "Back to account",
@@ -118,6 +134,7 @@
             "addToken":"Add token",
             "tokenContractLabel":"Token Contract Address",
             "tokenSymbolLabel":"Token Symbol",
+            "initialSupply":"Initial Supply",
             "tokenPrecision":"Decimals of Precision",
             "next":"Next",
             "validContractAddressError": "Valid token contract address",
@@ -133,21 +150,52 @@
             "tokenInfo": "This allows you to add token from given deployed fungible token contract",
             "addTokenButton": "Add Token",
             "deployInfo": "This allows you to deploy your own fungible token contract",
-            "deployButton": "Deploy Token Contract"
+            "deployButton": "Deploy Token Contract",
+            "deployFungToken": "Deploy Token"
+        },
+        "mintTokenPage": {
+            "mint": "Mint/Burn token",
+            "mintInfo": "This allows you to mint or burn token amount",
+            "mintBtn": "Mint/Burn",
+            "amount": "Amount",
+            "address": "Address",
+            "enterAmount": "Invalid amount",
+            "enterAddress": "Enter address"
+        },
+        "namingSystemPage": {
+            "heading": "Naming System",
+            "registerNameRequirement": "Allowed only letters and numbers",
+            "registerName": "Register new name",
+            "registeredNames": "Your registered names",
+            "seeAllRegisteredNames": "See all registered names",
+            "OkButton": "OK",
+            "noNames": "No names found",
+            "activeAuctions": "All active auctions",
+            "auctionInfo": "Auction info",
+            "noAuctions": "No auctions found",
+            "yourNamesBtn": "Your names",
+            "allActiveAuctionsBtn": "All active auctions",
+            "AddNewBtn": "Add new",
+            "filterBySoonest": "Soonest",
+            "filterByCharLength": "Name length",
+            "filterByBid": "Bid",
+            "filtersBy": "Filters by",
+            "currentBid": "Current bid: ",
+            "previousBids": "Previous bids: ",
+            "noPreviousBids": "No previous bids",
+            "goBiddingBtn": "Go for bidding",
+            "backButton": "Back"
         },
         "generalSettings": {
             "backToSettings": "Back to settings",
             "heading": "General",
-            "registerName": "Register Name",
-            "registerNameInfo": "A registered name can be used instead of the address",
-            "registerNameRequirement": "Allowed only letters and numbers",
-            "registeredNames": "Registered Names",
             "switchLanguage" : "Language",
-            "currentLanguage": "Current language",
-            "seeAllRegisteredNames": "See all registered names",
-            "OkButton": "OK"
+            "currentLanguage": "Current language"
         },
         "index": {
+            "term1": "I agree to the Waellet ",
+            "term2": "Terms of Service",
+            "term3": "Privacy Policy",
             "heading": "Welcome to waellet, to start interacting with aeternity blockchain: ",
             "securingAccount": "Securing your account",
             "generateWallet": "Generate wallet",
@@ -160,7 +208,8 @@
             "keystoreJson": "Keystore.json",
             "seedPhrase": "Seed phrase",
             "enterSeedPhrase": "Enter your seed phrase. The one you wrote down during account creation.",
-            "continueButton": "Continue"
+            "continueButton": "Continue",
+            "chooseFile": "Choose file"
         },
         "ledgerSetup": {
             "ledgerConnectSetup": "How to connect from Ledger",
@@ -186,9 +235,23 @@
             "addNewNetwork": "Add new node",
             "networkName": "Node name",
             "networkURL": "Node URL",
+            "internalURL": "Node Internal URL",
+            "networkId": "Node networkId",
+            "middlewareUrl": "Node middlewareUrl",
+            "explorerUrl": "Node explorerUrl",
+            "compilerUrl": "Node compilerUrl",
             "addnetworkName": "Add Node name",
             "addnetworkURL": "Add Node URL",
+            "addinternalURL": "Add Node Internal URL",
+            "addnetworkId": "Add Node networkId",
+            "addmiddlewareUrl": "Add Node middlewareUrl",
+            "addexplorerUrl": "Add Node explorerUrl",
+            "addcompilerUrl": "Add Node compilerUrl",
             "add": "Add"
+        },
+        "privacyPolicy": {
+            "backButton": "Back",
+            "heading": "Privacy Policy"
         },
         "qrCodeReader": {
             "backToAccount": "Back to account",
@@ -212,9 +275,17 @@
             "privateKey":"Your private key",
             "showPrivateKey": "Show Private Key",
             "incorrectPassword":"Incorrect Password",
-            "decryptingPrivateKey":"Decrypting private key"
+            "decryptingPrivateKey":"Decrypting private key",
+            "showSeedPhrase": "Show seed phrase",
+            "seedRecoveryHeading": "Show seed phrase",
+            "seedRecoverySmall": "Reveals your 12 words used for generating your private key",
+            "seedRecoveryBtn": "Show seed phrase",
+            "seedPhraseWarning": "Do not share your seed with anyone, it can be used to steal all your accounts",
+            "seedPhrase": "Your seed phrase",
+            "copy": "Copy to clipboard"
         },
         "seedPhrase": {
+            "securingAccount": "Securing your account",
             "attentionMsg": "Please make sure to keep your seedphrase safe! Waellet does not store and cannot recover your seedphrase! It is your responsibility to keep it safe. If you loose access to your waellet, you will loose all your funds.",
             "tips": "Tips on how to protect your funds",
             "tip1": "Safe a backup on multiple places",
@@ -290,6 +361,10 @@
             "heading": "Scan with AirGap Vault to sign the transaction",
             "doneBtn": "Done"
         },
+        "termsOfService": {
+            "backButton": "Back",
+            "heading": "Terms and conditions"
+        },
         "tipPage": {
             "backToUtilities": "Back to utilities",
             "noImage": "No Image",
@@ -321,7 +396,25 @@
             "name": "Name",
             "nameSalt": "Name Salt",
             "nameId": "Name Id",
-            "copy": "Copy"
+            "copy": "Copy",
+            "contractId": "Contract Id",
+            "advancedMode": "Advanced Mode",
+            "blockHeight" : "Block Height",
+            "signatures": "Signatures",
+            "nonce" : "Nonce",
+            "callData": "Call Data",
+            "gas": "Gas",
+            "gasPrice": "Gas Price",
+            "code" : "Code",
+            "abiV": "Abi version",
+            "vmV": "Vm version",
+            "payload": "Payload",
+            "commitment": "Commitment id",
+            "clientTtl": "Client TTL",
+            "nameTtl": "Name TTL",
+            "pointerId": "Pointer Id",
+            "pointerKey": "Pointer Key",
+            "moreInfo": "More Info"
         },
         "transactions": {
             "backToAccount": "Back to account",
@@ -347,13 +440,36 @@
             "heading": "Utilities",
             "backToAccount": "Back to account",
             "tipWebsite": "Tip website",
+            "namingSystem": "Naming System",
+            "namingSystemInfo": "Register name and it can be used instead of your public address",
             "allowances": "Allowances",
             "fungibleTokens":"Fungible Tokens",
             "signAndVerifyMsg": "Sign / Verify message",
             "tipWebsiteInfo": "Make a donation for any website you want",
             "allowancesInfo": "Give or take an allowance",
             "fungibleTokensInfo":"Add new token, or deploy token contract",
-            "signAndVerifyMsgInfo": "Sign a message with your private key or verify a signed message"
+            "signAndVerifyMsgInfo": "Sign a message with your private key or verify a signed message",
+            "tokenMigration": "Token Migration",
+            "prepareTokenMigration": "Prepare for Token Migration"
+        },
+        "tokenMigration": {
+            "heading": "Token Migration",
+            "addressLabel": "Your aeternity address",
+            "continue": "Continue",
+            "checkContinue": "I am certain my address and identicon are correct",
+            "ethPrivateKey": "Ethereum Private Key",
+            "migrateToken": "Migrate Token",
+            "migrations": "Migrations",
+            "seeMigrations": "See Migrations",
+            "migrationsInfo": "are in migration now. They will be available after the next hardfork. ",
+            "migrateTokenInfo": "The amount of tokens you choose to migrate, will be available on this address in the next scheduled hardfork release.",
+            "backToTokenMigration": "Back to token migration info",
+            "backendServiceUrl": "Backend Service Url"
+        },
+        "aeAddressInput": {
+            "label": "Aeternity Address",
+            "identicon": "Your identicon",
+            "error": "Invalid AE Address"
         }
     }
 }
