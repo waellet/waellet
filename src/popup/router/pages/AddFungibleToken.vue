@@ -345,7 +345,7 @@ export default {
   margin-top: 1rem;
 }
 .tabs span {
-  width: 49%;
+  width: 100%;
 }
 .token-title {
   font-size: 1.1rem;
