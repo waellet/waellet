@@ -155,7 +155,7 @@ export default {
   computed: {
     ...mapGetters(['sdk', 'account', 'tokens', 'popup', 'tokenRegistry', 'tokenRegistryLima', 'network', 'current']),
     tokenBalance() {
-      return (this.token.balance / this.token.precision).toFixed(3);
+      return (this.token.balance / ( 10 ** this.token.precision) ).toFixed(3);
     },
   },
   async created() { },

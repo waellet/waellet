@@ -82,7 +82,7 @@ export default {
     state.sdk.middleware = payload;
   },
   [types.SET_TOKENS](state, payload) {
-    state.tokens = payload.map((t, i) => (i !== 0 ? { ...t, balance: (t.balance / t.precision).toFixed(3) } : { ...t }));
+    state.tokens = payload.map((t, i) => (i !== 0 ? { ...t, balance: (t.balance / ( 10 ** t.precision)).toFixed(3) } : { ...t }));
   },
   [types.UPDATE_TOKENS_BALANCE](state, payload) {
     state.tokens[payload.token].balance = payload.balance;
