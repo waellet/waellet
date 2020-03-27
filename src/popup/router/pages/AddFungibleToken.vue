@@ -105,7 +105,7 @@
             </div>
             <div>
               <div class="token-title">{{ $t('pages.addFungibleToken.balance') }}</div>
-              <div class="balanceBig balance no-sign">{{ token.balance }} {{ token.symbol }}</div>
+              <div class="balanceBig balance no-sign">{{ tokenBalance }} {{ token.symbol }}</div>
             </div>
           </div>
           <ae-check class="tokenRegistry" v-model="tokenRegistryFee" v-if="!presentInRegistry">
@@ -154,6 +154,9 @@ export default {
   },
   computed: {
     ...mapGetters(['sdk', 'account', 'tokens', 'popup', 'tokenRegistry', 'tokenRegistryLima', 'network', 'current']),
+    tokenBalance() {
+      return (this.token.balance / this.token.precision).toFixed(3);
+    },
   },
   async created() { },
   methods: {
