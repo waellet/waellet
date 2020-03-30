@@ -156,7 +156,7 @@ export default {
       });
     },
     maxSpendableValue() {
-      return this.balance - this.maxFee;
+      return this.current.token === 0 ? this.balance - this.maxFee : this.tokenBalance;
     },
   },
   created() {
