@@ -82,10 +82,12 @@ export default {
     state.sdk.middleware = payload;
   },
   [types.SET_TOKENS](state, payload) {
-    state.tokens = payload.map((t, i) => (i !== 0 ? { ...t, balance: (t.balance / ( 10 ** t.precision)).toFixed(3) } : { ...t }));
+    state.tokens = payload.map((t, i) => (i !== 0 ? { ...t, amount: 0 } : { ...t }));
   },
   [types.UPDATE_TOKENS_BALANCE](state, payload) {
-    state.tokens[payload.token].balance = payload.balance;
+    const token = state.tokens[payload.token];
+    token.amount =  (payload.balance / (10 ** token.precision));
+    state.tokens[payload.token] = token;
   },
   [types.UNSET_TOKENS](state, payload) {
     state.tokens = [

@@ -76,7 +76,7 @@
             </div>
             <div>
               <div class="token-title">{{ $t('pages.fungibleTokens.balance') }}</div>
-              <div class="balanceBig balance no-sign">{{ token.balance }} {{ token.symbol }}</div>
+              <div class="balanceBig balance no-sign">{{ token.amount }} {{ token.symbol }}</div>
             </div>
           </div>
           <ae-button face="round" fill="primary" @click="addCustomToken" class="add-token" extend>{{ $t('pages.fungibleTokens.addToken') }}</ae-button>
