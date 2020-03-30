@@ -620,6 +620,8 @@ export const pollGetter = getter =>
     }, 300);
   });
 
+export const parseForStorage = (data) => JSON.parse(JSON.stringify(data));
+
 export {
   shuffleArray,
   convertToAE,

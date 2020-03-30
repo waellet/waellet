@@ -124,7 +124,7 @@
 import { mapGetters } from 'vuex';
 import { uniqWith, isEqual } from 'lodash-es';
 import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
-import { addRejectedToken, checkContractAbiVersion } from '../../utils/helper';
+import { addRejectedToken, checkContractAbiVersion, parseForStorage } from '../../utils/helper';
 
 export default {
   data() {
@@ -249,7 +249,7 @@ export default {
       });
       this.$store.dispatch('setTokens', tokens).then(async () => {
         this.loading = true;
-        await browser.storage.local.set({ tokens: this.tokens });
+        await browser.storage.local.set({ tokens: parseForStorage(tokens) });
         this.$store
           .dispatch('popupAlert', {
             name: 'account',
