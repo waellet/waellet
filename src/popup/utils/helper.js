@@ -4,6 +4,7 @@ import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { AE_AMOUNT_FORMATS, formatAmount } from '@aeternity/aepp-sdk/es/utils/amount-formatter';
 import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO, CONNECTION_TYPES } from './constants';
+import { cloneDeep } from 'lodash-es';
 
 export const aeToAettos = v => formatAmount(v, { denomination: AE_AMOUNT_FORMATS.AE, targetDenomination: AE_AMOUNT_FORMATS.AETTOS });
 export const aettosToAe = v => formatAmount(v, { denomination: AE_AMOUNT_FORMATS.AETTOS, targetDenomination: AE_AMOUNT_FORMATS.AE });
@@ -620,7 +621,7 @@ export const pollGetter = getter =>
     }, 300);
   });
 
-export const parseForStorage = (data) => JSON.parse(JSON.stringify(data));
+export const parseForStorage = (data) => cloneDeep(data);
 
 export {
   shuffleArray,
