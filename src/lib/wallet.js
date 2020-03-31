@@ -67,6 +67,7 @@ export default {
     try {
       const middleware = (await swag(network, current)).api;
       store.commit('SET_MIDDLEWARE', middleware);
+      store.dispatch('getRegisteredNames');
     } catch (e) {
       if (this.middlewareConnError < 2) {
         this.initMiddleware();
