@@ -1,7 +1,7 @@
 import { uniqBy, head, flatten, uniqWith, isEqual } from 'lodash-es';
 import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
-import { convertToAE, stringifyForStorage, parseFromStorage, contractCall, checkContractAbiVersion } from '../popup/utils/helper';
+import { convertToAE, stringifyForStorage, parseFromStorage, contractCall, checkContractAbiVersion, parseForStorage } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT, AEX2_METHODS } from '../popup/utils/constants';
 import router from '../popup/router/index';
 import Ledger from '../popup/utils/ledger/ledger';
@@ -51,19 +51,17 @@ export default {
         });
     });
   },
-  updateBalanceTokens({ commit, state }) {
-    state.tokens.forEach((tkn, index) => {
-      if (typeof tkn.parent !== 'undefined' && tkn.contract != '' && tkn.parent == state.account.publicKey) {
-        state.sdk
-          .contractCallStatic(FUNGIBLE_TOKEN_CONTRACT, tkn.contract, 'balance', [state.account.publicKey])
-          .then(res => {
-            res.decode().then(balance => {
-              commit(types.UPDATE_TOKENS_BALANCE, { token: index, balance: balance == 'None' ? 0 : balance.Some[0] });
-            });
-          })
-          .catch(e => {});
+   async updateBalanceTokens({ commit, state }) {
+    state.tokens.forEach(async (tkn, index) => {
+      if (typeof tkn.parent !== 'undefined' && tkn.contract !== '' && tkn.parent === state.account.publicKey) {
+        try {
+          const res = await state.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT, tkn.contract, 'balance', [state.account.publicKey])
+          const balance = await res.decode()
+          commit(types.UPDATE_TOKENS_BALANCE, { token: index, balance: balance === 'None' ? 0 : balance.Some[0] });
+        } catch(e) {}
       }
     });
+    await browser.storage.local.set({ tokens: parseForStorage(state.tokens) });
   },
   updateBalanceToken({ commit, state }) {
     state.sdk
