@@ -405,7 +405,6 @@ export default {
             }
           }
           if (!triggerOnce) {
-            this.$store.dispatch('getRegisteredNames');
             this.$store.dispatch('updateBalanceSubaccounts');
             triggerOnce = true;
           }
