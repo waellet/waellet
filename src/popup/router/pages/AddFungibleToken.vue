@@ -9,7 +9,6 @@
       <div v-if="addStep == false" class="token-add-form">
         <ae-panel>
           <div class="tabs">
-            <span :class="activeTab == 'search' ? 'tab-active' : ''" @click="selectActiveTab('search')">{{ $t('pages.addFungibleToken.search') }}</span>
             <span :class="activeTab == 'custom' ? 'tab-active' : ''" @click="selectActiveTab('custom')">{{ $t('pages.addFungibleToken.customToken') }}</span>
           </div>
           <!-- <h4>{{$t('pages.addFungibleToken.addToken') }}</h4> -->
@@ -106,7 +105,7 @@
             </div>
             <div>
               <div class="token-title">{{ $t('pages.addFungibleToken.balance') }}</div>
-              <div class="balanceBig balance no-sign">{{ token.balance }} {{ token.symbol }}</div>
+              <div class="balanceBig balance no-sign">{{ tokenBalance }} {{ token.symbol }}</div>
             </div>
           </div>
           <ae-check class="tokenRegistry" v-model="tokenRegistryFee" v-if="!presentInRegistry">
@@ -125,12 +124,12 @@
 import { mapGetters } from 'vuex';
 import { uniqWith, isEqual } from 'lodash-es';
 import { FUNGIBLE_TOKEN_CONTRACT, TOKEN_REGISTRY_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../../utils/constants';
-import { addRejectedToken, checkContractAbiVersion } from '../../utils/helper';
+import { addRejectedToken, checkContractAbiVersion, parseForStorage } from '../../utils/helper';
 
 export default {
   data() {
     return {
-      activeTab: 'search',
+      activeTab: 'custom',
       token: {
         contract: '',
         symbol: '',
@@ -146,7 +145,7 @@ export default {
         msg: null,
       },
       addStep: false,
-      addStepNumber: 2,
+      addStepNumber: 1,
       loading: false,
       timer: '',
       tokenRegistryFee: false,
@@ -155,8 +154,11 @@ export default {
   },
   computed: {
     ...mapGetters(['sdk', 'account', 'tokens', 'popup', 'tokenRegistry', 'tokenRegistryLima', 'network', 'current']),
+    tokenBalance() {
+      return (this.token.balance / ( 10 ** this.token.precision) ).toFixed(3);
+    },
   },
-  async created() {},
+  async created() { },
   methods: {
     switchTabs(tab) {
       this.activeTab = tab;
@@ -224,12 +226,16 @@ export default {
       }
     },
     async checkIfTokenPresentInRegistry() {
-      const find = (await this.$helpers.contractCall({ instance: this.tokenRegistry, method: 'get_all_tokens' })).decodedResult.find(t => t[0] == this.token.contract);
-      const findLima = (await this.$helpers.contractCall({ instance: this.tokenRegistryLima, method: 'get_all_tokens' })).decodedResult.find(t => t[0] == this.token.contract);
-      if (typeof find === 'undefined' && typeof findLima === 'undefined') {
-        this.presentInRegistry = false;
+      try {
+        const find = (await this.$helpers.contractCall({ instance: this.tokenRegistry, method: 'get_all_tokens' })).decodedResult.find(t => t[0] === this.token.contract);
+        const findLima = (await this.$helpers.contractCall({ instance: this.tokenRegistryLima, method: 'get_all_tokens' })).decodedResult.find(t => t[0] === this.token.contract);
+        if (!find && !findLima) {
+          this.presentInRegistry = false;
+        }
+        return find || findLima;
+      } catch (e) {
+        return false;
       }
-      return typeof find !== 'undefined' || typeof findLima !== 'undefined';
     },
     async addCustomToken() {
       const tokens = this.tokens.map(tkn => tkn);
@@ -243,42 +249,7 @@ export default {
       });
       this.$store.dispatch('setTokens', tokens).then(async () => {
         this.loading = true;
-        const find = await this.checkIfTokenPresentInRegistry();
-
-        if (this.token.balance == 0) {
-          await browser.storage.local.set({ tokens: this.tokens });
-        }
-
-        const abi_version = await checkContractAbiVersion({ address: this.token.contract, middleware: this.network[this.current.network].middlewareUrl });
-
-        if (!find && this.tokenRegistryFee) {
-          const tx = {
-            popup: false,
-            tx: {
-              source: TOKEN_REGISTRY_CONTRACT_LIMA,
-              address: abi_version == 3 ? this.network[this.current.network].tokenRegistryLima : this.network[this.current.network].tokenRegistry,
-              abi_version,
-              params: [this.token.contract],
-              method: 'add_token',
-              amount: 0,
-              contractType: 'fungibleToken',
-            },
-            callType: 'pay',
-            type: 'contractCall',
-          };
-          this.$store.commit('SET_AEPP_POPUP', true);
-          return this.$router.push({
-            name: 'sign',
-            params: {
-              data: tx,
-              type: tx.type,
-            },
-          });
-        }
-        if (typeof find === 'undefined' && !this.tokenRegistryFee) {
-          await addRejectedToken(this.token.contract);
-        }
-
+        await browser.storage.local.set({ tokens: parseForStorage(tokens) });
         this.$store
           .dispatch('popupAlert', {
             name: 'account',
@@ -377,7 +348,7 @@ export default {
   margin-top: 1rem;
 }
 .tabs span {
-  width: 49%;
+  width: 100%;
 }
 .token-title {
   font-size: 1.1rem;

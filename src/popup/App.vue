@@ -126,7 +126,7 @@
                   <ae-button @click="switchToken(index)" class="triggerhidedd flex flex-justify-between">
                     <ae-identicon class="token-image" :address="tkn.contract" size="base" v-if="index != 0" />
                     <img :src="ae_token" class="token-image" alt="" v-if="index == 0" />
-                    <span class="subAccountBalance tokenBalance">{{ typeof tkn.parent == 'undefined' ? balance : tkn.balance }} {{ tkn.symbol }}</span>
+                    <span class="subAccountBalance tokenBalance">{{ typeof tkn.parent == 'undefined' ? balance : tkn.amount }} {{ tkn.symbol }}</span>
                     <ae-check class="subAccountCheckbox" type="radio" :value="index" v-model="current.token" />
                   </ae-button>
                 </li>
@@ -405,7 +405,6 @@ export default {
             }
           }
           if (!triggerOnce) {
-            this.$store.dispatch('getRegisteredNames');
             this.$store.dispatch('updateBalanceSubaccounts');
             triggerOnce = true;
           }
