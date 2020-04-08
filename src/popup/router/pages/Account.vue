@@ -176,15 +176,10 @@ export default {
       this.$router.push('/receive');
     },
     updateTransactions() {
-      if (this.current.token == 0) {
-        this.$store.dispatch('getTransactionsByPublicKey', { publicKey: this.account.publicKey, limit: 3 }).then(res => {
-          this.loading = false;
-          this.$store.dispatch('updateLatestTransactions', res);
-        });
-      } else {
+      this.$store.dispatch('getTransactionsByPublicKey', { publicKey: this.account.publicKey, limit: 3 }).then(res => {
         this.loading = false;
-        this.$store.dispatch('updateLatestTransactions', []);
-      }
+        this.$store.dispatch('updateLatestTransactions', res);
+      });
     },
     setAccountName(e) {
       this.$store.dispatch('setAccountName', e.target.value).then(() => {

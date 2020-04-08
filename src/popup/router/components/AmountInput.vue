@@ -36,7 +36,6 @@ export default {
   methods: {
     setActiveToken(token) {
       this.current.token = token;
-      this.$store.commit('RESET_TRANSACTIONS', []);
     },
   },
 };

@@ -312,7 +312,6 @@ export default {
     },
     switchToken(token) {
       this.current.token = token;
-      this.$store.commit('RESET_TRANSACTIONS', []);
     },
     switchNetwork(network) {
       this.dropdown.network = false;
