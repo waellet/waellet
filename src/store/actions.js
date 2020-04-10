@@ -1,11 +1,11 @@
+import { uniqBy, head, flatten, uniqWith, isEqual } from 'lodash-es';
 import * as types from './mutation-types';
 import * as popupMessages from '../popup/utils/popup-messages';
-import { convertToAE, stringifyForStorage, parseFromStorage, contractCall, checkContractAbiVersion } from '../popup/utils/helper';
+import { convertToAE, stringifyForStorage, parseFromStorage, contractCall, checkContractAbiVersion, parseForStorage } from '../popup/utils/helper';
 import { FUNGIBLE_TOKEN_CONTRACT, AEX2_METHODS } from '../popup/utils/constants';
-import { uniqBy, head, flatten, uniqWith, isEqual } from 'lodash-es';
-import router from '../popup/router/index'
+import router from '../popup/router/index';
 import Ledger from '../popup/utils/ledger/ledger';
-import { derivePasswordKey, genRandomBuffer } from '../popup/utils/hdWallet'
+import { derivePasswordKey, genRandomBuffer } from '../popup/utils/hdWallet';
 import AES from '../popup/utils/aes';
 import { postMessage } from '../popup/utils/connection';
 
@@ -20,12 +20,12 @@ export default {
   setSubAccounts({ commit }, payload) {
     commit(types.SET_SUBACCOUNTS, payload);
   },
-  setAccount({commit }, { address, idx, type, index }) {
-    commit(types.SET_ACTIVE_ACCOUNT, { publicKey: address, index: type == 'change' ? idx : index })
-    if(type == 'change') {
-      postMessage({ type: AEX2_METHODS.CHANGE_ACCOUNT, payload:address })
-    } else if(type == 'add') {
-      postMessage({ type: AEX2_METHODS.ADD_ACCOUNT, payload: { idx, address } })
+  setAccount({ commit }, { address, idx, type, index }) {
+    commit(types.SET_ACTIVE_ACCOUNT, { publicKey: address, index: type == 'change' ? idx : index });
+    if (type == 'change') {
+      postMessage({ type: AEX2_METHODS.CHANGE_ACCOUNT, payload: address });
+    } else if (type == 'add') {
+      postMessage({ type: AEX2_METHODS.ADD_ACCOUNT, payload: { idx, address } });
     }
   },
   switchNetwork({ commit }, payload) {
@@ -41,7 +41,8 @@ export default {
   },
   updateBalanceSubaccounts({ commit, state }) {
     state.subaccounts.forEach((sub, index) => {
-      state.sdk.balance(sub.publicKey)
+      state.sdk
+        .balance(sub.publicKey)
         .then(balance => {
           commit(types.UPDATE_SUBACCOUNTS_BALANCE, { account: index, balance: convertToAE(balance) });
         })
@@ -50,33 +51,27 @@ export default {
         });
     });
   },
-  updateBalanceTokens({ commit, state }) {
-    state.tokens.forEach((tkn, index) => {
-      if (typeof tkn.parent != 'undefined' && tkn.contract != '' && tkn.parent == state.account.publicKey) {
-        state.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT, tkn.contract, 'balance', [state.account.publicKey])
-          .then((res) => {
-            res.decode()
-              .then(balance => {
-                commit(types.UPDATE_TOKENS_BALANCE, { token: index, balance: balance == 'None' ? 0 : balance.Some[0] });
-              })
-          })
-          .catch(e => {
-
-          })
+   async updateBalanceTokens({ commit, state }) {
+    state.tokens.forEach(async (tkn, index) => {
+      if (typeof tkn.parent !== 'undefined' && tkn.contract !== '' && tkn.parent === state.account.publicKey) {
+        try {
+          const res = await state.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT, tkn.contract, 'balance', [state.account.publicKey])
+          const balance = await res.decode()
+          commit(types.UPDATE_TOKENS_BALANCE, { token: index, balance: balance === 'None' ? 0 : balance.Some[0] });
+        } catch(e) {}
       }
-    })
+    });
+    await browser.storage.local.set({ tokens: parseForStorage(state.tokens) });
   },
   updateBalanceToken({ commit, state }) {
-    state.sdk.contractCallStatic(FUNGIBLE_TOKEN_CONTRACT, state.tokens[state.current.token].contract, 'balance', [state.account.publicKey])
-      .then((res) => {
-        res.decode()
-          .then(balance => {
-            commit(types.UPDATE_TOKENS_BALANCE, { token: state.current.token, balance: balance == 'None' ? 0 : balance.Some[0] });
-          })
+    state.sdk
+      .contractCallStatic(FUNGIBLE_TOKEN_CONTRACT, state.tokens[state.current.token].contract, 'balance', [state.account.publicKey])
+      .then(res => {
+        res.decode().then(balance => {
+          commit(types.UPDATE_TOKENS_BALANCE, { token: state.current.token, balance: balance == 'None' ? 0 : balance.Some[0] });
+        });
       })
-      .catch(e => {
-
-      })
+      .catch(e => {});
   },
   popupAlert({ commit, state }, payload) {
     switch (payload.name) {
@@ -86,13 +81,29 @@ export default {
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.INSUFFICIENT_BALANCE });
             break;
           case 'confirm_transaction':
-            commit(types.SHOW_POPUP, { show: true, class: payload.type, data: payload.data, secondBtn: true, secondBtnClick: 'confirmTransaction', ...popupMessages.CONFIRM_TRANSACTION });
+            commit(types.SHOW_POPUP, {
+              show: true,
+              class: payload.type,
+              data: payload.data,
+              secondBtn: true,
+              secondBtnClick: 'confirmTransaction',
+              ...popupMessages.CONFIRM_TRANSACTION,
+            });
             break;
           case 'success_transfer':
-            commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'showTransaction', ...popupMessages.SUCCESS_TRANSFER, msg: payload.msg, data: payload.data })
+            commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'showTransaction', ...popupMessages.SUCCESS_TRANSFER, msg: payload.msg, data: payload.data });
             break;
           case 'success_deploy':
-            commit(types.SHOW_POPUP, { show: true,  secondBtn: true, secondBtnClick: 'copyAddress', buttonsTextSecondary:'Copy address', ...popupMessages.SUCCESS_DEPLOY, msg: payload.msg,data: payload.data, noRedirect:payload.noRedirect })
+            commit(types.SHOW_POPUP, {
+              show: true,
+              secondBtn: true,
+              secondBtnClick: 'copyAddress',
+              buttonsTextSecondary: 'Copy address',
+              ...popupMessages.SUCCESS_DEPLOY,
+              msg: payload.msg,
+              data: payload.data,
+              noRedirect: payload.noRedirect,
+            });
             break;
           case 'incorrect_address':
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.INCORRECT_ADDRESS });
@@ -152,34 +163,34 @@ export default {
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.AIRGAP_CREATED });
             break;
           case 'confirm_privacy_clear':
-            commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'clearPrivacyData', ...popupMessages.CONFIRM_PRIVACY_CLEAR })
+            commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'clearPrivacyData', ...popupMessages.CONFIRM_PRIVACY_CLEAR });
             break;
           case 'name_exist':
-            commit(types.SHOW_POPUP, { show: true, ...popupMessages.AENS_NAME_EXIST })
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.AENS_NAME_EXIST });
             break;
           case 'ledger_support':
-            commit(types.SHOW_POPUP, { show: true, ...popupMessages.LEDGER_SUPPORT })
-            break
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.LEDGER_SUPPORT });
+            break;
           case 'ledger_account_error':
-            commit(types.SHOW_POPUP, { show: true, ...popupMessages.LEDGER_ACCOUNT_ERROR })
-            break
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.LEDGER_ACCOUNT_ERROR });
+            break;
           case 'signedMessage':
-            commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'copyText', ...popupMessages.SIGNED_MESSAGE, msg: payload.msg, data: payload.data })
-            break
+            commit(types.SHOW_POPUP, { show: true, secondBtn: true, secondBtnClick: 'copyText', ...popupMessages.SIGNED_MESSAGE, msg: payload.msg, data: payload.data });
+            break;
           case 'success_verifymessage':
-            commit(types.SHOW_POPUP, { show: true, ...popupMessages.SUCCESS_VERIFYMESSAGE })
-            break
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.SUCCESS_VERIFYMESSAGE });
+            break;
           case 'unsuccess_verifymessage':
-            commit(types.SHOW_POPUP, { show: true, ...popupMessages.UNSUCCESS_VERIFYMESSAGE })
-            break
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.UNSUCCESS_VERIFYMESSAGE });
+            break;
           case 'token_migration_error':
-            commit(types.SHOW_POPUP, { show: true, ...popupMessages.TOKEN_MIGRATION_ERROR })
-            break
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.TOKEN_MIGRATION_ERROR });
+            break;
           case 'token_migration_success':
-            commit(types.SHOW_POPUP, { show: true, ...popupMessages.TOKEN_MIGRATION })
-            break
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.TOKEN_MIGRATION });
+            break;
           case 'reveal_seed_phrase_impossible':
-            commit(types.SHOW_POPUP, { show: true, ...popupMessages.REVEAL_SEED_IMPOSSIBLE })
+            commit(types.SHOW_POPUP, { show: true, ...popupMessages.REVEAL_SEED_IMPOSSIBLE });
             break;
           default:
             break;
@@ -200,7 +211,14 @@ export default {
       case 'network':
         switch (payload.type) {
           case 'confirm_remove':
-            commit(types.SHOW_POPUP, { show: true, class: payload.type, data: payload.data, secondBtn: true, secondBtnClick: 'removeUserNetwork', ...popupMessages.REMOVE_USER_NETWORK });
+            commit(types.SHOW_POPUP, {
+              show: true,
+              class: payload.type,
+              data: payload.data,
+              secondBtn: true,
+              secondBtnClick: 'removeUserNetwork',
+              ...popupMessages.REMOVE_USER_NETWORK,
+            });
             break;
           case 'cannot_remove':
             commit(types.SHOW_POPUP, { show: true, ...popupMessages.REMOVE_USER_NETWORK_ACTIVE_ERROR });
@@ -215,24 +233,26 @@ export default {
     }
   },
   getTransactionsByPublicKey({ state }, payload) {
-    const sdk = state.sdk ? state.sdk : {} 
-    if(!sdk.middleware) return []
-    const middlewareUrl = state.network[state.current.network].middlewareUrl;
-    let limit = "", page = "", param = "";
-    let account = payload.publicKey;
+    const sdk = state.sdk ? state.sdk : {};
+    if (!sdk.middleware) return [];
+    const { middlewareUrl } = state.network[state.current.network];
+    let limit = '';
+    let page = '';
+    let param = '';
+    const account = payload.publicKey;
     if (payload.limit) {
-      limit = "?limit=" + payload.limit;
+      limit = `?limit=${payload.limit}`;
     }
     if (payload.page) {
-      page = "&page=" + payload.page;
+      page = `&page=${payload.page}`;
     }
     if (payload.param) {
-      param = "/" + payload.param;
+      param = `/${payload.param}`;
     }
-    return fetch(middlewareUrl + "/middleware/transactions/account/" + account + limit + page + param, {
+    return fetch(`${middlewareUrl}/middleware/transactions/account/${account}${limit}${page}${param}`, {
       method: 'GET',
-      mode: 'cors'
-    }).then(res => res.json())
+      mode: 'cors',
+    }).then(res => res.json());
   },
   updateLatestTransactions({ commit }, payload) {
     commit(types.UPDATE_LATEST_TRANSACTIONS, payload);
@@ -250,100 +270,93 @@ export default {
     commit(types.SET_USERNETWORKS, payload);
   },
   initSdk({ commit }, payload) {
-    commit(types.INIT_SDK, payload)
+    commit(types.INIT_SDK, payload);
   },
   setTokens({ commit }, payload) {
-    commit(types.SET_TOKENS, payload)
+    commit(types.SET_TOKENS, payload);
   },
   async getRegisteredNames({ commit, state }) {
-    if(!state.sdk.middleware) return
-    const middlewareUrl = state.network[state.current.network].middlewareUrl;
+    if (!state.sdk.middleware) return;
+    const { middlewareUrl } = state.network[state.current.network];
 
-    let res = await Promise.all(state.subaccounts.map(async ({ publicKey }, index) => {
-      let names = (await Promise.all([
-        (async () => {
-          return (await state.sdk.api.getPendingAccountTransactionsByPubkey(publicKey)
-            .catch(() => ({ transactions: [] })))
-            .transactions
-            .filter(({ tx: { type } }) => type === 'NameClaimTx')
-            .map(({ tx, ...otherTx }) => ({
-              ...otherTx,
-              ...tx,
-              pending: true,
-              owner: tx.accountId,
-            }));
-        })(),
-        (async () => uniqBy(
-          await (await fetch(
-            `${middlewareUrl}/middleware/names/reverse/${publicKey}`,
-          )).json(),
-          'name',
-        ))(),
-        (
-          async () => {
+    const res = await Promise.all(
+      state.subaccounts.map(async ({ publicKey }, index) => {
+        let names = await Promise.all([
+          (async () =>
+            (await state.sdk.api.getPendingAccountTransactionsByPubkey(publicKey).catch(() => ({ transactions: [] }))).transactions
+              .filter(({ tx: { type } }) => type === 'NameClaimTx')
+              .map(({ tx, ...otherTx }) => ({
+                ...otherTx,
+                ...tx,
+                pending: true,
+                owner: tx.accountId,
+              })))(),
+          (async () => {
             try {
-              return await state.sdk.middleware.getActiveNames({ owner: publicKey })
-            } catch(e) {
-              
-            }
-            return []
-          }
-        )()
-      ]))
-      
-      names = flatten(names)
-      names = uniqBy(names, 'name')
-      if (names.length) commit(types.SET_ACCOUNT_AENS, { account: index, name: names[0].name, pending: names[0].pending ? true : false })
-      browser.storage.local.get('pendingNames').then(pNames => {
-        let pending = []
-        if (pNames.hasOwnProperty("pendingNames") && pNames.pendingNames.hasOwnProperty('list')) {
-          pending = pNames.pendingNames.list
-        }
-        names.filter(n => n.pending).forEach(n => {
-          if (typeof pending.find(p => p.name == n.name) == 'undefined') {
-            pending.push(n)
-          }
-        })
+              return await state.sdk.middleware.getActiveNames({ owner: publicKey });
+            } catch (e) {}
+            return [];
+          })(),
+        ]);
 
-        if (pending.length) {
-          browser.storage.local.set({ pendingNames: { list: pending } })
-          commit(types.SET_PENDING_NAMES, { names: pending })
-        }
+        names = flatten(names);
+        names = uniqBy(names, 'name');
+        if (names.length) commit(types.SET_ACCOUNT_AENS, { account: index, name: names[0].name, pending: !!names[0].pending });
+        else commit(types.SET_ACCOUNT_AENS, { account: index, name: 'Main account', pending: false });
+        browser.storage.local.get('pendingNames').then(pNames => {
+          let pending = [];
+          if (pNames.hasOwnProperty('pendingNames') && pNames.pendingNames.hasOwnProperty('list')) {
+            pending = pNames.pendingNames.list;
+          }
+          names
+            .filter(n => n.pending)
+            .forEach(n => {
+              if (typeof pending.find(p => p.name == n.name) === 'undefined') {
+                pending.push(n);
+              }
+            });
+
+          if (pending.length) {
+            browser.storage.local.set({ pendingNames: { list: pending } });
+            commit(types.SET_PENDING_NAMES, { names: pending });
+          }
+        });
+        return names;
       })
-      return names;
-    }))
+    );
 
-    commit(types.SET_NAMES, { names: Array.prototype.concat.apply([], res) })
+    commit(types.SET_NAMES, { names: Array.prototype.concat.apply([], res) });
   },
   async updateRegisteredName({ commit, state }) {
-    let pending = uniqBy(state.pendingNames, 'hash')
+    const pending = uniqBy(state.pendingNames, 'hash');
     return new Promise(async (resolve, reject) => {
       if (pending.length) {
-        let { hash, name } = head(pending)
-        let register = await state.sdk.poll(hash)
-        let claim = await state.sdk.aensQuery(name)
-        let tx = {
+        const { hash, name } = head(pending);
+        const register = await state.sdk.poll(hash);
+        const claim = await state.sdk.aensQuery(name);
+        const tx = {
           popup: false,
           tx: {
             name,
             recipientId: '',
             claim,
-            hash
+            hash,
           },
-          type: 'nameUpdate'
-        }
-        commit('SET_AEPP_POPUP', true)
-        resolve(register)
+          type: 'nameUpdate',
+        };
+        commit('SET_AEPP_POPUP', true);
+        resolve(register);
         router.push({
-          'name': 'sign', params: {
+          name: 'sign',
+          params: {
             data: tx,
-            type: tx.type
-          }
-        })
+            type: tx.type,
+          },
+        });
       } else {
-        resolve()
+        resolve();
       }
-    })
+    });
   },
   async removePendingName({ commit, state }, { hash }) {
     let pending = state.pendingNames;
@@ -354,15 +367,14 @@ export default {
   },
 
   async unlockHdWallet({ state, dispatch, commit }, { accountPassword, wallet }) {
-
     return new Promise(async (resolve, reject) => {
       browser.storage.local.get('encryptedWallet').then(async ({ encryptedWallet }) => {
         if (!encryptedWallet) {
-          commit("SET_WALLET", wallet)
-          await dispatch('encryptHdWallet', accountPassword)
-          encryptedWallet = parseFromStorage(await dispatch('getEncryptedWallet'))
+          commit('SET_WALLET', wallet);
+          await dispatch('encryptHdWallet', accountPassword);
+          encryptedWallet = parseFromStorage(await dispatch('getEncryptedWallet'));
         } else {
-          encryptedWallet = parseFromStorage(encryptedWallet)
+          encryptedWallet = parseFromStorage(encryptedWallet);
         }
 
         commit('SET_ENCRYPTED_WALLET', encryptedWallet);
@@ -370,20 +382,20 @@ export default {
           const passwordDerivedKey = await dispatch('deriveAndCheckPasswordKey', accountPassword);
           const aes = new AES(passwordDerivedKey);
 
-          let wallet = {
+          const wallet = {
             privateKey: new Uint8Array(await aes.decrypt(encryptedWallet.privateKey)),
             chainCode: new Uint8Array(await aes.decrypt(encryptedWallet.chainCode)),
-          }
-          commit("SET_WALLET", wallet)
+          };
+          commit('SET_WALLET', wallet);
 
           browser.storage.local.set({ wallet: stringifyForStorage(wallet) }).then(() => {
-            resolve()
+            resolve();
           });
         } catch (err) {
-          reject(err)
+          reject(err);
         }
-      })
-    })
+      });
+    });
   },
 
   unlockWallet(context, payload) {
@@ -394,7 +406,12 @@ export default {
     return (await postMessage({ type: 'getAccount', payload: { idx } })).address;
   },
 
-  async getKeyPair({ state: { account } }, { idx }) {
+  async getKeyPair(
+    {
+      state: { account },
+    },
+    { idx }
+  ) {
     const { publicKey, secretKey } = parseFromStorage(
       await postMessage({
         type: 'getKeypair',
@@ -411,34 +428,44 @@ export default {
   async getEncryptedWallet() {
     return new Promise((resolve, reject) => {
       browser.storage.local.get('encryptedWallet').then(async ({ encryptedWallet }) => {
-        resolve(encryptedWallet)
+        resolve(encryptedWallet);
       });
-    })
+    });
   },
-  async encryptHdWallet({ commit, state: { wallet } }, password) {
+  async encryptHdWallet(
+    {
+      commit,
+      state: { wallet },
+    },
+    password
+  ) {
     return new Promise(async (resolve, reject) => {
-      const salt = genRandomBuffer(16)
-      const passwordDerivedKey = await derivePasswordKey(password, salt)
+      const salt = genRandomBuffer(16);
+      const passwordDerivedKey = await derivePasswordKey(password, salt);
       const aes = new AES(passwordDerivedKey);
       const encryptedWallet = {
         privateKey: await aes.encrypt(wallet.privateKey),
         chainCode: await aes.encrypt(wallet.chainCode),
         mac: await aes.encrypt(new Uint8Array(2)),
-        salt
-      }
+        salt,
+      };
 
       commit('SET_ENCRYPTED_WALLET', encryptedWallet);
 
       browser.storage.local.set({ encryptedWallet: stringifyForStorage(encryptedWallet) }).then(() => {
         browser.storage.local.set({ wallet: stringifyForStorage(wallet) }).then(() => {
-          resolve()
-        })
+          resolve();
+        });
       });
-    })
-
+    });
   },
 
-  async deriveAndCheckPasswordKey({ state: { encryptedWallet } }, password) {
+  async deriveAndCheckPasswordKey(
+    {
+      state: { encryptedWallet },
+    },
+    password
+  ) {
     const passwordDerivedKey = await derivePasswordKey(password, encryptedWallet.salt);
     const aes = new AES(passwordDerivedKey);
     await aes.decrypt(encryptedWallet.privateKey);
@@ -449,50 +476,52 @@ export default {
   },
 
   async getAllUserTokens({ state: { tokenRegistry, tokenRegistryLima, account, tokens, sdk, network, current }, dispatch }) {
-    let { publicKey } = account
-    let savedTokens = await browser.storage.local.get('tokens')
-    
-    if(savedTokens.hasOwnProperty("tokens")) {
-      dispatch('setTokens', savedTokens.tokens)
+    const { publicKey } = account;
+    const savedTokens = await browser.storage.local.get('tokens');
+
+    if (savedTokens.hasOwnProperty('tokens')) {
+      dispatch('setTokens', savedTokens.tokens);
     }
     try {
-      let tkns = (await contractCall({ instance:tokenRegistry, method:'get_all_tokens' })).decodedResult
-      let tknsLima = (await contractCall({ instance:tokenRegistryLima, method:'get_all_tokens' })).decodedResult
-      let res = (await Promise.all(uniqWith(tkns.concat(tknsLima), isEqual).map(async ( tkn ) => { 
-        let instance = tokenRegistry
-        if(await checkContractAbiVersion({ address: tkn[0], middleware: network[current.network].middlewareUrl }) == 3) {
-          instance= tokenRegistryLima
-        }
-        // console.log(instance)
-        let balance = (await contractCall({ instance, method:'get_token_balance', params: [tkn[0], publicKey] })).decodedResult
-        let owner = (await contractCall({ instance, method:'get_token_owner', params: [tkn[0]] })).decodedResult
-        let token
-        if(typeof balance != 'undefined' || owner == publicKey) {
-          token = {
-            balance,
-            parent: publicKey,
-            contract: tkn[0],
-            name: tkn[1].name,
-            symbol:tkn[1].symbol,
-            precision:tkn[1].decimals
+      const tkns = (await contractCall({ instance: tokenRegistry, method: 'get_all_tokens' })).decodedResult;
+      const tknsLima = (await contractCall({ instance: tokenRegistryLima, method: 'get_all_tokens' })).decodedResult;
+      let res = (await Promise.all(
+        uniqWith(tkns.concat(tknsLima), isEqual).map(async tkn => {
+          let instance = tokenRegistry;
+          if ((await checkContractAbiVersion({ address: tkn[0], middleware: network[current.network].middlewareUrl })) == 3) {
+            instance = tokenRegistryLima;
           }
-        } 
-        return token
-        // console.log(tokens)
-      }))).filter(t => typeof t != 'undefined')
-      
-      res = tokens.concat(res)
-      let userTokens = res
-      
-      if(savedTokens.hasOwnProperty("tokens")) {
-        userTokens = savedTokens.tokens.concat(res)
-      } 
-      userTokens = uniqBy(userTokens, (elem) => ( [elem.contract, elem.parent].join() ))
-      dispatch('setTokens', userTokens)
-    } catch(e){
-      console.log(e)
+          // console.log(instance)
+          const balance = (await contractCall({ instance, method: 'get_token_balance', params: [tkn[0], publicKey] })).decodedResult;
+          const owner = (await contractCall({ instance, method: 'get_token_owner', params: [tkn[0]] })).decodedResult;
+          let token;
+          if (typeof balance !== 'undefined' || owner == publicKey) {
+            token = {
+              balance,
+              parent: publicKey,
+              contract: tkn[0],
+              name: tkn[1].name,
+              symbol: tkn[1].symbol,
+              precision: tkn[1].decimals,
+            };
+          }
+          return token;
+          // console.log(tokens)
+        })
+      )).filter(t => typeof t !== 'undefined');
+
+      res = tokens.concat(res);
+      let userTokens = res;
+
+      if (savedTokens.hasOwnProperty('tokens')) {
+        userTokens = savedTokens.tokens.concat(res);
+      }
+      userTokens = uniqBy(userTokens, elem => [elem.contract, elem.parent].join());
+      dispatch('setTokens', userTokens);
+    } catch (e) {
+      console.log(e);
     }
   },
 
-  ...Ledger
+  ...Ledger,
 };

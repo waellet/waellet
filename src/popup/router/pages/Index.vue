@@ -8,39 +8,23 @@
         </div>
       </div>
     </main>
-    <Loader size="small" :loading="loading" v-bind="{'content':$t('pages.index.securingAccount')}"></Loader>
+    <Loader size="small" :loading="loading" v-bind="{ content: $t('pages.index.securingAccount') }"></Loader>
     <footer v-if="!loading">
       <div class="wrapper">
         <div v-if="account.encryptedPrivateKey">
           <ae-input placeholder class="my-2" label="Password" v-bind="inputError">
-            <input
-              type="password"
-              class="ae-input"
-              min="4"
-              v-model="accountPassword"
-              slot-scope="{ context }"
-              @focus="context.focus = true"
-              @blur="context.focus = false"
-            />
-            <ae-toolbar
-              v-if="errorMsg == 'length'"
-              slot="footer"
-            >{{ $t('pages.index.passwordError') }}</ae-toolbar>
+            <input type="password" class="ae-input" min="4" v-model="accountPassword" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+            <ae-toolbar v-if="errorMsg == 'length'" slot="footer">{{ $t('pages.index.passwordError') }}</ae-toolbar>
             <ae-toolbar v-if="loginError" slot="footer">{{ $t('pages.index.incorrectPasswordError') }}</ae-toolbar>
           </ae-input>
-          <ae-button
-            face="round"
-            extend
-            fill="primary"
-            class="loginBtn"
-            @click="login({accountPassword})"
-          >{{ $t('pages.index.loginButton') }}</ae-button>
+          <ae-button face="round" extend fill="primary" class="loginBtn" @click="login({ accountPassword })">{{ $t('pages.index.loginButton') }}</ae-button>
           <ae-divider />
         </div>
-        
+
         <ae-check v-if="termsAgreedOrNot != true || termsAgreedOrNot == undefined" class="termsCheck" v-model="terms" value="1" type="checkbox">
           <div class="termsHolder">
-            {{ $t('pages.index.term1') }}<a href="#" @click="goToTermsOfService"> {{ $t('pages.index.term2') }}</a> and <a href="#" @click="goToPrivacyPolicy"> {{ $t('pages.index.term3') }}</a>
+            {{ $t('pages.index.term1') }}<a href="#" @click="goToTermsOfService"> {{ $t('pages.index.term2') }}</a> and
+            <a href="#" @click="goToPrivacyPolicy"> {{ $t('pages.index.term3') }}</a>
           </div>
         </ae-check>
         <ae-button
@@ -48,17 +32,14 @@
           v-if="!account.encryptedPrivateKey"
           fill="primary"
           class="mb-1"
-          :class="[ terms[0] != 1 && termsAgreedOrNot != true ? 'disabled' : '' ]"
+          :class="[terms[0] != 1 && termsAgreedOrNot != true ? 'disabled' : '']"
           extend
           @click="generateAddress"
-        >{{ $t('pages.index.generateWallet') }}</ae-button>
-        <ae-button
-          face="round"
-          extend
-          :class="[ terms[0] != 1 && termsAgreedOrNot != true ? 'disabled' : '' ]"
-          @click="openImportModal"
-          class="importBtn"
-        >{{ $t('pages.index.importPrivateKey') }}</ae-button>
+          >{{ $t('pages.index.generateWallet') }}</ae-button
+        >
+        <ae-button face="round" extend :class="[terms[0] != 1 && termsAgreedOrNot != true ? 'disabled' : '']" @click="openImportModal" class="importBtn">{{
+          $t('pages.index.importPrivateKey')
+        }}</ae-button>
       </div>
     </footer>
 
@@ -66,76 +47,44 @@
       <h2 class="modaltitle">{{ $t('pages.index.importWaellet') }}</h2>
 
       <div class="tabs">
-        <span
-          @click="switchImportType('privateKey')"
-          :class="{'tab-active':importType =='privateKey'}"
-        >{{ $t('pages.index.privateKey') }}</span>
-        <span
-          @click="switchImportType('keystore')"
-          :class="{'tab-active':importType == 'keystore'}"
-        >{{ $t('pages.index.keystoreJson') }}</span>
-        <span
-          @click="switchImportType('seedPhrase')"
-          :class="{'tab-active':importType == 'seedPhrase'}"
-        >{{ $t('pages.index.seedPhrase') }}</span>
+        <span @click="switchImportType('privateKey')" :class="{ 'tab-active': importType == 'privateKey' }">{{ $t('pages.index.privateKey') }}</span>
+        <span @click="switchImportType('keystore')" :class="{ 'tab-active': importType == 'keystore' }">{{ $t('pages.index.keystoreJson') }}</span>
+        <span @click="switchImportType('seedPhrase')" :class="{ 'tab-active': importType == 'seedPhrase' }">{{ $t('pages.index.seedPhrase') }}</span>
       </div>
 
-      <ae-input
-        label="Secret Key"
-        v-if="importType == 'privateKey'"
-        v-model="privateKey"
-        v-bind="inputError"
-        class="my-2"
-      >
-        <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
+      <ae-input label="Secret Key" v-if="importType == 'privateKey'" v-model="privateKey" v-bind="inputError" class="my-2">
+        <ae-toolbar slot="footer">{{ errorMsg }}</ae-toolbar>
       </ae-input>
 
-      <div
-        v-if="importType == 'keystore'"
-        class="walletFileHolder"
-        :class="{'walletFileHolderError':inputError.hasOwnProperty('error')}"
-      >
+      <div v-if="importType == 'keystore'" class="walletFileHolder" :class="{ walletFileHolderError: inputError.hasOwnProperty('error') }">
         <label for="walletFile" class="customFileUpload my-2 ae-input-box">
           <div class="file-label">{{ $t('pages.index.chooseFile') }}</div>
-          <div class="file-input">{{walletFile !='' ? walletFile.name : ''}}</div>
-          <div class="file-toolbar">{{errorMsg}}</div>
+          <div class="file-input">{{ walletFile != '' ? walletFile.name : '' }}</div>
+          <div class="file-toolbar">{{ errorMsg }}</div>
         </label>
 
         <input type="file" id="walletFile" @change="uploadWallet" ref="walletFile" class="ae-input" />
       </div>
 
       <div v-if="importType == 'seedPhrase'">
-        <p
-          class="importTitle"
-        >{{ $t('pages.index.enterSeedPhrase') }}</p>
+        <p class="importTitle">{{ $t('pages.index.enterSeedPhrase') }}</p>
         <ae-input label="Seed phrase" class="my-2" v-bind="inputError">
-          <textarea
-            class="ae-input textarea"
-            v-model="seedPhrase"
-            slot-scope="{ context }"
-            @focus="context.focus = true"
-            @blur="context.focus = false"
-          />
-          <ae-toolbar slot="footer">{{errorMsg}}</ae-toolbar>
+          <textarea class="ae-input textarea" v-model="seedPhrase" slot-scope="{ context }" @focus="context.focus = true" @blur="context.focus = false" />
+          <ae-toolbar slot="footer">{{ errorMsg }}</ae-toolbar>
         </ae-input>
       </div>
 
-      <ae-button
-        face="round"
-        extend
-        fill="primary"
-        @click="importShowPassword({importType,privateKey,seedPhrase})"
-      >{{ $t('pages.index.continueButton') }}</ae-button>
+      <ae-button face="round" extend fill="primary" @click="importShowPassword({ importType, privateKey, seedPhrase })">{{ $t('pages.index.continueButton') }}</ae-button>
     </ae-modal>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
+import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { addressGenerator } from '../../utils/address-generator';
 import { decrypt } from '../../utils/keystore';
 import { fetchData, redirectAfterLogin, parseFromStorage } from '../../utils/helper';
-import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '@aeternity/bip39';
 import { generateHdWallet, getHdWalletAccount } from '../../utils/hdWallet';
 
 export default {
@@ -158,7 +107,7 @@ export default {
       imported: false,
       termsIndex: 0,
       terms: [],
-      termsAgreedOrNot: false
+      termsAgreedOrNot: false,
     };
   },
   computed: {
@@ -178,9 +127,7 @@ export default {
     goToTermsOfService() {
       this.$router.push('/termsOfService');
     },
-    init() {
-      
-    },
+    init() {},
     generateAddress: async function generateAddress({ dispatch }) {
       this.$router.push({
         name: 'password',
@@ -190,7 +137,7 @@ export default {
           buttonTitle: 'Continue',
           type: 'generateEncrypt',
           title: 'Protect Account with Password',
-          termsAgreed: true
+          termsAgreed: true,
         },
       });
     },
@@ -216,7 +163,7 @@ export default {
               buttonTitle: 'Import',
               type: importType,
               title: 'Import From Private Key',
-              termsAgreed: true
+              termsAgreed: true,
             },
           });
           this.modalVisible = false;
@@ -227,7 +174,7 @@ export default {
           this.errorMsg = 'Private key is incorrect! ';
         }
       } else if (importType == 'seedPhrase') {
-        let seed = seedPhrase.split(' ');
+        const seed = seedPhrase.split(' ');
         if (seed.length >= 12 && seed.length <= 24 && this.checkSeed(seedPhrase)) {
           this.$router.push({
             name: 'password',
@@ -237,7 +184,7 @@ export default {
               buttonTitle: 'Restore',
               type: importType,
               title: 'Import From Seed Phrase',
-              termsAgreed: true
+              termsAgreed: true,
             },
           });
           this.modalVisible = false;
@@ -249,11 +196,11 @@ export default {
         }
       } else if (importType == 'keystore') {
         if (this.walletFile != '') {
-          let reader = new FileReader();
-          let context = this;
+          const reader = new FileReader();
+          const context = this;
           reader.onload = function(e) {
             try {
-              let keystore = JSON.parse(e.target.result);
+              const keystore = JSON.parse(e.target.result);
               context.inputError = {};
               if (keystore.crypto.ciphertext.length && keystore.crypto.cipher_params.nonce && keystore.crypto.kdf_params.salt.length) {
                 context.$router.push({
@@ -264,7 +211,7 @@ export default {
                     buttonTitle: 'Import',
                     type: importType,
                     title: 'Import From Keystore.json',
-                    termsAgreed: true
+                    termsAgreed: true,
                   },
                 });
                 context.modalVisible = false;
@@ -291,7 +238,7 @@ export default {
       this.errorMsg = 'This field is requried! ';
     },
     login: async function login({ accountPassword }) {
-      let context = this;
+      const context = this;
       if (accountPassword.length >= 4) {
         context.loading = true;
         browser.storage.local.get('userAccount').then(async user => {
@@ -304,54 +251,54 @@ export default {
               user.userAccount.encryptedPrivateKey = JSON.stringify(user.userAccount.encryptedPrivateKey);
               encPrivateKey = JSON.stringify(user.userAccount.encryptedPrivateKey);
             }
-            let encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
-            let unlock = await this.$store.dispatch('unlockWallet', { accountPassword, encryptedPrivateKey  })
+            const encryptedPrivateKey = JSON.parse(user.userAccount.encryptedPrivateKey);
+            const unlock = await this.$store.dispatch('unlockWallet', { accountPassword, encryptedPrivateKey });
             user.userAccount.encryptedPrivateKey = JSON.stringify(user.userAccount.encryptedPrivateKey);
-            
+
             if (unlock.decrypt) {
               this.loginError = false;
               this.inputError = {};
-              let address = unlock.address;
+              const { address } = unlock;
               let sub = [];
-              let account = {
+              const account = {
                 name: 'Main account',
                 publicKey: address,
                 balance: 0,
                 root: true,
               };
               browser.storage.local.set({ isLogged: true }).then(() => {
-                  if (address !== user.userAccount.publicKey) {
-                    user.userAccount.publicKey = address;
-                    user.userAccount.encryptedPrivateKey = encPrivateKey;
-                    browser.storage.local.set({ userAccount: user.userAccount }).then(() => {
-                      sub.push(account);
-                      browser.storage.local.set({ subaccounts: sub }).then(() => {
-                        browser.storage.local.set({ activeAccount: 0 }).then(async () => {
-                          this.$store.commit('SET_ACTIVE_ACCOUNT', { publicKey: account.publicKey, index: 0 });
-                          this.$store.dispatch('setSubAccounts', sub);
-                          this.$store.commit('SWITCH_LOGGED_IN', true);
-                          this.$router.push('/account');
-                        });
+                if (address !== user.userAccount.publicKey) {
+                  user.userAccount.publicKey = address;
+                  user.userAccount.encryptedPrivateKey = encPrivateKey;
+                  browser.storage.local.set({ userAccount: user.userAccount }).then(() => {
+                    sub.push(account);
+                    browser.storage.local.set({ subaccounts: sub }).then(() => {
+                      browser.storage.local.set({ activeAccount: 0 }).then(async () => {
+                        this.$store.commit('SET_ACTIVE_ACCOUNT', { publicKey: account.publicKey, index: 0 });
+                        this.$store.dispatch('setSubAccounts', sub);
+                        this.$store.commit('SWITCH_LOGGED_IN', true);
+                        this.$router.push('/account');
                       });
-                    });
-                    return;
-                  }
-                  browser.storage.local.get('subaccounts').then(subaccounts => {
-                    if ((subaccounts.hasOwnProperty('subaccounts') && subaccounts.subaccounts == '') || !subaccounts.hasOwnProperty('subaccounts')) {
-                      sub.push(account);
-                      browser.storage.local.set({ subaccounts: sub }).then(() => {
-                        browser.storage.local.set({ activeAccount: 0 }).then(() => {
-                          this.$store.commit('SET_ACTIVE_ACCOUNT', { publicKey: account.publicKey, index: 0 });
-                        });
-                      });
-                    } else {
-                      sub = subaccounts.subaccounts;
-                    }
-                    this.$store.dispatch('setSubAccounts', sub).then(async () => {
-                      this.$store.commit('SWITCH_LOGGED_IN', true);
-                      redirectAfterLogin(this);
                     });
                   });
+                  return;
+                }
+                browser.storage.local.get('subaccounts').then(subaccounts => {
+                  if ((subaccounts.hasOwnProperty('subaccounts') && subaccounts.subaccounts == '') || !subaccounts.hasOwnProperty('subaccounts')) {
+                    sub.push(account);
+                    browser.storage.local.set({ subaccounts: sub }).then(() => {
+                      browser.storage.local.set({ activeAccount: 0 }).then(() => {
+                        this.$store.commit('SET_ACTIVE_ACCOUNT', { publicKey: account.publicKey, index: 0 });
+                      });
+                    });
+                  } else {
+                    sub = subaccounts.subaccounts;
+                  }
+                  this.$store.dispatch('setSubAccounts', sub).then(async () => {
+                    this.$store.commit('SWITCH_LOGGED_IN', true);
+                    redirectAfterLogin(this);
+                  });
+                });
               });
             } else {
               this.loginError = true;

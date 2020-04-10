@@ -36,6 +36,7 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TokenMigration from './pages/TokenMigration';
 import TokenMigrationInfo from './pages/TokenMigrationInfo';
+
 export default [
   {
     path: '/',
@@ -48,7 +49,7 @@ export default [
   {
     path: '/send',
     name: 'send',
-    props:true,
+    props: true,
     component: SendComponent,
   },
   {
@@ -59,47 +60,47 @@ export default [
     name: 'password',
     path: '/password',
     component: AccountPasswordComponent,
-    props:true
+    props: true,
   },
   {
-    name:'seed',
-    path:'/seed',
-    component:SeedPhraseComponent,
-    props:true
+    name: 'seed',
+    path: '/seed',
+    component: SeedPhraseComponent,
+    props: true,
   },
   {
-    path:'/transactions',
-    component:TransactionsComponent
+    path: '/transactions',
+    component: TransactionsComponent,
   },
   {
-    name:'transaction-details',
-    path:'/transaction-details',
-    component:TransactionDetailsComponent,
-    props:true
+    name: 'transaction-details',
+    path: '/transaction-details',
+    component: TransactionDetailsComponent,
+    props: true,
   },
   {
-    name:'sign',
-    path:'/sign-transaction/:type?',
-    component:SignTransactionComponent,
-    props:true
+    name: 'sign',
+    path: '/sign-transaction/:type?',
+    component: SignTransactionComponent,
+    props: true,
   },
   {
-    name:'popup-sign-tx',
-    path:'/popup-sign-tx',
-    component:PopupSignTransactionComponent,
-    props:true
+    name: 'popup-sign-tx',
+    path: '/popup-sign-tx',
+    component: PopupSignTransactionComponent,
+    props: true,
   },
   {
-    name:'connect',
-    path:'/connect',
-    component:PopupConnectComponent,
-    props:true
+    name: 'connect',
+    path: '/connect',
+    component: PopupConnectComponent,
+    props: true,
   },
   {
-    name:'ask-accounts',
-    path:'/ask-accounts',
-    component:PopupAskAccountsComponent,
-    props:true
+    name: 'ask-accounts',
+    path: '/ask-accounts',
+    component: PopupAskAccountsComponent,
+    props: true,
   },
   {
     name: 'message-sign',
@@ -108,114 +109,113 @@ export default [
     props: true,
   },
   {
-    name:'connect-confirm',
-    path:'/connect-confirm',
-    component:ConnectConfirmComponent,
-    props:true
+    name: 'connect-confirm',
+    path: '/connect-confirm',
+    component: ConnectConfirmComponent,
+    props: true,
   },
   {
-    path:'/manageAccounts',
-    component:ManageAccountComponent,
+    path: '/manageAccounts',
+    component: ManageAccountComponent,
   },
   {
-    path:'/settings',
-    component:SettingsComponent,
+    path: '/settings',
+    component: SettingsComponent,
   },
   {
-    path:'/generalSettings',
-    component:GeneralSettingsComponent,
+    path: '/generalSettings',
+    component: GeneralSettingsComponent,
   },
   {
-    path:'/securitySettings',
-    component:SecuritySettingsComponent,
+    path: '/securitySettings',
+    component: SecuritySettingsComponent,
   },
   {
-    path:'/aboutSettings',
-    component:AboutSettingsComponent,
+    path: '/aboutSettings',
+    component: AboutSettingsComponent,
   },
   {
-    path:'/utilities',
-    component:UtilitiesComponent,
+    path: '/utilities',
+    component: UtilitiesComponent,
   },
   {
-    path:'/tip',
-    component:TipComponent
+    path: '/tip',
+    component: TipComponent,
   },
   {
-    path:'/allowances',
-    component:AllowancesComponent
+    path: '/allowances',
+    component: AllowancesComponent,
   },
   {
-    path:'/manageNetworks',
-    component:ManageNetworksComponent
+    path: '/manageNetworks',
+    component: ManageNetworksComponent,
   },
   {
-    path:'/tokens',
-    component:FungibleTokensComponent
+    path: '/tokens',
+    component: FungibleTokensComponent,
   },
   {
-    path:'/fungible-tokens',
-    component:FungibleTokensPageComponent
+    path: '/fungible-tokens',
+    component: FungibleTokensPageComponent,
   },
   {
-    path:'/aens',
-    component:AensComponent
+    path: '/aens',
+    component: AensComponent,
   },
   {
-    name:'auction-bid',
+    name: 'auction-bid',
     path: '/auction-bid',
     component: AuctionBid,
-    props:true
+    props: true,
   },
   {
-    path:'/mint-token',
-    component: MintFungibleTokenComponent
+    path: '/mint-token',
+    component: MintFungibleTokenComponent,
   },
   {
-    name:'sign-verify-message',
-    path:'/signAndVerifyMsg',
-    component:SignAndVerifyMsg,
-    props: true
+    name: 'sign-verify-message',
+    path: '/signAndVerifyMsg',
+    component: SignAndVerifyMsg,
+    props: true,
   },
   {
-    path:'/airGapSetup',
-    component:AirGapSetup
+    path: '/airGapSetup',
+    component: AirGapSetup,
   },
   {
-    path:'/qrCodeReader',
-    name:'qrCodeReader',
-    props:true,
-    component: QrCodeReader
+    path: '/qrCodeReader',
+    name: 'qrCodeReader',
+    props: true,
+    component: QrCodeReader,
   },
   {
-    path:'/signTransactionByQrCode',
+    path: '/signTransactionByQrCode',
     component: SignTransactionByQrCode,
     props: true,
-    name: 'signTransactionByQrCode'
+    name: 'signTransactionByQrCode',
   },
   {
-    path:'/create-token',
-    component:CreateFungibleTokenComponent
+    path: '/create-token',
+    component: CreateFungibleTokenComponent,
   },
   {
-    path:'/ledger-setup',
-    component:LedgerSetupComponent
+    path: '/ledger-setup',
+    component: LedgerSetupComponent,
   },
   {
-    path:'/termsOfService',
-    component:TermsOfService
+    path: '/termsOfService',
+    component: TermsOfService,
   },
   {
-    path:'/privacyPolicy',
-    component:PrivacyPolicy
+    path: '/privacyPolicy',
+    component: PrivacyPolicy,
   },
   {
     path: '/token-migration',
-    component: TokenMigration
+    component: TokenMigration,
   },
   {
     path: '/token-migration-info',
-    component: TokenMigrationInfo
-  }
-  
+    component: TokenMigrationInfo,
+  },
 ];

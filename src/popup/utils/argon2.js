@@ -1,45 +1,48 @@
 /* eslint-disable */
-(function (root = window, factory) {
+(function(root = window, factory) {
   if (typeof define === 'function' && define.amd) {
-      define([], function () {
-          return (root.argon2 = factory());
-      });
+    define([], function() {
+      return (root.argon2 = factory());
+    });
   } else {
-      root.argon2 = factory();
+    root.argon2 = factory();
   }
-}(this, function () {
+})(this, function() {
   'use strict';
 
   /**
    * @enum
    */
   var ArgonType = {
-      Argon2d: 0,
-      Argon2i: 1,
-      Argon2id: 2
+    Argon2d: 0,
+    Argon2i: 1,
+    Argon2id: 2,
   };
 
   var scriptLoadedPromise;
 
-    function loadScript(src) {
-        return new Promise(function(resolve, reject) {
-            if (typeof importScripts === 'function') {
-                importScripts(src);
-                resolve();
-            } else {
-                var el = document.createElement("script");
-                el.src = src;
-                el.onload = function() { resolve(); };
-                el.onerror = function() { reject('Error loading script'); };
-                document.body.appendChild(el);
-            }
-        });
-    }
+  function loadScript(src) {
+    return new Promise(function(resolve, reject) {
+      if (typeof importScripts === 'function') {
+        importScripts(src);
+        resolve();
+      } else {
+        var el = document.createElement('script');
+        el.src = src;
+        el.onload = function() {
+          resolve();
+        };
+        el.onerror = function() {
+          reject('Error loading script');
+        };
+        document.body.appendChild(el);
+      }
+    });
+  }
 
   function allocateArray(strOrArr) {
-      var arr = strOrArr instanceof Uint8Array || strOrArr instanceof Array ? strOrArr
-          : Module.intArrayFromString(strOrArr);
-      return Module.allocate(arr, 'i8', Module.ALLOC_NORMAL);
+    var arr = strOrArr instanceof Uint8Array || strOrArr instanceof Array ? strOrArr : Module.intArrayFromString(strOrArr);
+    return Module.allocate(arr, 'i8', Module.ALLOC_NORMAL);
   }
 
   /**
@@ -65,8 +68,8 @@
    */
   function argon2Hash(params) {
     if (!scriptLoadedPromise) {
-        var distPath = params.distPath || '/argon2/dist';
-        scriptLoadedPromise = loadScript(distPath + '/argon2-asm.min.js');
+      var distPath = params.distPath || '/argon2/dist';
+      scriptLoadedPromise = loadScript(distPath + '/argon2-asm.min.js');
     }
     return scriptLoadedPromise.then(function() {
       var tCost = params.time || 1;
@@ -85,47 +88,44 @@
       var err;
 
       try {
-          var res = Module._argon2_hash(tCost, mCost, parallelism, pwd, pwdlen, salt, saltlen,
-              hash, hashlen, encoded, encodedlen, argon2Type, version);
+        var res = Module._argon2_hash(tCost, mCost, parallelism, pwd, pwdlen, salt, saltlen, hash, hashlen, encoded, encodedlen, argon2Type, version);
       } catch (e) {
-          err = e;
+        err = e;
       }
       var result;
       if (res === 0 && !err) {
-          var hashStr = '';
-          var hashArr = new Uint8Array(hashlen);
-          for (var i = 0; i < hashlen; i++) {
-              var byte = Module.HEAP8[hash + i];
-              hashArr[i] = byte;
-              hashStr += ('0' + (0xFF & byte).toString(16)).slice(-2);
-          }
-          var encodedStr = Module.Pointer_stringify(encoded);
-          result = { hash: hashArr, hashHex: hashStr, encoded: encodedStr };
+        var hashStr = '';
+        var hashArr = new Uint8Array(hashlen);
+        for (var i = 0; i < hashlen; i++) {
+          var byte = Module.HEAP8[hash + i];
+          hashArr[i] = byte;
+          hashStr += ('0' + (0xff & byte).toString(16)).slice(-2);
+        }
+        var encodedStr = Module.Pointer_stringify(encoded);
+        result = { hash: hashArr, hashHex: hashStr, encoded: encodedStr };
       } else {
-          try {
-              if (!err) {
-                  err = Module.Pointer_stringify(Module._argon2_error_message(res))
-              }
-          } catch (e) {
+        try {
+          if (!err) {
+            err = Module.Pointer_stringify(Module._argon2_error_message(res));
           }
-          result = { message: err, code: res };
+        } catch (e) {}
+        result = { message: err, code: res };
       }
       try {
-          Module._free(pwd);
-          Module._free(salt);
-          Module._free(hash);
-          Module._free(encoded);
-      } catch (e) { }
+        Module._free(pwd);
+        Module._free(salt);
+        Module._free(hash);
+        Module._free(encoded);
+      } catch (e) {}
       if (err) {
-          throw result;
+        throw result;
       } else {
-          return result;
+        return result;
       }
     });
   }
   return {
-      ArgonType: ArgonType,
-      hash: argon2Hash
+    ArgonType: ArgonType,
+    hash: argon2Hash,
   };
-}));
-
+});

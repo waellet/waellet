@@ -57,8 +57,8 @@ export const PopupConnection = stampit({
       } else if (msg.type === 'POPUP_INFO') {
         this.postMessage({ uuid: msg.uuid, res: this.aeppInfo });
       } else if (typeToAction[msg.type]) {
-        if(this.actions[typeToAction[msg.type]]) this.actions[typeToAction[msg.type]]();
-        this.actions.resolve(typeToAction[msg.type] === "deny" ? false : true)
+        if (this.actions[typeToAction[msg.type]]) this.actions[typeToAction[msg.type]]();
+        this.actions.resolve(typeToAction[msg.type] !== 'deny');
       }
     },
     setMessageListener() {
