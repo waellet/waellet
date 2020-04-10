@@ -9,6 +9,11 @@ import { cloneDeep } from 'lodash-es';
 export const aeToAettos = v => formatAmount(v, { denomination: AE_AMOUNT_FORMATS.AE, targetDenomination: AE_AMOUNT_FORMATS.AETTOS });
 export const aettosToAe = v => formatAmount(v, { denomination: AE_AMOUNT_FORMATS.AETTOS, targetDenomination: AE_AMOUNT_FORMATS.AE });
 
+export const convertToken = (amount, precision) =>
+  BigNumber(amount)
+    .shiftedBy(precision)
+    .toString();
+
 const shuffleArray = array => {
   let currentIndex = array.length;
   let temporaryValue;

@@ -180,36 +180,34 @@ export default {
       this.transactionsType = type;
     },
     getTransactions(type, limit = this.limit) {
-      if (this.current.token == 0) {
-        if (type == 'load') {
-          const transactions = this.$store.dispatch('getTransactionsByPublicKey', { publicKey: this.account.publicKey, page: this.page, limit });
-          transactions.then(res => {
-            if (res.length != 0) {
-              const newTrans = res.filter(tr => {
-                const found = this.transactions.all.find(t => t.hash == tr.hash);
-                if (typeof found === 'undefined') return tr;
-              });
-              this.$store.dispatch('updateAllTransactions', { new: false, transactions: newTrans });
-            } else {
-              this.showMoreBtn = false;
-            }
-            this.loading = false;
-          });
-        } else if (type == 'new') {
-          const transactions = this.$store.dispatch('getTransactionsByPublicKey', { publicKey: this.account.publicKey, limit });
-          transactions.then(res => {
+      if (type == 'load') {
+        const transactions = this.$store.dispatch('getTransactionsByPublicKey', { publicKey: this.account.publicKey, page: this.page, limit });
+        transactions.then(res => {
+          if (res.length != 0) {
             const newTrans = res.filter(tr => {
               const found = this.transactions.all.find(t => t.hash == tr.hash);
               if (typeof found === 'undefined') return tr;
             });
-            newTrans.forEach(element => {
-              if (typeof this.newTr.find(tr => tr.hash == element.hash) === 'undefined') {
-                this.newTr.unshift(element);
-                this.newTransactions += 1;
-              }
-            });
+            this.$store.dispatch('updateAllTransactions', { new: false, transactions: newTrans });
+          } else {
+            this.showMoreBtn = false;
+          }
+          this.loading = false;
+        });
+      } else if (type == 'new') {
+        const transactions = this.$store.dispatch('getTransactionsByPublicKey', { publicKey: this.account.publicKey, limit });
+        transactions.then(res => {
+          const newTrans = res.filter(tr => {
+            const found = this.transactions.all.find(t => t.hash == tr.hash);
+            if (typeof found === 'undefined') return tr;
           });
-        }
+          newTrans.forEach(element => {
+            if (typeof this.newTr.find(tr => tr.hash == element.hash) === 'undefined') {
+              this.newTr.unshift(element);
+              this.newTransactions += 1;
+            }
+          });
+        });
       }
     },
     getTotalTransactions() {

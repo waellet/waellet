@@ -84,7 +84,7 @@ import BigNumber from 'bignumber.js';
 import Ae from '@aeternity/aepp-sdk/es/ae/universal';
 import { MAGNITUDE, MIN_SPEND_TX_FEE, MIN_SPEND_TX_FEE_MICRO, MAX_UINT256, calculateFee, TX_TYPES, FUNGIBLE_TOKEN_CONTRACT } from '../../utils/constants';
 import { getPublicKeyByResponseUrl, getSignedTransactionByResponseUrl, generateSignRequestUrl } from '../../utils/airGap';
-import { contractEncodeCall, checkAddress, chekAensName, aeToAettos, pollGetter } from '../../utils/helper';
+import { contractEncodeCall, checkAddress, chekAensName, aeToAettos, pollGetter, convertToken } from '../../utils/helper';
 
 export default {
   name: 'Send',
@@ -179,7 +179,6 @@ export default {
     },
     setActiveToken(token) {
       this.current.token = token;
-      this.$store.commit('RESET_TRANSACTIONS', []);
     },
     async fetchFee() {
       await pollGetter(() => this.sdk);
@@ -214,11 +213,6 @@ export default {
         this.loading = false;
         return;
       }
-      if (this.tokenSymbol != 'AE' && this.form.amount % 1 != 0) {
-        this.$store.dispatch('popupAlert', { name: 'spend', type: 'integer_required' });
-        this.loading = false;
-        return;
-      }
       if (this.maxValue - this.form.amount <= 0 && this.current.token == 0) {
         this.$store.dispatch('popupAlert', { name: 'spend', type: 'insufficient_balance' });
         this.loading = false;
@@ -235,14 +229,15 @@ export default {
           this.loading = false;
           return;
         }
+        const sendAmount = convertToken(this.form.amount, this.tokens[this.current.token].precision);
         const tx = {
           popup: false,
           tx: {
             source: FUNGIBLE_TOKEN_CONTRACT,
             method: 'transfer',
-            params: [receiver, parseFloat(this.form.amount)],
+            params: [receiver, sendAmount],
             address: this.tokens[this.current.token].contract,
-            amount: parseFloat(this.form.amount),
+            amount: this.form.amount,
             token: this.tokenSymbol,
           },
           type: 'contractCall',
