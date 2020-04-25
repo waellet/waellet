@@ -91,7 +91,7 @@ If you discover a security vulnerability within this application, please send an
 
 ## Contribution
 
-Contributions are more than welcome.
+Contributions are more than welcome. Checkout our [contribution guideline](CONTRIBUTING.md)
 
 If you spot an issue while testing/using the waellet - [submit an issue](https://github.com/waellet/waellet/issues)
 
