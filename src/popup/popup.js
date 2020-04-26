@@ -1,9 +1,8 @@
 import Vue from 'vue';
-import App from './App';
 import store from '../store';
+import App from './App';
 import router from './router';
 import { i18n } from './utils/i18nHelper';
-import initEnv from '../lib/initEnv';
 
 global.browser = require('webextension-polyfill');
 
