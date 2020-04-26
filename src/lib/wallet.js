@@ -1,10 +1,10 @@
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory';
 import Universal from '@aeternity/aepp-sdk/es/ae/universal';
 import Node from '@aeternity/aepp-sdk/es/node';
-import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory';
-import store from '../store';
 import { postMessage } from '../popup/utils/connection';
+import { DEFAULT_NETWORK, TIPPING_CONTRACT, TOKEN_REGISTRY_CONTRACT_LIMA } from '../popup/utils/constants';
 import { parseFromStorage, swag } from '../popup/utils/helper';
-import { TOKEN_REGISTRY_CONTRACT_LIMA, TIPPING_CONTRACT, DEFAULT_NETWORK } from '../popup/utils/constants';
+import store from '../store';
 
 export default {
   store: null,
@@ -23,7 +23,7 @@ export default {
       if (isLogged) {
         let sub = [];
         const { subaccounts } = await browser.storage.local.get('subaccounts');
-        if (!subaccounts || (subaccounts && !subaccounts.find(f => f.publicKey == userAccount.publicKey))) {
+        if (!subaccounts || !subaccounts.find(f => f.publicKey == userAccount.publicKey)) {
           sub.push({
             name: 'Main Account',
             publicKey: userAccount.publicKey,
