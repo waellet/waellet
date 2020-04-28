@@ -26,10 +26,10 @@ const extractExtensionData = () => {
 };
 
 const makeDestZipDirIfNotExists = () => {
-  if(!fs.existsSync(DEST_ZIP_DIR)) {
+  if (!fs.existsSync(DEST_ZIP_DIR)) {
     fs.mkdirSync(DEST_ZIP_DIR);
   }
-}
+};
 
 const buildZip = (src, dist, zipFilename) => {
   console.info(`Building ${zipFilename}...`);

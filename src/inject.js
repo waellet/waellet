@@ -1,9 +1,9 @@
 import BrowserRuntimeConnection from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/connection/browser-runtime';
 import BrowserWindowMessageConnection from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/connection/browser-window-message';
+import ContentScriptBridge from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/content-script-bridge';
 import { getBrowserAPI } from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/helpers';
 import { MESSAGE_DIRECTION } from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/schema';
-import ContentScriptBridge from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/content-script-bridge';
-import { extractHostName, detectBrowser, checkAddress } from './popup/utils/helper';
+import { detectBrowser, extractHostName } from './popup/utils/helper';
 
 global.browser = require('webextension-polyfill');
 
@@ -101,18 +101,13 @@ function sendToBackground(method, params) {
 window.addEventListener('load', () => {
   const address = document.all[0].outerHTML.match(/(ak\_[A-Za-z0-9]{49,50})/g);
   if (address) {
-    const sendInterval = setInterval(() => {
+    setInterval(() => {
       browser.runtime
         .sendMessage({
           from: 'content',
           type: 'readDom',
           data: address,
         })
-        .then(res => {
-          if (res && res.host == window.origin && res.received) {
-            // clearInterval(sendInterval)
-          }
-        });
     }, 5000);
   }
 });

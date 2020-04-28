@@ -1,13 +1,13 @@
-import { uniqBy, head, flatten, uniqWith, isEqual } from 'lodash-es';
-import * as types from './mutation-types';
-import * as popupMessages from '../popup/utils/popup-messages';
-import { convertToAE, stringifyForStorage, parseFromStorage, contractCall, checkContractAbiVersion, parseForStorage } from '../popup/utils/helper';
-import { FUNGIBLE_TOKEN_CONTRACT, AEX2_METHODS } from '../popup/utils/constants';
+import { flatten, head, isEqual, uniqBy, uniqWith } from 'lodash-es';
 import router from '../popup/router/index';
-import Ledger from '../popup/utils/ledger/ledger';
-import { derivePasswordKey, genRandomBuffer } from '../popup/utils/hdWallet';
 import AES from '../popup/utils/aes';
 import { postMessage } from '../popup/utils/connection';
+import { AEX2_METHODS, FUNGIBLE_TOKEN_CONTRACT } from '../popup/utils/constants';
+import { derivePasswordKey, genRandomBuffer } from '../popup/utils/hdWallet';
+import { checkContractAbiVersion, contractCall, convertToAE, parseForStorage, parseFromStorage, stringifyForStorage } from '../popup/utils/helper';
+import Ledger from '../popup/utils/ledger/ledger';
+import * as popupMessages from '../popup/utils/popup-messages';
+import * as types from './mutation-types';
 
 export default {
   setAccount({ commit }, payload) {
@@ -277,7 +277,6 @@ export default {
   },
   async getRegisteredNames({ commit, state }) {
     if (!state.sdk.middleware) return;
-    const { middlewareUrl } = state.network[state.current.network];
 
     const res = await Promise.all(
       state.subaccounts.map(async ({ publicKey }, index) => {
