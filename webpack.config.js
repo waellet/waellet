@@ -190,7 +190,7 @@ function getPlugins(platform) {
           const jsonContent = JSON.parse(content);
           jsonContent.version = version;
 
-          if (config.mode === 'development') {
+          if (process.env.NODE_ENV === 'development') {
             jsonContent['content_security_policy'] = "script-src 'self' 'unsafe-eval'; object-src 'self'";
           }
 
