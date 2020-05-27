@@ -1,5 +1,5 @@
 import Node from '@aeternity/aepp-sdk/es/node';
-import { networks, DEFAULT_NETWORK, NOTIFICATION_METHODS } from './popup/utils/constants';
+import { DEFAULT_NETWORK, networks, NOTIFICATION_METHODS } from './popup/utils/constants';
 import { detectBrowser, getUserNetworks } from './popup/utils/helper';
 
 global.browser = require('webextension-polyfill');
@@ -74,7 +74,7 @@ export default class Notification {
     if (noties) {
       noties.forEach(async (tx, index) => {
         if (tx != 'error' && tx) {
-          const res = await this.client.poll(tx);
+          await this.client.poll(tx);
           const url = `${this.network.explorerUrl}/transactions/${tx}`;
           await this.sendNoti({ title: 'Transaction ready', message: `You can expore your transaction by clicking button below`, contextMessage: url, error: false });
         } else {
@@ -103,7 +103,7 @@ export default class Notification {
       }
     }
 
-    const noti = await browser.notifications.create(`popup.html?${contextMessage}`, params);
+    await browser.notifications.create(`popup.html?${contextMessage}`, params);
 
     return Promise.resolve(true);
   }

@@ -8,7 +8,6 @@ const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { version } = require('./package.json');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const platforms = [
   "chrome",
   "firefox"
@@ -29,7 +28,7 @@ const config = [
       fs: 'empty', net: 'empty', tls: 'empty'
     },
     output: {
-      path: __dirname + '/dist/chrome',
+      path: distFolder + '/chrome',
       filename: '[name].js',
     },
     resolve: {
@@ -56,7 +55,7 @@ const config = [
       fs: 'empty', net: 'empty', tls: 'empty'
     },
     output: {
-      path: __dirname + '/dist/firefox',
+      path: distFolder + '/firefox',
       filename: '[name].js',
     },
     optimization: {
@@ -138,29 +137,6 @@ function transformHtml(content) {
   });
 }
 
-function filterByEntryPoint(entry) {
-  return function(module, chunks) {
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-
-      if (chunk.groupsIterable) {
-        for (const group of chunk.groupsIterable) {
-          let parentGroup = group.getParents()[0];
-
-          while (parentGroup) {
-            if (parentGroup.name === entry) {
-              return true;
-            }
-            parentGroup = parentGroup.getParents()[0];
-          }
-        }
-      }
-    }
-
-    return false;
-  };
-}
-
 function getPlatformFiles(platform) {
   let files = {}
   let pl = platforms.map((platform) => {
@@ -214,7 +190,7 @@ function getPlugins(platform) {
           const jsonContent = JSON.parse(content);
           jsonContent.version = version;
 
-          if (config.mode === 'development') {
+          if (process.env.NODE_ENV === 'development') {
             jsonContent['content_security_policy'] = "script-src 'self' 'unsafe-eval'; object-src 'self'";
           }
 

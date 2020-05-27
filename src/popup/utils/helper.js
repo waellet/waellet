@@ -1,10 +1,10 @@
 import { Crypto } from '@aeternity/aepp-sdk/es';
+import { AE_AMOUNT_FORMATS, formatAmount } from '@aeternity/aepp-sdk/es/utils/amount-formatter';
 import Swagger from '@aeternity/aepp-sdk/es/utils/swagger';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { AE_AMOUNT_FORMATS, formatAmount } from '@aeternity/aepp-sdk/es/utils/amount-formatter';
-import { MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO, CONNECTION_TYPES } from './constants';
 import { cloneDeep } from 'lodash-es';
+import { CONNECTION_TYPES, MAGNITUDE_EXA, MAGNITUDE_GIGA, MAGNITUDE_PICO } from './constants';
 
 export const aeToAettos = v => formatAmount(v, { denomination: AE_AMOUNT_FORMATS.AE, targetDenomination: AE_AMOUNT_FORMATS.AETTOS });
 export const aettosToAe = v => formatAmount(v, { denomination: AE_AMOUNT_FORMATS.AETTOS, targetDenomination: AE_AMOUNT_FORMATS.AE });
@@ -85,13 +85,13 @@ const detectConnectionType = port => {
   const extensionProtocol = getExtensionProtocol();
   const senderUrl = port.sender.url.split('?');
   let type = CONNECTION_TYPES.OTHER;
+  
   if (port.name == CONNECTION_TYPES.EXTENSION && (senderUrl[0] == `${extensionProtocol}://${browser.runtime.id}/popup/popup.html` || detectBrowser() == 'Firefox')) {
     type = CONNECTION_TYPES.EXTENSION;
   } else if (port.name == CONNECTION_TYPES.POPUP && (senderUrl[0] == `${extensionProtocol}://${browser.runtime.id}/popup/popup.html` || detectBrowser() == 'Firefox')) {
     type = CONNECTION_TYPES.POPUP;
-  } else {
-    type = CONNECTION_TYPES.OTHER;
   }
+  
   return type;
 };
 
@@ -628,36 +628,5 @@ export const pollGetter = getter =>
 
 export const parseForStorage = (data) => cloneDeep(data);
 
-export {
-  shuffleArray,
-  convertToAE,
-  extractHostName,
-  fetchData,
-  detectBrowser,
-  setConnectedAepp,
-  checkAeppConnected,
-  redirectAfterLogin,
-  swag,
-  currencyConv,
-  convertAmountToCurrency,
-  contractEncodeCall,
-  contractDecodeData,
-  removeTxFromStorage,
-  checkAddress,
-  chekAensName,
-  isInt,
-  stringifyForStorage,
-  parseFromStorage,
-  escapeCallParams,
-  addRejectedToken,
-  contractCall,
-  checkContractAbiVersion,
-  setContractInstance,
-  getContractInstance,
-  getAeppAccountPermission,
-  setPermissionForAccount,
-  getUniqueId,
-  getUserNetworks,
-  getExtensionProtocol,
-  detectConnectionType,
-};
+export { shuffleArray, convertToAE, extractHostName, fetchData, detectBrowser, setConnectedAepp, checkAeppConnected, redirectAfterLogin, swag, currencyConv, convertAmountToCurrency, contractEncodeCall, contractDecodeData, removeTxFromStorage, checkAddress, chekAensName, isInt, stringifyForStorage, parseFromStorage, escapeCallParams, addRejectedToken, contractCall, checkContractAbiVersion, setContractInstance, getContractInstance, getAeppAccountPermission, setPermissionForAccount, getUniqueId, getUserNetworks, getExtensionProtocol, detectConnectionType, };
+
