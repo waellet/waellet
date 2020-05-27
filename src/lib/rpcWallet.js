@@ -166,7 +166,8 @@ const rpcWallet = {
     const connection = await BrowserRuntimeConnection({ connectionInfo: { id: port.sender.frameId }, port });
     this.sdk.addRpcClient(connection);
     this.sdk.shareWalletInfo(port.postMessage.bind(port));
-    setTimeout(() => this.sdk.shareWalletInfo(port.postMessage.bind(port)), 3000);
+    const shareWalletInfo = setInterval(() => this.sdk.shareWalletInfo(port.postMessage.bind(port)), 3000);
+    port.onDisconnect.addListener(() => clearInterval(shareWalletInfo));
   },
   getClientsByCond(condition) {
     const clients = Array.from(this.sdk.getClients().clients.values()).filter(condition);
