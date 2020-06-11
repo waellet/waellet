@@ -36,7 +36,7 @@
         </div>
       </ae-list-item>
 
-      <ae-list-item v-if="txType == 'nameClaimTx' || txType == 'nameUpdateTx'" fill="neutral" class="flex-justify-between whiteBg  flex-align-center ">
+      <ae-list-item v-if="txType == 'nameClaimTx'" fill="neutral" class="flex-justify-between whiteBg  flex-align-center ">
         <div class="tx-label">
           {{ $t('pages.signTransaction.name') }}
         </div>
@@ -49,7 +49,7 @@
           {{ $t('pages.signTransaction.nameSalt') }}
         </div>
         <div>
-          <strong>{{ txObject.preclaim.salt }}</strong>
+          <strong>{{ txObject.nameSalt }}</strong>
         </div>
       </ae-list-item>
       <ae-list-item v-if="txType == 'nameUpdateTx'" fill="neutral" class="flex-justify-between whiteBg  flex-align-center flex-direction-column">
@@ -57,7 +57,7 @@
           {{ $t('pages.signTransaction.nameId') }}
         </div>
         <div class="text-left">
-          <strong>{{ txObject.claim.id }}</strong>
+          <strong>{{ txObject.nameId }}</strong>
         </div>
       </ae-list-item>
       <ae-list-item fill="neutral" class="flex-justify-between whiteBg flex-direction-column flex-align-center " v-if="alertMsg == ''">
