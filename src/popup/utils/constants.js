@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-import BigNumber from 'bignumber.js';
 import { TxBuilder } from '@aeternity/aepp-sdk/es';
-import { TX_TYPE, VM_VERSIONS, ABI_VERSIONS } from '@aeternity/aepp-sdk/es/tx/builder/schema';
+import { ABI_VERSIONS, TX_TYPE, VM_VERSIONS } from '@aeternity/aepp-sdk/es/tx/builder/schema';
+import BigNumber from 'bignumber.js';
 
 export const MAGNITUDE = 18;
 export const MAGNITUDE_EXA = 18;
@@ -88,10 +88,10 @@ export const MAX_REASONABLE_FEE_MICRO = toMicro(MAX_REASONABLE_FEE);
 export const DEFAULT_NETWORK = 'Testnet';
 export const networks = {
   Testnet: {
-    url: 'https://sdk-testnet.aepps.com',
-    internalUrl: 'https://sdk-testnet.aepps.com',
+    url: 'https://testnet.aeternity.io',
+    internalUrl: 'https://testnet.aeternity.io',
     networkId: 'ae_uat',
-    middlewareUrl: 'https://testnet.aeternal.io',
+    middlewareUrl: 'https://testnet.aeternity.io',
     explorerUrl: 'https://testnet.aeternal.io',
     compilerUrl: 'https://latest.compiler.aepps.com',
     tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
@@ -99,10 +99,10 @@ export const networks = {
     tipContract: 'ct_23RBxJBhNwixiiaKFJNKSig3yYKUDwC5iouaEGjQsogNvkGS3M',
   },
   Mainnet: {
-    url: 'https://sdk-mainnet.aepps.com',
-    internalUrl: 'https://sdk-mainnet.aepps.com',
+    url: 'https://mainnet.aeternity.io',
+    internalUrl: 'https://mainnet.aeternity.io',
     networkId: 'ae_mainnet',
-    middlewareUrl: 'https://mainnet.aeternal.io/',
+    middlewareUrl: 'https://mainnet.aeternity.io/',
     explorerUrl: 'https://mainnet.aeternal.io',
     compilerUrl: 'https://compiler.aepps.com',
     tokenRegistry: 'ct_UAzV9RcXEMsFcUCmrPN4iphbZroM7EHk3wvdidDYgZGGBo3hV',
