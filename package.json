@@ -33,7 +33,7 @@
     "@zxing/library": "^0.15.2",
     "aeternity-tokens": "^1.0.2",
     "argon2-browser": "^1.5.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bignumber.js": "^8.1.1",
     "bip38": "^2.0.3",
     "bip38-network": "^3.0.0",
